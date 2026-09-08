@@ -1,0 +1,21 @@
+KikeCode Bolt Migration Manifest
+Generated: 2026-09-08
+
+Files: 646
+Total size: 151.02 MB
+Largest file: artifacts/kike-code/public/template-assets/los-primos-plumbing/video-2.mp4 (9.05 MB)
+Static literal /template-assets references checked: 66
+Missing checked template assets: 0
+
+Secret-pattern scan:
+  legacy_hardcoded_access_pin: 0
+  openai_key_literal: 0
+  anthropic_key_literal: 0
+  private_key_block: 0
+
+Notes:
+- Reconstructed from 8 non-overlapping Replit ZIP parts (1,122 unique original paths; zero duplicate conflicts).
+- Top-level attached_assets scratch/reference data was removed after confirming runtime template copies live under artifacts/kike-code/public/template-assets.
+- Replit runtime metadata/plugins and mockup-sandbox were removed.
+- Hard-coded operator PIN was replaced with ACCESS_PIN environment configuration.
+- Full dependency install/build was not executed because npm registry access is unavailable in the migration sandbox.

@@ -1,0 +1,221 @@
+import {
+  Leaf, Sprout, Flower2, Hammer, PawPrint, Flag, Building2, Sun, Droplets,
+  Award, Languages, Sparkles, Heart, BadgeCheck,
+} from "lucide-react";
+import type { BusinessTemplate } from "./types";
+
+const hyperionSyntheticTurf: BusinessTemplate = {
+  slug: "hyperion-synthetic-turf",
+  industry: "Synthetic Turf & Outdoor Living",
+  industryEs: "Césped Sintético y Exteriores",
+  websiteType: "Landscaping Website",
+  defaultServicesField:
+    "Synthetic turf installation, Landscape design, Hardscape, Pet-friendly turf, Putting greens, Commercial landscaping, Outdoor living, Drainage & base prep",
+  brand: {
+    name: "Hyperion Synthetic Turf",
+    city: "Southern California",
+    phone: "(626) 320-0466",
+    phoneHref: "tel:+16263200466",
+    email: "Hyperionsyntheticturf@gmail.com",
+    address: "Serving Greater Los Angeles & Southern California",
+    heroIcon: Leaf,
+    palette: {
+      primary: "#2E9E50", primaryDark: "#15532A", accent: "#C9A227",
+      heroFrom: "#0f2417", heroVia: "#163a23", heroTo: "#0a1a10",
+      heroGlow1: "rgba(46,158,80,0.55)", heroGlow2: "rgba(201,162,39,0.35)",
+      heroIconFrom: "#2E9E50", heroIconTo: "#C9A227",
+      contactFrom: "#15532A", contactTo: "#2E9E50",
+    },
+    socials: {
+      instagram: "https://www.instagram.com/hyperion_synthetic_turf",
+    },
+  },
+  serviceIcons: [Sprout, Flower2, Hammer, PawPrint, Flag, Building2, Sun, Droplets],
+  whyIcons: [Award, Languages, Building2, Sparkles, Leaf, Sun, Heart, BadgeCheck],
+  content: {
+    en: {
+      nav: { services: "Services", why: "Why Us", process: "Process", testimonials: "Reviews", faq: "FAQ", contact: "Contact", call: "Call" },
+      hero: {
+        eyebrow: "Premium synthetic turf & outdoor living",
+        title1: "Transform Your Yard Into a",
+        title2: "Beautiful, Low-Maintenance Outdoor Space",
+        subtitle: "Professional synthetic turf, landscaping, hardscape, and outdoor living solutions for homes and businesses across Southern California.",
+        cta1: "Get a Free Estimate", cta2: "Call Now",
+        badges: ["Low-Maintenance", "Hablamos Español", "Residential & Commercial", "Free Estimates", "Pet-Friendly Turf", "Outdoor Transformations"],
+        ratingTitle: "Pet-Friendly", ratingSubtitle: "Safe for pets",
+        trustTitle: "Licensed & Insured", trustSubtitle: "Free project estimates",
+      },
+      services: {
+        title: "Our Services",
+        blurb: "Synthetic turf, landscaping, hardscape, and full outdoor living — all from one trusted local team.",
+        items: [
+          { title: "Synthetic Turf Installation", blurb: "Premium artificial grass for beautiful, clean, low-maintenance yards that stay green all year." },
+          { title: "Landscape Design", blurb: "Custom landscape layouts that boost curb appeal and make your outdoor space comfortable." },
+          { title: "Hardscape Construction", blurb: "Pavers, walkways, patios, borders, and outdoor structures built to last." },
+          { title: "Pet-Friendly Turf", blurb: "Clean, durable turf designed for families and pets — easy to rinse and soft underfoot." },
+          { title: "Putting Greens", blurb: "Backyard putting greens for practice, fun, and a touch of luxury at home." },
+          { title: "Commercial Landscaping", blurb: "Professional outdoor upgrades for commercial properties and business spaces." },
+          { title: "Outdoor Living Improvements", blurb: "Turn patios, side yards, and backyards into usable, beautiful living areas." },
+          { title: "Drainage & Base Preparation", blurb: "Proper ground prep and drainage for turf that performs for years." },
+        ],
+      },
+      why: {
+        title: "Why Homeowners Choose Hyperion",
+        items: [
+          { title: "Experienced local crew", blurb: "Skilled installs across Southern California, done right the first time." },
+          { title: "Bilingual service", blurb: "English or Spanish — we explain every detail in your language." },
+          { title: "Residential & commercial", blurb: "From family backyards to business properties, we do it all." },
+          { title: "Clean, professional installation", blurb: "Careful prep, premium materials, and a tidy job site every day." },
+          { title: "Low-maintenance solutions", blurb: "No mowing, no watering, no mud — a yard that always looks great." },
+          { title: "Designed for Southern California", blurb: "Turf and landscapes built for our climate and lifestyle." },
+          { title: "Pet & family friendly", blurb: "Safe, durable options the whole family — and pets — will love." },
+          { title: "Free project estimate", blurb: "Honest, written quotes with no pressure and no surprises." },
+        ],
+      },
+      process: {
+        title: "Our Simple Process",
+        items: [
+          { title: "Free Consultation", blurb: "Call or message us. We learn about your space and your goals." },
+          { title: "Measure & Design", blurb: "We measure, recommend materials, and design your space." },
+          { title: "Turf / Hardscape Installation", blurb: "Our crew preps the base and installs with precision." },
+          { title: "Final Walkthrough", blurb: "We review every detail together to make sure it's perfect." },
+          { title: "Enjoy Your New Outdoor Space", blurb: "Relax and enjoy a clean, modern, low-maintenance yard." },
+        ],
+      },
+      testimonials: {
+        title: "What Our Clients Say",
+        items: [
+          { name: "Daniel R.", role: "Homeowner", quote: "Hyperion made our backyard look brand new. The turf looks clean, natural, and our kids love it." },
+          { name: "Marisol G.", role: "Homeowner", quote: "Our front yard finally looks professional without all the maintenance. Best decision we made." },
+          { name: "Kevin P.", role: "Homeowner", quote: "They explained everything in Spanish and English and finished the project professionally." },
+        ],
+      },
+      faq: {
+        title: "Frequently Asked Questions",
+        items: [
+          { q: "What areas do you serve?", a: "We serve homes and businesses across Southern California, including Greater Los Angeles and surrounding cities. Not sure if you're in our area? Just call." },
+          { q: "Do you offer free estimates?", a: "Yes — every project starts with a free, no-obligation estimate." },
+          { q: "Is synthetic turf good for pets?", a: "Absolutely. We install pet-friendly turf that drains well, rinses clean, and is soft and safe for pets." },
+          { q: "How long does installation take?", a: "Most residential turf projects are completed in 1–3 days depending on size and prep needed." },
+          { q: "Do you do commercial properties?", a: "Yes. We handle both residential and commercial outdoor projects of all sizes." },
+          { q: "Do you speak Spanish?", a: "Sí. Our team is fully bilingual — we'll work with you in English or Spanish." },
+          { q: "Can you add pavers or hardscape?", a: "Yes. We build pavers, walkways, patios, and borders to complete your outdoor space." },
+          { q: "Do you help with drainage?", a: "Yes. Proper base preparation and drainage are part of every quality installation." },
+          { q: "How do I get started?", a: "Call (626) 320-0466 or request a free estimate and we'll schedule a visit." },
+        ],
+      },
+      contact: {
+        title: "Get a Free Estimate",
+        blurb: "Tell us about your outdoor project. A member of our team will contact you shortly.",
+        name: "Your name", phone: "Phone", service: "Project type",
+        message: "Tell us about your project (area size, pets, hardscape...)",
+        submit: "Request Free Estimate",
+        success: "Thank you. A member of our team will contact you shortly.",
+        pick: "— Choose a project type —",
+        services: [
+          "Synthetic turf — backyard", "Synthetic turf — front yard", "Pet-friendly turf",
+          "Putting green", "Pavers / hardscape", "Commercial property",
+          "Full landscape redesign", "Not sure yet",
+        ],
+      },
+      footer: {
+        tagline: "Premium synthetic turf & outdoor living across Southern California.",
+        hours: "Mon–Sat · 7am–6pm · Sun closed",
+        rights: "All rights reserved.", hoursLabel: "Hours",
+      },
+    },
+    es: {
+      nav: { services: "Servicios", why: "Por Qué", process: "Proceso", testimonials: "Reseñas", faq: "FAQ", contact: "Contacto", call: "Llamar" },
+      hero: {
+        eyebrow: "Césped sintético premium y exteriores",
+        title1: "Transforme su patio en un",
+        title2: "espacio hermoso y de bajo mantenimiento",
+        subtitle: "Instalación profesional de césped sintético, landscaping, hardscape y mejoras exteriores para casas y negocios en el sur de California.",
+        cta1: "Estimado Gratis", cta2: "Llame Ahora",
+        badges: ["Bajo Mantenimiento", "Hablamos Español", "Residencial y Comercial", "Estimados Gratis", "Césped para Mascotas", "Transformaciones Completas"],
+        ratingTitle: "Para Mascotas", ratingSubtitle: "Seguro para mascotas",
+        trustTitle: "Licencia y Seguro", trustSubtitle: "Estimados gratis",
+      },
+      services: {
+        title: "Nuestros Servicios",
+        blurb: "Césped sintético, landscaping, hardscape y espacios exteriores completos — de un solo equipo local de confianza.",
+        items: [
+          { title: "Instalación de Césped Sintético", blurb: "Césped artificial premium para patios hermosos, limpios y de bajo mantenimiento, verdes todo el año." },
+          { title: "Diseño de Jardines", blurb: "Diseños de paisaje a la medida que mejoran la apariencia y comodidad de su espacio exterior." },
+          { title: "Construcción de Hardscape", blurb: "Adoquines, caminos, patios, bordes y estructuras exteriores hechas para durar." },
+          { title: "Césped Para Mascotas", blurb: "Césped limpio y resistente diseñado para familias y mascotas — fácil de enjuagar y suave." },
+          { title: "Green de Golf", blurb: "Greens de golf en su patio para practicar, divertirse y dar un toque de lujo." },
+          { title: "Landscaping Comercial", blurb: "Mejoras exteriores profesionales para propiedades comerciales y negocios." },
+          { title: "Mejoras Para Espacios Exteriores", blurb: "Convierta patios, jardines laterales y traseros en áreas útiles y hermosas." },
+          { title: "Preparación de Base y Drenaje", blurb: "Preparación de suelo y drenaje adecuados para un césped que dura años." },
+        ],
+      },
+      why: {
+        title: "Por Qué los Clientes Eligen Hyperion",
+        items: [
+          { title: "Equipo local experimentado", blurb: "Instalaciones de calidad en el sur de California, bien hechas a la primera." },
+          { title: "Servicio bilingüe", blurb: "Inglés o español — explicamos cada detalle en su idioma." },
+          { title: "Residencial y comercial", blurb: "Desde patios familiares hasta propiedades comerciales, hacemos todo." },
+          { title: "Instalación limpia y profesional", blurb: "Preparación cuidadosa, materiales premium y sitio de trabajo ordenado." },
+          { title: "Soluciones de bajo mantenimiento", blurb: "Sin cortar, sin regar, sin lodo — un patio que siempre se ve bien." },
+          { title: "Diseñado para el sur de California", blurb: "Césped y paisajes hechos para nuestro clima y estilo de vida." },
+          { title: "Para mascotas y familias", blurb: "Opciones seguras y resistentes que toda la familia — y las mascotas — amarán." },
+          { title: "Estimado gratis", blurb: "Cotizaciones honestas y por escrito, sin presión y sin sorpresas." },
+        ],
+      },
+      process: {
+        title: "Nuestro Proceso",
+        items: [
+          { title: "Consulta Gratis", blurb: "Llámenos o escríbanos. Conocemos su espacio y sus metas." },
+          { title: "Medición y Diseño", blurb: "Medimos, recomendamos materiales y diseñamos su espacio." },
+          { title: "Instalación", blurb: "Nuestro equipo prepara la base e instala con precisión." },
+          { title: "Revisión Final", blurb: "Revisamos cada detalle juntos para que quede perfecto." },
+          { title: "Disfrute Su Nuevo Espacio", blurb: "Relájese y disfrute un patio limpio, moderno y de bajo mantenimiento." },
+        ],
+      },
+      testimonials: {
+        title: "Lo Que Dicen Nuestros Clientes",
+        items: [
+          { name: "Daniel R.", role: "Dueño de casa", quote: "Hyperion dejó nuestro patio como nuevo. El césped se ve limpio, natural y muy profesional." },
+          { name: "Marisol G.", role: "Dueña de casa", quote: "Ahora nuestra casa se ve mucho mejor sin estar manteniendo grama todo el tiempo." },
+          { name: "Kevin P.", role: "Dueño de casa", quote: "Nos explicaron todo claro en español y en inglés y el trabajo quedó muy bien." },
+        ],
+      },
+      faq: {
+        title: "Preguntas Frecuentes",
+        items: [
+          { q: "¿Qué áreas atienden?", a: "Atendemos casas y negocios en todo el sur de California, incluyendo el área de Los Ángeles y ciudades cercanas. ¿No sabe si está en nuestra área? Llámenos." },
+          { q: "¿Ofrecen estimados gratis?", a: "Sí — cada proyecto comienza con un estimado gratis y sin compromiso." },
+          { q: "¿El césped sintético es bueno para mascotas?", a: "Claro que sí. Instalamos césped para mascotas que drena bien, se enjuaga fácil y es suave y seguro." },
+          { q: "¿Cuánto tarda la instalación?", a: "La mayoría de los proyectos residenciales se terminan en 1 a 3 días según el tamaño y la preparación." },
+          { q: "¿Trabajan en propiedades comerciales?", a: "Sí. Hacemos proyectos exteriores residenciales y comerciales de todo tamaño." },
+          { q: "¿Hablan español?", a: "Sí. Nuestro equipo es completamente bilingüe — lo atendemos en inglés o español." },
+          { q: "¿Pueden agregar adoquines o hardscape?", a: "Sí. Construimos adoquines, caminos, patios y bordes para completar su espacio." },
+          { q: "¿Ayudan con el drenaje?", a: "Sí. La preparación de base y el drenaje son parte de cada instalación de calidad." },
+          { q: "¿Cómo empiezo?", a: "Llame al (626) 320-0466 o solicite un estimado gratis y agendamos una visita." },
+        ],
+      },
+      contact: {
+        title: "Solicite un Estimado Gratis",
+        blurb: "Cuéntenos sobre su proyecto exterior. Un miembro de nuestro equipo se comunicará con usted pronto.",
+        name: "Su nombre", phone: "Teléfono", service: "Tipo de proyecto",
+        message: "Cuéntenos sobre su proyecto (tamaño del área, mascotas, hardscape...)",
+        submit: "Solicitar Estimado Gratis",
+        success: "Gracias. Un miembro de nuestro equipo se comunicará con usted pronto.",
+        pick: "— Elija un tipo de proyecto —",
+        services: [
+          "Césped sintético — patio trasero", "Césped sintético — patio delantero", "Césped para mascotas",
+          "Green de golf", "Adoquines / hardscape", "Propiedad comercial",
+          "Rediseño completo de jardín", "Aún no estoy seguro",
+        ],
+      },
+      footer: {
+        tagline: "Césped sintético premium y espacios exteriores en el sur de California.",
+        hours: "Lun–Sáb · 7am–6pm · Dom cerrado",
+        rights: "Todos los derechos reservados.", hoursLabel: "Horario",
+      },
+    },
+  },
+};
+
+export default hyperionSyntheticTurf;

@@ -1,0 +1,755 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.2.0
+  description: Kike Code — Claude Code + GitHub Command Center API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: app
+  - name: repos
+  - name: contents
+  - name: branches
+  - name: commits
+  - name: issues
+  - name: pulls
+  - name: actions
+  - name: releases
+  - name: tasks
+  - name: stats
+  - name: settings
+  - name: permissions
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content: { application/json: { schema: { $ref: "#/components/schemas/HealthStatus" } } }
+
+  /app/config:
+    get:
+      operationId: getAppConfig
+      tags: [app]
+      summary: App config and GitHub connection status
+      responses:
+        "200":
+          description: App config
+          content: { application/json: { schema: { $ref: "#/components/schemas/AppConfig" } } }
+
+  /permissions:
+    get:
+      operationId: getPermissions
+      tags: [permissions]
+      summary: Inspect the connected GitHub token's scopes and reachable features
+      responses:
+        "200":
+          description: Permissions snapshot
+          content: { application/json: { schema: { $ref: "#/components/schemas/PermissionReport" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get app settings
+      responses:
+        "200":
+          description: Settings
+          content: { application/json: { schema: { $ref: "#/components/schemas/Settings" } } }
+    post:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update app settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SettingsInput" }
+      responses:
+        "200":
+          description: Updated
+          content: { application/json: { schema: { $ref: "#/components/schemas/Settings" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos:
+    get:
+      operationId: listRepos
+      tags: [repos]
+      summary: List GitHub repositories
+      responses:
+        "200":
+          description: Repos
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Repo" } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+    get:
+      operationId: getRepo
+      tags: [repos]
+      summary: Get a single repository
+      responses:
+        "200":
+          description: Repo
+          content: { application/json: { schema: { $ref: "#/components/schemas/RepoDetail" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/contents:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+      - { in: query, name: path, required: false, schema: { type: string } }
+      - { in: query, name: ref, required: false, schema: { type: string } }
+    get:
+      operationId: listContents
+      tags: [contents]
+      summary: List directory entries at a path
+      responses:
+        "200":
+          description: Entries
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/ContentEntry" } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/file:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+      - { in: query, name: path, required: true, schema: { type: string } }
+      - { in: query, name: ref, required: false, schema: { type: string } }
+    get:
+      operationId: getFile
+      tags: [contents]
+      summary: Get a file's decoded text content
+      responses:
+        "200":
+          description: File
+          content: { application/json: { schema: { $ref: "#/components/schemas/FileContent" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/branches:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+    get:
+      operationId: listBranches
+      tags: [branches]
+      summary: List branches
+      responses:
+        "200":
+          description: Branches
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Branch" } }
+        "400": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createBranch
+      tags: [branches]
+      summary: Create a new branch from another branch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateBranchInput" }
+      responses:
+        "201":
+          description: Created
+          content: { application/json: { schema: { $ref: "#/components/schemas/Branch" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/commits:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+    get:
+      operationId: listCommits
+      tags: [commits]
+      summary: List recent commits
+      responses:
+        "200":
+          description: Commits
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Commit" } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/issues:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+    get:
+      operationId: listRepoIssues
+      tags: [issues]
+      summary: List issues
+      responses:
+        "200":
+          description: Issues
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/RepoIssue" } }
+        "400": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createRepoIssue
+      tags: [issues]
+      summary: Create an issue (without the Claude task wrapper)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateIssueInput" }
+      responses:
+        "201":
+          description: Issue
+          content: { application/json: { schema: { $ref: "#/components/schemas/RepoIssue" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/issues/{number}:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+      - { in: path, name: number, required: true, schema: { type: integer } }
+    patch:
+      operationId: updateIssueState
+      tags: [issues]
+      summary: Open or close an issue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateIssueStateInput" }
+      responses:
+        "200":
+          description: Updated
+          content: { application/json: { schema: { $ref: "#/components/schemas/RepoIssue" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/issues/{number}/comments:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+      - { in: path, name: number, required: true, schema: { type: integer } }
+    post:
+      operationId: commentOnIssue
+      tags: [issues]
+      summary: Add a comment to an issue or pull request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IssueCommentInput" }
+      responses:
+        "201":
+          description: Comment
+          content: { application/json: { schema: { $ref: "#/components/schemas/IssueComment" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/pulls:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+    get:
+      operationId: listRepoPulls
+      tags: [pulls]
+      summary: List pull requests
+      responses:
+        "200":
+          description: Pull requests
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/RepoPull" } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/pulls/{number}:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+      - { in: path, name: number, required: true, schema: { type: integer } }
+    get:
+      operationId: getPull
+      tags: [pulls]
+      summary: Get pull request detail
+      responses:
+        "200":
+          description: Pull request
+          content: { application/json: { schema: { $ref: "#/components/schemas/RepoPullDetail" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/actions/workflows:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+    get:
+      operationId: listWorkflows
+      tags: [actions]
+      summary: List workflows
+      responses:
+        "200":
+          description: Workflows
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Workflow" } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/actions/runs:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+    get:
+      operationId: listWorkflowRuns
+      tags: [actions]
+      summary: List recent workflow runs
+      responses:
+        "200":
+          description: Runs
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/WorkflowRun" } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/actions/workflows/{workflowId}/dispatches:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+      - { in: path, name: workflowId, required: true, schema: { type: string } }
+    post:
+      operationId: dispatchWorkflow
+      tags: [actions]
+      summary: Trigger a workflow_dispatch workflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WorkflowDispatchInput" }
+      responses:
+        "204": { description: Dispatched }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /repos/{owner}/{repo}/releases:
+    parameters:
+      - { in: path, name: owner, required: true, schema: { type: string } }
+      - { in: path, name: repo, required: true, schema: { type: string } }
+    get:
+      operationId: listReleases
+      tags: [releases]
+      summary: List releases
+      responses:
+        "200":
+          description: Releases
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Release" } }
+        "400": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createRelease
+      tags: [releases]
+      summary: Create a draft release
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateReleaseInput" }
+      responses:
+        "201":
+          description: Release
+          content: { application/json: { schema: { $ref: "#/components/schemas/Release" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /tasks:
+    get:
+      operationId: listTasks
+      tags: [tasks]
+      summary: List Claude tasks created from this dashboard
+      responses:
+        "200":
+          description: Tasks
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Task" } }
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Send a task to Claude Code via a GitHub issue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TaskInput" }
+      responses:
+        "201":
+          description: Created
+          content: { application/json: { schema: { $ref: "#/components/schemas/Task" } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [stats]
+      responses:
+        "200":
+          description: Stats
+          content: { application/json: { schema: { $ref: "#/components/schemas/Stats" } } }
+
+components:
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+
+    AppConfig:
+      type: object
+      required: [brandName, githubConnected, anthropicConfigured]
+      properties:
+        brandName: { type: string }
+        githubConnected: { type: boolean }
+        anthropicConfigured: { type: boolean }
+        defaultOwner: { type: ["string", "null"] }
+        githubUser: { type: ["string", "null"] }
+
+    PermissionReport:
+      type: object
+      required: [tokenPresent, valid, scopes, checks]
+      properties:
+        tokenPresent: { type: boolean }
+        valid: { type: boolean }
+        username: { type: ["string", "null"] }
+        scopes:
+          type: array
+          items: { type: string }
+        tokenType: { type: ["string", "null"] }
+        checks:
+          type: array
+          items: { $ref: "#/components/schemas/PermissionCheck" }
+
+    PermissionCheck:
+      type: object
+      required: [key, label, status]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        status:
+          type: string
+          enum: [ok, missing, unknown]
+        detail: { type: ["string", "null"] }
+
+    Settings:
+      type: object
+      required: [advancedMode, defaultRiskLevel, updatedAt]
+      properties:
+        advancedMode: { type: boolean }
+        defaultRiskLevel:
+          type: string
+          enum: [Safe branch only, Pull request only, Advanced direct edit]
+        updatedAt: { type: string }
+
+    SettingsInput:
+      type: object
+      properties:
+        advancedMode: { type: boolean }
+        defaultRiskLevel:
+          type: string
+          enum: [Safe branch only, Pull request only, Advanced direct edit]
+
+    Repo:
+      type: object
+      required: [id, name, fullName, owner, private, url, updatedAt, stars]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        fullName: { type: string }
+        owner: { type: string }
+        private: { type: boolean }
+        url: { type: string }
+        updatedAt: { type: string }
+        description: { type: ["string", "null"] }
+        language: { type: ["string", "null"] }
+        stars: { type: integer }
+        openIssues: { type: integer }
+        defaultBranch: { type: ["string", "null"] }
+
+    RepoDetail:
+      allOf:
+        - $ref: "#/components/schemas/Repo"
+        - type: object
+          properties:
+            forks: { type: integer }
+            watchers: { type: integer }
+            homepage: { type: ["string", "null"] }
+            license: { type: ["string", "null"] }
+            topics:
+              type: array
+              items: { type: string }
+
+    ContentEntry:
+      type: object
+      required: [type, name, path, sha, size]
+      properties:
+        type:
+          type: string
+          enum: [file, dir, symlink, submodule]
+        name: { type: string }
+        path: { type: string }
+        sha: { type: string }
+        size: { type: integer }
+        url: { type: ["string", "null"] }
+        downloadUrl: { type: ["string", "null"] }
+
+    FileContent:
+      type: object
+      required: [name, path, sha, size, content, encoding]
+      properties:
+        name: { type: string }
+        path: { type: string }
+        sha: { type: string }
+        size: { type: integer }
+        content: { type: string }
+        encoding: { type: string }
+        truncated: { type: boolean }
+        downloadUrl: { type: ["string", "null"] }
+
+    Branch:
+      type: object
+      required: [name, sha, protected]
+      properties:
+        name: { type: string }
+        sha: { type: string }
+        protected: { type: boolean }
+
+    CreateBranchInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1 }
+        fromBranch: { type: string }
+
+    Commit:
+      type: object
+      required: [sha, message, url, date]
+      properties:
+        sha: { type: string }
+        message: { type: string }
+        url: { type: string }
+        date: { type: string }
+        author: { type: ["string", "null"] }
+        avatarUrl: { type: ["string", "null"] }
+
+    RepoIssue:
+      type: object
+      required: [number, title, state, url, createdAt]
+      properties:
+        number: { type: integer }
+        title: { type: string }
+        state: { type: string }
+        url: { type: string }
+        createdAt: { type: string }
+        body: { type: ["string", "null"] }
+        author: { type: ["string", "null"] }
+        labels:
+          type: array
+          items: { type: string }
+
+    CreateIssueInput:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1 }
+        body: { type: string }
+        labels:
+          type: array
+          items: { type: string }
+
+    UpdateIssueStateInput:
+      type: object
+      required: [state]
+      properties:
+        state:
+          type: string
+          enum: [open, closed]
+
+    IssueCommentInput:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string, minLength: 1 }
+
+    IssueComment:
+      type: object
+      required: [id, body, url, createdAt]
+      properties:
+        id: { type: integer }
+        body: { type: string }
+        url: { type: string }
+        createdAt: { type: string }
+        author: { type: ["string", "null"] }
+
+    RepoPull:
+      type: object
+      required: [number, title, state, merged, draft, url, createdAt, updatedAt]
+      properties:
+        number: { type: integer }
+        title: { type: string }
+        state: { type: string }
+        merged: { type: boolean }
+        draft: { type: boolean }
+        url: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+        user: { type: ["string", "null"] }
+
+    RepoPullDetail:
+      allOf:
+        - $ref: "#/components/schemas/RepoPull"
+        - type: object
+          properties:
+            body: { type: ["string", "null"] }
+            headBranch: { type: ["string", "null"] }
+            baseBranch: { type: ["string", "null"] }
+            additions: { type: integer }
+            deletions: { type: integer }
+            changedFiles: { type: integer }
+            mergeable: { type: ["boolean", "null"] }
+
+    Workflow:
+      type: object
+      required: [id, name, path, state]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        path: { type: string }
+        state: { type: string }
+        url: { type: ["string", "null"] }
+        canDispatch: { type: boolean }
+
+    WorkflowRun:
+      type: object
+      required: [id, name, status, url, createdAt, workflowId]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        status: { type: string }
+        conclusion: { type: ["string", "null"] }
+        friendly: { type: string }
+        url: { type: string }
+        createdAt: { type: string }
+        headBranch: { type: ["string", "null"] }
+        event: { type: ["string", "null"] }
+        workflowId: { type: integer }
+
+    WorkflowDispatchInput:
+      type: object
+      required: [ref]
+      properties:
+        ref: { type: string, minLength: 1 }
+        inputs:
+          type: object
+          additionalProperties: { type: string }
+
+    Release:
+      type: object
+      required: [id, name, tagName, draft, prerelease, url, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        tagName: { type: string }
+        draft: { type: boolean }
+        prerelease: { type: boolean }
+        url: { type: string }
+        createdAt: { type: string }
+        publishedAt: { type: ["string", "null"] }
+        body: { type: ["string", "null"] }
+
+    CreateReleaseInput:
+      type: object
+      required: [tagName]
+      properties:
+        tagName: { type: string, minLength: 1 }
+        name: { type: string }
+        body: { type: string }
+        draft: { type: boolean, default: true }
+        prerelease: { type: boolean, default: false }
+        targetCommitish: { type: string }
+
+    Task:
+      type: object
+      required: [id, owner, repo, taskType, userPrompt, carefulness, status, issueNumber, issueUrl, createdAt]
+      properties:
+        id: { type: integer }
+        owner: { type: string }
+        repo: { type: string }
+        taskType: { type: string }
+        userPrompt: { type: string }
+        carefulness: { type: string }
+        riskLevel: { type: ["string", "null"] }
+        status: { type: string }
+        issueNumber: { type: integer }
+        issueUrl: { type: string }
+        createdAt: { type: string }
+
+    TaskInput:
+      type: object
+      required: [owner, repo, taskType, userPrompt, carefulness]
+      properties:
+        owner: { type: string, minLength: 1 }
+        repo: { type: string, minLength: 1 }
+        taskType: { type: string, minLength: 1 }
+        userPrompt: { type: string, minLength: 1 }
+        carefulness:
+          type: string
+          enum: [Quick, Normal, "Very careful"]
+        riskLevel:
+          type: string
+          enum: [Safe branch only, Pull request only, Advanced direct edit]
+
+    TaskTypeCount:
+      type: object
+      required: [taskType, count]
+      properties:
+        taskType: { type: string }
+        count: { type: integer }
+
+    RepoCount:
+      type: object
+      required: [repo, count]
+      properties:
+        repo: { type: string }
+        count: { type: integer }
+
+    Stats:
+      type: object
+      required: [totalTasks, byTaskType, byRepo, recentTasks]
+      properties:
+        totalTasks: { type: integer }
+        byTaskType:
+          type: array
+          items: { $ref: "#/components/schemas/TaskTypeCount" }
+        byRepo:
+          type: array
+          items: { $ref: "#/components/schemas/RepoCount" }
+        recentTasks:
+          type: array
+          items: { $ref: "#/components/schemas/Task" }
