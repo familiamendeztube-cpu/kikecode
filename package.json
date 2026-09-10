@@ -1,19 +1,26 @@
-{
-  "name": "workspace",
-  "version": "0.0.0",
-  "license": "MIT",
-  "scripts": {
-    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
-    "dev": "pnpm --parallel --filter @workspace/api-server --filter @workspace/kike-code run dev",
-    "dev:web": "pnpm --filter @workspace/kike-code run dev",
-    "dev:api": "pnpm --filter @workspace/api-server run dev",
-    "build": "pnpm run typecheck && pnpm -r --if-present run build",
-    "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
-  },
-  "private": true,
-  "devDependencies": {
-    "prettier": "^3.8.3",
-    "typescript": "~5.9.3"
-  }
+﻿{
+    "name":  "workspace",
+    "version":  "0.0.0",
+    "license":  "MIT",
+    "scripts":  {
+                    "dev":  "npm run prepare:workspace \u0026\u0026 npx --yes pnpm@10.17.1 --filter @workspace/kike-code run dev",
+                    "dev:web":  "npm run dev",
+                    "dev:api":  "npm run prepare:workspace \u0026\u0026 npx --yes pnpm@10.17.1 --filter @workspace/api-server run dev",
+                    "build":  "npm run prepare:workspace \u0026\u0026 npx --yes pnpm@10.17.1 --filter @workspace/kike-code run build",
+                    "typecheck:libs":  "tsc --build",
+                    "typecheck":  "npx --yes pnpm@10.17.1 run typecheck:libs \u0026\u0026 npx --yes pnpm@10.17.1 -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
+                    "prepare:workspace":  "npx --yes pnpm@10.17.1 install --frozen-lockfile",
+                    "dev:full":  "npm run prepare:workspace \u0026\u0026 npx --yes pnpm@10.17.1 --parallel --filter @workspace/api-server --filter @workspace/kike-code run dev",
+                    "build:web":  "npm run build",
+                    "build:full":  "npm run prepare:workspace \u0026\u0026 npx --yes pnpm@10.17.1 run typecheck \u0026\u0026 npx --yes pnpm@10.17.1 -r --if-present run build"
+                },
+    "private":  true,
+    "devDependencies":  {
+                            "prettier":  "^3.8.3",
+                            "typescript":  "~5.9.3"
+                        },
+    "packageManager":  "pnpm@10.17.1",
+    "engines":  {
+                    "node":  "\u003e=20.11.0"
+                }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode, type FormEvent } from "react";
+﻿import { useEffect, useRef, useState, type ReactNode, type FormEvent } from "react";
 import { Lock, Loader2 } from "lucide-react";
 
 /**
@@ -16,12 +16,28 @@ export function PinGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     fetch("/api/auth/me", { credentials: "include" })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Auth API returned ${r.status}`);
+        return r.json();
+      })
       .then((d) => {
         if (!cancelled) setState(d?.authed ? "open" : "locked");
       })
       .catch(() => {
-        if (!cancelled) setState("locked");
+        if (cancelled) return;
+
+        // During the Bolt/Vite development preview, the Replit-era API may not
+        // be running yet. Allow the UI to render in development only.
+        // Production still fails closed and requires the real server auth.
+        if (import.meta.env.DEV) {
+          console.warn(
+            "Auth API is unavailable; allowing development preview only. Production remains locked.",
+          );
+          setState("open");
+          return;
+        }
+
+        setState("locked");
       });
     return () => {
       cancelled = true;
@@ -107,3 +123,4 @@ export function PinGate({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
