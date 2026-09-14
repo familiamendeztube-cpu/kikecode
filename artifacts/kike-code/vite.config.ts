@@ -26,6 +26,8 @@ export default defineConfig({
     dedupe: ["react", "react-dom"],
   },
   root: path.resolve(import.meta.dirname),
+  // One .env at the repo root for the API and the web app; Vite exposes only VITE_* keys.
+  envDir: path.resolve(import.meta.dirname, "..", ".."),
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "wouter";
 import {
   Loader2,
   AlertCircle,
@@ -7,38 +8,40 @@ import {
   Check,
   Radio,
   Power,
+  Pencil,
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Switch } from "@/components/ui/switch";
 import { getTemplate } from "@/lib/templates";
+import { callFn } from "@/lib/plw";
 
-type DemoRow = {
+/** A row of the `kike-sites` "list" action. */
+type SiteRow = {
   id: string;
   slug: string;
-  name: string;
-  city: string;
+  title: string;
+  city: string | null;
+  client_id: string | null;
+  client_name: string | null;
+  custom_domain: string | null;
   active: boolean;
-  createdAt: string;
+  created_at: string;
 };
 
 export default function Demos() {
-  const [rows, setRows] = useState<DemoRow[] | null>(null);
+  const [rows, setRows] = useState<SiteRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/customized-sites", { credentials: "include" })
-      .then((r) => {
-        if (!r.ok) throw new Error(`Server returned ${r.status}`);
-        return r.json();
-      })
-      .then((data: DemoRow[]) => {
-        if (!cancelled) setRows(data);
+    callFn<{ sites: SiteRow[] }>("kike-sites", { action: "list" })
+      .then(({ sites }) => {
+        if (!cancelled) setRows(sites);
       })
       .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Could not load demos");
+        if (!cancelled) setError(e instanceof Error ? e.message : "Could not load sites");
       });
     return () => {
       cancelled = true;
@@ -47,19 +50,13 @@ export default function Demos() {
 
   const liveCount = useMemo(() => rows?.filter((r) => r.active).length ?? 0, [rows]);
 
-  async function toggle(row: DemoRow, next: boolean) {
+  async function toggle(row: SiteRow, next: boolean) {
     setBusyId(row.id);
     setError(null);
     // Optimistic update
     setRows((cur) => cur?.map((r) => (r.id === row.id ? { ...r, active: next } : r)) ?? null);
     try {
-      const res = await fetch(`/api/customized-sites/${encodeURIComponent(row.id)}/active`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ active: next }),
-      });
-      if (!res.ok) throw new Error("Could not update — please try again.");
+      await callFn("kike-sites", { action: "set_active", id: row.id, active: next });
     } catch (e) {
       // Revert on failure
       setRows((cur) => cur?.map((r) => (r.id === row.id ? { ...r, active: !next } : r)) ?? null);
@@ -69,15 +66,16 @@ export default function Demos() {
     }
   }
 
-  function shareUrl(id: string): string {
-    return new URL(`${import.meta.env.BASE_URL}share/${id}`, window.location.origin).toString();
+  function siteUrl(row: SiteRow): string {
+    if (row.custom_domain) return `https://${row.custom_domain}`;
+    return new URL(`${import.meta.env.BASE_URL}share/${row.id}`, window.location.origin).toString();
   }
 
-  async function copyLink(id: string) {
+  async function copyLink(row: SiteRow) {
     try {
-      await navigator.clipboard.writeText(shareUrl(id));
-      setCopiedId(id);
-      setTimeout(() => setCopiedId((c) => (c === id ? null : c)), 1500);
+      await navigator.clipboard.writeText(siteUrl(row));
+      setCopiedId(row.id);
+      setTimeout(() => setCopiedId((c) => (c === row.id ? null : c)), 1500);
     } catch {
       /* clipboard unavailable */
     }
@@ -93,7 +91,7 @@ export default function Demos() {
               Live Demos
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Demos creados para clientes. Apague un demo y su enlace deja de funcionar al instante.
+              Sitios y demos guardados. Apague uno y su enlace deja de funcionar al instante.
             </p>
           </div>
           {rows && (
@@ -124,7 +122,7 @@ export default function Demos() {
         <div className="space-y-3">
           {rows?.map((row) => {
             const tpl = getTemplate(row.slug);
-            const dateStr = new Date(row.createdAt).toLocaleDateString("es-NI", {
+            const dateStr = new Date(row.created_at).toLocaleDateString("es-CR", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -146,18 +144,28 @@ export default function Demos() {
                   title={row.active ? "Live" : "Off"}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="font-semibold truncate">{row.name}</div>
+                  <div className="font-semibold truncate">{row.title}</div>
                   <div className="text-xs text-muted-foreground truncate">
                     {tpl ? `${tpl.industry} · ` : ""}
                     {row.city ? `${row.city} · ` : ""}
-                    {dateStr}
+                    {row.client_name ?? "Demo"}
+                    {row.custom_domain ? ` · ${row.custom_domain}` : ""}
+                    {` · ${dateStr}`}
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
+                  <Link
+                    href={`/sites/${row.id}/edit`}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-border hover:bg-foreground/5 transition-colors"
+                    data-testid={`link-edit-${row.id}`}
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Editar</span>
+                  </Link>
                   {row.active ? (
                     <>
                       <a
-                        href={shareUrl(row.id)}
+                        href={siteUrl(row)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-border hover:bg-foreground/5 transition-colors"
@@ -168,7 +176,7 @@ export default function Demos() {
                       </a>
                       <button
                         type="button"
-                        onClick={() => copyLink(row.id)}
+                        onClick={() => copyLink(row)}
                         className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-border hover:bg-foreground/5 transition-colors"
                         data-testid={`button-copy-${row.id}`}
                       >

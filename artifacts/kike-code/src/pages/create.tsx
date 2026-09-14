@@ -6,6 +6,7 @@ import { TEMPLATES, getTemplate } from "@/lib/templates";
 import { Layout } from "@/components/layout";
 import CustomizerWrapper from "@/components/customizer-wrapper";
 import type { BusinessTemplate } from "@/lib/templates/types";
+import { callFn } from "@/lib/plw";
 
 type GenerateResult = { baseSlug: string; reply: string };
 
@@ -32,25 +33,17 @@ export default function CreateSite() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/generate-template`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: p,
-          // Keep AI drafts always bilingual: exclude language-locked templates
-          // (e.g. the Spanish-only dealership) from the candidate pool.
-          templates: TEMPLATES.filter((t) => !t.lockedLang).map((t) => ({
-            slug: t.slug,
-            industry: t.industry,
-            industryEs: t.industryEs,
-          })),
-        }),
+      const data = await callFn<GenerateResult>("kike-ai", {
+        action: "generate",
+        prompt: p,
+        // Keep AI drafts always bilingual: exclude language-locked templates
+        // (e.g. the Spanish-only dealership) from the candidate pool.
+        templates: TEMPLATES.filter((t) => !t.lockedLang).map((t) => ({
+          slug: t.slug,
+          industry: t.industry,
+          industryEs: t.industryEs,
+        })),
       });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        throw new Error(j.error || `Server returned ${res.status}`);
-      }
-      const data = (await res.json()) as GenerateResult;
       const base = getTemplate(data.baseSlug) ?? getTemplate(TEMPLATES[0].slug);
       if (!base) throw new Error("Could not load a starting template — try again.");
       setSeedMessage(p);

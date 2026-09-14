@@ -3,11 +3,7 @@ import {
   Sparkles, Send, Upload, X, Loader2, RotateCcw, Image as ImageIcon, ChevronRight,
   Share2, Copy, Check, ExternalLink, Paperclip,
 } from "lucide-react";
-import BusinessSite from "@/components/business-site";
-import LeonardoSite from "@/components/leonardo-site";
-import OryzoSite from "@/components/oryzo-site";
-import RymSite from "@/components/rym-site";
-import FenixSite from "@/components/fenix-site";
+import { SiteRenderer } from "@/components/site-renderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,35 +14,18 @@ import {
 import type { BusinessTemplate, Lang } from "@/lib/templates/types";
 import { SiteEditor, type EditPath } from "@/components/site-editor";
 import { EditProvider } from "@/lib/editable";
+import { callFn, supabase } from "@/lib/plw";
+import { mergeReplaceArrays } from "@/lib/saved-site";
 
 type ChatMsg = { role: "user" | "assistant"; content: string };
 type ShareState = { url: string; copied: boolean } | null;
+/** A site already saved in PLW: saving again updates it instead of creating a new one. */
+export type SavedSiteRef = { id: string; clientId: string | null; customDomain: string | null };
+type ClientOption = { id: string; business_name: string };
 
 const MAX_PHOTO_BYTES = 6 * 1024 * 1024; // 6 MB per file
 const MAX_GALLERY_PHOTOS = 8;
 const MAX_TOTAL_PHOTOS = 12;
-
-/**
- * Replace-arrays merge: when source has an array, it fully REPLACES the target's
- * array (the AI is instructed to send complete arrays). For objects, recurse.
- * Primitives in source override target.
- */
-export function mergeReplaceArrays<T>(target: T, source: unknown): T {
-  if (source === null || source === undefined) return target;
-  if (Array.isArray(source)) return source as T; // wholesale replace
-  if (typeof source !== "object") return source as T;
-  if (target === null || target === undefined || typeof target !== "object" || Array.isArray(target)) {
-    return source as T;
-  }
-  const out: Record<string, unknown> = { ...(target as Record<string, unknown>) };
-  for (const key of Object.keys(source as Record<string, unknown>)) {
-    out[key] = mergeReplaceArrays(
-      (target as Record<string, unknown>)[key],
-      (source as Record<string, unknown>)[key],
-    );
-  }
-  return out as T;
-}
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -132,6 +111,7 @@ export default function CustomizerWrapper({
   seedPhotos,
   startOpen = false,
   initialMessage,
+  savedSite,
 }: {
   original: BusinessTemplate;
   /** Photos already baked into `original.media` (e.g. from the AI builder) that
@@ -142,9 +122,26 @@ export default function CustomizerWrapper({
   /** If set, auto-send this to the AI once on mount (used by the AI "create a
    *  site" flow to fill the chosen template's copy for the described business). */
   initialMessage?: string;
+  /** Editing a site already saved in PLW (the /sites/:id/edit page). */
+  savedSite?: SavedSiteRef;
 }) {
   const [tpl, setTpl] = useState<BusinessTemplate>(original);
   const [open, setOpen] = useState(startOpen);
+
+  // Once saved, later saves update the same site, so its link never changes.
+  const [siteId, setSiteId] = useState<string | null>(savedSite?.id ?? null);
+  const [clientId, setClientId] = useState(savedSite?.clientId ?? "");
+  const [customDomain, setCustomDomain] = useState(savedSite?.customDomain ?? "");
+  const [clients, setClients] = useState<ClientOption[]>([]);
+
+  // PLW clients a site can be linked to; RLS returns only the ones this staff member may see.
+  useEffect(() => {
+    let cancelled = false;
+    supabase.from("clients").select("id, business_name").order("business_name").then(({ data }) => {
+      if (!cancelled && data) setClients(data as ClientOption[]);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   // Re-seed if the incoming template changes (e.g. a new AI generation).
   useEffect(() => {
@@ -288,26 +285,30 @@ export default function CustomizerWrapper({
       }),
     );
     try {
-      const res = await fetch("/api/customized-sites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug: original.slug,
-          brand,
-          content: tpl.content,
-          photos: sharedPhotosRef.current,
-          overrides,
-        }),
+      const { id } = await callFn<{ id: string }>("kike-sites", {
+        action: "save",
+        id: siteId,
+        slug: original.slug,
+        brand,
+        content: tpl.content,
+        photos: sharedPhotosRef.current,
+        overrides,
+        client_id: clientId || null,
+        custom_domain: customDomain.trim() || null,
       });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        throw new Error(j.error || `Server returned ${res.status}`);
-      }
-      const { id } = (await res.json()) as { id: string };
-      const url = new URL(`${import.meta.env.BASE_URL}share/${id}`, window.location.origin).toString();
+      setSiteId(id);
+      const domain = customDomain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+      const url = domain
+        ? `https://${domain}`
+        : new URL(`${import.meta.env.BASE_URL}share/${id}`, window.location.origin).toString();
       setShare({ url, copied: false });
     } catch (e) {
-      setShareError(e instanceof Error ? e.message : "Could not create share link.");
+      const code = e instanceof Error ? e.message : "";
+      setShareError(
+        code === "domain_taken" ? "Ese dominio ya está en otro sitio. / That domain is already used by another site."
+          : code === "invalid_payload" ? "Revise nombre, teléfono, ciudad, dirección, correo y dominio. / Check the client info and domain."
+            : code || "Could not save the site.",
+      );
     } finally {
       setSharing(false);
     }
@@ -447,37 +448,29 @@ export default function CustomizerWrapper({
     setChat(nextChat);
 
     try {
-      const res = await fetch("/api/customize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug: tpl.slug,
-          industry: tpl.industry,
-          currentBrand: {
-            name: tpl.brand.name,
-            city: tpl.brand.city,
-            phone: tpl.brand.phone,
-            phoneHref: tpl.brand.phoneHref,
-            email: tpl.brand.email,
-            address: tpl.brand.address,
-          },
-          currentContent: tpl.content,
-          chatHistory: chat,
-          userMessage: msg,
-          photoCount: photoCountForAI,
-          images: imgs.length ? imgs : undefined,
-        }),
-      });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        throw new Error(j.error || `Server returned ${res.status}`);
-      }
-      const data = (await res.json()) as {
+      const data = await callFn<{
         reply: string;
         brand?: Partial<BusinessTemplate["brand"]>;
         content?: Partial<BusinessTemplate["content"]>;
         galleryCaptions?: { en?: string[]; es?: string[] };
-      };
+      }>("kike-ai", {
+        action: "customize",
+        slug: tpl.slug,
+        industry: tpl.industry,
+        currentBrand: {
+          name: tpl.brand.name,
+          city: tpl.brand.city,
+          phone: tpl.brand.phone,
+          phoneHref: tpl.brand.phoneHref,
+          email: tpl.brand.email,
+          address: tpl.brand.address,
+        },
+        currentContent: tpl.content,
+        chatHistory: chat,
+        userMessage: msg,
+        photoCount: photoCountForAI,
+        images: imgs.length ? imgs : undefined,
+      });
 
       setTpl((cur) => {
         const next: BusinessTemplate = { ...cur };
@@ -519,17 +512,7 @@ export default function CustomizerWrapper({
   return (
     <div className="relative">
       <EditProvider editing={open} onText={setField} onImage={uploadField}>
-        {tpl.siteVariant === "leonardo" ? (
-          <LeonardoSite template={tpl} />
-        ) : tpl.siteVariant === "oryzo" ? (
-          <OryzoSite template={tpl} />
-        ) : tpl.siteVariant === "rym" ? (
-          <RymSite template={tpl} />
-        ) : tpl.siteVariant === "fenix" ? (
-          <FenixSite template={tpl} />
-        ) : (
-          <BusinessSite template={tpl} />
-        )}
+        <SiteRenderer template={tpl} />
       </EditProvider>
 
       {/* Floating launcher \u2014 sits below the marquee + top bar (top-20) so it never overlaps. */}
@@ -650,13 +633,40 @@ export default function CustomizerWrapper({
               <p className="text-[11px] text-slate-400">
                 Save a live link to send your client. They'll see the customized site exactly as it looks now.
               </p>
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-xs text-slate-300">PLW client (optional)</Label>
+                  <select
+                    value={clientId}
+                    onChange={(e) => { setClientId(e.target.value); setShare(null); }}
+                    className="w-full h-9 rounded-md bg-slate-900 border border-slate-700 text-white text-sm px-2"
+                    data-testid="select-plw-client"
+                  >
+                    <option value="">Demo — sin cliente</option>
+                    {clients.map((c) => <option key={c.id} value={c.id}>{c.business_name}</option>)}
+                  </select>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    A linked site shows the client's PLW number and sends its form leads to them.
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-xs text-slate-300">Client domain (optional)</Label>
+                  <Input
+                    value={customDomain}
+                    onChange={(e) => { setCustomDomain(e.target.value); setShare(null); }}
+                    placeholder="negocio.com"
+                    className="bg-slate-900 border-slate-700 text-white"
+                    data-testid="input-custom-domain"
+                  />
+                </div>
+              </div>
               <Button onClick={shareWithClient} disabled={sharing} size="sm"
                 className="w-full bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white border-0"
                 data-testid="button-share-client">
                 {sharing ? (
                   <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Saving…</>
                 ) : (
-                  <><Share2 className="w-3.5 h-3.5 mr-1.5" /> Create share link</>
+                  <><Share2 className="w-3.5 h-3.5 mr-1.5" /> {siteId ? "Save changes" : "Create share link"}</>
                 )}
               </Button>
               {shareError && <p className="text-[11px] text-red-400">{shareError}</p>}

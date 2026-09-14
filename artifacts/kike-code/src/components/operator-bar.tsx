@@ -1,5 +1,6 @@
 import { useLocation, Link } from "wouter";
-import { Plus, LayoutGrid, Radio } from "lucide-react";
+import { Plus, LayoutGrid, Radio, LogOut } from "lucide-react";
+import { supabase } from "@/lib/plw";
 
 export function OperatorBar() {
   const [location] = useLocation();
@@ -36,6 +37,15 @@ export function OperatorBar() {
             <Plus className="w-3.5 h-3.5" />
             New site
           </Link>
+          <button
+            type="button"
+            onClick={() => void supabase.auth.signOut()}
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-foreground/5"
+            data-testid="button-sign-out"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Salir</span>
+          </button>
         </div>
       </div>
     </div>

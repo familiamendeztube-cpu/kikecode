@@ -31,6 +31,10 @@ export type BrandConfig = {
   /** Optional secondary phone (some businesses publish two numbers). */
   phoneAlt?: string;
   phoneAltHref?: string;
+  /** Digits WhatsApp buttons open. PLW sets it to the typed number when the
+   *  site's phone becomes the client's PLW number, so chats still reach the
+   *  business itself. */
+  whatsapp?: string;
   email: string;
   address: string;
   heroIcon: LucideIcon;
@@ -274,4 +278,7 @@ export type BusinessTemplate = {
   inventory?: TemplateInventory;
   /** Optional cultural/heritage gallery (country + history). */
   heritage?: TemplateHeritage;
+  /** Set only on a published site loaded from PLW (never on a bare template or
+   *  in the editor): its forms send leads to PLW under this id. */
+  plwSiteId?: string;
 };

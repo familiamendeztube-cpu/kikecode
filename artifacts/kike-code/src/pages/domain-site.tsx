@@ -1,29 +1,52 @@
-import { useEffect } from "react";
-import BusinessSite from "@/components/business-site";
-import LeonardoSite from "@/components/leonardo-site";
-import OryzoSite from "@/components/oryzo-site";
-import RymSite from "@/components/rym-site";
-import FenixSite from "@/components/fenix-site";
+import { useEffect, useState, type ReactNode } from "react";
+import { SiteRenderer } from "@/components/site-renderer";
 import { getTemplate } from "@/lib/templates";
+import { hasPlwConfig } from "@/lib/plw";
+import { loadPublishedSite, type PublishedSite } from "@/lib/saved-site";
+import type { BusinessTemplate } from "@/lib/templates/types";
 
-/** Full-page client site rendered when the app is opened via a client's own
- *  custom domain (see lib/domain-sites.ts). No PIN gate, no operator chrome. */
-export default function DomainSite({ slug }: { slug: string }) {
-  const tpl = getTemplate(slug);
+function useBrandTitle(template: BusinessTemplate | null) {
   useEffect(() => {
     // RymSite manages its own SEO title/meta; don't overwrite it here.
-    if (tpl && tpl.siteVariant !== "rym") document.title = tpl.brand.name;
-  }, [tpl]);
-  if (!tpl) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6">
-        <p className="text-sm text-slate-600">Sitio no disponible.</p>
-      </div>
-    );
-  }
-  if (tpl.siteVariant === "leonardo") return <LeonardoSite template={tpl} />;
-  if (tpl.siteVariant === "oryzo") return <OryzoSite template={tpl} />;
-  if (tpl.siteVariant === "rym") return <RymSite template={tpl} />;
-  if (tpl.siteVariant === "fenix") return <FenixSite template={tpl} />;
-  return <BusinessSite template={tpl} />;
+    if (template && template.siteVariant !== "rym") document.title = template.brand.name;
+  }, [template]);
+}
+
+function Unavailable() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6">
+      <p className="text-sm text-slate-600">Sitio no disponible.</p>
+    </div>
+  );
+}
+
+/** Full-page client site for a domain mapped in code (see lib/domain-sites.ts).
+ *  No sign-in, no operator chrome. */
+export default function DomainSite({ slug }: { slug: string }) {
+  const tpl = getTemplate(slug);
+  useBrandTitle(tpl);
+  return tpl ? <SiteRenderer template={tpl} /> : <Unavailable />;
+}
+
+/** A client's own domain saved on a site (its custom_domain). When no site
+ *  claims the host, this is the operator app and `fallback` renders instead. */
+export function ClientDomainSite({ hostname, fallback }: { hostname: string; fallback: ReactNode }) {
+  const [site, setSite] = useState<PublishedSite | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadPublishedSite({ domain: hostname }).then((result) => {
+      if (!cancelled) setSite(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [hostname]);
+
+  useBrandTitle(site?.status === "ok" ? site.template : null);
+
+  if (!site) return <div className="min-h-screen" />;
+  if (site.status === "ok") return <SiteRenderer template={site.template} />;
+  if (site.status === "notfound" || !hasPlwConfig) return <>{fallback}</>;
+  return <Unavailable />;
 }

@@ -1,121 +1,28 @@
 import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
 import { Loader2, AlertCircle, MessageCircle, Check, Pencil } from "lucide-react";
-import BusinessSite from "@/components/business-site";
-import LeonardoSite from "@/components/leonardo-site";
-import OryzoSite from "@/components/oryzo-site";
-import RymSite from "@/components/rym-site";
-import FenixSite from "@/components/fenix-site";
 import NotFound from "@/pages/not-found";
-import { getTemplate } from "@/lib/templates";
-import type { BusinessTemplate } from "@/lib/templates/types";
-
-type SavedSite = {
-  id: string;
-  slug: string;
-  brand: {
-    name: string; city: string; phone: string; phoneHref: string;
-    email: string; address: string;
-  };
-  content: { en: unknown; es: unknown };
-  photos: { hero?: string; gallery?: string[]; teamPortrait?: string };
-  overrides?: unknown;
-};
-
-function mergeReplaceArrays<T>(target: T, source: unknown): T {
-  if (source === null || source === undefined) return target;
-  if (Array.isArray(source)) return source as T;
-  if (typeof source !== "object") return source as T;
-  if (target === null || target === undefined || typeof target !== "object" || Array.isArray(target)) {
-    return source as T;
-  }
-  const out: Record<string, unknown> = { ...(target as Record<string, unknown>) };
-  for (const key of Object.keys(source as Record<string, unknown>)) {
-    out[key] = mergeReplaceArrays(
-      (target as Record<string, unknown>)[key],
-      (source as Record<string, unknown>)[key],
-    );
-  }
-  return out as T;
-}
-
-function rebuildTemplate(base: BusinessTemplate, saved: SavedSite): BusinessTemplate {
-  // Apply the generic overrides (every non brand/content/photo field) first,
-  // then let the dedicated brand/content/photo columns win on top.
-  const withOverrides = saved.overrides
-    ? mergeReplaceArrays(base, saved.overrides)
-    : base;
-  const next: BusinessTemplate = {
-    ...withOverrides,
-    brand: { ...withOverrides.brand, ...saved.brand },
-    content: mergeReplaceArrays(withOverrides.content, saved.content),
-  };
-  if (saved.photos && (saved.photos.hero || saved.photos.gallery?.length || saved.photos.teamPortrait)) {
-    // Layer uploaded photos on top of the (possibly overridden) media so that
-    // edited videos/posters/etc. survive while photos win for their fields.
-    const baseMedia = next.media ?? { hero: "", gallery: [], teamPortrait: "" };
-    next.media = {
-      ...baseMedia,
-      hero: saved.photos.hero ?? baseMedia.hero,
-      gallery: saved.photos.gallery && saved.photos.gallery.length > 0
-        ? saved.photos.gallery
-        : baseMedia.gallery,
-      teamPortrait: saved.photos.teamPortrait ?? baseMedia.teamPortrait,
-    };
-  }
-  return next;
-}
+import { SiteRenderer } from "@/components/site-renderer";
+import { loadPublishedSite, type PublishedSite } from "@/lib/saved-site";
 
 export default function SharePreview() {
   const [, params] = useRoute("/share/:id");
   const id = params?.id;
-  const [tpl, setTpl] = useState<BusinessTemplate | null>(null);
-  const [status, setStatus] = useState<"loading" | "ok" | "notfound" | "disabled" | "error">("loading");
-  const [errMsg, setErrMsg] = useState("");
+  const [site, setSite] = useState<PublishedSite | null>(null);
 
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`/api/customized-sites/${encodeURIComponent(id)}`);
-        if (res.status === 404) {
-          if (!cancelled) setStatus("notfound");
-          return;
-        }
-        if (res.status === 410) {
-          if (!cancelled) setStatus("disabled");
-          return;
-        }
-        if (!res.ok) {
-          const j = await res.json().catch(() => ({}));
-          throw new Error(j.error || `Server returned ${res.status}`);
-        }
-        const data = (await res.json()) as SavedSite;
-        const base = getTemplate(data.slug);
-        if (!base) {
-          if (!cancelled) {
-            setStatus("error");
-            setErrMsg(`Template "${data.slug}" no longer exists.`);
-          }
-          return;
-        }
-        if (!cancelled) {
-          setTpl(rebuildTemplate(base, data));
-          setStatus("ok");
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setStatus("error");
-          setErrMsg(e instanceof Error ? e.message : "Could not load the preview.");
-        }
-      }
-    })();
+    setSite(null);
+    loadPublishedSite({ id }).then((result) => {
+      if (!cancelled) setSite(result);
+    });
     return () => { cancelled = true; };
   }, [id]);
 
-  if (!id || status === "notfound") return <NotFound />;
-  if (status === "disabled") {
+  if (!id) return <NotFound />;
+  if (site?.status === "notfound") return <NotFound />;
+  if (site?.status === "disabled") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6">
         <div className="max-w-md text-center space-y-3">
@@ -126,7 +33,7 @@ export default function SharePreview() {
       </div>
     );
   }
-  if (status === "loading") {
+  if (!site) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="flex items-center gap-3 text-slate-600">
@@ -136,32 +43,21 @@ export default function SharePreview() {
       </div>
     );
   }
-  if (status === "error") {
+  if (site.status === "error") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6">
         <div className="max-w-md text-center space-y-3">
           <AlertCircle className="w-10 h-10 text-red-500 mx-auto" />
           <h1 className="text-lg font-semibold text-slate-900">Could not load this preview</h1>
-          <p className="text-sm text-slate-600">{errMsg}</p>
+          <p className="text-sm text-slate-600">{site.message}</p>
         </div>
       </div>
     );
   }
-  if (!tpl) return null;
   return (
     <>
-      {tpl.siteVariant === "leonardo" ? (
-        <LeonardoSite template={tpl} />
-      ) : tpl.siteVariant === "oryzo" ? (
-        <OryzoSite template={tpl} />
-      ) : tpl.siteVariant === "rym" ? (
-        <RymSite template={tpl} />
-      ) : tpl.siteVariant === "fenix" ? (
-        <FenixSite template={tpl} />
-      ) : (
-        <BusinessSite template={tpl} />
-      )}
-      <ShareConversionAsk businessName={tpl.brand.name} />
+      <SiteRenderer template={site.template} />
+      <ShareConversionAsk businessName={site.template.brand.name} />
     </>
   );
 }

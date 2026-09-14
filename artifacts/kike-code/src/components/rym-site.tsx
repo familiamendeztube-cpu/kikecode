@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView, useReducedMotion, AnimatePresence } from "framer-motion";
 import { Clock, Settings, Wind, ThermometerSnowflake, Droplets, MapPin, Phone, ChevronLeft, ChevronRight, Play, X, ZoomIn, Menu, ExternalLink, AlertTriangle, AlertCircle, CheckCircle, MessageCircle, Calendar, Activity } from "lucide-react";
 import type { BusinessTemplate } from "@/lib/templates/types";
+import { submitLead } from "@/lib/plw";
 import { rymWhatsApp, trackRymEvent } from "@/lib/rym-whatsapp";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 
@@ -61,7 +62,7 @@ function FadeInView({ children, delay = 0, className = "" }: { children: React.R
   );
 }
 
-function RequestModal({ isOpen, onClose, type, phone, initService = "", initDesc = "" }: { isOpen: boolean, onClose: () => void, type: "appointment" | "quote", phone: string, initService?: string, initDesc?: string }) {
+function RequestModal({ isOpen, onClose, type, phone, siteId, initService = "", initDesc = "" }: { isOpen: boolean, onClose: () => void, type: "appointment" | "quote", phone: string, siteId?: string, initService?: string, initDesc?: string }) {
   const modalRef = useRef<HTMLDivElement>(null);
   useFocusTrap(isOpen, modalRef, onClose);
 
@@ -98,6 +99,15 @@ function RequestModal({ isOpen, onClose, type, phone, initService = "", initDesc
       trackRymEvent("wa_quote_request");
       window.open(rymWhatsApp.getQuoteLink(phone, formData.name, formData.year, formData.brand, formData.model, formData.service, formData.desc), "_blank");
     }
+    // WhatsApp stays what the visitor sees (opened first, inside the click, so it
+    // is not blocked as a popup); PLW also receives the request as a lead.
+    void submitLead(siteId, {
+      name: formData.name,
+      phone: formData.phone,
+      service: formData.service,
+      message: `${formData.year} ${formData.brand} ${formData.model}\n${formData.desc}`,
+      preferredTime: type === "appointment" ? `${formData.date} ${formData.time}` : undefined,
+    }, "es");
   };
 
   const inputClass = (err: string | undefined) => `w-full bg-[var(--surface-primary)] border ${err ? 'border-red-500' : 'border-[var(--border-subtle)]'} text-[var(--text-primary)] rounded-md px-4 py-3 min-h-[44px] focus:outline-none focus:border-[var(--border-active)] transition-colors text-[16px]`;
@@ -659,7 +669,7 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
           )}
         </AnimatePresence>
 
-        <RequestModal isOpen={modalOpen} onClose={() => { setModalOpen(false); if (lastFocusedRef.current) lastFocusedRef.current.focus(); }} type={modalType} phone={template.brand.phone} initService={selVehicle.service} initDesc={selVehicle.desc} />
+        <RequestModal isOpen={modalOpen} onClose={() => { setModalOpen(false); if (lastFocusedRef.current) lastFocusedRef.current.focus(); }} type={modalType} phone={template.brand.phone} siteId={template.plwSiteId} initService={selVehicle.service} initDesc={selVehicle.desc} />
 
       </div>
     </>

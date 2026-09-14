@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { motion, useScroll, useTransform, useInView, useReducedMotion, AnimatePresence, useSpring } from "framer-motion";
 import type { BusinessTemplate } from "@/lib/templates/types";
+import { submitLead } from "@/lib/plw";
 
 type GalleryCategory = "all" | "branding" | "web" | "content";
 
@@ -138,8 +139,21 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
     ? galleryItems
     : galleryItems.filter((item) => item.category === activeFilter);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [formError, setFormError] = useState(false);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formEl = e.currentTarget;
+    const form = new FormData(formEl);
+    const field = (key: string) => String(form.get(key) ?? "").trim();
+    const ok = await submitLead(template.plwSiteId, {
+      name: field("name"),
+      phone: field("phone"),
+      service: field("service"),
+      message: field("message"),
+    }, lang);
+    setFormError(!ok);
+    if (!ok) return;
+    formEl.reset();
     setFormSuccess(true);
     setTimeout(() => setFormSuccess(false), 5000);
   };
@@ -492,6 +506,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
               </label>
               <input
                 id="contact-name"
+                name="name"
                 type="text"
                 placeholder={content.contact.name}
                 required
@@ -505,6 +520,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
               </label>
               <input
                 id="contact-phone"
+                name="phone"
                 type="tel"
                 placeholder={content.contact.phone}
                 required
@@ -518,6 +534,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
               </label>
               <select
                 id="contact-service"
+                name="service"
                 required
                 className="w-full px-6 py-4 rounded-lg bg-[#353535] border border-[#e5e5e5]/10 text-[#ffffff] text-[16px] focus:outline-none focus:border-[#6e60ee] transition-colors"
                 style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}
@@ -536,6 +553,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
               </label>
               <textarea
                 id="contact-message"
+                name="message"
                 placeholder={content.contact.message}
                 required
                 rows={6}
@@ -556,6 +574,11 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
             {formSuccess && (
               <p className="text-[#03e65b] text-center text-[14px]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
                 {content.contact.success}
+              </p>
+            )}
+            {formError && (
+              <p className="text-red-400 text-center text-[14px]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
+                {lang === "en" ? "We couldn't send that. Please try again." : "No se pudo enviar. Intente de nuevo."}
               </p>
             )}
           </form>

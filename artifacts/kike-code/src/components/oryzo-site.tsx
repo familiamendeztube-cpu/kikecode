@@ -4,6 +4,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import type { BusinessTemplate } from "@/lib/templates/types";
+import { submitLead } from "@/lib/plw";
 
 const DEFAULT_HERO = "/template-assets/barro-ceramica/barro_hero.jpg";
 const DEFAULT_PORTRAIT = "/template-assets/barro-ceramica/barro_void.jpg";
@@ -376,8 +377,16 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
   const footerTitleY = useTransform(footerProgress, [0, 1], [150, 0]);
   const footerTitleOpacity = useTransform(footerProgress, [0, 0.5], [0, 1]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formError, setFormError] = useState(false);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formEl = e.currentTarget;
+    const email = String(new FormData(formEl).get("email") ?? "").trim();
+    // The waitlist asks only for an email; lead-intake needs a name, so the email stands in.
+    const ok = await submitLead(template.plwSiteId, { name: email, email }, lang);
+    setFormError(!ok);
+    if (!ok) return;
+    formEl.reset();
     setFormSuccess(true);
     setTimeout(() => setFormSuccess(false), 5000);
   };
@@ -599,6 +608,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
           <form onSubmit={handleSubmit} className="w-full max-w-xl flex flex-col md:flex-row gap-4">
             <input 
               type="email" 
+              name="email"
               placeholder={LABELS.waitlistPlaceholder[lang]}
               required
               className="flex-grow bg-transparent border-b border-[#40372e] py-4 px-2 text-[20px] font-normal lowercase placeholder:uppercase placeholder:text-[#6c5f51] focus:outline-none focus:border-[#dc5000] transition-colors z-10"
@@ -612,6 +622,11 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
           </form>
           {formSuccess && (
             <p className="mt-6 text-[#dc5000] text-[14px] uppercase tracking-wider">{content.contact.success}</p>
+          )}
+          {formError && (
+            <p className="mt-6 text-red-400 text-[14px]">
+              {lang === "en" ? "We couldn't send that. Please try again." : "No se pudo enviar. Intente de nuevo."}
+            </p>
           )}
         </div>
 

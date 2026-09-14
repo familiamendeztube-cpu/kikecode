@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { BusinessTemplate, BrandOverride, BrandConfig, BrandPalette, Lang, OfferIconKey, TemplateInventory, InventoryVehicle } from "@/lib/templates/types";
+import { fnUrl, submitLead } from "@/lib/plw";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EditableText, EditableImage, ChangePhotoButton } from "@/lib/editable";
 
@@ -101,7 +102,7 @@ function useGreeting(text: string | undefined, lang: Lang) {
     if (!text) return;
     if (typeof window === "undefined" || typeof Audio === "undefined") return;
 
-    const url = `/api/tts?text=${encodeURIComponent(text)}&voice=nova`;
+    const url = `${fnUrl("kike-ai")}?action=tts&text=${encodeURIComponent(text)}&voice=nova`;
     const audio = new Audio(url);
     audio.preload = "auto";
     audioRef.current = audio;
@@ -185,7 +186,7 @@ function InventorySection({ inv, lang, p, brand }: {
   const bodyTypes = Array.from(new Set(inv.vehicles.map((v) => v.bodyStyle)));
   const chips: ("all" | InventoryVehicle["bodyStyle"])[] = ["all", ...bodyTypes];
   const vehicles = filter === "all" ? inv.vehicles : inv.vehicles.filter((v) => v.bodyStyle === filter);
-  const waDigits = brand.phoneHref.replace(/\D/g, "");
+  const waDigits = whatsappDigits(brand);
 
   const L = {
     eyebrow: lang === "en" ? "Our inventory" : "Nuestro inventario",
@@ -687,9 +688,15 @@ const TRUST_SIGNALS: { Icon: LucideIcon; en: string; es: string }[] = [
   { Icon: Heart, en: "Locally owned", es: "Negocio local" },
 ];
 
+/* Digits WhatsApp buttons open: the business's own number when PLW has put the
+   client's PLW number on the site's phone (brand.whatsapp), else the site phone. */
+function whatsappDigits(brand: BrandConfig): string {
+  return (brand.whatsapp || brand.phoneHref).replace(/\D/g, "");
+}
+
 /* Build a WhatsApp deep link from a brand phone + a bilingual prefilled text. */
 function waHref(brand: BrandConfig, text: string): string {
-  const digits = brand.phoneHref.replace(/\D/g, "");
+  const digits = whatsappDigits(brand);
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
 
@@ -768,6 +775,7 @@ export default function BusinessSite({
   }, [template.slug, template.lockedLang]);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [submitted, setSubmitted] = useState(false);
+  const [sendFailed, setSendFailed] = useState(false);
   const [selProject, setSelProject] = useState<number | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   // Respect prefers-reduced-motion: never autoplay looping footage for users
@@ -1233,7 +1241,7 @@ export default function BusinessSite({
                     : "Opciones a su presupuesto, con asesoría amable en cada paso y respuesta de crédito rápida."}
                 </p>
                 <a
-                  href={`https://wa.me/${brand.phoneHref.replace(/\D/g, "")}?text=${encodeURIComponent(lang === "en" ? "Hi! I'd like to know about your financing options." : "¡Hola! Quisiera conocer sus opciones de financiamiento.")}`}
+                  href={`https://wa.me/${whatsappDigits(brand)}?text=${encodeURIComponent(lang === "en" ? "Hi! I'd like to know about your financing options." : "¡Hola! Quisiera conocer sus opciones de financiamiento.")}`}
                   target="_blank" rel="noopener noreferrer"
                   className="mt-auto inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90" style={{ backgroundColor: "#25D366" }}
                 >
@@ -1253,7 +1261,7 @@ export default function BusinessSite({
                     : "¿No lo ve en el lote? Díganos marca, modelo y presupuesto y se lo conseguimos."}
                 </p>
                 <a
-                  href={`https://wa.me/${brand.phoneHref.replace(/\D/g, "")}?text=${encodeURIComponent(lang === "en" ? "Hi! I'm looking for a specific vehicle. Can you help me find it?" : "¡Hola! Estoy buscando un vehículo en específico. ¿Me ayudan a encontrarlo?")}`}
+                  href={`https://wa.me/${whatsappDigits(brand)}?text=${encodeURIComponent(lang === "en" ? "Hi! I'm looking for a specific vehicle. Can you help me find it?" : "¡Hola! Estoy buscando un vehículo en específico. ¿Me ayudan a encontrarlo?")}`}
                   target="_blank" rel="noopener noreferrer"
                   className="mt-auto inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90" style={{ backgroundColor: "#25D366" }}
                 >
@@ -1947,7 +1955,23 @@ export default function BusinessSite({
             </div>
           </div>
 
-          <form className="bg-white rounded-2xl p-6 sm:p-8 text-slate-900 shadow-2xl space-y-4" onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}>
+          <form
+            className="bg-white rounded-2xl p-6 sm:p-8 text-slate-900 shadow-2xl space-y-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = new FormData(e.currentTarget);
+              const field = (key: string) => String(form.get(key) ?? "").trim();
+              const extra = field("extra");
+              const ok = await submitLead(template.plwSiteId, {
+                name: field("name"),
+                phone: field("phone"),
+                service: field("service"),
+                message: [extra && extraField ? `${extraField[lang]}: ${extra}` : "", field("message")].filter(Boolean).join("\n"),
+              }, lang);
+              setSendFailed(!ok);
+              if (ok) setSubmitted(true);
+            }}
+          >
             {submitted ? (
               <div className="text-center py-8">
                 <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center mx-auto mb-4">
@@ -1958,25 +1982,30 @@ export default function BusinessSite({
             ) : (
               <>
                 <FormField label={t.contact.name}>
-                  <input required className="w-full h-11 rounded-lg border border-slate-300 px-3 outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }} />
+                  <input name="name" required className="w-full h-11 rounded-lg border border-slate-300 px-3 outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }} />
                 </FormField>
                 <FormField label={t.contact.phone}>
-                  <input required type="tel" className="w-full h-11 rounded-lg border border-slate-300 px-3 outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }} />
+                  <input name="phone" required type="tel" className="w-full h-11 rounded-lg border border-slate-300 px-3 outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }} />
                 </FormField>
                 <FormField label={t.contact.service}>
-                  <select className="w-full h-11 rounded-lg border border-slate-300 px-3 bg-white outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }}>
+                  <select name="service" className="w-full h-11 rounded-lg border border-slate-300 px-3 bg-white outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }}>
                     <option value="">{t.contact.pick}</option>
                     {t.contact.services.map((s) => <option key={s}>{s}</option>)}
                   </select>
                 </FormField>
                 {extraField && (
                   <FormField label={lang === "en" ? extraField.en : extraField.es}>
-                    <input type={extraField.type} className="w-full h-11 rounded-lg border border-slate-300 px-3 outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }} />
+                    <input name="extra" type={extraField.type} className="w-full h-11 rounded-lg border border-slate-300 px-3 outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }} />
                   </FormField>
                 )}
                 <FormField label={t.contact.message}>
-                  <textarea rows={4} className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }} />
+                  <textarea name="message" rows={4} className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }} />
                 </FormField>
+                {sendFailed && (
+                  <p className="text-sm text-red-600">
+                    {lang === "en" ? "We couldn't send your request. Please call us instead." : "No pudimos enviar su solicitud. Por favor llámenos."}
+                  </p>
+                )}
                 <button type="submit" className="w-full h-12 rounded-lg text-white font-bold shadow-md transition-opacity hover:opacity-90" style={{ backgroundColor: p.primary }}>
                   {t.contact.submit}
                 </button>
@@ -2083,7 +2112,7 @@ export default function BusinessSite({
       {/* FLOATING WHATSAPP — dealership only, desktop (mobile uses the call bar) */}
       {template.inventory && (
         <a
-          href={`https://wa.me/${brand.phoneHref.replace(/\D/g, "")}?text=${encodeURIComponent(lang === "en" ? `Hi! I'm interested in a vehicle from ${brand.name}.` : `¡Hola! Me interesa un vehículo de ${brand.name}.`)}`}
+          href={`https://wa.me/${whatsappDigits(brand)}?text=${encodeURIComponent(lang === "en" ? `Hi! I'm interested in a vehicle from ${brand.name}.` : `¡Hola! Me interesa un vehículo de ${brand.name}.`)}`}
           target="_blank" rel="noopener noreferrer"
           aria-label="WhatsApp"
           className="hidden lg:inline-flex fixed bottom-6 left-6 z-40 items-center gap-2.5 text-white font-bold pl-3.5 pr-5 py-3 rounded-full shadow-2xl transition-transform hover:-translate-y-0.5"
@@ -2122,6 +2151,7 @@ export default function BusinessSite({
         lang={lang}
         greeting={greeting}
         services={t.services.items.map((s) => s.title)}
+        siteId={template.plwSiteId}
       />}
     </div>
   );
@@ -2148,7 +2178,7 @@ function YelpBadge({ className = "" }: { className?: string }) {
 }
 
 function FloatingAssistant({
-  assistant, portraitSrc, brandName, phone, phoneHref, palette, lang, greeting, services,
+  assistant, portraitSrc, brandName, phone, phoneHref, palette, lang, greeting, services, siteId,
 }: {
   assistant: NonNullable<BusinessTemplate["assistant"]>;
   portraitSrc: string | undefined;
@@ -2159,7 +2189,10 @@ function FloatingAssistant({
   lang: Lang;
   greeting: { playing: boolean; playedOnce: boolean; toggle: () => void; pause: () => void; supported: boolean };
   services: string[];
+  /** Published sites only: the booking is sent to PLW as a lead. */
+  siteId?: string;
 }) {
+  const [need, setNeed] = useState("");
   const [minimized, setMinimized] = useState(false);
   const [step, setStep] = useState<"need" | "slot" | "contact" | "done">("need");
   const [msgs, setMsgs] = useState<{ from: "bot" | "user"; text: string }[]>([]);
@@ -2213,6 +2246,7 @@ function FloatingAssistant({
   function submitNeed(text: string) {
     const v = text.trim();
     if (!v) return;
+    setNeed(v);
     setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: L.slotPrompt(v) }]);
     setDraft("");
     setStep("slot");
@@ -2223,7 +2257,7 @@ function FloatingAssistant({
     setMsgs((m) => [...m, { from: "user", text: label }, { from: "bot", text: L.contactPrompt(label) }]);
     setStep("contact");
   }
-  function submitContact(text: string) {
+  async function submitContact(text: string) {
     const v = text.trim();
     if (!v || !chosen) return;
     if (v.replace(/\D/g, "").length < 7) {
@@ -2232,8 +2266,23 @@ function FloatingAssistant({
       return;
     }
     const label = `${chosen.label} ${L.at} ${chosen.time}`;
-    setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: L.doneMsg(label, v) }]);
+    setMsgs((m) => [...m, { from: "user", text: v }]);
     setDraft("");
+    // The chat asks only for a phone, so the lead is named after the chat itself.
+    const ok = await submitLead(siteId, {
+      name: lang === "en" ? "Website chat visitor" : "Visitante del chat del sitio",
+      phone: v,
+      service: need,
+      preferredTime: label,
+    }, lang);
+    if (!ok) {
+      setMsgs((m) => [...m, {
+        from: "bot",
+        text: lang === "en" ? `We couldn't send that. Please call ${brandName} at ${phone}.` : `No pudimos enviarlo. Llame a ${brandName} al ${phone}.`,
+      }]);
+      return;
+    }
+    setMsgs((m) => [...m, { from: "bot", text: L.doneMsg(label, v) }]);
     setStep("done");
   }
   function reset() {
