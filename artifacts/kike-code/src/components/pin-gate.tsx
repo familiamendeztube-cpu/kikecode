@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState, type ReactNode, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ReactNode, type FormEvent } from "react";
 import { Lock, Loader2 } from "lucide-react";
 
 /**

@@ -32,7 +32,7 @@ function rateLimited(ip: string): boolean {
 }
 
 // Site-wide access PIN. Keep this in deployment secrets; never commit the real value.
-const ACCESS_PIN = process.env.ACCESS_PIN;
+const ACCESS_PIN: string = process.env.ACCESS_PIN ?? "";
 
 if (!ACCESS_PIN) {
   throw new Error("ACCESS_PIN environment variable is required");
