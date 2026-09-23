@@ -140,9 +140,10 @@ export function StaffGate({ children }: { children: ReactNode }) {
         </p>
         <input
           value={code}
-          onChange={(e) => setCode(e.target.value)}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
           inputMode="numeric"
           autoComplete="one-time-code"
+          maxLength={6}
           placeholder="000000"
           className={`${inputClass} text-center tracking-[0.5em] text-lg font-semibold`}
         />
