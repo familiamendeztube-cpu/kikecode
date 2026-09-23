@@ -3,7 +3,7 @@
     "version":  "0.0.0",
     "license":  "MIT",
     "scripts":  {
-                    "dev":  "npx --yes pnpm@10.17.1 --filter @workspace/kike-code run dev",
+                    "dev":  "npm run prepare:workspace \u0026\u0026 npx --yes pnpm@10.17.1 --filter @workspace/kike-code run dev",
                     "dev:web":  "npm run dev",
                     "dev:api":  "npm run prepare:workspace \u0026\u0026 npx --yes pnpm@10.17.1 --filter @workspace/api-server run dev",
                     "build":  "npm run prepare:workspace \u0026\u0026 npx --yes pnpm@10.17.1 --filter @workspace/kike-code run build",
