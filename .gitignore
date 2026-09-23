@@ -58,3 +58,8 @@ Thumbs.db
 replit.nix
 replit.md
 attached_assets/
+
+# npm lockfile: this workspace is pnpm (pnpm-workspace.yaml, catalog:).
+# A package-lock.json here makes installers run npm, which cannot read catalog:
+# and ignores the workspace packages entirely.
+package-lock.json
