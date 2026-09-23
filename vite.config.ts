@@ -30,7 +30,8 @@ export default defineConfig({
   root: frontendDir,
   envDir: import.meta.dirname,
   build: {
-    outDir: path.resolve(frontendDir, "dist/public"),
+    // Bolt publishes the dist/ folder at the project root.
+    outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,
   },
   server: {
