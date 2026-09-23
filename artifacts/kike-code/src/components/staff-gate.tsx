@@ -173,6 +173,15 @@ export function StaffGate({ children }: { children: ReactNode }) {
           {busy && <Loader2 className="w-4 h-4 animate-spin" />}
           Entrar / Sign in
         </button>
+        {/* Same account as PLW, so the password is reset on PLW's sign-in page. */}
+        <a
+          href="https://professionallatinoworkers.com/acceso?modo=correo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 block text-center text-sm text-slate-400 hover:text-slate-200"
+        >
+          ¿Olvidó su contraseña? / Forgot your password?
+        </a>
       </form>
     );
   }
