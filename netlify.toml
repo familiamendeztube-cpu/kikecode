@@ -1,0 +1,13 @@
+# Netlify serves the client sites on their own domains (domain aliases on this
+# one site). Bolt's aliases redirect to its primary domain, which would hide the
+# hostname the app uses to pick the client's site (src/App.tsx).
+[build]
+  # Fail the deploy rather than publish a build that cannot reach PLW: a missing
+  # key would take every client domain down at once.
+  command = "[ -n \"$VITE_SUPABASE_URL\" ] && [ -n \"$VITE_SUPABASE_ANON_KEY\" ] || { echo 'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Netlify > Site configuration > Environment variables'; exit 1; }; pnpm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # minimumReleaseAge in pnpm-workspace.yaml needs pnpm 10.16+.
+  PNPM_VERSION = "10.17.1"

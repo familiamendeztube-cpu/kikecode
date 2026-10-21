@@ -3,12 +3,12 @@
 // When the app is opened from one of these hostnames (a client's own domain
 // linked to the deployment), we skip the Kike Code chrome (PIN gate, operator
 // bar, template browser) and render that client's site full-page, exactly like
-// a share link. Any other hostname (replit.app, replit.dev, localhost) gets the
-// normal Kike Code app.
+// a share link. Any other hostname gets the saved-site lookup or the normal
+// Kike Code app (see App.tsx).
 //
-// To hook up a new client domain: link the domain to the deployment in
-// Replit's Domains tab, then add "domain.com": "<template-slug>" below
-// (bare domain and www both listed).
+// To hook up a new hand-built client domain: add it as a domain alias of the
+// Netlify site, then add "domain.com": "<template-slug>" below (bare domain
+// and www both listed).
 
 export const DOMAIN_SITES: Record<string, string> = {
   "autoserviciorym.com": "auto-servicio-rym",
