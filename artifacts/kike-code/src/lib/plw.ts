@@ -25,7 +25,10 @@ export function fnUrl(name: string): string {
   return `${url}/functions/v1/${name}`;
 }
 
-/** POST to a PLW edge function as the signed-in staff member. Throws with the server's error text. */
+/**
+ * POST to a PLW edge function as the signed-in staff member. Throws with the
+ * server's error text; `fields` on the error names what failed validation.
+ */
 export async function callFn<T>(name: string, body: Record<string, unknown>): Promise<T> {
   if (!hasPlwConfig) throw new Error("PLW is not configured (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).");
   const { data: { session } } = await supabase.auth.getSession();
@@ -38,8 +41,8 @@ export async function callFn<T>(name: string, body: Record<string, unknown>): Pr
     },
     body: JSON.stringify(body),
   });
-  const payload = (await res.json().catch(() => ({}))) as { error?: string };
-  if (!res.ok) throw new Error(payload.error || `Server returned ${res.status}`);
+  const payload = (await res.json().catch(() => ({}))) as { error?: string; fields?: string[] };
+  if (!res.ok) throw Object.assign(new Error(payload.error || `Server returned ${res.status}`), { fields: payload.fields });
   return payload as T;
 }
 

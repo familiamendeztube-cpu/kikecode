@@ -77,6 +77,24 @@ export function rebuildTemplate(base: BusinessTemplate, saved: SavedSite, live: 
   return next;
 }
 
+/** What kike-sites accepts as a photo: an upload (data URL) or a web link, never a /template-assets file. */
+const UPLOADED = /^(data:image\/|https?:\/\/)/;
+
+/**
+ * The `photos` a save sends: the uploaded images in the media being saved. Read
+ * at save time, so a photo swapped or removed anywhere in the editor (upload
+ * buttons, "Change photo", the media panel) is stored as shown.
+ */
+export function uploadedPhotos(media: BusinessTemplate["media"]): SavedSite["photos"] {
+  if (!media) return {};
+  const isUpload = (value: unknown): value is string => typeof value === "string" && UPLOADED.test(value);
+  return {
+    hero: isUpload(media.hero) ? media.hero : undefined,
+    teamPortrait: isUpload(media.teamPortrait) ? media.teamPortrait : undefined,
+    gallery: media.gallery?.filter(isUpload),
+  };
+}
+
 export type PublishedSite =
   | { status: "ok"; template: BusinessTemplate }
   | { status: "notfound" }

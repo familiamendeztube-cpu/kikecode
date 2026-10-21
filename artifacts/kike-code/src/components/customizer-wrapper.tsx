@@ -15,7 +15,7 @@ import type { BusinessTemplate, Lang } from "@/lib/templates/types";
 import { SiteEditor, type EditPath } from "@/components/site-editor";
 import { EditProvider } from "@/lib/editable";
 import { callFn, supabase } from "@/lib/plw";
-import { mergeReplaceArrays } from "@/lib/saved-site";
+import { mergeReplaceArrays, uploadedPhotos } from "@/lib/saved-site";
 
 type ChatMsg = { role: "user" | "assistant"; content: string };
 type ShareState = { url: string; copied: boolean } | null;
@@ -73,6 +73,15 @@ async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise
 export function sanitizePhoneHref(phone: string): string {
   const digits = phone.replace(/[^\d+]/g, "");
   return digits.length >= 3 ? `tel:${digits}` : "tel:";
+}
+
+/**
+ * The save failed validation: say which fields, from the names kike-sites
+ * reports ("brand.email", "brand.address", "custom_domain", "overrides", ...).
+ */
+function describeInvalidFields(fields: string[]): string {
+  // TODO: friendly labels (e.g. "brand.email" → "correo / email").
+  return fields.length ? fields.join(", ") : "nombre, teléfono, ciudad, dirección, correo y dominio / client info and domain";
 }
 
 type SeedPhotos = { hero?: string; gallery?: string[]; teamPortrait?: string };
@@ -219,11 +228,6 @@ export default function CustomizerWrapper({
   const [share, setShare] = useState<ShareState>(null);
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
-  // Diff snapshot: only persist photos that differ from the base template, so we
-  // don't bloat the DB row with the (large) built-in stock images.
-  const sharedPhotosRef = useRef<{ hero?: string; gallery?: string[]; teamPortrait?: string }>(
-    seedPhotos ? { ...seedPhotos } : {},
-  );
 
   function applyBrandFields() {
     setTpl((cur) => ({
@@ -252,7 +256,6 @@ export default function CustomizerWrapper({
     setPhotoNotice(null);
     photoCountRef.current =
       (seedPhotos?.hero ? 1 : 0) + (seedPhotos?.gallery?.length ?? 0);
-    sharedPhotosRef.current = seedPhotos ? { ...seedPhotos } : {};
     setPendingImages([]);
     setShare(null);
     setShareError(null);
@@ -291,7 +294,7 @@ export default function CustomizerWrapper({
         slug: original.slug,
         brand,
         content: tpl.content,
-        photos: sharedPhotosRef.current,
+        photos: uploadedPhotos(tpl.media),
         overrides,
         client_id: clientId || null,
         custom_domain: customDomain.trim() || null,
@@ -304,10 +307,12 @@ export default function CustomizerWrapper({
       setShare({ url, copied: false });
     } catch (e) {
       const code = e instanceof Error ? e.message : "";
+      const fields = (e as { fields?: string[] }).fields ?? [];
       setShareError(
         code === "domain_taken" ? "Ese dominio ya está en otro sitio. / That domain is already used by another site."
-          : code === "invalid_payload" ? "Revise nombre, teléfono, ciudad, dirección, correo y dominio. / Check the client info and domain."
-            : code || "Could not save the site.",
+          : code === "invalid_payload" ? `Revise / Check: ${describeInvalidFields(fields)}`
+            : code === "payload_too_large" ? "Demasiadas fotos o muy pesadas. / Too many or too large photos."
+              : code || "Could not save the site.",
       );
     } finally {
       setSharing(false);
@@ -354,7 +359,6 @@ export default function CustomizerWrapper({
         ? { ...cur.media, hero: url }
         : { hero: url, gallery: [], teamPortrait: url },
     }));
-    sharedPhotosRef.current.hero = url;
     photoCountRef.current += 1;
     setShare(null);
   }
@@ -372,10 +376,6 @@ export default function CustomizerWrapper({
         if (i < merged.length) merged[i] = u;
         else merged.push(u);
       });
-      sharedPhotosRef.current.gallery = [
-        ...(sharedPhotosRef.current.gallery ?? []),
-        ...urls,
-      ].slice(0, 12);
       return {
         ...cur,
         media: cur.media
@@ -388,8 +388,7 @@ export default function CustomizerWrapper({
   }
 
   /** Place chat-attached photos onto the live site: first becomes the hero, all
-   *  fill the gallery from the start. Tracked in sharedPhotosRef so they persist
-   *  into the share link. */
+   *  fill the gallery from the start. Saving stores them with the site. */
   function placeChatPhotos(urls: string[]) {
     if (!urls.length) return;
     // Only claim the hero slot if the user hasn't already chosen a custom hero
@@ -411,11 +410,6 @@ export default function CustomizerWrapper({
           : { hero: nextHero, gallery: merged, teamPortrait: nextHero },
       };
     });
-    if (heroIsDefault) sharedPhotosRef.current.hero = urls[0];
-    sharedPhotosRef.current.gallery = [
-      ...(sharedPhotosRef.current.gallery ?? []),
-      ...urls,
-    ].slice(0, 12);
     photoCountRef.current += urls.length;
     setShare(null);
   }
@@ -616,7 +610,7 @@ export default function CustomizerWrapper({
                     data-testid="input-gallery-photos" />
                 </label>
               </div>
-              <p className="text-[10px] text-slate-500">Max 6 MB per photo, {MAX_TOTAL_PHOTOS} total. Photos stay in your browser \u2014 nothing is uploaded.</p>
+              <p className="text-[10px] text-slate-500">Max 6 MB per photo, {MAX_TOTAL_PHOTOS} total. Photos are saved with the site when you save it.</p>
               {photoCountRef.current > 0 && (
                 <p className="text-[11px] text-emerald-400">\u2713 {photoCountRef.current} photo(s) loaded into preview</p>
               )}

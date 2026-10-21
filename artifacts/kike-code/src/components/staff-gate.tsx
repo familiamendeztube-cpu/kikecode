@@ -44,7 +44,11 @@ export function StaffGate({ children }: { children: ReactNode }) {
   async function evaluate(session: Session | null) {
     if (!session) return setState("signin");
     if (needsEmailCode(session)) return setState("code");
-    const { data } = await supabase.from("profiles").select("role, is_active").eq("id", session.user.id).maybeSingle();
+    const { data, error } = await supabase.from("profiles").select("role, is_active").eq("id", session.user.id).maybeSingle();
+    // This re-runs on every token refresh. A failed lookup (say, the network
+    // waking from sleep) must not close an open gate: that unmounts the editor
+    // and throws away unsaved edits.
+    if (error) return setState((s) => (s === "open" ? s : "forbidden"));
     const staff = !!data && data.is_active !== false && STAFF_ROLES.includes(String(data.role));
     setState(staff ? "open" : "forbidden");
   }
