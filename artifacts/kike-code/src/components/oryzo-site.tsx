@@ -5,19 +5,20 @@ import { useGLTF, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import type { BusinessTemplate } from "@/lib/templates/types";
 import { submitLead } from "@/lib/plw";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
-const DEFAULT_HERO = "/template-assets/barro-ceramica/barro_hero.jpg";
-const DEFAULT_PORTRAIT = "/template-assets/barro-ceramica/barro_void.jpg";
+const DEFAULT_HERO = `${TEMPLATE_ASSETS}/barro-ceramica/barro_hero.jpg`;
+const DEFAULT_PORTRAIT = `${TEMPLATE_ASSETS}/barro-ceramica/barro_void.jpg`;
 const DEFAULT_GALLERY = [
-  "/template-assets/barro-ceramica/barro_stack.jpg",
-  "/template-assets/barro-ceramica/barro_camp.jpg",
-  "/template-assets/barro-ceramica/barro_orange.jpg",
+  `${TEMPLATE_ASSETS}/barro-ceramica/barro_stack.jpg`,
+  `${TEMPLATE_ASSETS}/barro-ceramica/barro_camp.jpg`,
+  `${TEMPLATE_ASSETS}/barro-ceramica/barro_orange.jpg`,
 ];
 
 const CUTOUTS = [
-  "/template-assets/barro-ceramica/barro_cut1.png",
-  "/template-assets/barro-ceramica/barro_cut2.png",
-  "/template-assets/barro-ceramica/barro_cut3.png",
+  `${TEMPLATE_ASSETS}/barro-ceramica/barro_cut1.png`,
+  `${TEMPLATE_ASSETS}/barro-ceramica/barro_cut2.png`,
+  `${TEMPLATE_ASSETS}/barro-ceramica/barro_cut3.png`,
 ];
 
 const LABELS = {
@@ -51,10 +52,10 @@ function AnimatedDivider({ reduced }: { reduced: boolean | null }) {
 }
 
 // Preload the mug model
-useGLTF.preload("/template-assets/barro-ceramica/barro_mug.glb");
+useGLTF.preload(`${TEMPLATE_ASSETS}/barro-ceramica/barro_mug.glb`);
 
 function Mug3D({ progressRef, mouseRef }: { progressRef: React.MutableRefObject<number>; mouseRef: React.MutableRefObject<{ x: number; y: number }> }) {
-  const { scene } = useGLTF("/template-assets/barro-ceramica/barro_mug.glb") as any;
+  const { scene } = useGLTF(`${TEMPLATE_ASSETS}/barro-ceramica/barro_mug.glb`) as any;
   const meshRef = useRef<THREE.Group>(null);
   const idleTime = useRef(0);
   const normalizedScale = useRef(1);
@@ -401,8 +402,8 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
   const strip2Img = customGallery[1] || DEFAULT_GALLERY[1] || strip1Img;
   const strip3Img = customGallery[2] || DEFAULT_GALLERY[2] || strip1Img;
 
-  const textureImg = isStockGallery ? "/template-assets/barro-ceramica/barro_texture.jpg" : (customGallery[3] || strip1Img);
-  const beansImg = isStockGallery ? "/template-assets/barro-ceramica/barro_beans.jpg" : (customGallery[4] || strip2Img);
+  const textureImg = isStockGallery ? `${TEMPLATE_ASSETS}/barro-ceramica/barro_texture.jpg` : (customGallery[3] || strip1Img);
+  const beansImg = isStockGallery ? `${TEMPLATE_ASSETS}/barro-ceramica/barro_beans.jpg` : (customGallery[4] || strip2Img);
 
   return (
     <div className="min-h-screen bg-[#100904] text-[#ffedd7] overflow-x-clip" style={{ fontFamily: "Inter, sans-serif" }}>

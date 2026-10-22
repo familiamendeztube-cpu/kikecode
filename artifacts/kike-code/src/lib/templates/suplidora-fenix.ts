@@ -1,5 +1,6 @@
 import { Scissors, Zap, ShieldCheck, Award, Star } from "lucide-react";
 import type { BusinessTemplate } from "./types";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 const suplidoraFenix: BusinessTemplate = {
   slug: "suplidora-fenix",
@@ -17,7 +18,7 @@ const suplidoraFenix: BusinessTemplate = {
     email: "",
     address: "",
     heroIcon: Scissors,
-    logo: "/template-assets/suplidora-fenix/fenix_logo.jpg",
+    logo: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_logo.jpg`,
     socials: {
       instagram: "https://www.instagram.com/suplidora_fenix",
     },
@@ -37,20 +38,20 @@ const suplidoraFenix: BusinessTemplate = {
     },
   },
   media: {
-    hero: "/template-assets/suplidora-fenix/fenix_hero.jpg",
-    heroVideo: "/template-assets/suplidora-fenix/fenix_hero_loop.mp4",
-    heroPoster: "/template-assets/suplidora-fenix/fenix_hero_poster.jpg",
-    video: "/template-assets/suplidora-fenix/fenix_band_loop.mp4",
-    teamPortrait: "/template-assets/suplidora-fenix/fenix_owner.jpg",
+    hero: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_hero.jpg`,
+    heroVideo: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_hero_loop.mp4`,
+    heroPoster: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_hero_poster.jpg`,
+    video: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_band_loop.mp4`,
+    teamPortrait: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_owner.jpg`,
     gallery: [
-      "/template-assets/suplidora-fenix/fenix_clipper_kit.jpg",
-      "/template-assets/suplidora-fenix/fenix_white_set.jpg",
-      "/template-assets/suplidora-fenix/fenix_shaver_red.jpg",
-      "/template-assets/suplidora-fenix/fenix_gold_shaver.jpg",
-      "/template-assets/suplidora-fenix/fenix_vgr.jpg",
-      "/template-assets/suplidora-fenix/fenix_gold_set.jpg",
-      "/template-assets/suplidora-fenix/fenix_clipper_box.jpg",
-      "/template-assets/suplidora-fenix/fenix_shaver_hands.jpg",
+      `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_clipper_kit.jpg`,
+      `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_white_set.jpg`,
+      `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shaver_red.jpg`,
+      `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_gold_shaver.jpg`,
+      `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_vgr.jpg`,
+      `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_gold_set.jpg`,
+      `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_clipper_box.jpg`,
+      `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shaver_hands.jpg`,
     ],
   },
   serviceIcons: [Zap, ShieldCheck, Award, Star],

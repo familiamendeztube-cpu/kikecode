@@ -1,3 +1,5 @@
+import { TEMPLATE_ASSETS } from "@/lib/plw";
+
 /**
  * Client-ready commercial videos with their own shareable links.
  * Each entry powers a public landing page at `/video/:id` and the
@@ -17,7 +19,7 @@ export type ClientVideo = {
   caption: { en: string; es: string };
 };
 
-const lpp = "/template-assets/los-primos-plumbing";
+const lpp = `${TEMPLATE_ASSETS}/los-primos-plumbing`;
 
 export const CLIENT_VIDEOS: ClientVideo[] = [
   {

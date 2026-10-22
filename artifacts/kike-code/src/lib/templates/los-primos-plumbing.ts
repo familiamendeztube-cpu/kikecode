@@ -1,5 +1,6 @@
 import { Droplets, Wrench, ShowerHead, Flame, Clock, ShieldCheck, DollarSign, ThumbsUp } from "lucide-react";
 import type { BusinessTemplate } from "./types";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 const losPrimosPlumbing: BusinessTemplate = {
   slug: "los-primos-plumbing",
@@ -16,7 +17,7 @@ const losPrimosPlumbing: BusinessTemplate = {
     email: "info@losprimosplumbing.com",
     address: "Serving the Los Angeles area, Whittier & La Habra",
     heroIcon: Droplets,
-    logo: "/template-assets/los-primos-plumbing/logo.png",
+    logo: `${TEMPLATE_ASSETS}/los-primos-plumbing/logo.png`,
     socials: {
       instagram: "https://instagram.com/losprimosplumbing",
     },

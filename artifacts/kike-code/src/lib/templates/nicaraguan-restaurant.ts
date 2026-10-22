@@ -1,7 +1,8 @@
 import { Utensils, ChefHat, Drumstick, Beef, Clock, ShieldCheck, Languages, Star } from "lucide-react";
 import type { BusinessTemplate } from "./types";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
-const HERITAGE = "/template-assets/nicaraguan-restaurant/heritage";
+const HERITAGE = `${TEMPLATE_ASSETS}/nicaraguan-restaurant/heritage`;
 
 const nicaraguanRestaurant: BusinessTemplate = {
   slug: "nicaraguan-restaurant",

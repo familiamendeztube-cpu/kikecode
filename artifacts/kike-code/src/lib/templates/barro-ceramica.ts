@@ -1,5 +1,6 @@
 import { Palette, Globe, Wand2, Star, Zap, ThumbsUp, Award, Droplet } from "lucide-react";
 import type { BusinessTemplate } from "./types";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 /**
  * BARRO — Cerámica Artesanal
@@ -30,12 +31,12 @@ const barroCeramica: BusinessTemplate = {
     },
   },
   media: {
-    hero: "/template-assets/barro-ceramica/barro_hero.jpg",
-    teamPortrait: "/template-assets/barro-ceramica/barro_void.jpg",
+    hero: `${TEMPLATE_ASSETS}/barro-ceramica/barro_hero.jpg`,
+    teamPortrait: `${TEMPLATE_ASSETS}/barro-ceramica/barro_void.jpg`,
     gallery: [
-      "/template-assets/barro-ceramica/barro_stack.jpg",
-      "/template-assets/barro-ceramica/barro_camp.jpg",
-      "/template-assets/barro-ceramica/barro_orange.jpg",
+      `${TEMPLATE_ASSETS}/barro-ceramica/barro_stack.jpg`,
+      `${TEMPLATE_ASSETS}/barro-ceramica/barro_camp.jpg`,
+      `${TEMPLATE_ASSETS}/barro-ceramica/barro_orange.jpg`,
     ],
   },
   serviceIcons: [Droplet, Star, Globe],

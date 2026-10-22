@@ -1,5 +1,6 @@
 import { Palette, Globe, Wand2, Star, Zap, ThumbsUp, Award, Layers } from "lucide-react";
 import type { BusinessTemplate } from "./types";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 /**
  * LUMINA — a fictional bilingual digital creative studio.
@@ -31,17 +32,17 @@ const luminaStudio: BusinessTemplate = {
     },
   },
   media: {
-    hero: "/template-assets/lumina-studio/lumina_v2_hero.jpg",
-    teamPortrait: "/template-assets/lumina-studio/lumina_v2_g1.jpg",
+    hero: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_hero.jpg`,
+    teamPortrait: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g1.jpg`,
     gallery: [
-      "/template-assets/lumina-studio/lumina_v2_g1.jpg",
-      "/template-assets/lumina-studio/lumina_v2_g2.jpg",
-      "/template-assets/lumina-studio/lumina_v2_g3.jpg",
-      "/template-assets/lumina-studio/lumina_v2_g4.jpg",
-      "/template-assets/lumina-studio/lumina_v2_g5.jpg",
-      "/template-assets/lumina-studio/lumina_v2_g6.jpg",
-      "/template-assets/lumina-studio/lumina_v2_g7.jpg",
-      "/template-assets/lumina-studio/lumina_v2_g8.jpg",
+      `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g1.jpg`,
+      `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g2.jpg`,
+      `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g3.jpg`,
+      `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g4.jpg`,
+      `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g5.jpg`,
+      `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g6.jpg`,
+      `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g7.jpg`,
+      `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g8.jpg`,
     ]
   },
   serviceIcons: [Palette, Globe, Wand2],

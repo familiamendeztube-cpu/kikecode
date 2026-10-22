@@ -1,6 +1,6 @@
 import { getTemplate } from "@/lib/templates";
 import type { BusinessTemplate } from "@/lib/templates/types";
-import { fnUrl, hasPlwConfig } from "@/lib/plw";
+import { fnUrl, hasPlwConfig, TEMPLATE_ASSETS } from "@/lib/plw";
 
 /** A site as the `kike-sites` function returns it. */
 export type SavedSite = {
@@ -50,6 +50,8 @@ export function mergeReplaceArrays<T>(target: T, source: unknown): T {
  * false so trying the form while editing never creates a lead.
  */
 export function rebuildTemplate(base: BusinessTemplate, saved: SavedSite, live: boolean): BusinessTemplate {
+  // Sites saved before the stock files moved to PLW storage store "/template-assets/..." paths.
+  saved = JSON.parse(JSON.stringify(saved).replaceAll('"/template-assets/', `"${TEMPLATE_ASSETS}/`));
   // Apply the generic overrides (every non brand/content/photo field) first,
   // then let the dedicated brand/content/photo columns win on top.
   const withOverrides = saved.overrides
@@ -77,7 +79,7 @@ export function rebuildTemplate(base: BusinessTemplate, saved: SavedSite, live: 
   return next;
 }
 
-/** What kike-sites accepts as a photo: an upload (data URL) or a web link, never a /template-assets file. */
+/** What kike-sites accepts as a photo: an upload (data URL) or a web link, never a stock template file. */
 const UPLOADED = /^(data:image\/|https?:\/\/)/;
 
 /**
@@ -87,7 +89,8 @@ const UPLOADED = /^(data:image\/|https?:\/\/)/;
  */
 export function uploadedPhotos(media: BusinessTemplate["media"]): SavedSite["photos"] {
   if (!media) return {};
-  const isUpload = (value: unknown): value is string => typeof value === "string" && UPLOADED.test(value);
+  const isUpload = (value: unknown): value is string =>
+    typeof value === "string" && UPLOADED.test(value) && !value.startsWith(TEMPLATE_ASSETS);
   return {
     hero: isUpload(media.hero) ? media.hero : undefined,
     teamPortrait: isUpload(media.teamPortrait) ? media.teamPortrait : undefined,

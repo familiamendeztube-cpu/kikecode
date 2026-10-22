@@ -12,6 +12,7 @@ import type { BusinessTemplate, BrandOverride, BrandConfig, BrandPalette, Lang, 
 import { fnUrl, submitLead } from "@/lib/plw";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EditableText, EditableImage, ChangePhotoButton } from "@/lib/editable";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 const OFFER_ICONS: Record<OfferIconKey, LucideIcon> = {
   Clock, DollarSign, ShieldCheck, Languages, BadgeCheck, Truck, Wrench, Star, Leaf, Sparkles, Heart,
@@ -23,7 +24,7 @@ function personalize(text: string, businessName: string): string {
 }
 
 /* Shared realistic reviewer avatars (reused across templates by index). */
-const REVIEW_AVATARS = Array.from({ length: 8 }, (_, i) => `/template-assets/reviews/r${i + 1}.jpg`);
+const REVIEW_AVATARS = Array.from({ length: 8 }, (_, i) => `${TEMPLATE_ASSETS}/reviews/r${i + 1}.jpg`);
 const REVIEW_PLATFORMS = ["Google", "Yelp", "Google", "Yelp", "Google", "Yelp", "Google", "Yelp"] as const;
 const REVIEW_DATES: Record<Lang, string[]> = {
   en: ["2 weeks ago", "1 month ago", "3 weeks ago", "2 months ago", "5 days ago", "1 week ago", "6 weeks ago", "3 days ago"],

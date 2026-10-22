@@ -1,5 +1,6 @@
 import { Car, Banknote, KeyRound, BadgeCheck, Gauge, ShieldCheck, Headset } from "lucide-react";
 import type { BusinessTemplate } from "./types";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 const chalesGarage: BusinessTemplate = {
   slug: "chales-garage",
@@ -10,7 +11,7 @@ const chalesGarage: BusinessTemplate = {
     "New & used vehicles, Auto financing, Trade-ins, Test drives, Vehicle inspection, Imported vehicles",
   brand: {
     name: "Chale's Garage",
-    logo: "/template-assets/chales-garage/logo-mark.png",
+    logo: `${TEMPLATE_ASSETS}/chales-garage/logo-mark.png`,
     city: "Muelle, San Carlos · Costa Rica",
     phone: "8561-2228",
     phoneHref: "tel:+50685612228",

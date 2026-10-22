@@ -1,6 +1,7 @@
 import type { TemplateEnrichment } from "./types";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
-const base = (slug: string) => `/template-assets/${slug}`;
+const base = (slug: string) => `${TEMPLATE_ASSETS}/${slug}`;
 const hyp = base("hyperion-synthetic-turf");
 const lpp = base("los-primos-plumbing");
 const chg = base("chales-garage");

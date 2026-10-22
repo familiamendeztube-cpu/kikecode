@@ -1,5 +1,6 @@
 import { Wrench, ShieldCheck, Clock, Settings, Settings2, Wind, ThermometerSnowflake, Droplets } from "lucide-react";
 import type { BusinessTemplate } from "./types";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 const autoServicioRym: BusinessTemplate = {
   slug: "auto-servicio-rym",
@@ -16,7 +17,7 @@ const autoServicioRym: BusinessTemplate = {
     email: "", // Removed unverified email
     address: "200 mts oeste de Casa Presidencial, contiguo a Edificio Mira, San José",
     heroIcon: Wrench,
-    logo: "/template-assets/auto-servicio-rym/rym_logo.png",
+    logo: `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_logo.png`,
     palette: {
       primary: "#c9a227", primaryDark: "#a88620", accent: "#f0b323",
       heroFrom: "#3d3d3d", heroVia: "#2a2a2a", heroTo: "#1a1a1a",
@@ -27,24 +28,24 @@ const autoServicioRym: BusinessTemplate = {
   },
   lockedLang: "es",
   media: {
-    hero: "/template-assets/auto-servicio-rym/rym_new_02.jpg",
-    heroVideo: "/template-assets/auto-servicio-rym/rym_hero_loop.mp4",
-    heroPoster: "/template-assets/auto-servicio-rym/rym_hero_poster.jpg",
-    video: "/template-assets/auto-servicio-rym/rym_band_loop.mp4",
-    teamPortrait: "/template-assets/auto-servicio-rym/rym_new_11.jpg",
+    hero: `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_02.jpg`,
+    heroVideo: `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_hero_loop.mp4`,
+    heroPoster: `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_hero_poster.jpg`,
+    video: `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_band_loop.mp4`,
+    teamPortrait: `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_11.jpg`,
     gallery: [
-      "/template-assets/auto-servicio-rym/rym_new_04.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_06.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_08.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_01.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_03.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_05.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_07.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_09.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_10.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_12.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_13.jpg",
-      "/template-assets/auto-servicio-rym/rym_new_14.jpg",
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_04.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_06.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_08.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_01.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_03.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_05.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_07.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_09.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_10.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_12.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_13.jpg`,
+      `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_14.jpg`,
     ],
   },
   serviceIcons: [Settings2, ShieldCheck, Wind, ThermometerSnowflake, Droplets],

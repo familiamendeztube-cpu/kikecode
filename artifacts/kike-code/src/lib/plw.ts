@@ -15,6 +15,12 @@ const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ?
 
 export const hasPlwConfig = Boolean(url && anonKey);
 
+/**
+ * Stock template photos and videos, kept out of the repo (too big for Bolt):
+ * the template-assets/ folder of PLW's public `template-assets` bucket.
+ */
+export const TEMPLATE_ASSETS = `${url}/storage/v1/object/public/template-assets/template-assets`;
+
 // A placeholder keeps createClient from throwing at import when the env is
 // missing; every caller checks hasPlwConfig first.
 export const supabase = createClient(url || "http://localhost", anonKey || "missing-anon-key", {

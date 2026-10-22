@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { motion, useScroll, useTransform, useInView, useReducedMotion, AnimatePresence, useSpring } from "framer-motion";
 import type { BusinessTemplate } from "@/lib/templates/types";
 import { submitLead } from "@/lib/plw";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 type GalleryCategory = "all" | "branding" | "web" | "content";
 
@@ -61,20 +62,20 @@ const LABELS = {
 };
 
 const DEFAULT_GALLERY: GalleryItem[] = [
-  { src: "/template-assets/lumina-studio/lumina_v2_g1.jpg", category: "content", altEn: "Ethereal portrait with butterfly wings" },
-  { src: "/template-assets/lumina-studio/lumina_v2_g2.jpg", category: "branding", altEn: "Mecha samurai warrior in cyberpunk streets" },
-  { src: "/template-assets/lumina-studio/lumina_v2_g3.jpg", category: "content", altEn: "Majestic dragon in storm clouds" },
-  { src: "/template-assets/lumina-studio/lumina_v2_g4.jpg", category: "content", altEn: "Anime character with luminous eyes" },
-  { src: "/template-assets/lumina-studio/lumina_v2_g5.jpg", category: "branding", altEn: "Surreal desert with floating clocks" },
-  { src: "/template-assets/lumina-studio/lumina_v2_g6.jpg", category: "content", altEn: "Astronaut with bioluminescent jellyfish" },
-  { src: "/template-assets/lumina-studio/lumina_v2_g7.jpg", category: "branding", altEn: "Royal fox Renaissance oil painting" },
-  { src: "/template-assets/lumina-studio/lumina_v2_g8.jpg", category: "content", altEn: "Ice phoenix over frozen peaks" },
+  { src: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g1.jpg`, category: "content", altEn: "Ethereal portrait with butterfly wings" },
+  { src: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g2.jpg`, category: "branding", altEn: "Mecha samurai warrior in cyberpunk streets" },
+  { src: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g3.jpg`, category: "content", altEn: "Majestic dragon in storm clouds" },
+  { src: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g4.jpg`, category: "content", altEn: "Anime character with luminous eyes" },
+  { src: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g5.jpg`, category: "branding", altEn: "Surreal desert with floating clocks" },
+  { src: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g6.jpg`, category: "content", altEn: "Astronaut with bioluminescent jellyfish" },
+  { src: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g7.jpg`, category: "branding", altEn: "Royal fox Renaissance oil painting" },
+  { src: `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_g8.jpg`, category: "content", altEn: "Ice phoenix over frozen peaks" },
 ];
 
 const DEFAULT_SHOWCASE_IMAGES = [
-  "/template-assets/lumina-studio/lumina_v2_show1.jpg",
-  "/template-assets/lumina-studio/lumina_v2_show2.jpg",
-  "/template-assets/lumina-studio/lumina_v2_show3.jpg"
+  `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_show1.jpg`,
+  `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_show2.jpg`,
+  `${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_show3.jpg`
 ];
 
 /**
@@ -242,7 +243,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
           {/* Optional subtle hero backdrop */}
           <div className="absolute inset-0 opacity-10 pointer-events-none">
             <img 
-              src="/template-assets/lumina-studio/lumina_v2_hero.jpg" 
+              src={`${TEMPLATE_ASSETS}/lumina-studio/lumina_v2_hero.jpg`} 
               alt="" 
               className="w-full h-full object-cover"
             />

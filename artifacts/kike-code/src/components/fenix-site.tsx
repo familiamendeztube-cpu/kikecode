@@ -6,6 +6,7 @@ import type { BusinessTemplate, Lang } from "@/lib/templates/types";
 import { FenixCatalog } from "./fenix-catalog";
 import { FENIX_PRODUCTS } from "@/lib/templates/fenix-products";
 import { useFocusTrap } from "@/lib/use-focus-trap";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 // Helper components
 function FadeInView({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) {
@@ -118,22 +119,22 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
 
   const WHATSAPP_URL = "https://wa.me/50672974936";
 
-  const heroPoster = template.media?.heroPoster || template.media?.hero || "/template-assets/suplidora-fenix/fenix_hero.jpg";
+  const heroPoster = template.media?.heroPoster || template.media?.hero || `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_hero.jpg`;
   const heroVideo = template.media?.heroVideo;
   const isCustomHero = template.media?.hero && !template.media.hero.includes("fenix_hero.jpg");
   const activeHeroVideo = isCustomHero && !template.media?.heroVideo ? undefined : heroVideo;
-  const shopImg = "/template-assets/suplidora-fenix/fenix_shop2.jpg";
+  const shopImg = `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shop2.jpg`;
 
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 1000], ["0%", "15%"]);
 
   const categoryMap = [
-    { id: "maquinas", title: "Máquinas", img: "/template-assets/suplidora-fenix/fenix_clipper_kit.jpg" },
-    { id: "trimmers", title: "Trimmers", img: "/template-assets/suplidora-fenix/fenix_clipper_box.jpg" },
-    { id: "shavers", title: "Shavers", img: "/template-assets/suplidora-fenix/fenix_shaver_black.jpg" },
-    { id: "secadoras", title: "Secadoras", img: "/template-assets/suplidora-fenix/fenix_dryer.jpg" },
-    { id: "accesorios", title: "Accesorios", img: "/template-assets/suplidora-fenix/fenix_accesorios.jpg" },
-    { id: "sillas", title: "Sillas de Barbero", img: "/template-assets/suplidora-fenix/fenix_shop.jpg" },
+    { id: "maquinas", title: "Máquinas", img: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_clipper_kit.jpg` },
+    { id: "trimmers", title: "Trimmers", img: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_clipper_box.jpg` },
+    { id: "shavers", title: "Shavers", img: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shaver_black.jpg` },
+    { id: "secadoras", title: "Secadoras", img: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_dryer.jpg` },
+    { id: "accesorios", title: "Accesorios", img: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_accesorios.jpg` },
+    { id: "sillas", title: "Sillas de Barbero", img: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shop.jpg` },
   ];
 
   const catCounts = categoryMap.map(c => ({
@@ -173,7 +174,7 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-[var(--background-primary)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] py-3' : 'bg-transparent py-4 md:py-6'}`}>
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center">
           <a href="#" className="flex items-center gap-3 z-50">
-            <img src={template.brand.logo || "/template-assets/suplidora-fenix/fenix_logo.jpg"} alt={template.brand.name} className="w-10 h-10 md:w-14 md:h-14 rounded-full object-cover border border-[var(--premium-gold)]" />
+            <img src={template.brand.logo || `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_logo.jpg`} alt={template.brand.name} className="w-10 h-10 md:w-14 md:h-14 rounded-full object-cover border border-[var(--premium-gold)]" />
             <span className="font-display font-bold tracking-wide text-lg md:text-xl hidden sm:block">SUPLIDORA FÉNIX</span>
           </a>
 
@@ -421,7 +422,7 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
-              <img src={template.brand.logo || "/template-assets/suplidora-fenix/fenix_logo.jpg"} alt={template.brand.name} className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border border-[var(--premium-gold)]" />
+              <img src={template.brand.logo || `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_logo.jpg`} alt={template.brand.name} className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border border-[var(--premium-gold)]" />
               <span className="font-display font-bold tracking-wide text-xl uppercase">Suplidora Fénix</span>
             </div>
             <p className="text-[var(--text-secondary)] text-sm max-w-sm mx-auto md:mx-0 leading-relaxed mb-6">

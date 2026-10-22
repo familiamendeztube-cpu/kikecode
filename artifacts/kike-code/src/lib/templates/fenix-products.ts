@@ -1,3 +1,5 @@
+import { TEMPLATE_ASSETS } from "@/lib/plw";
+
 export type FenixCategory = "maquinas" | "trimmers" | "shavers" | "secadoras" | "accesorios" | "sillas";
 
 export interface FenixProduct {
@@ -19,7 +21,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "WMARK",
     category: "maquinas",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_clipper_box.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_clipper_box.jpg`,
     description: "Máquina de corte. Incluye caja y accesorios según empaque.",
     status: "consultar"
   },
@@ -29,7 +31,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "WMARK",
     category: "maquinas",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_clipper_kit.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_clipper_kit.jpg`,
     description: "Kit de máquinas de corte para barbería.",
     status: "consultar"
   },
@@ -39,7 +41,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "VGR",
     category: "maquinas",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_vgr.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_vgr.jpg`,
     description: "Máquina de corte VGR.",
     status: "consultar"
   },
@@ -49,7 +51,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "Generic",
     category: "maquinas",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_teal.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_teal.jpg`,
     description: "Máquina de corte en color teal.",
     status: "consultar"
   },
@@ -59,7 +61,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "WMARK",
     category: "trimmers",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_white_set.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_white_set.jpg`,
     description: "Colección de terminadoras en color blanco.",
     status: "consultar"
   },
@@ -69,7 +71,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "WMARK",
     category: "trimmers",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_gold_set.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_gold_set.jpg`,
     description: "Terminadoras en color dorado.",
     status: "consultar"
   },
@@ -79,7 +81,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "VGR",
     category: "shavers",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_gold_shaver.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_gold_shaver.jpg`,
     description: "Rasuradora de lámina en color dorado.",
     status: "consultar"
   },
@@ -89,7 +91,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "VGR",
     category: "shavers",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_shaver_black.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shaver_black.jpg`,
     description: "Rasuradora de lámina en color negro.",
     status: "consultar"
   },
@@ -99,7 +101,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "VGR",
     category: "shavers",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_shaver_red.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shaver_red.jpg`,
     description: "Rasuradora de lámina en color rojo.",
     status: "consultar"
   },
@@ -109,7 +111,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "WMARK",
     category: "shavers",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_shaver_hands.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shaver_hands.jpg`,
     description: "Rasuradora compacta.",
     status: "consultar"
   },
@@ -119,7 +121,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "Generic",
     category: "secadoras",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_dryer.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_dryer.jpg`,
     description: "Secadora de cabello.",
     status: "consultar"
   },
@@ -129,7 +131,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "WMARK",
     category: "accesorios",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_accesorios.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_accesorios.jpg`,
     description: "Set de guías de corte en múltiples colores.",
     status: "consultar"
   },
@@ -139,7 +141,7 @@ export const FENIX_PRODUCTS: FenixProduct[] = [
     brand: "Generic",
     category: "sillas",
     price: null,
-    image: "/template-assets/suplidora-fenix/fenix_shop2.jpg",
+    image: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shop2.jpg`,
     description: "Silla para estación de barbería.",
     status: "consultar"
   }

@@ -5,6 +5,7 @@ import type { BusinessTemplate } from "@/lib/templates/types";
 import { submitLead } from "@/lib/plw";
 import { rymWhatsApp, trackRymEvent } from "@/lib/rym-whatsapp";
 import { useFocusTrap } from "@/lib/use-focus-trap";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 const LABELS = {
   location: "Ubicación",
@@ -39,8 +40,8 @@ function useSEO(template: BusinessTemplate) {
       "telephone": template.brand.phone,
       "openingHours": "Mo-Fr 07:00-18:00, Sa 07:00-13:00",
       "url": "https://autoserviciorym.com",
-      "logo": `https://autoserviciorym.com${template.brand.logo || "/template-assets/auto-servicio-rym/rym_logo.png"}`,
-      "image": `https://autoserviciorym.com${template.media?.hero || "/template-assets/auto-servicio-rym/rym_new_02.jpg"}`,
+      "logo": template.brand.logo || `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_logo.png`,
+      "image": template.media?.hero || `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_02.jpg`,
     });
     document.head.appendChild(script);
 
@@ -206,25 +207,25 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
   const [scrollDir, setScrollDir] = useState<"up"|"down">("up");
   const [scrollYPos, setScrollYPos] = useState(0);
 
-  const logoImg = template.brand.logo || "/template-assets/auto-servicio-rym/rym_logo.png";
-  const heroImg = template.media?.hero || "/template-assets/auto-servicio-rym/rym_new_02.jpg";
-  const ownerImg = "/template-assets/auto-servicio-rym/rym_owner.jpg";
-  const shopImg = template.media?.teamPortrait || "/template-assets/auto-servicio-rym/rym_new_11.jpg";
-  const carImg = template.media?.gallery?.[6] || "/template-assets/auto-servicio-rym/rym_new_07.jpg";
+  const logoImg = template.brand.logo || `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_logo.png`;
+  const heroImg = template.media?.hero || `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_02.jpg`;
+  const ownerImg = `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_owner.jpg`;
+  const shopImg = template.media?.teamPortrait || `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_11.jpg`;
+  const carImg = template.media?.gallery?.[6] || `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_07.jpg`;
 
   const DEFAULT_GALLERY = [
-    "/template-assets/auto-servicio-rym/rym_new_04.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_06.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_08.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_01.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_03.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_05.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_07.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_09.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_10.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_12.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_13.jpg",
-    "/template-assets/auto-servicio-rym/rym_new_14.jpg",
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_04.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_06.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_08.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_01.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_03.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_05.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_07.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_09.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_10.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_12.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_13.jpg`,
+    `${TEMPLATE_ASSETS}/auto-servicio-rym/rym_new_14.jpg`,
   ];
   const GALLERY_IMGS = template.media?.gallery?.length ? template.media.gallery : DEFAULT_GALLERY;
 
