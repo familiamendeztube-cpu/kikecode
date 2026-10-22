@@ -2,7 +2,7 @@
 # one site). Bolt's aliases redirect to its primary domain, which would hide the
 # hostname the app uses to pick the client's site (src/App.tsx).
 [build]
-  command = "[ -n \"$VITE_SUPABASE_URL\" ] && [ -n \"$VITE_SUPABASE_ANON_KEY\" ] || { echo 'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Netlify > Site configuration > Environment variables'; exit 1; }; npm run build"
+  command = "npm run build"
   publish = "dist"
 
 [build.environment]
