@@ -1,52 +1,42 @@
 # KikeCode
 
-Bilingual (en/es) website-demo builder for Latino small businesses. Operators pick an industry template, customize it (brand, photos, AI-written copy), and share a live demo link with the client. Originally built on Replit; migrated for Bolt / local dev (see `BOLT_MIGRATION.md`).
+Bilingual (en/es) website-demo builder for Latino small businesses. Operators pick an industry template, customize it (brand, photos, AI-written copy), and share a live demo link with the client.
 
-## Layout (pnpm monorepo)
+One Vite 7 + React 19 + Tailwind 4 app at the repo root; router is `wouter` (`src/App.tsx`). There is no server of its own.
 
-- `artifacts/kike-code/` — Vite 7 + React 19 + Tailwind 4 frontend. Router is `wouter` (`src/App.tsx`). shadcn/ui in `src/components/ui/`.
-  - `src/lib/templates/` — one file per industry template, registered in `index.ts`; shape in `types.ts`. `BRAND_OVERRIDES` names must match the prerecorded MP3 greetings in `enrichments.ts`.
-  - **Backend = Professional Latino Workers' Supabase project** (`src/lib/plw.ts`; env `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`, read from the repo-root `.env`). Saved sites: PLW's `kike-sites` function (table `kike_sites`). Editor AI + greeting audio: `kike-ai`. Contact forms: `lead-intake`, through `submitLead(template.plwSiteId, …)`. Those functions live in the PLW repo (`supabase/functions/kike-*`, `docs/KIKECODE_WEBSITE_INTEGRATION.md`).
-  - `src/components/staff-gate.tsx` — the operator app needs a PLW staff account (email + password + emailed code, like PLW's `/acceso`). `/share/:id` and `/video/:id` stay public.
-  - Client domains: the hand-built ones are mapped in `src/lib/domain-sites.ts`; any other non-localhost host is looked up as a saved site's `custom_domain` (`ClientDomainSite`) before the operator app renders. Client domains are served by Netlify (`netlify.toml`, each domain a domain alias), not Bolt: Bolt's aliases redirect to the primary domain, which hides the hostname this lookup needs.
-  - `template.plwSiteId` is set only on a published site loaded from PLW, so forms in template previews and the editor never create leads. A published site's phone is the client's PLW number once one is assigned (set server-side); the typed number moves to `brand.whatsapp`, which WhatsApp buttons use.
-- `artifacts/api-server/` — **legacy** Express 5 API that the Replit deployment still runs; the web app no longer calls it. Retire it (with `lib/db`) once Replit is switched off.
-- `lib/db/` — Drizzle + `pg`. Schema in `src/schema/`. `DATABASE_URL` is required at import time.
-- `lib/api-spec/` — OpenAPI spec; `pnpm --filter @workspace/api-spec run codegen` (orval) regenerates `lib/api-client-react` and `lib/api-zod`. Never hand-edit `src/generated/`.
-- `lib/integrations-openai-ai-server/` — OpenAI client; throws at import if `OPENAI_API_KEY` is unset.
+## Layout (`src/`)
+
+- `templates/` — one file per template holds everything about it: brand, copy, media, assistant, offers, `facts`, `category`, `realBusiness`. Register new ones in `index.ts`; the shape is `types.ts`.
+- `sites/` — the public sites clients see. `site-renderer.tsx` picks the component by `template.siteVariant`.
+  - `business/` — the shared site for every template without a variant. `business-site.tsx` is only the section order; each section takes `SiteProps` and renders nothing when the template has no data for it. Static copy and fallbacks are in `data.ts`, small parts in `ui.tsx`.
+  - `rym/`, `fenix/`, `leonardo-site.tsx`, `oryzo-site.tsx` — hand-built sites.
+  - `shared/` — used across sites: `whatsappLink(brand, text)` (all wa.me links), `FadeInView`, `useReturnFocus` (spread on a Radix `Dialog.Content` opened from plain buttons).
+- `editor/` — the operator's customizer. `customizer.tsx` holds the state; `panels.tsx` only renders; `save.ts` (kike-sites), `ai.ts` (kike-ai), `images.ts` and `edit-path.ts` are plain logic. `editable.tsx` is the inline-edit context the sites use.
+- `pages/` — routes. `components/` — operator-app chrome, `StatusScreen`, and the shadcn/ui primitives actually used (`components/ui/`).
+- `lib/` — `plw.ts` (Supabase client, `callFn`, `submitLead`), `saved-site.ts` (published sites, `usePublishedSite`), `domain-sites.ts`, `client-videos.ts`.
+
+## Backend
+
+**Professional Latino Workers' Supabase project** (`src/lib/plw.ts`; env `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` in the root `.env`). Saved sites: PLW's `kike-sites` function (table `kike_sites`). Editor AI + greeting audio: `kike-ai`. Contact forms: `lead-intake`, through `submitLead(template.plwSiteId, …)`. Those functions live in the PLW repo (`supabase/functions/kike-*`, `docs/KIKECODE_WEBSITE_INTEGRATION.md`).
+
+- `src/components/staff-gate.tsx` — the operator app needs a PLW staff account (email + password + emailed code, like PLW's `/acceso`). `/share/:id` and `/video/:id` stay public.
+- Client domains: the hand-built ones are mapped in `src/lib/domain-sites.ts`; any other non-localhost host is looked up as a saved site's `custom_domain` (`ClientDomainSite`) before the operator app renders. Client domains are served by Netlify (`netlify.toml`, each domain a domain alias), not Bolt: Bolt's aliases redirect to the primary domain, which hides the hostname this lookup needs.
+- `template.plwSiteId` is set only on a published site loaded from PLW, so forms in template previews and the editor never create leads. A published site's phone is the client's PLW number once one is assigned (set server-side); the typed number moves to `brand.whatsapp`, which `whatsappLink` uses.
 
 ## Commands
 
-Root scripts call pnpm through `npx pnpm@10.17.1`, so only npm needs to be installed.
-
 | Task | Command |
 |---|---|
-| Frontend dev (5173) | `npm run dev` |
-| API dev (8080) | `npm run dev:api` |
-| Both | `npm run dev:full` |
-| Build frontend | `npm run build` → `artifacts/kike-code/dist/public` |
-| Typecheck everything | `npm run typecheck` |
-| Push DB schema | `DATABASE_URL=... npx pnpm@10.17.1 --filter @workspace/db run push` |
+| Dev server (5173) | `npm run dev` |
+| Build | `npm run build` → `dist/` (Bolt and Netlify publish it) |
+| Typecheck | `npm run typecheck` |
 
-Vite proxies `/api` → `http://localhost:8080`. Frontend calls use relative `/api/...` paths.
-
-## Local setup
-
-1. `cp .env.example .env` and fill it in. The API dev script loads the root `.env` via `node --env-file-if-exists`; Vite does not read it.
-   Required for the API to boot: `DATABASE_URL`, `ACCESS_PIN`, `OPENAI_API_KEY`. `SESSION_SECRET` signs the cookie. AI routes need real `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`.
-2. No Postgres installed? Run PGlite as a throwaway server (data in gitignored `.local/`):
-   `mkdir .local; npx @electric-sql/pglite-socket --db=./.local/pglite --port=5432 --max-connections=10`
-   with `DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres`.
-3. Push the schema (table above), then `npm run dev:full`.
-
-Smoke test: `GET /api/healthz` → `{"status":"ok"}`; `POST /api/auth/login {"password": ACCESS_PIN}` → sets `kc_session`.
+Setup: `cp .env.example .env` and fill in the two PLW values, `npm install`, `npm run dev`.
 
 ## Gotchas
 
-- **Don't re-add Replit's platform-binary overrides** to `pnpm-workspace.yaml` (`"esbuild>@esbuild/darwin-arm64": "-"` etc.). They stripped every native binary except linux-x64 and broke Windows, macOS and Bolt. Only the `esbuild` pin and `@esbuild-kit` override remain.
-- `minimumReleaseAge: 1440` in `pnpm-workspace.yaml` is intentional (supply-chain defense) — don't remove it.
-- Dependency versions shared across packages live in the pnpm `catalog:`; use `catalog:` in package.json rather than a literal version.
+- Bolt installs with npm from `package.json`; Netlify installs with pnpm from `pnpm-lock.yaml`. After changing dependencies run `npx pnpm@10.17.1 install` so the lockfile matches, or the Netlify build fails.
+- `minimumReleaseAge: 1440` in `pnpm-workspace.yaml` is intentional (supply-chain defense) — don't remove it. Don't re-add Replit's platform-binary overrides there (`"esbuild>@esbuild/darwin-arm64": "-"` etc.): they broke Windows, macOS and Bolt.
+- `tsconfig.json` has `noUnusedLocals`/`noUnusedParameters`: dead code fails the typecheck.
+- Template media lives in PLW's public `template-assets` bucket (`TEMPLATE_ASSETS`), not `public/` — Bolt drops large files.
 - Scripts must work on Windows: no `export VAR=...`, no `rm -rf` in npm scripts. Save JSON as UTF-8 **without BOM** (Windows PowerShell 5.1 adds one by default).
-- drizzle-kit globbing breaks on Windows backslash paths — keep `schema` in `lib/db/drizzle.config.ts` relative.
-- Bolt runs only the frontend (browser WebContainer), which is all Kike Code needs now: its backend is PLW's Supabase functions. The Express API + Postgres only matter to the Replit deployment.
-- The Replit Postgres data was not migrated; a fresh DB starts empty.
