@@ -5,8 +5,6 @@ dist
 tmp
 out-tsc
 *.tsbuildinfo
-.expo
-.expo-shared
 
 # dependencies
 node_modules
@@ -41,11 +39,7 @@ testem.log
 .DS_Store
 Thumbs.db
 
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
-
-# Replit
-.cache/
+# local scratch (e.g. the old PGlite database)
 .local/
 
 # environment / secrets
@@ -53,13 +47,6 @@ Thumbs.db
 .env.*
 !.env.example
 
-# Replit-only local state
-.replit
-replit.nix
-replit.md
-attached_assets/
-
-# npm lockfile: this workspace is pnpm (pnpm-workspace.yaml, catalog:).
-# A package-lock.json here makes installers run npm, which cannot read catalog:
-# and ignores the workspace packages entirely.
+# The lockfile is pnpm-lock.yaml (Netlify builds with pnpm); Bolt's npm would
+# otherwise leave a second one here.
 package-lock.json
