@@ -71,6 +71,24 @@ describe("injectHead", () => {
     expect(html).toContain('<div id="root"></div>');
   });
 
+  it("never lets a saved language value out of <html lang>", () => {
+    const hostile = { ...site, overrides: { lockedLang: `en"><img src=x onerror=alert(1)>` as never } };
+    const html = injectHead(INDEX_HTML, siteHead(hostile, "domain", new URL("https://elrey.cr/")));
+    expect(html).toContain('<html lang="en">');
+    expect(html).not.toContain("onerror");
+  });
+
+  it("keeps \"$&\" and other replacement patterns in business text literal", () => {
+    const html = injectHead(INDEX_HTML, siteHead({ ...site, brand: { ...site.brand, name: "Rey $& $' $`" } }, "domain", new URL("https://elrey.cr/")));
+    expect(html).toContain("<title>Rey $&amp; $' $` · Curridabat</title>");
+    expect(html.match(/<\/head>/g)).toHaveLength(1);
+  });
+
+  it("reads non-string site data as empty instead of failing", () => {
+    const odd = { ...site, brand: { name: 42 as never }, content: { en: { hero: { subtitle: { x: 1 } as never } } }, overrides: null };
+    expect(siteHead(odd, "domain", new URL("https://elrey.cr/"))).toMatchObject({ title: "", description: "" });
+  });
+
   it("escapes whatever a business name or AI-written copy contains", () => {
     const hostile = { ...site, brand: { ...site.brand, name: `Rey"><script>alert(1)</script>` }, content: { es: { hero: { subtitle: "</script><img src=x onerror=alert(1)>" } } } };
     const html = injectHead(INDEX_HTML, siteHead(hostile, "domain", new URL("https://elrey.cr/")));

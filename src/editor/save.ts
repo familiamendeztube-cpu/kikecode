@@ -82,7 +82,9 @@ export function saveErrorMessage(e: unknown): string {
       : code === "payload_too_large" ? "Demasiadas fotos o muy pesadas. / Too many or too large photos."
         : code === "reassign_first" ? "Para cambiar el cliente de este sitio, pídaselo a un administrador. / Ask an admin to move this site to another client."
           : code === "archived" ? "Este sitio está archivado: restáurelo para editarlo. / This site is archived: restore it to edit."
-            : code || "Could not save the site.";
+            : code === "domain_requires_client" ? "Asigne un cliente PLW antes de agregar un dominio. / Link a PLW client before adding a domain."
+              : code === "conflict" ? "Alguien cambió este sitio al mismo tiempo. Recargue e intente de nuevo. / Someone changed this site at the same time. Reload and try again."
+                : code || "Could not save the site.";
 }
 
 /**

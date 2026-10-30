@@ -38,6 +38,11 @@ const ROBOTS: Record<PageKind, string> = {
   preview: "noindex, nofollow",
 };
 
+/** Site data is JSON staff and the AI wrote: anything that is not a string reads as empty. */
+function str(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
 function clip(text: string, max: number): string {
   const clean = text.replace(/\s+/g, " ").trim();
   return clean.length <= max ? clean : `${clean.slice(0, max - 1).trimEnd()}…`;
@@ -49,11 +54,13 @@ function webImage(...candidates: (string | undefined)[]): string | null {
 }
 
 export function siteHead(site: PublicSiteData, kind: PageKind, url: URL): SiteHead {
-  const lang: Lang = site.overrides?.lockedLang ?? "en";
+  // Only the two known values: lang lands inside <html lang="…">.
+  const lang: Lang = site.overrides?.lockedLang === "es" ? "es" : "en";
   const hero = site.content?.[lang]?.hero ?? site.content?.en?.hero ?? site.content?.es?.hero ?? {};
-  const { name, city } = site.brand;
+  const name = str(site.brand?.name);
+  const city = str(site.brand?.city);
   const title = clip(city ? `${name} · ${city}` : name, 70);
-  const description = clip(hero.subtitle || [hero.title1, hero.title2].filter(Boolean).join(" ") || name, 160);
+  const description = clip(str(hero.subtitle) || [str(hero.title1), str(hero.title2)].filter(Boolean).join(" ") || name, 160);
   const image = webImage(site.photos?.hero, site.overrides?.media?.hero);
   const canonical = kind === "domain" ? `${url.origin}/` : `${url.origin}${url.pathname}`;
   const jsonLd = kind === "domain"
@@ -62,10 +69,10 @@ export function siteHead(site: PublicSiteData, kind: PageKind, url: URL): SiteHe
         "@type": "LocalBusiness",
         name,
         url: canonical,
-        ...(site.brand.phone ? { telephone: site.brand.phone } : {}),
-        ...(site.brand.email ? { email: site.brand.email } : {}),
-        ...(site.brand.address || city
-          ? { address: { "@type": "PostalAddress", ...(site.brand.address ? { streetAddress: site.brand.address } : {}), ...(city ? { addressLocality: city } : {}) } }
+        ...(str(site.brand?.phone) ? { telephone: str(site.brand.phone) } : {}),
+        ...(str(site.brand?.email) ? { email: str(site.brand.email) } : {}),
+        ...(str(site.brand?.address) || city
+          ? { address: { "@type": "PostalAddress", ...(str(site.brand.address) ? { streetAddress: str(site.brand.address) } : {}), ...(city ? { addressLocality: city } : {}) } }
           : {}),
         ...(image ? { image } : {}),
       }
@@ -108,8 +115,9 @@ export function injectHead(html: string, head: SiteHead): string {
     .replace(/<title>[\s\S]*?<\/title>\s*/i, "")
     .replace(/<meta\s+(?:name|property)=["'](?:description|robots|og:[^"']+|twitter:[^"']+)["'][^>]*>\s*/gi, "")
     .replace(/<link\s+rel=["']canonical["'][^>]*>\s*/gi, "")
-    .replace(/<html\b[^>]*>/i, `<html lang="${head.lang}">`);
-  return stripped.replace(/<\/head>/i, `    ${renderHead(head)}\n  </head>`);
+    .replace(/<html\b[^>]*>/i, () => `<html lang="${attr(head.lang)}">`);
+  // A function, not a string: "$&" and friends in business text stay literal.
+  return stripped.replace(/<\/head>/i, () => `    ${renderHead(head)}\n  </head>`);
 }
 
 export function robotsTxt(origin: string, clientSite: boolean): string {

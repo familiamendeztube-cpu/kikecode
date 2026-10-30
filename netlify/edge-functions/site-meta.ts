@@ -23,23 +23,29 @@ type Context = { next(): Promise<Response> };
 
 const LOOKUP_TIMEOUT_MS = 2000;
 const CACHE_MS = 60_000;
-const cache = new Map<string, { at: number; site: PublicSiteData | null }>();
+const CACHE_MAX = 500;
+const cache = new Map<string, { at: number; site: PublicSiteData }>();
 
-/** kike-sites' public read, cached per isolate for a minute (it caches 60 s itself). */
+/**
+ * kike-sites' public read, cached per isolate for a minute (it caches 60 s
+ * itself). Only found sites are cached, and at most CACHE_MAX of them, so
+ * made-up share or preview paths cannot grow the cache.
+ */
 async function lookup(query: string): Promise<PublicSiteData | null> {
   const hit = cache.get(query);
   if (hit && Date.now() - hit.at < CACHE_MS) return hit.site;
   const base = Netlify.env.get("VITE_SUPABASE_URL")?.replace(/\/$/, "");
   if (!base) return null;
-  let site: PublicSiteData | null = null;
   try {
     const res = await fetch(`${base}/functions/v1/kike-sites?${query}`, { signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS) });
-    site = res.ok ? ((await res.json()) as PublicSiteData) : null;
+    if (!res.ok) return null;
+    const site = (await res.json()) as PublicSiteData;
+    if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value as string);
+    cache.set(query, { at: Date.now(), site });
+    return site;
   } catch {
-    site = null;
+    return null;
   }
-  cache.set(query, { at: Date.now(), site });
-  return site;
 }
 
 function isAppHost(host: string): boolean {
@@ -76,11 +82,17 @@ export default async function siteMeta(request: Request, context: Context): Prom
   const [response, site] = await Promise.all([context.next(), lookup(page.query)]);
   if (!site || !(response.headers.get("content-type") ?? "").includes("text/html")) return response;
 
-  const head = siteHead(site, page.kind, url);
+  // Read the page once; if anything about this site's data is off, serve the page as it was.
+  const html = await response.text();
   const headers = new Headers(response.headers);
   headers.delete("content-length");
-  if (page.kind !== "domain") headers.set("x-robots-tag", head.robots);
-  return new Response(injectHead(await response.text(), head), { status: response.status, headers });
+  try {
+    const head = siteHead(site, page.kind, url);
+    if (page.kind !== "domain") headers.set("x-robots-tag", head.robots);
+    return new Response(injectHead(html, head), { status: response.status, headers });
+  } catch {
+    return new Response(html, { status: response.status, headers });
+  }
 }
 
 export const config = {
