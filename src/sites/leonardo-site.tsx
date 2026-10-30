@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { motion, useScroll, useTransform, useInView, useReducedMotion, AnimatePresence, useSpring } from "framer-motion";
 import type { BusinessTemplate } from "@/templates/types";
 import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
+import { SampleTag, isSampleContent } from "@/sites/business/ui";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 type GalleryCategory = "all" | "branding" | "web" | "content";
@@ -476,6 +477,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
       {/* 8. Testimonials */}
       <section id="clients" className="max-w-[1440px] mx-auto px-6 py-24 relative z-20 bg-[#000000]">
         <SectionHeader title={content.testimonials.title} prefersReducedMotion={prefersReducedMotion} />
+        {isSampleContent(template) && <div className="mt-6"><SampleTag lang={lang} /></div>}
         <div className="grid md:grid-cols-3 gap-6 mt-12">
           {content.testimonials.items.map((item, i) => (
             <TestimonialCard key={i} item={item} index={i} prefersReducedMotion={prefersReducedMotion} />

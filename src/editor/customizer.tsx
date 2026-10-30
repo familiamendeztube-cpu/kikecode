@@ -15,7 +15,8 @@ import { compressImage, storeImage, validatePhotos, MAX_GALLERY_PHOTOS } from ".
 import { brandFields, sanitizePhoneHref, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
 import { applyAiEdit, askAi, type ChatMsg } from "./ai";
 import { useSiteLifecycle } from "./lifecycle";
-import { AiChatLog, AiComposer, ClientInfoPanel, PhotosPanel, PublishPanel, SharePanel, type ShareState } from "./panels";
+import { AiChatLog, AiComposer, ClientInfoPanel, ContentCheckPanel, PhotosPanel, PublishPanel, SharePanel, type ShareState } from "./panels";
+import { isSampleContent } from "@/sites/business/ui";
 
 type ClientOption = { id: string; business_name: string };
 type SeedPhotos = { hero?: string; gallery?: string[]; teamPortrait?: string };
@@ -336,6 +337,12 @@ export default function Customizer({
 
             <PhotosPanel photoCount={photoCountRef.current} notice={photoNotice} onHero={uploadHero} onGallery={uploadGallery} />
 
+            <ContentCheckPanel
+              applies={!tpl.realBusiness}
+              confirmed={!!tpl.contentConfirmed}
+              onConfirmed={(confirmed) => edit((cur) => ({ ...cur, contentConfirmed: confirmed }))}
+            />
+
             <SharePanel
               clients={clients}
               clientId={clientId}
@@ -356,6 +363,9 @@ export default function Customizer({
                 previewLink={lifecycle.site ? previewUrl(lifecycle.site.preview_token) : null}
                 publicLink={lifecycle.site ? publishedUrl(lifecycle.site) : null}
                 templateNotice={templateNotice}
+                sampleNotice={isSampleContent(tpl)
+                  ? "Visitors see this site's reviews and claims tagged as samples until you confirm them under \"Reviews & claims\" and save."
+                  : null}
               />
             )}
 

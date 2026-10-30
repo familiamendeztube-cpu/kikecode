@@ -3,37 +3,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { BusinessTemplate, Lang, OfferIconKey, TemplateCategory, TemplateFacts } from "@/templates/types";
-import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 export const OFFER_ICONS: Record<OfferIconKey, LucideIcon> = {
   Clock, DollarSign, ShieldCheck, Languages, BadgeCheck, Truck, Wrench, Star, Leaf, Sparkles, Heart,
 };
 
-/* Shared realistic reviewer avatars (reused across templates by index). */
-export const REVIEW_AVATARS = Array.from({ length: 8 }, (_, i) => `${TEMPLATE_ASSETS}/reviews/r${i + 1}.jpg`);
-export const REVIEW_PLATFORMS = ["Google", "Yelp", "Google", "Yelp", "Google", "Yelp", "Google", "Yelp"] as const;
-export const REVIEW_DATES: Record<Lang, string[]> = {
-  en: ["2 weeks ago", "1 month ago", "3 weeks ago", "2 months ago", "5 days ago", "1 week ago", "6 weeks ago", "3 days ago"],
-  es: ["hace 2 semanas", "hace 1 mes", "hace 3 semanas", "hace 2 meses", "hace 5 días", "hace 1 semana", "hace 6 semanas", "hace 3 días"],
-};
-
-/* Industry-neutral extra reviews appended after each template's own ones,
-   so every site shows a fuller, more believable wall of social proof. */
-export const EXTRA_REVIEWS: Record<Lang, { name: string; role: string; quote: string }[]> = {
-  en: [
-    { name: "Marcos T.", role: "Homeowner", quote: "Showed up exactly on time, gave a fair price up front, and left the place spotless. This is how every business should run." },
-    { name: "Jennifer P.", role: "Repeat customer", quote: "I've used them three times now and they're consistent every single visit. Friendly, professional, and they actually answer the phone." },
-    { name: "Andrés G.", role: "Local resident", quote: "Booked through the website at night and got a confirmation right away. Loved that I could talk to them in Spanish too." },
-  ],
-  es: [
-    { name: "Marcos T.", role: "Propietario", quote: "Llegaron puntuales, dieron un precio justo desde el inicio y dejaron todo impecable. Así debería trabajar todo negocio." },
-    { name: "Jennifer P.", role: "Cliente frecuente", quote: "Los he usado tres veces y siempre son consistentes. Amables, profesionales y de verdad contestan el teléfono." },
-    { name: "Andrés G.", role: "Vecino de la zona", quote: "Reservé por la página de noche y me llegó la confirmación enseguida. Me encantó poder hablar con ellos en español." },
-  ],
-};
-
-/* Universal trust signals shown as a compact strip on every template. Generic,
-   non-fabricated marketing trust phrases (safe for named businesses). */
+/* Universal trust signals shown as a compact strip on every template. They are
+   still promises about the business (free quotes, a guarantee): on a generic
+   template they carry the Sample tag until staff confirm them (contentConfirmed). */
 export const TRUST_SIGNALS: { Icon: LucideIcon; en: string; es: string }[] = [
   { Icon: Languages, en: "Se habla español", es: "Se habla español" },
   { Icon: DollarSign, en: "Free quotes", es: "Cotización gratis" },
@@ -53,9 +30,10 @@ export function buildGreeting(assistant: NonNullable<BusinessTemplate["assistant
 }
 
 /* Stats / Areas / Certs / Guarantee for every template, not just the ones with
-   their own `facts`. The defaults are deliberately generic and honest — no
-   fabricated license numbers, no invented neighbor-town lists, no made-up year
-   counts — so they are safe even for real named businesses. */
+   their own `facts`. The defaults avoid license numbers, town lists and year
+   counts, but they still promise things (free estimates, a guarantee): on a
+   generic template the sections show them with the Sample tag until staff
+   confirm them with the business (isSampleContent in ui.tsx). */
 export function resolveFacts(template: BusinessTemplate): Required<TemplateFacts> {
   const primaryCity = (template.brand.city.split(",")[0] ?? template.brand.city).trim();
   const f = template.facts;

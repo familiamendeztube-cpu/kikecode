@@ -119,7 +119,7 @@ export function AssistantStrip({ template, brand, p, lang, greeting }: SiteProps
           </div>
           <div>
             <div className="text-xs font-bold uppercase tracking-widest mb-0.5" style={{ color: p.primary }}>
-              {lang === "en" ? "Live · Online now" : "En vivo · Conectada ahora"}
+              {lang === "en" ? "Virtual assistant" : "Asistente virtual"}
             </div>
             <div className="font-extrabold text-xl tracking-tight">{assistant.name}</div>
             <div className="text-xs text-slate-500">{lang === "en" ? assistant.roleEn : assistant.roleEs} · {brand.name}</div>
@@ -191,7 +191,7 @@ export function FloatingAssistant({
 
   const L = lang === "en"
     ? {
-        online: "Online now · 24/7 AI assistant",
+        online: "Virtual assistant · takes requests any time",
         tapHint: "Tap anywhere to hear my voice",
         speaking: `${assistant.name} is speaking…`,
         hear: "Hear greeting",
@@ -203,7 +203,7 @@ export function FloatingAssistant({
         send: "Send",
       }
     : {
-        online: "Conectada · Asistente IA 24/7",
+        online: "Asistente virtual · recibe solicitudes a toda hora",
         tapHint: "Toca para escuchar mi voz",
         speaking: `${assistant.name} está hablando…`,
         hear: "Escuchar",
@@ -461,8 +461,8 @@ export function FloatingAssistant({
           {lead.isPreview && <p className="text-[11px] text-amber-800 text-center leading-snug">{previewNotice(lang)}</p>}
           <div className="text-[11px] text-slate-500 text-center leading-snug">
             {lang === "en"
-              ? <>Or call <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a> — a real {brandName} team member answers 24/7</>
-              : <>O llama al <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a> — una persona real de {brandName} contesta 24/7</>}
+              ? <>Or call {brandName} at <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a></>
+              : <>O llama a {brandName} al <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a></>}
           </div>
         </div>
       </div>

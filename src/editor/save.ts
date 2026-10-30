@@ -38,6 +38,8 @@ export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemp
       heritage: tpl.heritage,
       // Read by the edge function that writes the site's <head> (src/lib/site-meta.ts).
       lockedLang: tpl.lockedLang,
+      // Staff's confirmation that reviews and claims are true (else they show as samples).
+      contentConfirmed: tpl.contentConfirmed,
     }),
   );
   return {

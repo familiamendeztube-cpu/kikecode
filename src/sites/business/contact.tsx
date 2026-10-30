@@ -114,7 +114,7 @@ export function FoodBand({ template, brand, lang }: SiteProps) {
   );
 }
 
-/* INDUSTRY WOW BAND — emergency trades: 24/7 service */
+/* INDUSTRY WOW BAND — emergency trades: reach the business now (no promise of response times) */
 export function EmergencyBand({ template, brand, p, lang }: SiteProps) {
   if (template.category !== "emergency") return null;
   return (
@@ -124,10 +124,10 @@ export function EmergencyBand({ template, brand, p, lang }: SiteProps) {
           <span className="grid place-items-center w-14 h-14 rounded-2xl bg-white/15 shrink-0"><Clock className="w-7 h-7" /></span>
           <div>
             <h3 className="text-2xl font-extrabold tracking-tight">
-              {lang === "en" ? "Emergency? We answer fast" : "¿Emergencia? Respondemos rápido"}
+              {lang === "en" ? "Need help urgently?" : "¿Necesita ayuda urgente?"}
             </h3>
             <p className="mt-1 text-white/80">
-              {lang === "en" ? "Same-day and urgent service available — call or message now." : "Servicio el mismo día y urgencias disponibles — llame o escriba ahora."}
+              {lang === "en" ? "Call or message us now and tell us what happened." : "Llámenos o escríbanos ahora y cuéntenos qué pasó."}
             </p>
           </div>
         </div>

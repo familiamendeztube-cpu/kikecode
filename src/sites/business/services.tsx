@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ChevronDown, BadgeCheck, MapPinned, CheckCircle2, X } from "lucide-react";
-import { SiteImage, SectionHeader, type SiteProps } from "./ui";
+import { ChevronDown, MapPinned } from "lucide-react";
+import { SiteImage, SectionHeader, SampleTag, isSampleContent, type SiteProps } from "./ui";
 import { resolveFacts } from "./data";
 
 /* SERVICES */
@@ -58,7 +58,6 @@ export function MeetTheCrew({ template, brand, p, lang }: SiteProps) {
             </div>
             <div className="text-xs leading-tight">
               <div className="font-extrabold text-slate-900">{lang === "en" ? "Your local crew" : "Su equipo local"}</div>
-              <div className="text-slate-500">{lang === "en" ? "ready to help today" : "listos para ayudar hoy"}</div>
             </div>
           </div>
         </div>
@@ -67,13 +66,14 @@ export function MeetTheCrew({ template, brand, p, lang }: SiteProps) {
             {lang === "en" ? "Meet the team" : "Conozca al equipo"}
           </div>
           <h2 className="font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-slate-900 mb-4">
-            {lang === "en" ? "A local team that actually shows up" : "Un equipo local que sí llega"}
+            {lang === "en" ? `The team behind ${brand.name}` : `El equipo detrás de ${brand.name}`}
           </h2>
           <p className="text-slate-600 leading-relaxed mb-7 text-lg">
             {lang === "en"
-              ? `We're your neighbors in ${brand.city.split(",")[0]} — proud of our work and proud to serve our community. When you call ${brand.name}, you get real people who care about doing the job right.`
-              : `Somos sus vecinos en ${brand.city.split(",")[0]} — orgullosos de nuestro trabajo y de servir a nuestra comunidad. Cuando llama a ${brand.name}, le contesta gente de verdad que se preocupa por hacer bien el trabajo.`}
+              ? `We're your neighbors in ${brand.city.split(",")[0]}, proud of our work and proud to serve our community.`
+              : `Somos sus vecinos en ${brand.city.split(",")[0]}, orgullosos de nuestro trabajo y de servir a nuestra comunidad.`}
           </p>
+          {isSampleContent(template) && <SampleTag lang={lang} className="mb-3" />}
           {data && (
             <div className="grid sm:grid-cols-3 gap-4">
               {data.stats.slice(0, 3).map((s) => (
@@ -158,55 +158,6 @@ export function ServiceAreas({ template, brand, p, lang }: SiteProps) {
               <span className="text-sm font-medium text-slate-700">{city}</span>
             </div>
           ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* WHY CHOOSE US — comparison */
-export function Comparison({ brand, p, lang }: SiteProps) {
-  return (
-    <section className="py-20 sm:py-24 bg-white">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <SectionHeader
-          eyebrow={lang === "en" ? "The difference" : "La diferencia"}
-          title={lang === "en" ? `Why neighbors choose ${brand.name}` : `Por qué los vecinos eligen ${brand.name}`}
-          accent={p.primary}
-        />
-        <div className="mt-12 grid md:grid-cols-2 gap-6">
-          <div className="rounded-3xl border-2 p-7 sm:p-8 shadow-xl bg-white" style={{ borderColor: p.primary }}>
-            <div className="inline-flex items-center gap-2 font-extrabold text-lg mb-5" style={{ color: p.primary }}>
-              <BadgeCheck className="w-6 h-6" /> {brand.name}
-            </div>
-            <ul className="space-y-3.5">
-              {(lang === "en"
-                ? ["A real person answers 24/7 — in English or Spanish", "Upfront, written pricing before we start", "Licensed, insured & background-checked crew", "Photos and updates throughout the job", "Satisfaction guarantee on every visit", "Same-week — often same-day — scheduling"]
-                : ["Una persona real contesta 24/7 — en inglés o español", "Precio claro y por escrito antes de empezar", "Equipo con licencia, seguro y antecedentes verificados", "Fotos y avisos durante todo el trabajo", "Garantía de satisfacción en cada visita", "Citas la misma semana — muchas veces el mismo día"]
-              ).map((li) => (
-                <li key={li} className="flex items-start gap-3 text-slate-700">
-                  <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0" style={{ color: p.primary }} />
-                  <span>{li}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-7 sm:p-8">
-            <div className="inline-flex items-center gap-2 font-bold text-lg mb-5 text-slate-400">
-              <X className="w-6 h-6" /> {lang === "en" ? "The other guys" : "Los demás"}
-            </div>
-            <ul className="space-y-3.5">
-              {(lang === "en"
-                ? ["Voicemail, missed calls, no callback", "Surprise charges added after the work", "Unverified, uninsured subcontractors", "Radio silence once they leave", "You're on your own if something goes wrong", "Two-week waits just for an appointment"]
-                : ["Buzón de voz, llamadas perdidas, sin respuesta", "Cargos sorpresa después del trabajo", "Subcontratistas sin verificar ni seguro", "Cero comunicación cuando se van", "Si algo sale mal, te dejan solo", "Esperas de dos semanas solo para una cita"]
-              ).map((li) => (
-                <li key={li} className="flex items-start gap-3 text-slate-400">
-                  <X className="w-5 h-5 mt-0.5 shrink-0" />
-                  <span>{li}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
     </section>

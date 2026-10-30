@@ -99,6 +99,31 @@ export function PhotosPanel({ photoCount, notice, onHero, onGallery }: {
   );
 }
 
+/**
+ * The attestation that removes the Sample tags: staff checked the reviews and
+ * claims with the business. Saved with the draft, so every version records it.
+ */
+export function ContentCheckPanel({ applies, confirmed, onConfirmed }: {
+  /** False for a real business's own template, whose content is its own. */
+  applies: boolean;
+  confirmed: boolean;
+  onConfirmed: (confirmed: boolean) => void;
+}) {
+  if (!applies) return null;
+  return (
+    <section className="space-y-1.5 rounded-lg border border-amber-700/40 bg-amber-950/20 p-3">
+      <h3 className="text-xs uppercase tracking-wider text-amber-300 font-semibold">Reviews &amp; claims</h3>
+      <p className="text-[11px] text-slate-400">
+        The template's reviews, stats, guarantee and trust badges are samples. Until you confirm them, the site tags them "Sample — to confirm with the business". Replace or delete what is not true first.
+      </p>
+      <label className="flex items-start gap-2 text-[11px] text-slate-200">
+        <input type="checkbox" checked={confirmed} onChange={(e) => onConfirmed(e.target.checked)} className="mt-0.5" data-testid="checkbox-content-confirmed" />
+        I checked with the business: the reviews on this site are real and its claims are true.
+      </label>
+    </section>
+  );
+}
+
 export type ShareState = { url: string; copied: boolean } | null;
 
 export function SharePanel({
@@ -201,12 +226,14 @@ function LinkRow({ url, label }: { url: string; label: string }) {
 const smallButton = "h-7 px-2.5 text-[11px]";
 
 /** Publishing, approval, rollback, status and the domain check of a saved site. */
-export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotice }: {
+export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotice, sampleNotice }: {
   lifecycle: SiteLifecycle;
   previewLink: string | null;
   publicLink: string | null;
   /** Set when the template changed since this site was saved. */
   templateNotice: string | null;
+  /** Set while the site still shows sample reviews or claims. */
+  sampleNotice: string | null;
 }) {
   const [note, setNote] = useState("");
   const [how, setHow] = useState("");
@@ -237,6 +264,7 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
         </p>
       )}
       {templateNotice && <p className="text-[11px] text-amber-300">{templateNotice}</p>}
+      {sampleNotice && <p className="text-[11px] text-amber-300" data-testid="sample-notice">{sampleNotice}</p>}
 
       {site.status !== "archived" && (
         <div className="space-y-1.5">
