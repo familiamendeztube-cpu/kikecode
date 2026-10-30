@@ -33,7 +33,8 @@ export function fnUrl(name: string): string {
 
 /**
  * POST to a PLW edge function as the signed-in staff member. Throws with the
- * server's error text; `fields` on the error names what failed validation.
+ * server's error text; `fields` on the error names what failed validation and
+ * `body` is the whole error response (kike-sites' publish puts its blockers there).
  */
 export async function callFn<T>(name: string, body: Record<string, unknown>): Promise<T> {
   if (!hasPlwConfig) throw new Error("PLW is not configured (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).");
@@ -48,7 +49,9 @@ export async function callFn<T>(name: string, body: Record<string, unknown>): Pr
     body: JSON.stringify(body),
   });
   const payload = (await res.json().catch(() => ({}))) as { error?: string; fields?: string[] };
-  if (!res.ok) throw Object.assign(new Error(payload.error || `Server returned ${res.status}`), { fields: payload.fields });
+  if (!res.ok) {
+    throw Object.assign(new Error(payload.error || `Server returned ${res.status}`), { fields: payload.fields, status: res.status, body: payload });
+  }
   return payload as T;
 }
 

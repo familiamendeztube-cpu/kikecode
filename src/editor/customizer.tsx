@@ -5,6 +5,8 @@ import {
   Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger,
 } from "@/components/ui/sheet";
 import { supabase } from "@/lib/plw";
+import { previewUrl, publishedUrl } from "@/lib/saved-site";
+import { templateVersion } from "@/templates";
 import type { BusinessTemplate, Lang } from "@/templates/types";
 import { SiteEditor } from "./site-editor";
 import { EditProvider } from "./editable";
@@ -12,7 +14,8 @@ import { blankLike, getByPath, setByPath, type EditPath } from "./edit-path";
 import { compressImage, validatePhotos, MAX_GALLERY_PHOTOS } from "./images";
 import { brandFields, sanitizePhoneHref, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
 import { applyAiEdit, askAi, type ChatMsg } from "./ai";
-import { AiChatLog, AiComposer, ClientInfoPanel, PhotosPanel, SharePanel, type ShareState } from "./panels";
+import { useSiteLifecycle } from "./lifecycle";
+import { AiChatLog, AiComposer, ClientInfoPanel, PhotosPanel, PublishPanel, SharePanel, type ShareState } from "./panels";
 
 type ClientOption = { id: string; business_name: string };
 type SeedPhotos = { hero?: string; gallery?: string[]; teamPortrait?: string };
@@ -62,6 +65,12 @@ export default function Customizer({
   const [share, setShare] = useState<ShareState>(null);
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+  const lifecycle = useSiteLifecycle(siteId);
+  const savedVersion = lifecycle.site?.template_version ?? null;
+  const currentVersion = templateVersion(original.slug);
+  const templateNotice = savedVersion !== null && savedVersion < currentVersion
+    ? `This site was saved with version ${savedVersion} of its template; the template is now version ${currentVersion}. Check the preview before publishing.`
+    : null;
 
   const [chat, setChat] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState("");
@@ -159,6 +168,8 @@ export default function Customizer({
     setShareError(null);
     try {
       const saved = await saveSite({ siteId, slug: original.slug, fields, tpl, clientId, customDomain });
+      // A new id reloads the lifecycle by itself; the same id needs a refresh.
+      if (saved.id === siteId) void lifecycle.refresh().catch(() => {});
       setSiteId(saved.id);
       setShare({ url: saved.url, copied: false });
     } catch (e) {
@@ -293,7 +304,7 @@ export default function Customizer({
               Client Customizer
             </SheetTitle>
             <SheetDescription className="text-slate-400 text-xs">
-              Fill in the client info, drop in their photos, then chat with the AI to tune the copy. All changes update the preview live — nothing is saved.
+              Fill in the client info, drop in their photos, then chat with the AI to tune the copy. Changes show here live; saving keeps a private draft, and only publishing makes it public.
             </SheetDescription>
           </SheetHeader>
 
@@ -332,6 +343,15 @@ export default function Customizer({
               onSave={shareWithClient}
               onCopy={copyShareUrl}
             />
+
+            {siteId && (
+              <PublishPanel
+                lifecycle={lifecycle}
+                previewLink={lifecycle.site ? previewUrl(lifecycle.site.preview_token) : null}
+                publicLink={lifecycle.site ? publishedUrl(lifecycle.site) : null}
+                templateNotice={templateNotice}
+              />
+            )}
 
             <AiChatLog chat={chat} sending={sending} error={error} />
           </div>

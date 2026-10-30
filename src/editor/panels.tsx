@@ -1,6 +1,7 @@
+import { useState } from "react";
 import {
   Send, Upload, X, Loader2, RotateCcw, Image as ImageIcon, ChevronRight,
-  Share2, Copy, Check, ExternalLink, Paperclip,
+  Share2, Copy, Check, ExternalLink, Paperclip, Rocket, Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,10 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ChatMsg } from "./ai";
 import { MAX_GALLERY_PHOTOS, MAX_TOTAL_PHOTOS } from "./images";
+import { BLOCKER_TEXT, STATUS_LABEL, type SiteLifecycle } from "./lifecycle";
 import type { BrandFields } from "./save";
 
-/* The customizer drawer's sections. They only render: the state and every
-   action live in customizer.tsx. */
+/* The customizer drawer's sections. They only render: the site's state and
+   every action live in customizer.tsx and lifecycle.ts (a panel keeps only
+   what is being typed into it). */
 
 const sectionTitle = "text-xs uppercase tracking-wider text-slate-400 font-semibold";
 
@@ -117,10 +120,10 @@ export function SharePanel({
   return (
     <section className="space-y-2 rounded-lg border border-fuchsia-700/40 bg-gradient-to-br from-fuchsia-950/40 to-purple-950/30 p-3">
       <h3 className="text-xs uppercase tracking-wider text-fuchsia-300 font-semibold flex items-center gap-1.5">
-        <Share2 className="w-3.5 h-3.5" /> Share with client
+        <Share2 className="w-3.5 h-3.5" /> Save &amp; share a preview
       </h3>
       <p className="text-[11px] text-slate-400">
-        Save a live link to send your client. They'll see the customized site exactly as it looks now.
+        Saving keeps a private draft and gives you a preview link for the client. Nothing goes public until you publish below.
       </p>
       <div className="space-y-2">
         <div>
@@ -135,7 +138,7 @@ export function SharePanel({
             {clients.map((c) => <option key={c.id} value={c.id}>{c.business_name}</option>)}
           </select>
           <p className="text-[10px] text-slate-500 mt-1">
-            A linked site shows the client's PLW number and sends its form leads to them.
+            Only a linked site can be published. It shows the client's PLW number and sends its form leads to them.
           </p>
         </div>
         <div>
@@ -155,7 +158,7 @@ export function SharePanel({
         {saving ? (
           <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Saving…</>
         ) : (
-          <><Share2 className="w-3.5 h-3.5 mr-1.5" /> {saved ? "Save changes" : "Create share link"}</>
+          <><Share2 className="w-3.5 h-3.5 mr-1.5" /> {saved ? "Save draft" : "Save draft & get preview link"}</>
         )}
       </Button>
       {error && <p className="text-[11px] text-red-400">{error}</p>}
@@ -177,8 +180,156 @@ export function SharePanel({
             </a>
           </div>
           <p className="text-[10px] text-emerald-400">
-            ✓ Link ready. Send it by text, WhatsApp, or email — your client can open it on any phone.
+            ✓ Draft saved. This preview link shows it to your client on any phone; its forms send nothing.
           </p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function LinkRow({ url, label }: { url: string; label: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-[10px] text-slate-400 w-14 shrink-0">{label}</span>
+      <a href={url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-[11px] text-sky-300 hover:underline">{url}</a>
+      <ExternalLink className="w-3 h-3 text-slate-500 shrink-0" />
+    </div>
+  );
+}
+
+const smallButton = "h-7 px-2.5 text-[11px]";
+
+/** Publishing, approval, rollback, status and the domain check of a saved site. */
+export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotice }: {
+  lifecycle: SiteLifecycle;
+  previewLink: string | null;
+  publicLink: string | null;
+  /** Set when the template changed since this site was saved. */
+  templateNotice: string | null;
+}) {
+  const [note, setNote] = useState("");
+  const [how, setHow] = useState("");
+  const { site, history, busy, held, error, domainCheck } = lifecycle;
+  if (!site) {
+    return error ? <p className="text-[11px] text-red-400">{error}</p> : null;
+  }
+  const live = history?.published_revision_id ?? null;
+  const pending = held?.blockers.includes("approval_required") ? held.revision : null;
+
+  return (
+    <section className="space-y-3 rounded-lg border border-emerald-700/40 bg-emerald-950/20 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-xs uppercase tracking-wider text-emerald-300 font-semibold flex items-center gap-1.5">
+          <Rocket className="w-3.5 h-3.5" /> Publish
+        </h3>
+        <span className="text-[10px] font-semibold rounded-full px-2 py-0.5 bg-slate-800 text-slate-200" data-testid="site-status">
+          {STATUS_LABEL[site.status]}
+        </span>
+      </div>
+
+      {previewLink && <LinkRow url={previewLink} label="Preview" />}
+      {publicLink && site.status === "published" && <LinkRow url={publicLink} label="Public" />}
+      {templateNotice && <p className="text-[11px] text-amber-300">{templateNotice}</p>}
+
+      {site.status !== "archived" && (
+        <div className="space-y-1.5">
+          <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="What changed? (optional)"
+            className="bg-slate-900 border-slate-700 text-white h-8 text-xs" />
+          <Button size="sm" disabled={!!busy} onClick={() => lifecycle.publish(note)}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white border-0" data-testid="button-publish">
+            {busy === "publish" ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Rocket className="w-3.5 h-3.5 mr-1.5" />}
+            Publish the saved draft
+          </Button>
+          <p className="text-[10px] text-slate-500">Save first: publishing uses the last saved draft, not unsaved edits.</p>
+        </div>
+      )}
+
+      {held && (
+        <div className="space-y-1.5 rounded-md border border-amber-600/40 bg-amber-950/30 p-2">
+          {held.blockers.map((b) => <p key={b} className="text-[11px] text-amber-200">{BLOCKER_TEXT[b]}</p>)}
+          {pending && (
+            <>
+              <Input value={how} onChange={(e) => setHow(e.target.value)} placeholder="How did the client approve? (WhatsApp, call…)"
+                className="bg-slate-900 border-slate-700 text-white h-8 text-xs" />
+              <Button size="sm" disabled={!!busy || !how.trim()} onClick={() => lifecycle.approveAndPublish(pending.id, how)}
+                className={`${smallButton} w-full bg-amber-600 hover:bg-amber-500 text-white border-0`} data-testid="button-approve-publish">
+                {busy === "approve" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+                Record approval of version {pending.number} and publish
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+      {error && <p className="text-[11px] text-red-400">{error}</p>}
+
+      <div className="flex flex-wrap gap-1.5">
+        {site.status === "published" && (
+          <Button size="sm" variant="secondary" disabled={!!busy} className={smallButton} onClick={() => lifecycle.setStatus("suspended")}>Suspend</Button>
+        )}
+        {site.status === "suspended" && (
+          <Button size="sm" variant="secondary" disabled={!!busy} className={smallButton} onClick={() => lifecycle.setStatus("published")}>Resume</Button>
+        )}
+        {site.status === "archived" ? (
+          <Button size="sm" variant="secondary" disabled={!!busy} className={smallButton} onClick={() => lifecycle.setStatus("draft")}>Restore as draft</Button>
+        ) : (
+          <Button size="sm" variant="secondary" disabled={!!busy} className={smallButton}
+            onClick={() => { if (window.confirm("Archive this site? It stops being public and its preview link stops working.")) lifecycle.setStatus("archived"); }}>
+            Archive
+          </Button>
+        )}
+        <Button size="sm" variant="secondary" disabled={!!busy} className={smallButton} onClick={lifecycle.rotatePreview}
+          title="The old preview link stops working">
+          New preview link
+        </Button>
+      </div>
+
+      {site.custom_domain && (
+        <div className="space-y-1.5 rounded-md border border-slate-700 p-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] text-slate-200 flex items-center gap-1"><Globe className="w-3 h-3" /> {site.custom_domain}</span>
+            <span className="text-[10px] text-slate-400">{site.domain_status}</span>
+          </div>
+          {site.domain_status !== "active" && site.domain_token && (
+            <p className="text-[10px] text-slate-400 leading-relaxed">
+              1. Add a DNS TXT record: <code className="text-slate-200">_kikecode.{site.custom_domain}</code> ={" "}
+              <code className="text-slate-200 break-all">kikecode-verify={site.domain_token}</code>.
+              {" "}2. Add the domain to Kike Code's hosting and point its DNS there (see the domain guide). 3. Check it:
+            </p>
+          )}
+          {domainCheck && (
+            <p className="text-[10px] text-slate-300">
+              {domainCheck.domain_error === "txt_not_found" ? "TXT record not found yet (DNS can take a while)."
+                : domainCheck.domain_error === "not_serving" ? "Ownership verified. The domain does not show the site yet."
+                  : "The domain serves the site."}
+            </p>
+          )}
+          <Button size="sm" variant="secondary" disabled={!!busy} className={smallButton} onClick={lifecycle.verifyDomain}>
+            {busy === "domain" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />} Check domain
+          </Button>
+        </div>
+      )}
+
+      {history && history.revisions.length > 0 && (
+        <div className="space-y-1">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500">Versions</div>
+          {history.revisions.slice(0, 8).map((rev) => (
+            <div key={rev.id} className="flex items-center gap-2 text-[11px] text-slate-300">
+              <span className="w-6 shrink-0 font-semibold">#{rev.number}</span>
+              <span className="min-w-0 flex-1 truncate" title={rev.note ?? undefined}>
+                {new Date(rev.created_at).toLocaleDateString()} {rev.note ? `· ${rev.note}` : ""}
+                {rev.approved_at ? " · ✓ approved" : ""}
+              </span>
+              {rev.id === live ? (
+                <span className="text-emerald-400 text-[10px]">live</span>
+              ) : site.status !== "archived" && (
+                <button type="button" disabled={!!busy} onClick={() => lifecycle.publishRevision(rev.id)}
+                  className="text-[10px] text-sky-300 hover:underline disabled:opacity-50">
+                  Publish this
+                </button>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </section>
