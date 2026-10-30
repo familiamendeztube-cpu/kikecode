@@ -1,0 +1,39 @@
+name: Production smoke test
+
+# Read-only checks against what is live (scripts/smoke.mjs): the app answers
+# with Kike Code's page, kike-sites answers, and each listed site or domain
+# loads. Run it by hand after a publish or a deploy, or let the daily run
+# catch a site that went dark. A failed run is the alert.
+#
+# Repository variables (Settings → Secrets and variables → Actions → Variables):
+#   SMOKE_APP_URL       the operator app, e.g. https://familiamendeztube-cp-q9tc.bolt.host
+#   SMOKE_SUPABASE_URL  PLW's project URL (public)
+#   SMOKE_SITES         optional, comma-separated published site ids and/or client domains
+
+on:
+  schedule:
+    - cron: '30 10 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      - name: Smoke test
+        env:
+          SMOKE_APP_URL: ${{ vars.SMOKE_APP_URL }}
+          SMOKE_SUPABASE_URL: ${{ vars.SMOKE_SUPABASE_URL }}
+          SMOKE_SITES: ${{ vars.SMOKE_SITES }}
+        run: node scripts/smoke.mjs
