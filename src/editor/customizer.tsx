@@ -11,7 +11,7 @@ import type { BusinessTemplate, Lang } from "@/templates/types";
 import { SiteEditor } from "./site-editor";
 import { EditProvider } from "./editable";
 import { blankLike, getByPath, setByPath, type EditPath } from "./edit-path";
-import { compressImage, validatePhotos, MAX_GALLERY_PHOTOS } from "./images";
+import { compressImage, storeImage, validatePhotos, MAX_GALLERY_PHOTOS } from "./images";
 import { brandFields, sanitizePhoneHref, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
 import { applyAiEdit, askAi, type ChatMsg } from "./ai";
 import { useSiteLifecycle } from "./lifecycle";
@@ -128,7 +128,7 @@ export default function Customizer({
   }
   async function uploadField(path: EditPath, file: File) {
     if (!file.type.startsWith("image/")) return;
-    setField(path, await compressImage(file));
+    setField(path, await storeImage(await compressImage(file), siteId));
   }
   function addItem(path: EditPath) {
     edit((cur) => {
@@ -190,15 +190,20 @@ export default function Customizer({
     }
   }
 
-  /** Validated, compressed photos for an upload (counted against the limit). */
+  /** Validated, compressed photos for an upload (counted against the limit), as data URLs. */
   async function takePhotos(files: File[]): Promise<string[]> {
     const { ok, reason } = validatePhotos(files, photoCountRef.current);
     setPhotoNotice(reason);
     return Promise.all(ok.map((f) => compressImage(f)));
   }
 
+  /** The same photos stored in PLW Storage: the URLs the site keeps. */
+  async function storePhotos(files: File[]): Promise<string[]> {
+    return Promise.all((await takePhotos(files)).map((url) => storeImage(url, siteId)));
+  }
+
   async function uploadHero(file: File) {
-    const [url] = await takePhotos([file]);
+    const [url] = await storePhotos([file]);
     if (!url) return;
     edit((cur) => ({
       ...cur,
@@ -208,7 +213,7 @@ export default function Customizer({
   }
 
   async function uploadGallery(files: FileList) {
-    const urls = await takePhotos(Array.from(files).slice(0, MAX_GALLERY_PHOTOS));
+    const urls = await storePhotos(Array.from(files).slice(0, MAX_GALLERY_PHOTOS));
     if (!urls.length) return;
     edit((cur) => {
       const gallery = fillGallery(cur.media?.gallery ?? [], urls);
@@ -251,8 +256,9 @@ export default function Customizer({
     setPendingImages([]);
     setError(null);
     setSending(true);
-    // Place attached photos on the site immediately, then tell the AI about them.
-    if (imgs.length) placeChatPhotos(imgs);
+    // Place attached photos on the site (stored copies), then tell the AI about
+    // them: kike-ai reads the images themselves, so it gets the data URLs.
+    if (imgs.length) placeChatPhotos(await Promise.all(imgs.map((url) => storeImage(url, siteId))));
     const nextChat: ChatMsg[] = [...chat, { role: "user", content: msg }];
     setChat(nextChat);
 
