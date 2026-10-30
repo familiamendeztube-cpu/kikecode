@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Phone, Quote, Play, Pause, Volume2, MessageCircle, Calendar, CalendarCheck, Send, X } from "lucide-react";
+import { Phone, Quote, Play, Pause, Volume2, MessageCircle, Calendar, Clock, Send, X } from "lucide-react";
 import type { BusinessTemplate, Lang } from "@/templates/types";
-import { fnUrl, submitLead } from "@/lib/plw";
+import { fnUrl } from "@/lib/plw";
+import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
 import type { SiteProps } from "./ui";
-import { buildGreeting, getSlots } from "./data";
+import { buildGreeting } from "./data";
+import { bookingCopy, PREFERRED_TIMES } from "./booking-copy";
 
 /* ---------------------------------------------------------------- */
 /* useGreeting: play the live greeting in a realistic human voice.   */
@@ -170,17 +172,18 @@ export function FloatingAssistant({
   lang: Lang;
   greeting: Greeting;
   services: string[];
-  /** Published sites only: the booking is sent to PLW as a lead. */
+  /** Published sites only: the request is sent to PLW as a lead. */
   siteId?: string;
 }) {
   const [need, setNeed] = useState("");
   const [minimized, setMinimized] = useState(false);
-  const [step, setStep] = useState<"need" | "slot" | "contact" | "done">("need");
+  const [step, setStep] = useState<"need" | "when" | "contact" | "done">("need");
   const [msgs, setMsgs] = useState<{ from: "bot" | "user"; text: string }[]>([]);
   const [draft, setDraft] = useState("");
-  const [chosen, setChosen] = useState<{ label: string; time: string } | null>(null);
+  const [when, setWhen] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const slots = getSlots(lang);
+  const lead = useLeadForm(siteId, lang);
+  const B = bookingCopy(lang, brandName);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -194,15 +197,9 @@ export function FloatingAssistant({
         hear: "Hear greeting",
         pause: "Pause",
         needPh: "Type what you need…",
-        slotPrompt: (n: string) => `Perfect — let's set up your free appointment for "${n}". Pick a time that works for you:`,
-        contactPrompt: (s: string) => `Great! You're almost booked for ${s}. What's the best number to text your confirmation to?`,
         contactPh: "Your phone number",
         invalidPhone: "Hmm, that doesn't look like a phone number — please enter a number we can text.",
-        doneMsg: (s: string, ph: string) => `✅ All set! You're booked for ${s}. ${brandName} will text ${ph} to confirm. Talk soon!`,
-        booked: "Appointment booked!",
-        startOver: "Book another",
         callNow: "Call now",
-        at: "at",
         send: "Send",
       }
     : {
@@ -212,15 +209,9 @@ export function FloatingAssistant({
         hear: "Escuchar",
         pause: "Pausar",
         needPh: "Escribe lo que necesitas…",
-        slotPrompt: (n: string) => `Perfecto — agendemos tu cita gratis para "${n}". Elige el horario que te quede mejor:`,
-        contactPrompt: (s: string) => `¡Genial! Casi listo para ${s}. ¿A qué número te enviamos la confirmación?`,
         contactPh: "Tu número de teléfono",
         invalidPhone: "Mmm, eso no parece un teléfono — escribe un número al que podamos enviarte mensaje.",
-        doneMsg: (s: string, ph: string) => `✅ ¡Listo! Quedaste agendado para ${s}. ${brandName} te enviará un mensaje al ${ph} para confirmar. ¡Hablamos pronto!`,
-        booked: "¡Cita agendada!",
-        startOver: "Agendar otra",
         callNow: "Llamar",
-        at: "a las",
         send: "Enviar",
       };
 
@@ -228,46 +219,46 @@ export function FloatingAssistant({
     const v = text.trim();
     if (!v) return;
     setNeed(v);
-    setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: L.slotPrompt(v) }]);
+    setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: B.whenPrompt(v) }]);
     setDraft("");
-    setStep("slot");
+    setStep("when");
   }
-  function pickSlot(s: { label: string; time: string }) {
-    const label = `${s.label} ${L.at} ${s.time}`;
-    setChosen(s);
-    setMsgs((m) => [...m, { from: "user", text: label }, { from: "bot", text: L.contactPrompt(label) }]);
+  function submitWhen(text: string) {
+    const v = text.trim();
+    if (!v) return;
+    setWhen(v);
+    setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: B.contactPrompt(v) }]);
+    setDraft("");
     setStep("contact");
   }
   async function submitContact(text: string) {
     const v = text.trim();
-    if (!v || !chosen) return;
+    if (!v || !when || lead.sending) return;
     if (v.replace(/\D/g, "").length < 7) {
       setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: L.invalidPhone }]);
       setDraft("");
       return;
     }
-    const label = `${chosen.label} ${L.at} ${chosen.time}`;
     setMsgs((m) => [...m, { from: "user", text: v }]);
     setDraft("");
     // The chat asks only for a phone, so the lead is named after the chat itself.
-    const ok = await submitLead(siteId, {
+    const result = await lead.submit({
+      form: "assistant",
       name: lang === "en" ? "Website chat visitor" : "Visitante del chat del sitio",
       phone: v,
       service: need,
-      preferredTime: label,
-    }, lang);
-    if (!ok) {
-      setMsgs((m) => [...m, {
-        from: "bot",
-        text: lang === "en" ? `We couldn't send that. Please call ${brandName} at ${phone}.` : `No pudimos enviarlo. Llame a ${brandName} al ${phone}.`,
-      }]);
+      preferredTime: when,
+    });
+    if (!result) return;
+    if (result.status === "failed") {
+      setMsgs((m) => [...m, { from: "bot", text: leadOutcomeMessage(result, lang, phone) ?? "" }]);
       return;
     }
-    setMsgs((m) => [...m, { from: "bot", text: L.doneMsg(label, v) }]);
+    setMsgs((m) => [...m, { from: "bot", text: result.status === "sent" ? B.doneMsg(v) : B.previewMsg }]);
     setStep("done");
   }
   function reset() {
-    setMsgs([]); setChosen(null); setDraft(""); setStep("need");
+    setMsgs([]); setWhen(""); setDraft(""); setStep("need"); lead.reset();
   }
 
   if (minimized) {
@@ -399,33 +390,47 @@ export function FloatingAssistant({
             </>
           )}
 
-          {step === "slot" && (
-            <div className="grid grid-cols-1 gap-2">
-              {slots.map((s) => (
-                <button
-                  key={s.label + s.time}
-                  onClick={() => pickSlot(s)}
-                  className="flex items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-semibold hover:bg-slate-50 transition-colors capitalize"
-                  style={{ borderColor: `${palette.primary}40` }}
-                >
-                  <span className="inline-flex items-center gap-2 text-slate-700"><Calendar className="w-4 h-4" style={{ color: palette.primary }} /> {s.label}</span>
-                  <span style={{ color: palette.primary }}>{s.time}</span>
+          {step === "when" && (
+            <>
+              <div className="grid grid-cols-2 gap-2">
+                {PREFERRED_TIMES[lang].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => submitWhen(option)}
+                    className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                    style={{ borderColor: `${palette.primary}40` }}
+                  >
+                    <Calendar className="w-4 h-4 shrink-0" style={{ color: palette.primary }} /> {option}
+                  </button>
+                ))}
+              </div>
+              <form onSubmit={(e) => { e.preventDefault(); submitWhen(draft); }} className="flex gap-2">
+                <input
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={B.whenPh}
+                  aria-label={B.whenPh}
+                  className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
+                />
+                <button type="submit" aria-label={L.send} className="shrink-0 w-10 grid place-items-center rounded-xl text-white" style={{ backgroundColor: palette.primary }}>
+                  <Send className="w-4 h-4" />
                 </button>
-              ))}
-            </div>
+              </form>
+            </>
           )}
 
           {step === "contact" && (
-            <form onSubmit={(e) => { e.preventDefault(); submitContact(draft); }} className="flex gap-2">
+            <form onSubmit={(e) => { e.preventDefault(); void submitContact(draft); }} className="flex gap-2">
               <input
                 type="tel"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder={L.contactPh}
                 aria-label={L.contactPh}
+                disabled={lead.sending}
                 className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
               />
-              <button type="submit" aria-label={L.send} className="shrink-0 w-10 grid place-items-center rounded-xl text-white" style={{ backgroundColor: palette.primary }}>
+              <button type="submit" disabled={lead.sending} aria-busy={lead.sending} aria-label={L.send} className="shrink-0 w-10 grid place-items-center rounded-xl text-white disabled:opacity-60 disabled:cursor-wait" style={{ backgroundColor: palette.primary }}>
                 <Send className="w-4 h-4" />
               </button>
             </form>
@@ -433,20 +438,27 @@ export function FloatingAssistant({
 
           {step === "done" && (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2.5 text-sm font-bold text-emerald-800">
-                <CalendarCheck className="w-4 h-4" /> {L.booked}
-              </div>
+              {lead.state.status === "sent" ? (
+                <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2.5 text-sm font-bold text-emerald-800">
+                  <Clock className="w-4 h-4" /> {B.doneBadge}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-sm font-bold text-amber-900">
+                  <Clock className="w-4 h-4" /> {B.previewBadge}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-2">
                 <a href={phoneHref} onClick={greeting.pause} className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white text-sm font-bold px-3 py-2.5 rounded-xl shadow-sm hover:opacity-90 transition-opacity">
                   <Phone className="w-4 h-4" /> {L.callNow}
                 </a>
                 <button onClick={reset} className="inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-700 text-sm font-bold px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
-                  {L.startOver}
+                  {B.startOver}
                 </button>
               </div>
             </div>
           )}
 
+          {lead.isPreview && <p className="text-[11px] text-amber-800 text-center leading-snug">{previewNotice(lang)}</p>}
           <div className="text-[11px] text-slate-500 text-center leading-snug">
             {lang === "en"
               ? <>Or call <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a> — a real {brandName} team member answers 24/7</>

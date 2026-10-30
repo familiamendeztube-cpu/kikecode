@@ -42,35 +42,14 @@ export const TRUST_SIGNALS: { Icon: LucideIcon; en: string; es: string }[] = [
   { Icon: Heart, en: "Locally owned", es: "Negocio local" },
 ];
 
-/* The assistant greeting always invites the visitor to book right now. */
+/* The assistant greeting invites a request; the business confirms the time (see booking-copy.ts). */
 const BOOKING_INVITE: Record<Lang, string> = {
-  en: "Just tell me what you need and I'll book your free appointment right now.",
-  es: "Solo dime qué necesitas y te agendo tu cita gratis ahora mismo.",
+  en: "Just tell me what you need and I'll send your appointment request to the team.",
+  es: "Solo dime qué necesitas y le envío tu solicitud de cita al equipo.",
 };
 export function buildGreeting(assistant: NonNullable<BusinessTemplate["assistant"]>, lang: Lang, brandName: string): string {
   const base = (lang === "en" ? assistant.en : assistant.es).replace(/\{business\}/g, brandName);
   return `${base} ${BOOKING_INVITE[lang]}`;
-}
-
-/* Next two non-Sunday openings for the live booking flow. */
-export function getSlots(lang: Lang): { label: string; time: string }[] {
-  const locale = lang === "en" ? "en-US" : "es-ES";
-  const dateFmt = new Intl.DateTimeFormat(locale, { weekday: "long", month: "short", day: "numeric" });
-  const timeFmt = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" });
-  const hours: [number, number][] = [[10, 30], [14, 0]];
-  const out: { label: string; time: string }[] = [];
-  let offset = 1;
-  while (out.length < 2 && offset < 14) {
-    const d = new Date();
-    d.setDate(d.getDate() + offset);
-    if (d.getDay() !== 0) {
-      const [h, m] = hours[out.length]!;
-      d.setHours(h, m, 0, 0);
-      out.push({ label: dateFmt.format(d), time: timeFmt.format(d) });
-    }
-    offset++;
-  }
-  return out;
 }
 
 /* Stats / Areas / Certs / Guarantee for every template, not just the ones with
