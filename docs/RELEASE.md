@@ -46,7 +46,25 @@ Recommended order:
 Merging the refactor first works too: then merge `main` into this branch and take the same
 rehearsal files.
 
+Checked on 2026-10-30 that nothing of the refactor is lost: per file, the merged result keeps every
+`pick()`, `<Eyebrow>`, `GHOST_CTA` and `<WhatsAppButton>` except those inside code this branch
+removed (the invented time slots in `data.ts`, the old form error lines, the rating block and
+"verified" captions in `proof.tsx`, the Comparison section and "ready to help today" in
+`services.tsx`); `share-preview.tsx`'s `WhatsAppButton` is in `preview.tsx`, where that component
+moved. Rehearsal minus this branch is exactly the refactor (15 files); rehearsal minus the
+refactor's commit is this branch. Until the refactor is committed, its only copies are the staged
+index in the main checkout and the rehearsal's commit `8aea75d`.
+
 ## 2. Publish
+
+**What a publish ships.** Not only this branch: the live Bolt build is not a checkout of `main`
+(on 2026-10-30 it had `bd33f6a` of 2026-10-21 but not `e5dcd97` of 2026-09-23) and predates
+`662e32b` (Replit stack retired, app reorganized) and `7bf9901` (template photos and videos served
+from PLW's `template-assets` bucket; all 355 URLs the templates use exist there, checked
+2026-10-30). Before publishing, test the exact build: `npm run build && npm run preview` on the
+merged `main`, sign in, open the templates, create and save a draft, open its preview link.
+Publish only after PLW's step 6: this editor needs the new `kike-sites` (with the old one, saving
+works but the preview link and the Publish panel do not).
 
 - **Bolt** (Kike Code project): bring in the merged `main`, then **Publish**. Bolt installs with npm
   from `package.json`; Netlify with pnpm from `pnpm-lock.yaml` (kept in sync on this branch).
