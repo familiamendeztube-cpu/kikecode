@@ -29,6 +29,9 @@ export type StoredSite = SavedSite & {
   status: SiteStatus;
   published_revision_id: string | null;
   published_at: string | null;
+  /** Why the live version went public: the client's approval, an admin override, or an admin without new approval. */
+  published_basis: "client_approval" | "admin_override" | "admin_without_approval" | null;
+  published_basis_note: string | null;
   preview_token: string;
   domain_status: DomainStatus;
   domain_token: string | null;

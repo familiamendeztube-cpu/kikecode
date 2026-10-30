@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ChatMsg } from "./ai";
 import { MAX_GALLERY_PHOTOS, MAX_TOTAL_PHOTOS } from "./images";
-import { BLOCKER_TEXT, STATUS_LABEL, type SiteLifecycle } from "./lifecycle";
+import { BASIS_TEXT, BLOCKER_TEXT, OVERRIDE_REASON_MIN, STATUS_LABEL, type SiteLifecycle } from "./lifecycle";
 import type { BrandFields } from "./save";
 
 /* The customizer drawer's sections. They only render: the site's state and
@@ -210,6 +210,7 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
 }) {
   const [note, setNote] = useState("");
   const [how, setHow] = useState("");
+  const [reason, setReason] = useState("");
   const { site, history, busy, held, error, domainCheck } = lifecycle;
   if (!site) {
     return error ? <p className="text-[11px] text-red-400">{error}</p> : null;
@@ -230,6 +231,11 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
 
       {previewLink && <LinkRow url={previewLink} label="Preview" />}
       {publicLink && site.status === "published" && <LinkRow url={publicLink} label="Public" />}
+      {site.published_basis && (
+        <p className="text-[10px] text-slate-400" data-testid="published-basis">
+          Live version published on: {BASIS_TEXT[site.published_basis]}{site.published_basis_note ? ` (${site.published_basis_note})` : ""}
+        </p>
+      )}
       {templateNotice && <p className="text-[11px] text-amber-300">{templateNotice}</p>}
 
       {site.status !== "archived" && (
@@ -246,18 +252,33 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
       )}
 
       {held && (
-        <div className="space-y-1.5 rounded-md border border-amber-600/40 bg-amber-950/30 p-2">
+        <div className="space-y-2 rounded-md border border-amber-600/40 bg-amber-950/30 p-2">
           {held.blockers.map((b) => <p key={b} className="text-[11px] text-amber-200">{BLOCKER_TEXT[b]}</p>)}
           {pending && (
-            <>
-              <Input value={how} onChange={(e) => setHow(e.target.value)} placeholder="How did the client approve? (WhatsApp, call…)"
+            <div className="space-y-1.5">
+              <p className="text-[10px] text-slate-300">Only if the client really approved version {pending.number}:</p>
+              <Input value={how} onChange={(e) => setHow(e.target.value)} placeholder="How did the client approve? (WhatsApp 30 Oct, call…)"
                 className="bg-slate-900 border-slate-700 text-white h-8 text-xs" />
               <Button size="sm" disabled={!!busy || !how.trim()} onClick={() => lifecycle.approveAndPublish(pending.id, how)}
                 className={`${smallButton} w-full bg-amber-600 hover:bg-amber-500 text-white border-0`} data-testid="button-approve-publish">
                 {busy === "approve" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
-                Record approval of version {pending.number} and publish
+                Record the client's approval and publish
               </Button>
-            </>
+            </div>
+          )}
+          {pending && held.canOverride && (
+            <div className="space-y-1.5 border-t border-amber-600/30 pt-2">
+              <p className="text-[10px] text-slate-300">
+                Admin: publish without the client's approval. It is recorded as an override with your reason, never as the client's approval.
+              </p>
+              <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (required)"
+                className="bg-slate-900 border-slate-700 text-white h-8 text-xs" />
+              <Button size="sm" variant="secondary" disabled={!!busy || reason.trim().length < OVERRIDE_REASON_MIN}
+                onClick={() => lifecycle.overrideAndPublish(pending.id, reason)} className={`${smallButton} w-full`} data-testid="button-override-publish">
+                {busy === "override" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+                Publish as admin override
+              </Button>
+            </div>
           )}
         </div>
       )}

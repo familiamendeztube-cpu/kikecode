@@ -23,8 +23,21 @@ export type SiteHistory = { published_revision_id: string | null; revisions: Rev
 
 export type Blocker = "archived" | "no_client" | "approval_required";
 
-/** A publish kike-sites held back, and the revision waiting for the client's approval. */
-export type Held = { blockers: Blocker[]; revision: { id: string; number: number } | null };
+/**
+ * A publish kike-sites held back, the revision waiting for the client's
+ * approval, and whether this caller (an admin, on a first publication) may
+ * override it with a reason instead.
+ */
+export type Held = { blockers: Blocker[]; revision: { id: string; number: number } | null; canOverride: boolean };
+
+/** kike-sites' OVERRIDE_REASON_MIN. */
+export const OVERRIDE_REASON_MIN = 10;
+
+export const BASIS_TEXT: Record<NonNullable<StoredSite["published_basis"]>, string> = {
+  client_approval: "Client approval / Aprobación del cliente",
+  admin_override: "Admin override / Excepción de administrador",
+  admin_without_approval: "Admin, no new client approval / Administrador, sin nueva aprobación",
+};
 
 export type DomainCheck = {
   domain: string;
@@ -43,7 +56,7 @@ export const STATUS_LABEL: Record<SiteStatus, string> = {
 export const BLOCKER_TEXT: Record<Blocker, string> = {
   archived: "Restore the site before publishing it. / Restaure el sitio antes de publicarlo.",
   no_client: "Link a PLW client to publish. Demos are shared with the preview link. / Asigne un cliente PLW para publicar; los demos se comparten con la vista previa.",
-  approval_required: "Record how the client approved this version to publish it. / Registre cómo aprobó el cliente esta versión para publicarla.",
+  approval_required: "This version needs the client's approval. / Esta versión necesita la aprobación del cliente.",
 };
 
 function message(e: unknown): string {
@@ -81,8 +94,8 @@ export function useSiteLifecycle(siteId: string | null) {
       await action();
       await refresh();
     } catch (e) {
-      const body = (e as { body?: { blockers?: Blocker[]; revision?: { id: string; number: number } } }).body;
-      if (body?.blockers) setHeld({ blockers: body.blockers, revision: body.revision ?? null });
+      const body = (e as { body?: { blockers?: Blocker[]; revision?: { id: string; number: number }; can_override?: boolean } }).body;
+      if (body?.blockers) setHeld({ blockers: body.blockers, revision: body.revision ?? null, canOverride: body.can_override === true });
       else setError(message(e));
     } finally {
       setBusy(null);
@@ -104,11 +117,19 @@ export function useSiteLifecycle(siteId: string | null) {
       setHeld(null);
       await call({ action: "publish", note: note.trim() || null });
     }),
-    /** Record the client's approval of `revisionId` (how: WhatsApp, call…) and publish it. */
+    /**
+     * Record that the client approved `revisionId`, with how they did (WhatsApp,
+     * call…), then publish it. Only when staff say the client gave it.
+     */
     approveAndPublish: (revisionId: string, how: string) => run("approve", async () => {
-      await call({ action: "approve_revision", revision_id: revisionId, note: how.trim() || null });
+      await call({ action: "approve_revision", revision_id: revisionId, note: how.trim() });
       setHeld(null);
       await call({ action: "publish", revision_id: revisionId });
+    }),
+    /** Admins: publish a first version without the client's approval, recorded as an override with its reason. */
+    overrideAndPublish: (revisionId: string, reason: string) => run("override", async () => {
+      await call({ action: "publish", revision_id: revisionId, override_reason: reason.trim() });
+      setHeld(null);
     }),
     /** Publish an earlier revision again (rollback). */
     publishRevision: (revisionId: string) => run(`revision:${revisionId}`, async () => {
