@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ChatMsg } from "./ai";
 import { MAX_GALLERY_PHOTOS, MAX_TOTAL_PHOTOS } from "./images";
-import { BASIS_TEXT, BLOCKER_TEXT, OVERRIDE_REASON_MIN, STATUS_LABEL, type SiteLifecycle } from "./lifecycle";
+import { APPROVAL_NOTE_MIN, BASIS_TEXT, BLOCKER_TEXT, OVERRIDE_REASON_MIN, STATUS_LABEL, type SiteLifecycle } from "./lifecycle";
 import type { BrandFields } from "./save";
 
 /* The customizer drawer's sections. They only render: the site's state and
@@ -287,7 +287,7 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
               <p className="text-[10px] text-slate-300">Only if the client really approved version {pending.number}:</p>
               <Input value={how} onChange={(e) => setHow(e.target.value)} placeholder="How did the client approve? (WhatsApp 30 Oct, call…)"
                 className="bg-slate-900 border-slate-700 text-white h-8 text-xs" />
-              <Button size="sm" disabled={!!busy || !how.trim()} onClick={() => lifecycle.approveAndPublish(pending.id, how)}
+              <Button size="sm" disabled={!!busy || how.trim().length < APPROVAL_NOTE_MIN} onClick={() => lifecycle.approveAndPublish(pending.id, how)}
                 className={`${smallButton} w-full bg-amber-600 hover:bg-amber-500 text-white border-0`} data-testid="button-approve-publish">
                 {busy === "approve" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
                 Record the client's approval and publish

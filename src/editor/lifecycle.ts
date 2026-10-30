@@ -32,6 +32,8 @@ export type Held = { blockers: Blocker[]; revision: { id: string; number: number
 
 /** kike-sites' OVERRIDE_REASON_MIN. */
 export const OVERRIDE_REASON_MIN = 10;
+/** kike-sites' APPROVAL_NOTE_MIN. */
+export const APPROVAL_NOTE_MIN = 10;
 
 export const BASIS_TEXT: Record<NonNullable<StoredSite["published_basis"]>, string> = {
   client_approval: "Client approval / Aprobación del cliente",

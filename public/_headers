@@ -1,0 +1,4 @@
+/preview/*
+  X-Robots-Tag: noindex, nofollow
+  Referrer-Policy: no-referrer
+  Cache-Control: private, no-store

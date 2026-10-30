@@ -23,7 +23,7 @@ const INDEX_HTML = `<!DOCTYPE html>
 
 const site: PublicSiteData = {
   id: "11111111-1111-4111-8111-111111111111",
-  brand: { name: "Barbería El Rey", city: "Curridabat", phone: "+506 4010 6142", email: "rey@example.com", address: "Pinares" },
+  brand: { name: "Barbería El Rey", city: "Curridabat", phone: "+506 0000 0000", email: "rey@example.com", address: "Pinares" },
   content: {
     en: { hero: { title1: "Sharp cuts", subtitle: "Fades and beard sculpting in Curridabat." } },
     es: { hero: { title1: "Cortes finos", subtitle: "Degradados y barbas en Curridabat." } },
@@ -43,7 +43,7 @@ describe("siteHead", () => {
       robots: "index, follow",
       image: site.photos!.hero,
     });
-    expect(head.jsonLd).toMatchObject({ "@type": "LocalBusiness", name: "Barbería El Rey", telephone: "+506 4010 6142", address: { addressLocality: "Curridabat" } });
+    expect(head.jsonLd).toMatchObject({ "@type": "LocalBusiness", name: "Barbería El Rey", telephone: "+506 0000 0000", address: { addressLocality: "Curridabat" } });
   });
 
   it("keeps share links and previews out of the index", () => {

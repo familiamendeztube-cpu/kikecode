@@ -6,7 +6,7 @@ name: Production smoke test
 # catch a site that went dark. A failed run is the alert.
 #
 # Repository variables (Settings → Secrets and variables → Actions → Variables):
-#   SMOKE_APP_URL       the operator app, e.g. https://familiamendeztube-cp-q9tc.bolt.host
+#   SMOKE_APP_URL       the operator app, e.g. https://<app>.bolt.host
 #   SMOKE_SUPABASE_URL  PLW's project URL (public)
 #   SMOKE_SITES         optional, comma-separated published site ids and/or client domains
 
