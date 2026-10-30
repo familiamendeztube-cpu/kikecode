@@ -78,8 +78,10 @@ function RequestModal({ isOpen, onClose, type, brand, siteId }: { isOpen: boolea
       window.open(rymWhatsApp.getQuoteLink(brand, formData.name, formData.year, formData.brand, formData.model, formData.service, formData.desc), "_blank");
     }
     // WhatsApp stays what the visitor sees (opened first, inside the click, so it
-    // is not blocked as a popup); PLW also receives the request as a lead.
+    // is not blocked as a popup); PLW also receives the request as a lead. The
+    // modal never claims PLW stored it, so the outcome is not shown.
     void submitLead(siteId, {
+      form: type === "appointment" ? "appointment" : "quote",
       name: formData.name,
       phone: formData.phone,
       service: formData.service,

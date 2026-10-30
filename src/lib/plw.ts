@@ -52,6 +52,9 @@ export async function callFn<T>(name: string, body: Record<string, unknown>): Pr
   return payload as T;
 }
 
+/** Which form on the site sent the lead; lead-intake records it with the lead. */
+export type LeadForm = "contact" | "assistant" | "appointment" | "quote" | "waitlist";
+
 export type LeadFields = {
   name: string;
   phone?: string;
@@ -59,22 +62,39 @@ export type LeadFields = {
   service?: string;
   message?: string;
   preferredTime?: string;
+  form: LeadForm;
 };
 
 /**
- * Send a site visitor's form to PLW, which stores the lead and emails the
- * business. A template preview (or the editor) has no site id and keeps the
- * old local-only success. Resolves false when PLW did not accept it.
+ * What happened to a visitor's form. Only "sent" means PLW stored the lead.
+ * "preview" is a site that is not published (template preview, editor, preview
+ * link): nothing is sent, by design, and the form has to say so.
  */
-export async function submitLead(siteId: string | undefined, lead: LeadFields, lang: "en" | "es"): Promise<boolean> {
-  if (!siteId || !hasPlwConfig) return true;
+export type LeadResult =
+  | { status: "sent" }
+  | { status: "preview" }
+  | { status: "failed"; reason: "not_configured" | "network" | "rate_limited" | "rejected" | "server" };
+
+const LEAD_TIMEOUT_MS = 15_000;
+
+/**
+ * Send a site visitor's form to PLW, which stores the lead and emails the
+ * business. Resolves "sent" only when lead-intake answered `{ ok: true }`;
+ * a published site with no backend configured fails instead of pretending.
+ */
+export async function submitLead(siteId: string | undefined, lead: LeadFields, lang: "en" | "es"): Promise<LeadResult> {
+  if (!siteId) return { status: "preview" };
+  if (!hasPlwConfig) return { status: "failed", reason: "not_configured" };
+  let res: Response;
   try {
-    const res = await fetch(fnUrl("lead-intake"), {
+    res = await fetch(fnUrl("lead-intake"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(LEAD_TIMEOUT_MS),
       body: JSON.stringify({
         kind: "website_contact",
         site_id: siteId,
+        form: lead.form,
         name: lead.name,
         phone: lead.phone || null,
         email: lead.email || null,
@@ -86,8 +106,12 @@ export async function submitLead(siteId: string | undefined, lead: LeadFields, l
         plw_hp: "",
       }),
     });
-    return res.ok;
   } catch {
-    return false;
+    return { status: "failed", reason: "network" };
   }
+  if (res.status === 429) return { status: "failed", reason: "rate_limited" };
+  // 400: a field PLW refused. 404: the site is not published, or was suspended.
+  if (res.status === 400 || res.status === 404) return { status: "failed", reason: "rejected" };
+  const body = (await res.json().catch(() => null)) as { ok?: unknown } | null;
+  return res.ok && body?.ok === true ? { status: "sent" } : { status: "failed", reason: "server" };
 }

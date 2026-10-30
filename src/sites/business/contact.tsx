@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Phone, Mail, MapPin, Clock, Check, ArrowRight, MessageCircle, CheckCircle2, Send, Music2, Facebook, Instagram } from "lucide-react";
-import { submitLead } from "@/lib/plw";
+import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
 import { whatsappLink } from "@/sites/shared/whatsapp";
 import { SectionHeader, FormField, type SiteProps } from "./ui";
 import { categoryExtraField } from "./data";
@@ -142,8 +142,8 @@ export function EmergencyBand({ template, brand, p, lang }: SiteProps) {
 export function Contact({ template, brand, p, t, lang }: SiteProps) {
   const extraField = categoryExtraField(template.category ?? "trades");
   const availability = template.availability;
-  const [submitted, setSubmitted] = useState(false);
-  const [sendFailed, setSendFailed] = useState(false);
+  const lead = useLeadForm(template.plwSiteId, lang);
+  const outcome = leadOutcomeMessage(lead.state, lang, brand.phone);
   return (
     <section id="contact" className="py-20 sm:py-24 text-white" style={{ background: `linear-gradient(135deg, ${p.contactFrom}, ${p.contactTo})` }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-start">
@@ -169,17 +169,16 @@ export function Contact({ template, brand, p, t, lang }: SiteProps) {
             const form = new FormData(e.currentTarget);
             const field = (key: string) => String(form.get(key) ?? "").trim();
             const extra = field("extra");
-            const ok = await submitLead(template.plwSiteId, {
+            await lead.submit({
+              form: "contact",
               name: field("name"),
               phone: field("phone"),
               service: field("service"),
               message: [extra && extraField ? `${extraField[lang]}: ${extra}` : "", field("message")].filter(Boolean).join("\n"),
-            }, lang);
-            setSendFailed(!ok);
-            if (ok) setSubmitted(true);
+            });
           }}
         >
-          {submitted ? (
+          {lead.state.status === "sent" ? (
             <div className="text-center py-8">
               <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center mx-auto mb-4">
                 <Check className="w-7 h-7" />
@@ -208,13 +207,16 @@ export function Contact({ template, brand, p, t, lang }: SiteProps) {
               <FormField label={t.contact.message}>
                 <textarea name="message" rows={4} className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2" style={{ ["--tw-ring-color" as never]: `${p.primary}40` }} />
               </FormField>
-              {sendFailed && (
-                <p className="text-sm text-red-600">
-                  {lang === "en" ? "We couldn't send your request. Please call us instead." : "No pudimos enviar su solicitud. Por favor llámenos."}
+              {lead.isPreview && (
+                <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{previewNotice(lang)}</p>
+              )}
+              {outcome && (
+                <p role={lead.state.status === "failed" ? "alert" : "status"} className={`text-sm ${lead.state.status === "failed" ? "text-red-600" : "text-amber-800"}`}>
+                  {outcome}
                 </p>
               )}
-              <button type="submit" className="w-full h-12 rounded-lg text-white font-bold shadow-md transition-opacity hover:opacity-90" style={{ backgroundColor: p.primary }}>
-                {t.contact.submit}
+              <button type="submit" disabled={lead.sending} aria-busy={lead.sending} className="w-full h-12 rounded-lg text-white font-bold shadow-md transition-opacity hover:opacity-90 disabled:opacity-60 disabled:cursor-wait" style={{ backgroundColor: p.primary }}>
+                {lead.sending ? (lang === "en" ? "Sending…" : "Enviando…") : t.contact.submit}
               </button>
             </>
           )}

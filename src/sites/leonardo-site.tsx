@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { motion, useScroll, useTransform, useInView, useReducedMotion, AnimatePresence, useSpring } from "framer-motion";
 import type { BusinessTemplate } from "@/templates/types";
-import { submitLead } from "@/lib/plw";
+import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 type GalleryCategory = "all" | "branding" | "web" | "content";
@@ -85,7 +85,6 @@ const DEFAULT_SHOWCASE_IMAGES = [
  */
 export default function LeonardoSite({ template }: { template: BusinessTemplate }) {
   const [lang, setLang] = useState<"en" | "es">("es");
-  const [formSuccess, setFormSuccess] = useState(false);
   const [activeFilter, setActiveFilter] = useState<GalleryCategory>("all");
   
   const content = template.content[lang];
@@ -140,23 +139,21 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
     ? galleryItems
     : galleryItems.filter((item) => item.category === activeFilter);
 
-  const [formError, setFormError] = useState(false);
+  const lead = useLeadForm(template.plwSiteId, lang);
+  const leadOutcome = leadOutcomeMessage(lead.state, lang, template.brand.phone);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formEl = e.currentTarget;
     const form = new FormData(formEl);
     const field = (key: string) => String(form.get(key) ?? "").trim();
-    const ok = await submitLead(template.plwSiteId, {
+    const result = await lead.submit({
+      form: "quote",
       name: field("name"),
       phone: field("phone"),
       service: field("service"),
       message: field("message"),
-    }, lang);
-    setFormError(!ok);
-    if (!ok) return;
-    formEl.reset();
-    setFormSuccess(true);
-    setTimeout(() => setFormSuccess(false), 5000);
+    });
+    if (result?.status === "sent") formEl.reset();
   };
 
   // Showcase backgrounds: the stock template ships its default gallery in
@@ -562,24 +559,31 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
                 style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}
               />
             </div>
+            {lead.isPreview && (
+              <p className="text-[#e5e5e5]/70 text-center text-[13px]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
+                {previewNotice(lang)}
+              </p>
+            )}
             <motion.button
               type="submit"
-              className="w-full px-8 py-4 rounded-full bg-[#ffffff] text-[#0a0a0a] text-[16px] block font-medium"
+              disabled={lead.sending}
+              aria-busy={lead.sending}
+              className="w-full px-8 py-4 rounded-full bg-[#ffffff] text-[#0a0a0a] text-[16px] block font-medium disabled:opacity-60 disabled:cursor-wait"
               style={{ fontFamily: "Inter, sans-serif", fontWeight: 500 }}
               whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
               whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
-              {content.contact.submit}
+              {lead.sending ? (lang === "en" ? "Sending…" : "Enviando…") : content.contact.submit}
             </motion.button>
-            {formSuccess && (
-              <p className="text-[#03e65b] text-center text-[14px]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
+            {lead.state.status === "sent" && (
+              <p role="status" className="text-[#03e65b] text-center text-[14px]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
                 {content.contact.success}
               </p>
             )}
-            {formError && (
-              <p className="text-red-400 text-center text-[14px]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
-                {lang === "en" ? "We couldn't send that. Please try again." : "No se pudo enviar. Intente de nuevo."}
+            {leadOutcome && (
+              <p role={lead.state.status === "failed" ? "alert" : "status"} className={`${lead.state.status === "failed" ? "text-red-400" : "text-amber-300"} text-center text-[14px]`} style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
+                {leadOutcome}
               </p>
             )}
           </form>
