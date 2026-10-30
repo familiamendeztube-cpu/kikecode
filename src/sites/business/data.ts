@@ -4,6 +4,7 @@ import {
 } from "lucide-react";
 import type { BusinessTemplate, Lang, OfferIconKey, TemplateCategory, TemplateFacts } from "@/templates/types";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
+import { pick } from "@/lib/i18n";
 
 export const OFFER_ICONS: Record<OfferIconKey, LucideIcon> = {
   Clock, DollarSign, ShieldCheck, Languages, BadgeCheck, Truck, Wrench, Star, Leaf, Sparkles, Heart,
@@ -48,13 +49,13 @@ const BOOKING_INVITE: Record<Lang, string> = {
   es: "Solo dime qué necesitas y te agendo tu cita gratis ahora mismo.",
 };
 export function buildGreeting(assistant: NonNullable<BusinessTemplate["assistant"]>, lang: Lang, brandName: string): string {
-  const base = (lang === "en" ? assistant.en : assistant.es).replace(/\{business\}/g, brandName);
+  const base = assistant[lang].replace(/\{business\}/g, brandName);
   return `${base} ${BOOKING_INVITE[lang]}`;
 }
 
 /* Next two non-Sunday openings for the live booking flow. */
 export function getSlots(lang: Lang): { label: string; time: string }[] {
-  const locale = lang === "en" ? "en-US" : "es-ES";
+  const locale = pick(lang, "en-US", "es-ES");
   const dateFmt = new Intl.DateTimeFormat(locale, { weekday: "long", month: "short", day: "numeric" });
   const timeFmt = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" });
   const hours: [number, number][] = [[10, 30], [14, 0]];

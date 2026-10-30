@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useInView, useReducedMotion, AnimatePr
 import type { BusinessTemplate } from "@/templates/types";
 import { submitLead } from "@/lib/plw";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
+import { pick } from "@/lib/i18n";
 
 type GalleryCategory = "all" | "branding" | "web" | "content";
 
@@ -579,7 +580,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
             )}
             {formError && (
               <p className="text-red-400 text-center text-[14px]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
-                {lang === "en" ? "We couldn't send that. Please try again." : "No se pudo enviar. Intente de nuevo."}
+                {pick(lang, "We couldn't send that. Please try again.", "No se pudo enviar. Intente de nuevo.")}
               </p>
             )}
           </form>
@@ -603,7 +604,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
             {/* Contact */}
             <div>
               <h4 className="text-[14px] text-[#ffffff] font-bold mb-4 uppercase tracking-wider" style={{ fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
-                {lang === "en" ? "Contact" : "Contacto"}
+                {pick(lang, "Contact", "Contacto")}
               </h4>
               <div className="space-y-2 text-[14px] text-[#999999]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
                 <p>{template.brand.phone}</p>
@@ -625,7 +626,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
             {/* Quick Links */}
             <div>
               <h4 className="text-[14px] text-[#ffffff] font-bold mb-4 uppercase tracking-wider" style={{ fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
-                {lang === "en" ? "Quick Links" : "Enlaces"}
+                {pick(lang, "Quick Links", "Enlaces")}
               </h4>
               <div className="space-y-2">
                 {[

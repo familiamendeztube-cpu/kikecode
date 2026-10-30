@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Phone, ArrowRight, Play, ThumbsUp, CheckCircle2 } from "lucide-react";
-import { SiteImage, SectionHeader, type SiteProps } from "./ui";
+import { pick } from "@/lib/i18n";
+import { SiteImage, SectionHeader, Eyebrow, type SiteProps } from "./ui";
 
 /* VIDEO GALLERY — click-to-play portrait cards (no autoplay; fast on mobile) */
 export function VideoGallery({ template, p, lang }: SiteProps) {
@@ -11,11 +12,11 @@ export function VideoGallery({ template, p, lang }: SiteProps) {
         <SectionHeader
           eyebrow={
             template.videoGallery.eyebrow
-              ? (lang === "en" ? template.videoGallery.eyebrow.en : template.videoGallery.eyebrow.es)
-              : (lang === "en" ? "Real work, on video" : "Trabajo real, en video")
+              ? template.videoGallery.eyebrow[lang]
+              : pick(lang, "Real work, on video", "Trabajo real, en video")
           }
-          title={lang === "en" ? template.videoGallery.title.en : template.videoGallery.title.es}
-          blurb={lang === "en" ? template.videoGallery.blurb.en : template.videoGallery.blurb.es}
+          title={template.videoGallery.title[lang]}
+          blurb={template.videoGallery.blurb[lang]}
           dark
           accent={p.accent}
         />
@@ -25,12 +26,12 @@ export function VideoGallery({ template, p, lang }: SiteProps) {
               key={v.src}
               src={v.src}
               poster={v.poster}
-              title={lang === "en" ? v.title.en : v.title.es}
-              caption={lang === "en" ? v.caption.en : v.caption.es}
+              title={v.title[lang]}
+              caption={v.caption[lang]}
               ctaLabel={
                 template.videoGallery!.ctaLabel
-                  ? (lang === "en" ? template.videoGallery!.ctaLabel.en : template.videoGallery!.ctaLabel.es)
-                  : (lang === "en" ? "Get a Similar Project" : "Quiero un Proyecto Así")
+                  ? template.videoGallery!.ctaLabel[lang]
+                  : pick(lang, "Get a Similar Project", "Quiero un Proyecto Así")
               }
               palette={p}
             />
@@ -103,35 +104,34 @@ export function InAction({ template, brand, p, lang }: SiteProps) {
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="relative">
             <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-200">
-              <img src={media.gallery[media.gallery.length - 2] ?? media.hero} alt={lang === "en" ? `${brand.name} crew on the job` : `Equipo de ${brand.name} trabajando`} className="w-full h-full object-cover" loading="lazy" />
+              <img src={media.gallery[media.gallery.length - 2] ?? media.hero} alt={pick(lang, `${brand.name} crew on the job`, `Equipo de ${brand.name} trabajando`)} className="w-full h-full object-cover" loading="lazy" />
             </div>
             <div className="hidden sm:flex absolute -bottom-5 -right-5 items-center gap-3 bg-white rounded-2xl shadow-xl px-5 py-4 ring-1 ring-slate-100">
               <div className="w-11 h-11 rounded-full grid place-items-center text-white shrink-0" style={{ background: `linear-gradient(135deg, ${p.heroIconFrom}, ${p.heroIconTo})` }}>
                 <ThumbsUp className="w-5 h-5" />
               </div>
               <div className="text-sm leading-tight">
-                <div className="font-extrabold text-slate-900">{lang === "en" ? "Done right" : "Bien hecho"}</div>
-                <div className="text-slate-500 text-xs">{lang === "en" ? "the first time" : "a la primera"}</div>
+                <div className="font-extrabold text-slate-900">{pick(lang, "Done right", "Bien hecho")}</div>
+                <div className="text-slate-500 text-xs">{pick(lang, "the first time", "a la primera")}</div>
               </div>
             </div>
           </div>
           <div>
-            <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: p.primary }}>
-              {lang === "en" ? "See us on the job" : "Míranos trabajando"}
-            </div>
+            <Eyebrow color={p.primary}>
+              {pick(lang, "See us on the job", "Míranos trabajando")}
+            </Eyebrow>
             <h3 className="font-extrabold text-3xl sm:text-4xl tracking-tight text-slate-900 mb-4">
-              {lang === "en" ? "Skilled hands you can trust" : "Manos expertas en quien confiar"}
+              {pick(lang, "Skilled hands you can trust", "Manos expertas en quien confiar")}
             </h3>
             <p className="text-slate-600 leading-relaxed mb-6 text-lg">
-              {lang === "en"
-                ? "From the first knock to the final walk-through, our crew treats your property like our own — careful prep, premium materials, and a clean job site every single day."
-                : "Desde que tocamos la puerta hasta la inspección final, tratamos su propiedad como la nuestra — preparación cuidadosa, materiales premium y un sitio de trabajo limpio todos los días."}
+              {pick(lang,
+                "From the first knock to the final walk-through, our crew treats your property like our own — careful prep, premium materials, and a clean job site every single day.",
+                "Desde que tocamos la puerta hasta la inspección final, tratamos su propiedad como la nuestra — preparación cuidadosa, materiales premium y un sitio de trabajo limpio todos los días.")}
             </p>
             <ul className="space-y-3">
-              {(lang === "en"
-                ? ["Background-checked, uniformed professionals", "Upfront pricing — no surprises", "Photos and updates as the work gets done"]
-                : ["Profesionales uniformados y verificados", "Precios claros — sin sorpresas", "Fotos y avisos mientras avanza el trabajo"]
-              ).map((li) => (
+              {pick(lang,
+                ["Background-checked, uniformed professionals", "Upfront pricing — no surprises", "Photos and updates as the work gets done"],
+                ["Profesionales uniformados y verificados", "Precios claros — sin sorpresas", "Fotos y avisos mientras avanza el trabajo"]).map((li) => (
                 <li key={li} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" style={{ color: p.primary }} />
                   <span className="text-slate-700">{li}</span>
@@ -145,20 +145,20 @@ export function InAction({ template, brand, p, lang }: SiteProps) {
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="lg:order-2">
             <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-200">
-              <img src={media.gallery[media.gallery.length - 1] ?? media.hero} alt={lang === "en" ? `${brand.name} delivering quality work` : `${brand.name} entregando trabajo de calidad`} className="w-full h-full object-cover" loading="lazy" />
+              <img src={media.gallery[media.gallery.length - 1] ?? media.hero} alt={pick(lang, `${brand.name} delivering quality work`, `${brand.name} entregando trabajo de calidad`)} className="w-full h-full object-cover" loading="lazy" />
             </div>
           </div>
           <div className="lg:order-1">
-            <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: p.primary }}>
-              {lang === "en" ? "Bilingual, every step" : "Bilingüe en cada paso"}
-            </div>
+            <Eyebrow color={p.primary}>
+              {pick(lang, "Bilingual, every step", "Bilingüe en cada paso")}
+            </Eyebrow>
             <h3 className="font-extrabold text-3xl sm:text-4xl tracking-tight text-slate-900 mb-4">
-              {lang === "en" ? "We speak your language" : "Hablamos su idioma"}
+              {pick(lang, "We speak your language", "Hablamos su idioma")}
             </h3>
             <p className="text-slate-600 leading-relaxed mb-6 text-lg">
-              {lang === "en"
-                ? "English or Spanish, you'll always know exactly what's happening and what it costs. Real people answer the phone, day or night — no robots, no runaround."
-                : "En inglés o español, siempre sabrá exactamente qué está pasando y cuánto cuesta. Personas reales contestan el teléfono, de día o de noche — sin robots, sin vueltas."}
+              {pick(lang,
+                "English or Spanish, you'll always know exactly what's happening and what it costs. Real people answer the phone, day or night — no robots, no runaround.",
+                "En inglés o español, siempre sabrá exactamente qué está pasando y cuánto cuesta. Personas reales contestan el teléfono, de día o de noche — sin robots, sin vueltas.")}
             </p>
             <a href={brand.phoneHref} className="inline-flex items-center gap-2 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg hover:opacity-90 transition-opacity" style={{ backgroundColor: p.primary }}>
               <Phone className="w-4 h-4" /> {brand.phone}
@@ -177,24 +177,24 @@ export function Transformation({ template, p, lang }: SiteProps) {
     <section id="transformation" className="py-20 sm:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader
-          eyebrow={lang === "en" ? "The transformation" : "La transformación"}
-          title={lang === "en" ? template.transformation.title.en : template.transformation.title.es}
-          blurb={lang === "en" ? template.transformation.blurb.en : template.transformation.blurb.es}
+          eyebrow={pick(lang, "The transformation", "La transformación")}
+          title={template.transformation.title[lang]}
+          blurb={template.transformation.blurb[lang]}
           accent={p.primary}
         />
         <div className="grid md:grid-cols-3 gap-6 mt-12">
           {template.transformation.steps.map((s, i) => (
             <figure key={s.src} className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img src={s.src} alt={lang === "en" ? s.label.en : s.label.es} className="w-full h-full object-cover" loading="lazy" />
+                <img src={s.src} alt={s.label[lang]} className="w-full h-full object-cover" loading="lazy" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
                 <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white px-2.5 py-1 rounded-full" style={{ backgroundColor: p.primary }}>
-                  {i + 1} · {lang === "en" ? s.phase.en : s.phase.es}
+                  {i + 1} · {s.phase[lang]}
                 </span>
               </div>
               <figcaption className="p-5">
-                <div className="font-bold tracking-tight mb-1">{lang === "en" ? s.label.en : s.label.es}</div>
-                <p className="text-sm text-slate-600 leading-relaxed">{lang === "en" ? s.caption.en : s.caption.es}</p>
+                <div className="font-bold tracking-tight mb-1">{s.label[lang]}</div>
+                <p className="text-sm text-slate-600 leading-relaxed">{s.caption[lang]}</p>
               </figcaption>
             </figure>
           ))}
@@ -213,8 +213,8 @@ export function Gallery({ template, p, lang }: SiteProps) {
     <section id="gallery" className="py-20 sm:py-24 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader
-          eyebrow={lang === "en" ? "Recent work" : "Trabajos recientes"}
-          title={lang === "en" ? "Real projects, real results" : "Proyectos reales, resultados reales"}
+          eyebrow={pick(lang, "Recent work", "Trabajos recientes")}
+          title={pick(lang, "Real projects, real results", "Proyectos reales, resultados reales")}
           accent={p.primary}
         />
         <div className="grid grid-cols-2 lg:grid-cols-4 auto-rows-[170px] sm:auto-rows-[220px] gap-4 mt-12">
@@ -241,19 +241,19 @@ export function ClientTrust({ template, p, lang }: SiteProps) {
     <section id="trust" className="py-20 sm:py-24 bg-slate-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <SectionHeader
-          eyebrow={lang === "en" ? "Real people" : "Personas reales"}
-          title={lang === "en" ? template.clientTrust.title.en : template.clientTrust.title.es}
-          blurb={lang === "en" ? template.clientTrust.blurb.en : template.clientTrust.blurb.es}
+          eyebrow={pick(lang, "Real people", "Personas reales")}
+          title={template.clientTrust.title[lang]}
+          blurb={template.clientTrust.blurb[lang]}
           accent={p.primary}
         />
         <div className="grid sm:grid-cols-2 gap-6 mt-12">
           {template.clientTrust.images.map((img) => (
             <figure key={img.src} className="group relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img src={img.src} alt={lang === "en" ? img.caption.en : img.caption.es} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                <img src={img.src} alt={img.caption[lang]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
               </div>
               <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent text-white text-sm font-semibold p-5">
-                {lang === "en" ? img.caption.en : img.caption.es}
+                {img.caption[lang]}
               </figcaption>
             </figure>
           ))}
@@ -270,12 +270,12 @@ export function Heritage({ template, p, lang }: SiteProps) {
     <section id="heritage" className="py-20 sm:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader
-          eyebrow={lang === "en" ? "Our roots" : "Nuestras raíces"}
-          title={lang === "en" ? template.heritage.title.en : template.heritage.title.es}
+          eyebrow={pick(lang, "Our roots", "Nuestras raíces")}
+          title={template.heritage.title[lang]}
           accent={p.primary}
         />
         <p className="max-w-3xl mx-auto text-center text-slate-600 leading-relaxed mt-4">
-          {lang === "en" ? template.heritage.blurb.en : template.heritage.blurb.es}
+          {template.heritage.blurb[lang]}
         </p>
         <div className="grid grid-cols-2 lg:grid-cols-3 auto-rows-[200px] sm:auto-rows-[240px] gap-4 mt-12">
           {template.heritage.images.map((img, i) => (
@@ -285,12 +285,12 @@ export function Heritage({ template, p, lang }: SiteProps) {
             >
               <img
                 src={img.src}
-                alt={lang === "en" ? img.en : img.es}
+                alt={img[lang]}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
               />
               <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white text-sm font-semibold p-4">
-                {lang === "en" ? img.en : img.es}
+                {img[lang]}
               </figcaption>
             </figure>
           ))}
@@ -299,7 +299,7 @@ export function Heritage({ template, p, lang }: SiteProps) {
         {template.heritage.history && template.heritage.history.milestones.length > 0 && (
           <div className="mt-20">
             <h3 className="text-center font-extrabold text-2xl sm:text-3xl tracking-tight text-slate-900">
-              {lang === "en" ? template.heritage.history.title.en : template.heritage.history.title.es}
+              {template.heritage.history.title[lang]}
             </h3>
             <ol className="relative mt-12 max-w-3xl mx-auto">
               <span
@@ -316,14 +316,14 @@ export function Heritage({ template, p, lang }: SiteProps) {
                     className={`absolute top-1 z-10 grid place-items-center w-14 h-14 rounded-full text-white font-extrabold text-sm shadow-lg ring-4 ring-white left-0 ${i % 2 === 0 ? "sm:left-auto sm:-right-7" : "sm:-left-7"}`}
                     style={{ background: `linear-gradient(135deg, ${p.heroIconFrom}, ${p.heroIconTo})` }}
                   >
-                    {lang === "en" ? m.year.en : m.year.es}
+                    {m.year[lang]}
                   </span>
                   <div className="rounded-2xl bg-slate-50 ring-1 ring-slate-200 p-5 shadow-sm">
                     <div className="font-bold text-slate-900">
-                      {lang === "en" ? m.title.en : m.title.es}
+                      {m.title[lang]}
                     </div>
                     <p className="text-sm text-slate-600 leading-relaxed mt-1.5">
-                      {lang === "en" ? m.text.en : m.text.es}
+                      {m.text[lang]}
                     </p>
                   </div>
                 </li>

@@ -8,12 +8,13 @@ One Vite 7 + React 19 + Tailwind 4 app at the repo root; router is `wouter` (`sr
 
 - `templates/` — one file per template holds everything about it: brand, copy, media, assistant, offers, `facts`, `category`, `realBusiness`. Register new ones in `index.ts`; the shape is `types.ts`.
 - `sites/` — the public sites clients see. `site-renderer.tsx` picks the component by `template.siteVariant`.
-  - `business/` — the shared site for every template without a variant. `business-site.tsx` is only the section order; each section takes `SiteProps` and renders nothing when the template has no data for it. Static copy and fallbacks are in `data.ts`, small parts in `ui.tsx`.
+  - `business/` — the shared site for every template without a variant. `business-site.tsx` is only the section order; each section takes `SiteProps` and renders nothing when the template has no data for it. Static copy and fallbacks are in `data.ts`, small parts (`SectionHeader`, `Eyebrow`, `GHOST_CTA`, `SiteImage`) in `ui.tsx`.
   - `rym/`, `fenix/`, `leonardo-site.tsx`, `oryzo-site.tsx` — hand-built sites.
-  - `shared/` — used across sites: `whatsappLink(brand, text)` (all wa.me links), `FadeInView`, `useReturnFocus` (spread on a Radix `Dialog.Content` opened from plain buttons).
+  - `shared/` — used across sites: `whatsappLink(brand, text)` (all wa.me links) and `WhatsAppButton`, `FadeInView`, `useReturnFocus` (spread on a Radix `Dialog.Content` opened from plain buttons).
 - `editor/` — the operator's customizer. `customizer.tsx` holds the state; `panels.tsx` only renders; `save.ts` (kike-sites), `ai.ts` (kike-ai), `images.ts` and `edit-path.ts` are plain logic. `editable.tsx` is the inline-edit context the sites use.
 - `pages/` — routes. `components/` — operator-app chrome, `StatusScreen`, and the shadcn/ui primitives actually used (`components/ui/`).
-- `lib/` — `plw.ts` (Supabase client, `callFn`, `submitLead`), `saved-site.ts` (published sites, `usePublishedSite`), `domain-sites.ts`, `client-videos.ts`.
+- `lib/` — `plw.ts` (Supabase client, `callFn`, `submitLead`), `saved-site.ts` (published sites, `usePublishedSite`), `i18n.ts`, `domain-sites.ts`, `client-videos.ts`.
+- Bilingual copy: data with `{ en, es }` fields reads as `text[lang]`; copy written inline in a component uses `pick(lang, "English", "Español")`.
 
 ## Backend
 
