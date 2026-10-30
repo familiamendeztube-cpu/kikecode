@@ -38,14 +38,17 @@ export default function Preview() {
   );
 }
 
-/** Keep search engines away from drafts (kike-sites also sends X-Robots-Tag on the data). */
+/**
+ * Keep drafts out of search engines (kike-sites also sends X-Robots-Tag on the
+ * data) and the token out of Referer headers: the page's path is the token.
+ * The edge function sets both as headers on Netlify; this covers any host.
+ */
 function useNoIndex() {
   useEffect(() => {
-    const meta = document.createElement("meta");
-    meta.name = "robots";
-    meta.content = "noindex, nofollow";
-    document.head.appendChild(meta);
-    return () => meta.remove();
+    const robots = Object.assign(document.createElement("meta"), { name: "robots", content: "noindex, nofollow" });
+    const referrer = Object.assign(document.createElement("meta"), { name: "referrer", content: "no-referrer" });
+    document.head.append(robots, referrer);
+    return () => { robots.remove(); referrer.remove(); };
   }, []);
 }
 

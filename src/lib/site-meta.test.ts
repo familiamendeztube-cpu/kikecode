@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { injectHead, robotsTxt, siteHead, sitemapXml, type PublicSiteData } from "./site-meta";
+import { injectHead, pageHeaders, robotsTxt, siteHead, sitemapXml, type PublicSiteData } from "./site-meta";
 
 /*
   What crawlers and link previews read before JavaScript: each client site's
@@ -98,6 +98,18 @@ describe("injectHead", () => {
     const jsonLd = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(html)![1];
     expect(jsonLd).not.toContain("<");
     expect(JSON.parse(jsonLd).name).toBe(`Rey"><script>alert(1)</script>`);
+  });
+});
+
+describe("preview pages", () => {
+  it("are never cached, indexed or sent as a Referer, and say so in the head too", () => {
+    expect(pageHeaders("preview")).toEqual({ "x-robots-tag": "noindex, nofollow", "cache-control": "private, no-store", "referrer-policy": "no-referrer" });
+    expect(pageHeaders("share")).toEqual({ "x-robots-tag": "noindex, follow" });
+    expect(pageHeaders("domain")).toEqual({});
+    const html = injectHead(INDEX_HTML, siteHead(site, "preview", new URL(`https://app.netlify.app/preview/${"a".repeat(64)}`)));
+    expect(html).toContain('<meta name="referrer" content="no-referrer" />');
+    expect(html).toContain('<meta name="robots" content="noindex, nofollow" />');
+    expect(html).not.toContain("application/ld+json");
   });
 });
 

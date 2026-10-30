@@ -15,7 +15,7 @@
   through untouched: SEO degrades, the site never does.
 */
 
-import { injectHead, robotsTxt, siteHead, sitemapXml, type PageKind, type PublicSiteData } from "../../src/lib/site-meta.ts";
+import { injectHead, pageHeaders, robotsTxt, siteHead, sitemapXml, type PageKind, type PublicSiteData } from "../../src/lib/site-meta.ts";
 
 declare const Netlify: { env: { get(name: string): string | undefined } };
 
@@ -28,11 +28,13 @@ const cache = new Map<string, { at: number; site: PublicSiteData }>();
 
 /**
  * kike-sites' public read, cached per isolate for a minute (it caches 60 s
- * itself). Only found sites are cached, and at most CACHE_MAX of them, so
- * made-up share or preview paths cannot grow the cache.
+ * itself). Only found published sites are cached, and at most CACHE_MAX of
+ * them, so made-up share paths cannot grow the cache. Previews are never
+ * cached: a rotated preview link must stop working at once.
  */
 async function lookup(query: string): Promise<PublicSiteData | null> {
-  const hit = cache.get(query);
+  const cacheable = !query.startsWith("preview=");
+  const hit = cacheable ? cache.get(query) : undefined;
   if (hit && Date.now() - hit.at < CACHE_MS) return hit.site;
   const base = Netlify.env.get("VITE_SUPABASE_URL")?.replace(/\/$/, "");
   if (!base) return null;
@@ -40,8 +42,10 @@ async function lookup(query: string): Promise<PublicSiteData | null> {
     const res = await fetch(`${base}/functions/v1/kike-sites?${query}`, { signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS) });
     if (!res.ok) return null;
     const site = (await res.json()) as PublicSiteData;
-    if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value as string);
-    cache.set(query, { at: Date.now(), site });
+    if (cacheable) {
+      if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value as string);
+      cache.set(query, { at: Date.now(), site });
+    }
     return site;
   } catch {
     return null;
@@ -80,16 +84,17 @@ export default async function siteMeta(request: Request, context: Context): Prom
 
   if (!page || !(request.headers.get("accept") ?? "").includes("text/html")) return;
   const [response, site] = await Promise.all([context.next(), lookup(page.query)]);
-  if (!site || !(response.headers.get("content-type") ?? "").includes("text/html")) return response;
+  if (!(response.headers.get("content-type") ?? "").includes("text/html")) return response;
 
   // Read the page once; if anything about this site's data is off, serve the page as it was.
   const html = await response.text();
   const headers = new Headers(response.headers);
   headers.delete("content-length");
+  // Preview and share pages get their headers even when the lookup failed.
+  for (const [name, value] of Object.entries(pageHeaders(page.kind))) headers.set(name, value);
+  if (!site) return new Response(html, { status: response.status, headers });
   try {
-    const head = siteHead(site, page.kind, url);
-    if (page.kind !== "domain") headers.set("x-robots-tag", head.robots);
-    return new Response(injectHead(html, head), { status: response.status, headers });
+    return new Response(injectHead(html, siteHead(site, page.kind, url)), { status: response.status, headers });
   } catch {
     return new Response(html, { status: response.status, headers });
   }

@@ -102,6 +102,7 @@ export function renderHead(head: SiteHead): string {
   if (head.image) {
     tags.push(`<meta property="og:image" content="${attr(head.image)}" />`, `<meta name="twitter:image" content="${attr(head.image)}" />`);
   }
+  if (head.robots === ROBOTS.preview) tags.push(`<meta name="referrer" content="no-referrer" />`);
   if (head.jsonLd) {
     // "<" escaped, so no text in the data can close the script element.
     tags.push(`<script type="application/ld+json">${JSON.stringify(head.jsonLd).replace(/</g, "\\u003c")}</script>`);
@@ -118,6 +119,18 @@ export function injectHead(html: string, head: SiteHead): string {
     .replace(/<html\b[^>]*>/i, () => `<html lang="${attr(head.lang)}">`);
   // A function, not a string: "$&" and friends in business text stay literal.
   return stripped.replace(/<\/head>/i, () => `    ${renderHead(head)}\n  </head>`);
+}
+
+/**
+ * Headers a page gets on top of the host's. A preview is a draft behind an
+ * unguessable link: never cached, indexed, or sent as a Referer (its path is
+ * the token). A share link is a copy of the published site: not indexed.
+ */
+export function pageHeaders(kind: PageKind): Record<string, string> {
+  if (kind === "preview") {
+    return { "x-robots-tag": ROBOTS.preview, "cache-control": "private, no-store", "referrer-policy": "no-referrer" };
+  }
+  return kind === "share" ? { "x-robots-tag": ROBOTS.share } : {};
 }
 
 export function robotsTxt(origin: string, clientSite: boolean): string {
