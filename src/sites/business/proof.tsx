@@ -1,12 +1,13 @@
-import { Phone, ShieldCheck, Star, Check, BadgeCheck, Award, CheckCircle2 } from "lucide-react";
-import { SectionHeader, GoogleG, YelpBadge, type SiteProps } from "./ui";
-import { OFFER_ICONS, REVIEW_AVATARS, REVIEW_PLATFORMS, REVIEW_DATES, EXTRA_REVIEWS, TRUST_SIGNALS, resolveFacts } from "./data";
+import { Phone, ShieldCheck, Check, Award, MessageSquareQuote } from "lucide-react";
+import { SectionHeader, SampleTag, isSampleContent, type SiteProps } from "./ui";
+import { OFFER_ICONS, TRUST_SIGNALS, resolveFacts } from "./data";
 
 /* STATS STRIP */
 export function StatsStrip({ template, p, lang }: SiteProps) {
   const data = resolveFacts(template);
   return (
     <section className="bg-white border-b border-slate-200">
+      {isSampleContent(template) && <div className="pt-4 text-center"><SampleTag lang={lang} /></div>}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-2 sm:grid-cols-4 gap-6">
         {data.stats.map((s) => (
           <div key={s.value} className="text-center flex flex-col">
@@ -19,11 +20,12 @@ export function StatsStrip({ template, p, lang }: SiteProps) {
   );
 }
 
-/* UNIVERSAL TRUST STRIP — always shown, generic & honest */
-export function TrustStrip({ p, lang }: SiteProps) {
+/* UNIVERSAL TRUST STRIP — generic promises, tagged as samples until the business confirms them */
+export function TrustStrip({ template, p, lang }: SiteProps) {
   return (
     <section className="bg-slate-50 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-x-10">
+        {isSampleContent(template) && <SampleTag lang={lang} />}
         {TRUST_SIGNALS.map((s) => (
           <div key={s.en} className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
             <span className="grid place-items-center w-8 h-8 rounded-full shrink-0" style={{ backgroundColor: `${p.primary}14`, color: p.primary }}>
@@ -46,10 +48,7 @@ export function Offers({ template, p, lang }: SiteProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader
           eyebrow={lang === "en" ? "What we offer" : "Lo que ofrecemos"}
-          title={lang === "en" ? "Everything you need, around the clock" : "Todo lo que necesitas, a toda hora"}
-          blurb={lang === "en"
-            ? "Real humans, real availability — no robots, no bots, no waiting on hold."
-            : "Personas reales, disponibilidad real — sin robots, sin bots, sin esperas."}
+          title={lang === "en" ? "Everything you need" : "Todo lo que necesitas"}
           accent={p.primary}
         />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
@@ -86,6 +85,7 @@ export function Guarantee({ template, brand, p, lang }: SiteProps) {
           <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: p.accent }}>
             {lang === "en" ? "Our promise" : "Nuestra promesa"}
           </div>
+          {isSampleContent(template) && <SampleTag lang={lang} className="mb-2" />}
           <h3 className="font-extrabold text-2xl sm:text-3xl tracking-tight mb-2">
             {lang === "en" ? data.guaranteeEn.title : data.guaranteeEs.title}
           </h3>
@@ -101,69 +101,34 @@ export function Guarantee({ template, brand, p, lang }: SiteProps) {
   );
 }
 
-/* TESTIMONIALS */
+/*
+  TESTIMONIALS — only the reviews in the site's content, as written. No rating,
+  platform, date, avatar or "verified" mark is ever added: the site has no
+  source for any of them. A generic template's reviews (and any the AI wrote)
+  are samples, tagged as such until staff confirm them with the business.
+*/
 export function Testimonials({ template, p, t, lang }: SiteProps) {
+  const sample = isSampleContent(template);
   return (
     <section id="testimonials" className="py-20 sm:py-24 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader eyebrow={t.nav.testimonials} title={t.testimonials.title} accent={p.primary} eyebrowPath={["content", lang, "nav", "testimonials"]} titlePath={["content", lang, "testimonials", "title"]} />
-
-        {/* aggregate rating + platform trust — hidden for real named businesses (no fabricated ratings/counts) */}
-        {!template.realBusiness && (
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-8">
-          <div className="flex items-center gap-3">
-            <div className="text-4xl font-extrabold text-slate-900">4.9</div>
-            <div>
-              <div className="flex gap-0.5 text-amber-500">{[0,1,2,3,4].map((i) => <Star key={i} className="w-4 h-4 fill-amber-500" />)}</div>
-              <div className="text-xs text-slate-500 mt-0.5">{lang === "en" ? "240+ verified reviews" : "240+ reseñas verificadas"}</div>
-            </div>
-          </div>
-          <div className="hidden sm:block h-10 w-px bg-slate-200" />
-          <div className="flex items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 px-3 py-1.5 shadow-sm text-sm font-semibold text-slate-700">
-              <GoogleG /> 4.9 <span className="text-slate-400 font-normal">· Google</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 px-3 py-1.5 shadow-sm text-sm font-semibold text-slate-700">
-              <YelpBadge /> 4.8 <span className="text-slate-400 font-normal">· Yelp</span>
-            </span>
-          </div>
-        </div>
-        )}
-
         <div className="grid md:grid-cols-3 gap-6 mt-12">
-          {(template.realBusiness ? t.testimonials.items : [...t.testimonials.items, ...EXTRA_REVIEWS[lang]]).map((tt, i) => {
-            const isProtectedReview = template.realBusiness;
-            const avatar = REVIEW_AVATARS[i % REVIEW_AVATARS.length];
-            const platform = REVIEW_PLATFORMS[i % REVIEW_PLATFORMS.length];
-            const date = REVIEW_DATES[lang][i % REVIEW_DATES[lang].length];
-            return (
-              <figure key={tt.name} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <img src={avatar} alt={tt.name} className="w-12 h-12 rounded-full object-cover border border-slate-200" loading="lazy" />
-                    <div>
-                      <div className="font-bold text-sm flex items-center gap-1 text-slate-900">{tt.name} {!isProtectedReview && <BadgeCheck className="w-3.5 h-3.5 text-sky-500" />}</div>
-                      <div className="text-xs text-slate-500">{tt.role}</div>
-                    </div>
-                  </div>
-                  {!isProtectedReview && (platform === "Google" ? <GoogleG className="w-5 h-5" /> : <YelpBadge />)}
+          {t.testimonials.items.map((tt, i) => (
+            <figure key={`${tt.name}-${i}`} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col">
+              {sample && <SampleTag lang={lang} className="self-start mb-3" />}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full grid place-items-center text-white font-extrabold shrink-0" style={{ backgroundColor: p.primary }}>
+                  {tt.name.trim().charAt(0).toUpperCase() || <MessageSquareQuote className="w-5 h-5" />}
                 </div>
-                {!isProtectedReview && (
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex gap-0.5 text-amber-500">{[0,1,2,3,4].map((s) => <Star key={s} className="w-4 h-4 fill-amber-500" />)}</div>
-                  <span className="text-xs text-slate-400">{date}</span>
+                <div>
+                  <div className="font-bold text-sm text-slate-900">{tt.name}</div>
+                  <div className="text-xs text-slate-500">{tt.role}</div>
                 </div>
-                )}
-                <blockquote className="text-slate-700 leading-relaxed text-sm flex-1">“{tt.quote}”</blockquote>
-                <figcaption className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-400 inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  {isProtectedReview
-                    ? (lang === "en" ? "Customer feedback" : "Comentario de cliente")
-                    : (lang === "en" ? `Verified ${platform} review` : `Reseña verificada de ${platform}`)}
-                </figcaption>
-              </figure>
-            );
-          })}
+              </div>
+              <blockquote className="text-slate-700 leading-relaxed text-sm flex-1">“{tt.quote}”</blockquote>
+            </figure>
+          ))}
         </div>
       </div>
     </section>
@@ -178,11 +143,12 @@ export function Certifications({ template, p, lang }: SiteProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10">
           <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: p.primary }}>
-            {lang === "en" ? "Trust & Credentials" : "Confianza y Credenciales"}
+            {lang === "en" ? "Why choose us" : "Por qué elegirnos"}
           </div>
           <h3 className="font-extrabold text-2xl sm:text-3xl tracking-tight text-slate-900">
-            {lang === "en" ? "Licensed, insured, and proudly certified" : "Con licencia, seguro y orgullosamente certificados"}
+            {lang === "en" ? "What you can count on" : "Con lo que puede contar"}
           </h3>
+          {isSampleContent(template) && <SampleTag lang={lang} className="mt-3" />}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {(lang === "en" ? data.certsEn : data.certsEs).map((c) => (

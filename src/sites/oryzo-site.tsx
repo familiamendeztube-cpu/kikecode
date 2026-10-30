@@ -4,7 +4,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import type { BusinessTemplate } from "@/templates/types";
-import { submitLead } from "@/lib/plw";
+import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 const DEFAULT_HERO = `${TEMPLATE_ASSETS}/barro-ceramica/barro_hero.jpg`;
@@ -334,7 +334,6 @@ function PNGFallbackLayer({
 
 export default function OryzoSite({ template }: { template: BusinessTemplate }) {
   const [lang, setLang] = useState<"en" | "es">("es");
-  const [formSuccess, setFormSuccess] = useState(false);
   const [webglAvailable, setWebglAvailable] = useState(true);
   
   const content = template.content[lang];
@@ -378,18 +377,15 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
   const footerTitleY = useTransform(footerProgress, [0, 1], [150, 0]);
   const footerTitleOpacity = useTransform(footerProgress, [0, 0.5], [0, 1]);
 
-  const [formError, setFormError] = useState(false);
+  const lead = useLeadForm(template.plwSiteId, lang);
+  const leadOutcome = leadOutcomeMessage(lead.state, lang);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formEl = e.currentTarget;
     const email = String(new FormData(formEl).get("email") ?? "").trim();
     // The waitlist asks only for an email; lead-intake needs a name, so the email stands in.
-    const ok = await submitLead(template.plwSiteId, { name: email, email }, lang);
-    setFormError(!ok);
-    if (!ok) return;
-    formEl.reset();
-    setFormSuccess(true);
-    setTimeout(() => setFormSuccess(false), 5000);
+    const result = await lead.submit({ form: "waitlist", name: email, email });
+    if (result?.status === "sent") formEl.reset();
   };
 
   // Derive imagery
@@ -614,19 +610,24 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
               required
               className="flex-grow bg-transparent border-b border-[#40372e] py-4 px-2 text-[20px] font-normal lowercase placeholder:uppercase placeholder:text-[#6c5f51] focus:outline-none focus:border-[#dc5000] transition-colors z-10"
             />
-            <button 
+            <button
               type="submit"
-              className="px-8 py-4 rounded-[36px] bg-[#382416] text-[#ffedd7] text-[12px] uppercase tracking-widest hover:bg-[#ffedd7] hover:text-[#100904] transition-colors whitespace-nowrap z-10 cursor-pointer"
+              disabled={lead.sending}
+              aria-busy={lead.sending}
+              className="px-8 py-4 rounded-[36px] bg-[#382416] text-[#ffedd7] text-[12px] uppercase tracking-widest hover:bg-[#ffedd7] hover:text-[#100904] transition-colors whitespace-nowrap z-10 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
             >
-              {LABELS.submitText[lang]}
+              {lead.sending ? (lang === "en" ? "Sending…" : "Enviando…") : LABELS.submitText[lang]}
             </button>
           </form>
-          {formSuccess && (
-            <p className="mt-6 text-[#dc5000] text-[14px] uppercase tracking-wider">{content.contact.success}</p>
+          {lead.isPreview && (
+            <p className="mt-6 text-[#6c5f51] text-[13px]">{previewNotice(lang)}</p>
           )}
-          {formError && (
-            <p className="mt-6 text-red-400 text-[14px]">
-              {lang === "en" ? "We couldn't send that. Please try again." : "No se pudo enviar. Intente de nuevo."}
+          {lead.state.status === "sent" && (
+            <p role="status" className="mt-6 text-[#dc5000] text-[14px] uppercase tracking-wider">{content.contact.success}</p>
+          )}
+          {leadOutcome && (
+            <p role={lead.state.status === "failed" ? "alert" : "status"} className={`mt-6 text-[14px] ${lead.state.status === "failed" ? "text-red-400" : "text-amber-300"}`}>
+              {leadOutcome}
             </p>
           )}
         </div>

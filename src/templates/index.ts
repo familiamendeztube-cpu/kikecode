@@ -59,4 +59,17 @@ export function getTemplate(slug: string): BusinessTemplate | null {
   return BY_SLUG[slug] ?? null;
 }
 
+/*
+  A template's data version, saved with each site (kike_site_revisions keeps
+  it). Bump a slug when a change to its file could alter a site already saved
+  from it (a renamed or removed field, a section that now needs data); the
+  editor then asks staff to review that site before publishing it again. A
+  slug never leaves TEMPLATES while sites use it: registry.test.ts holds the list.
+*/
+const TEMPLATE_VERSIONS: Record<string, number> = {};
+
+export function templateVersion(slug: string): number {
+  return TEMPLATE_VERSIONS[slug] ?? 1;
+}
+
 export type { BusinessTemplate } from "./types";

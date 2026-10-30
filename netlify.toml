@@ -1,6 +1,11 @@
 # Netlify serves the client sites on their own domains (domain aliases on this
 # one site). Bolt's aliases redirect to its primary domain, which would hide the
 # hostname the app uses to pick the client's site (src/App.tsx).
+#
+# netlify/edge-functions/site-meta.ts (found by Netlify, config in the file)
+# writes each client site's <head>, robots.txt and sitemap.xml. It needs the
+# VITE_SUPABASE_URL environment variable at runtime too, and KIKE_APP_HOSTS
+# if the operator app gets a host of its own.
 [build]
   command = "npm run build"
   publish = "dist"

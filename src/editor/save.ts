@@ -1,5 +1,6 @@
 import { callFn } from "@/lib/plw";
-import { uploadedPhotos } from "@/lib/saved-site";
+import { previewUrl, uploadedPhotos, type SiteStatus } from "@/lib/saved-site";
+import { templateVersion } from "@/templates";
 import type { BusinessTemplate } from "@/templates/types";
 
 /** A site already saved in PLW: saving again updates it instead of creating a new one. */
@@ -17,15 +18,8 @@ export function sanitizePhoneHref(phone: string): string {
   return digits.length >= 3 ? `tel:${digits}` : "tel:";
 }
 
-/** Save the draft through `kike-sites`; resolves its id and the link to send the client. */
-export async function saveSite({ siteId, slug, fields, tpl, clientId, customDomain }: {
-  siteId: string | null;
-  slug: string;
-  fields: BrandFields;
-  tpl: BusinessTemplate;
-  clientId: string;
-  customDomain: string;
-}): Promise<{ id: string; url: string }> {
+/** The content kike-sites stores for a site: what `save` sends and a revision freezes. */
+export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemplate) {
   // Snapshot every editable field beyond brand/content/photos so panel + inline
   // edits round-trip. JSON round-trip strips functions (icons) and undefined.
   const overrides = JSON.parse(
@@ -42,23 +36,43 @@ export async function saveSite({ siteId, slug, fields, tpl, clientId, customDoma
       projectSelector: tpl.projectSelector,
       inventory: tpl.inventory,
       heritage: tpl.heritage,
+      // Read by the edge function that writes the site's <head> (src/lib/site-meta.ts).
+      lockedLang: tpl.lockedLang,
+      // Staff's confirmation that reviews and claims are true (else they show as samples).
+      contentConfirmed: tpl.contentConfirmed,
     }),
   );
-  const { id } = await callFn<{ id: string }>("kike-sites", {
-    action: "save",
-    id: siteId,
+  return {
     slug,
+    template_version: templateVersion(slug),
     // Apply any pending form-field edits before saving.
     brand: { ...fields, phoneHref: sanitizePhoneHref(fields.phone) },
     content: tpl.content,
     photos: uploadedPhotos(tpl.media),
     overrides,
+  };
+}
+
+/**
+ * Save the draft through `kike-sites`. Saving never changes what visitors see:
+ * it resolves the site's id, its status and the preview link to send the client.
+ */
+export async function saveSite({ siteId, slug, fields, tpl, clientId, customDomain }: {
+  siteId: string | null;
+  slug: string;
+  fields: BrandFields;
+  tpl: BusinessTemplate;
+  clientId: string;
+  customDomain: string;
+}): Promise<{ id: string; status: SiteStatus; url: string }> {
+  const saved = await callFn<{ id: string; status: SiteStatus; preview_token: string }>("kike-sites", {
+    action: "save",
+    id: siteId,
+    ...sitePayload(slug, fields, tpl),
     client_id: clientId || null,
     custom_domain: customDomain.trim() || null,
   });
-  const domain = customDomain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
-  const url = domain ? `https://${domain}` : new URL(`/share/${id}`, window.location.origin).toString();
-  return { id, url };
+  return { id: saved.id, status: saved.status, url: previewUrl(saved.preview_token) };
 }
 
 /** Bilingual message for a failed save, from the error `callFn` threw. */
@@ -68,7 +82,11 @@ export function saveErrorMessage(e: unknown): string {
   return code === "domain_taken" ? "Ese dominio ya está en otro sitio. / That domain is already used by another site."
     : code === "invalid_payload" ? `Revise / Check: ${describeInvalidFields(fields)}`
       : code === "payload_too_large" ? "Demasiadas fotos o muy pesadas. / Too many or too large photos."
-        : code || "Could not save the site.";
+        : code === "reassign_first" ? "Para cambiar el cliente de este sitio, pídaselo a un administrador. / Ask an admin to move this site to another client."
+          : code === "archived" ? "Este sitio está archivado: restáurelo para editarlo. / This site is archived: restore it to edit."
+            : code === "domain_requires_client" ? "Asigne un cliente PLW antes de agregar un dominio. / Link a PLW client before adding a domain."
+              : code === "conflict" ? "Alguien cambió este sitio al mismo tiempo. Recargue e intente de nuevo. / Someone changed this site at the same time. Reload and try again."
+                : code || "Could not save the site.";
 }
 
 /**

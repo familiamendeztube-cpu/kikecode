@@ -9,11 +9,14 @@ import {
   Radio,
   Power,
   Pencil,
+  Eye,
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Switch } from "@/components/ui/switch";
 import { getTemplate } from "@/templates";
 import { callFn } from "@/lib/plw";
+import { previewUrl, publishedUrl, type DomainStatus, type SiteStatus } from "@/lib/saved-site";
+import { STATUS_LABEL } from "@/editor/lifecycle";
 
 /** A row of the `kike-sites` "list" action. */
 type SiteRow = {
@@ -24,7 +27,9 @@ type SiteRow = {
   client_id: string | null;
   client_name: string | null;
   custom_domain: string | null;
-  active: boolean;
+  domain_status: DomainStatus;
+  status: SiteStatus;
+  preview_token: string;
   created_at: string;
 };
 
@@ -48,32 +53,29 @@ export default function Demos() {
     };
   }, []);
 
-  const liveCount = useMemo(() => rows?.filter((r) => r.active).length ?? 0, [rows]);
+  const liveCount = useMemo(() => rows?.filter((r) => r.status === "published").length ?? 0, [rows]);
 
+  /** Suspend or resume a site that has been published; drafts go live from the editor. */
   async function toggle(row: SiteRow, next: boolean) {
+    const status: SiteStatus = next ? "published" : "suspended";
     setBusyId(row.id);
     setError(null);
     // Optimistic update
-    setRows((cur) => cur?.map((r) => (r.id === row.id ? { ...r, active: next } : r)) ?? null);
+    setRows((cur) => cur?.map((r) => (r.id === row.id ? { ...r, status } : r)) ?? null);
     try {
-      await callFn("kike-sites", { action: "set_active", id: row.id, active: next });
+      await callFn("kike-sites", { action: "set_status", id: row.id, status });
     } catch (e) {
       // Revert on failure
-      setRows((cur) => cur?.map((r) => (r.id === row.id ? { ...r, active: !next } : r)) ?? null);
+      setRows((cur) => cur?.map((r) => (r.id === row.id ? { ...r, status: row.status } : r)) ?? null);
       setError(e instanceof Error ? e.message : "Could not update");
     } finally {
       setBusyId(null);
     }
   }
 
-  function siteUrl(row: SiteRow): string {
-    if (row.custom_domain) return `https://${row.custom_domain}`;
-    return new URL(`/share/${row.id}`, window.location.origin).toString();
-  }
-
   async function copyLink(row: SiteRow) {
     try {
-      await navigator.clipboard.writeText(siteUrl(row));
+      await navigator.clipboard.writeText(row.status === "published" ? publishedUrl(row) : previewUrl(row.preview_token));
       setCopiedId(row.id);
       setTimeout(() => setCopiedId((c) => (c === row.id ? null : c)), 1500);
     } catch {
@@ -91,7 +93,7 @@ export default function Demos() {
               Live Demos
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Sitios y demos guardados. Apague uno y su enlace deja de funcionar al instante.
+              Sitios y demos guardados. Un borrador solo se ve con su enlace de vista previa; suspenda un sitio publicado y deja de verse en un minuto.
             </p>
           </div>
           {rows && (
@@ -122,6 +124,7 @@ export default function Demos() {
         <div className="space-y-3">
           {rows?.map((row) => {
             const tpl = getTemplate(row.slug);
+            const live = row.status === "published";
             const dateStr = new Date(row.created_at).toLocaleDateString("es-CR", {
               year: "numeric",
               month: "short",
@@ -131,7 +134,7 @@ export default function Demos() {
               <div
                 key={row.id}
                 className={`rounded-xl border p-4 flex items-center gap-4 transition-colors ${
-                  row.active
+                  live || row.status === "draft"
                     ? "bg-card border-border"
                     : "bg-muted/40 border-border/60 opacity-70"
                 }`}
@@ -139,17 +142,17 @@ export default function Demos() {
               >
                 <span
                   className={`shrink-0 w-2.5 h-2.5 rounded-full ${
-                    row.active ? "bg-emerald-500 animate-pulse" : "bg-slate-400"
+                    live ? "bg-emerald-500 animate-pulse" : row.status === "draft" ? "bg-amber-400" : "bg-slate-400"
                   }`}
-                  title={row.active ? "Live" : "Off"}
+                  title={STATUS_LABEL[row.status]}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold truncate">{row.title}</div>
                   <div className="text-xs text-muted-foreground truncate">
-                    {tpl ? `${tpl.industry} · ` : ""}
+                    {STATUS_LABEL[row.status]} · {tpl ? `${tpl.industry} · ` : ""}
                     {row.city ? `${row.city} · ` : ""}
                     {row.client_name ?? "Demo"}
-                    {row.custom_domain ? ` · ${row.custom_domain}` : ""}
+                    {row.custom_domain ? ` · ${row.custom_domain}${row.domain_status === "active" ? "" : ` (${row.domain_status})`}` : ""}
                     {` · ${dateStr}`}
                   </div>
                 </div>
@@ -162,10 +165,22 @@ export default function Demos() {
                     <Pencil className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Editar</span>
                   </Link>
-                  {row.active ? (
+                  {row.status !== "archived" && (
+                    <a
+                      href={previewUrl(row.preview_token)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-border hover:bg-foreground/5 transition-colors"
+                      data-testid={`link-preview-${row.id}`}
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Vista previa</span>
+                    </a>
+                  )}
+                  {live ? (
                     <>
                       <a
-                        href={siteUrl(row)}
+                        href={publishedUrl(row)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-border hover:bg-foreground/5 transition-colors"
@@ -190,18 +205,20 @@ export default function Demos() {
                         </span>
                       </button>
                     </>
-                  ) : (
+                  ) : row.status === "suspended" && (
                     <span className="inline-flex items-center gap-1 text-xs text-muted-foreground px-2">
                       <Power className="w-3.5 h-3.5" /> Apagado
                     </span>
                   )}
-                  <Switch
-                    checked={row.active}
-                    disabled={busyId === row.id}
-                    onCheckedChange={(v) => toggle(row, v)}
-                    aria-label={row.active ? "Turn demo off" : "Turn demo on"}
-                    data-testid={`switch-${row.id}`}
-                  />
+                  {(live || row.status === "suspended") && (
+                    <Switch
+                      checked={live}
+                      disabled={busyId === row.id}
+                      onCheckedChange={(v) => toggle(row, v)}
+                      aria-label={live ? "Suspend site" : "Resume site"}
+                      data-testid={`switch-${row.id}`}
+                    />
+                  )}
                 </div>
               </div>
             );

@@ -261,6 +261,11 @@ export type BusinessTemplate = {
   /** A real, named business: never show fabricated ratings, extra reviews or
    *  invented service-area lists for it. */
   realBusiness?: boolean;
+  /** Staff checked with the business that the reviews and claims on this site
+   *  (stats, guarantee, credentials, trust strip) are true. Until then a
+   *  generic template's reviews and claims carry a visible "Sample" tag. Saved
+   *  with the site, so it is part of every version. */
+  contentConfirmed?: boolean;
   /** Defaults to "trades". */
   category?: TemplateCategory;
   facts?: TemplateFacts;
