@@ -36,6 +36,8 @@ export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemp
       projectSelector: tpl.projectSelector,
       inventory: tpl.inventory,
       heritage: tpl.heritage,
+      // Read by the edge function that writes the site's <head> (src/lib/site-meta.ts).
+      lockedLang: tpl.lockedLang,
     }),
   );
   return {
