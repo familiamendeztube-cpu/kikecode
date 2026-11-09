@@ -28,10 +28,10 @@ export function bookingCopy(lang: Lang, brandName: string) {
         startOver: "New request",
       }
     : {
-        whenPrompt: (need: string) => `Entendido — "${need}". ¿Cuándo te quedaría mejor? ${brandName} te confirmará la hora exacta.`,
+        whenPrompt: (need: string) => `Entendido — "${need}". ¿Cuándo le quedaría mejor? ${brandName} le confirmará la hora exacta.`,
         whenPh: "O escriba un día y una hora…",
-        contactPrompt: (when: string) => `Anotado: ${when}. ¿A qué número te escribe ${brandName} para confirmar?`,
-        doneMsg: (phone: string) => `✅ Solicitud enviada. ${brandName} te escribirá al ${phone} para confirmar la hora. Tu cita no está confirmada hasta que te respondan.`,
+        contactPrompt: (when: string) => `Anotado: ${when}. ¿A qué número le escribe ${brandName} para confirmar?`,
+        doneMsg: (phone: string) => `✅ Solicitud enviada. ${brandName} le escribirá al ${phone} para confirmar la hora. Su cita no está confirmada hasta que le respondan.`,
         doneBadge: "Solicitud enviada — pendiente de confirmar",
         previewMsg: "Esto es una vista previa, así que la solicitud no se envió. En el sitio publicado le llega directamente al negocio.",
         previewBadge: "Vista previa — no se envió nada",

@@ -20,7 +20,7 @@ One Vite 7 + React 19 + Tailwind 4 app at the repo root; router is `wouter` (`sr
 
 ## Backend
 
-**Professional Latino Workers' Supabase project** (`src/lib/plw.ts`; env `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` in the root `.env`). Saved sites: PLW's `kike-sites` function (table `kike_sites`). Editor AI + greeting audio: `kike-ai`. Contact forms: `lead-intake`, through `submitLead(template.plwSiteId, …)`. Those functions live in the PLW repo (`supabase/functions/kike-*`, `docs/KIKECODE_WEBSITE_INTEGRATION.md`).
+**Professional Latino Workers' Supabase project** (`src/lib/plw.ts`; env `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` in the root `.env`). Saved sites: PLW's `kike-sites` function (table `kike_sites`). Editor AI: `kike-ai` (the assistant greets in text only; the spoken greeting was removed 2026-11-09). Contact forms: `lead-intake`, through `submitLead(template.plwSiteId, …)`. Those functions live in the PLW repo (`supabase/functions/kike-*`, `docs/KIKECODE_WEBSITE_INTEGRATION.md`).
 
 - `src/components/staff-gate.tsx` — the operator app needs a PLW staff account (email + password + emailed code, like PLW's `/acceso`). `/share/:id`, `/preview/:token` and `/video/:id` stay public.
 - A saved site is a draft until staff publish it from the editor: `/preview/:token` shows the draft (noindex, forms off), `/share/:id` and the client's domain show only the published version. Rollout and rollback: PLW's `docs/kikecode-lifecycle/README.md`.

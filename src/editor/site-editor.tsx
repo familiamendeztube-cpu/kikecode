@@ -33,7 +33,7 @@ const LABELS: Record<string, [en: string, es: string]> = {
   brand: ["Business info", "Datos del negocio"], content: ["Website text", "Textos del sitio"],
   media: ["Photos & video", "Fotos y video"],
   offers: ["Highlights / badges", "Destacados / insignias"], galleryCaptions: ["Gallery captions", "Pies de foto de la galería"],
-  assistant: ["Voice greeting", "Saludo de voz"], availability: ["Availability", "Disponibilidad"],
+  assistant: ["Assistant greeting", "Saludo del asistente"], availability: ["Availability", "Disponibilidad"],
   videoGallery: ["Video gallery", "Galería de videos"], transformation: ["Before / after", "Antes / después"],
   clientTrust: ["Client trust", "Confianza de clientes"], projectSelector: ["Project selector", "Selector de proyectos"],
   inventory: ["Inventory", "Inventario"], heritage: ["Heritage", "Historia y raíces"],

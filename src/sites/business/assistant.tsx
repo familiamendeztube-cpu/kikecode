@@ -1,105 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Phone, Quote, Play, Pause, Volume2, MessageCircle, Calendar, Clock, Send, X } from "lucide-react";
+import { Phone, Quote, MessageCircle, Calendar, Clock, Send, X } from "lucide-react";
 import type { BusinessTemplate, Lang } from "@/templates/types";
-import { fnUrl } from "@/lib/plw";
 import { pick } from "@/lib/i18n";
 import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
 import type { SiteProps } from "./ui";
 import { buildGreeting } from "./data";
 import { bookingCopy, PREFERRED_TIMES } from "./booking-copy";
 
-/* ---------------------------------------------------------------- */
-/* useGreeting: play the live greeting in a realistic human voice.   */
-/* Audio is generated server-side (OpenAI gpt-audio) from the live   */
-/* greeting text, so it always says the current business name — no   */
-/* stale prerecorded clip and no robotic browser speech synthesis.   */
-/* ---------------------------------------------------------------- */
-export function useGreeting(text: string | undefined, lang: Lang) {
-  const [playing, setPlaying] = useState(false);
-  const [playedOnce, setPlayedOnce] = useState(false);
-  const userPausedRef = useRef(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const supported = typeof window !== "undefined" && typeof Audio !== "undefined";
-
-  // Greeting text changes on every keystroke while editing the business name.
-  // Each fresh text is a paid TTS generation, so debounce to the settled value.
-  const [settledText, setSettledText] = useState(text);
-  useEffect(() => {
-    const id = setTimeout(() => setSettledText(text), 600);
-    return () => clearTimeout(id);
-  }, [text]);
-
-  useEffect(() => {
-    const text = settledText;
-    if (!text) return;
-    if (typeof window === "undefined" || typeof Audio === "undefined") return;
-
-    const url = `${fnUrl("kike-ai")}?action=tts&text=${encodeURIComponent(text)}&voice=nova`;
-    const audio = new Audio(url);
-    audio.preload = "auto";
-    audioRef.current = audio;
-    userPausedRef.current = false;
-    setPlaying(false);
-    setPlayedOnce(false);
-
-    audio.addEventListener("play", () => { setPlaying(true); setPlayedOnce(true); });
-    audio.addEventListener("pause", () => setPlaying(false));
-    audio.addEventListener("ended", () => setPlaying(false));
-    audio.addEventListener("error", () => setPlaying(false));
-
-    const ac = new AbortController();
-
-    // Try immediate autoplay; if blocked, play on the first user gesture anywhere.
-    const trySpeak = () => {
-      if (userPausedRef.current || ac.signal.aborted) return;
-      audio.play().catch(() => { /* autoplay blocked — wait for a gesture */ });
-    };
-    trySpeak();
-    const opts: AddEventListenerOptions = { once: true, passive: true, signal: ac.signal };
-    const onGesture = () => {
-      if (audio.paused && !userPausedRef.current && audio.currentTime === 0) {
-        trySpeak();
-      }
-    };
-    document.addEventListener("pointerdown", onGesture, opts);
-    document.addEventListener("keydown", onGesture, opts);
-
-    return () => {
-      ac.abort();
-      try { audio.pause(); } catch { /* ignore */ }
-      audio.src = "";
-      audioRef.current = null;
-    };
-  }, [settledText, lang]);
-
-  const toggle = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (!audio.paused) {
-      userPausedRef.current = true;
-      audio.pause();
-    } else {
-      userPausedRef.current = false;
-      if (audio.ended) audio.currentTime = 0;
-      audio.play().catch(() => { /* ignore */ });
-    }
-  };
-  const pause = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (!audio.paused) {
-      userPausedRef.current = true;
-      audio.pause();
-    }
-  };
-
-  return { playing, playedOnce, toggle, pause, supported };
-}
-
-export type Greeting = ReturnType<typeof useGreeting>;
-
-/* ASSISTANT AUDIO STRIP */
-export function AssistantStrip({ template, brand, p, lang, greeting }: SiteProps & { greeting: Greeting }) {
+/* The assistant greets in text only: the spoken greeting was removed (owner decision 2026-11-09). */
+export function AssistantStrip({ template, brand, p, lang }: SiteProps) {
   const media = template.media;
   const assistant = template.assistant;
   if (!assistant) return null;
@@ -132,29 +41,11 @@ export function AssistantStrip({ template, brand, p, lang, greeting }: SiteProps
             <Quote className="inline w-4 h-4 mr-1 -mt-1" style={{ color: p.primary }} />
             {buildGreeting(assistant, lang, brand.name)}
           </p>
-          {greeting.supported && (
-            <div className="mt-3 flex items-center gap-3">
-              <button
-                onClick={greeting.toggle}
-                className="inline-flex items-center gap-2 text-white text-sm font-bold px-4 py-2 rounded-lg shadow-sm transition-opacity hover:opacity-90"
-                style={{ backgroundColor: p.primary }}
-                aria-label={greeting.playing ? "Pause greeting" : "Play greeting"}
-              >
-                {greeting.playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                {greeting.playing
-                  ? pick(lang, "Pause", "Pausar")
-                  : pick(lang, "Listen to greeting", "Escuchar saludo")}
-              </button>
-              <div className="text-xs text-slate-500 inline-flex items-center gap-1.5">
-                <Volume2 className="w-3.5 h-3.5" /> {pick(lang, "15-second voice intro", "Saludo de 15 segundos")}
-              </div>
-            </div>
-          )}
         </div>
 
         <a href={brand.phoneHref} className="hidden md:inline-flex items-center justify-center gap-2 text-white font-bold px-5 py-3 rounded-xl shadow-md hover:opacity-90 transition-opacity" style={{ backgroundColor: p.primaryDark }}>
           <MessageCircle className="w-4 h-4" />
-          {pick(lang, "Talk to a human", "Habla con una persona")}
+          {pick(lang, "Talk to a human", "Hable con una persona")}
         </a>
       </div>
     </section>
@@ -162,7 +53,7 @@ export function AssistantStrip({ template, brand, p, lang, greeting }: SiteProps
 }
 
 export function FloatingAssistant({
-  assistant, portraitSrc, brandName, phone, phoneHref, palette, lang, greeting, services, siteId,
+  assistant, portraitSrc, brandName, phone, phoneHref, palette, lang, services, siteId,
 }: {
   assistant: NonNullable<BusinessTemplate["assistant"]>;
   portraitSrc: string | undefined;
@@ -171,7 +62,6 @@ export function FloatingAssistant({
   phoneHref: string;
   palette: BusinessTemplate["brand"]["palette"];
   lang: Lang;
-  greeting: Greeting;
   services: string[];
   /** Published sites only: the request is sent to PLW as a lead. */
   siteId?: string;
@@ -193,10 +83,6 @@ export function FloatingAssistant({
   const L = pick(lang,
     {
       online: "Virtual assistant · takes requests any time",
-      tapHint: "Tap anywhere to hear my voice",
-      speaking: `${assistant.name} is speaking…`,
-      hear: "Hear greeting",
-      pause: "Pause",
       needPh: "Type what you need…",
       contactPh: "Your phone number",
       invalidPhone: "Hmm, that doesn't look like a phone number — please enter a number we can text.",
@@ -205,12 +91,8 @@ export function FloatingAssistant({
     },
     {
       online: "Asistente virtual · recibe solicitudes a toda hora",
-      tapHint: "Toque para escuchar mi voz",
-      speaking: `${assistant.name} está hablando…`,
-      hear: "Escuchar",
-      pause: "Pausar",
       needPh: "Escriba lo que necesita…",
-      contactPh: "Tu número de teléfono",
+      contactPh: "Su número de teléfono",
       invalidPhone: "Mmm, eso no parece un teléfono: escriba un número al que le podamos enviar un mensaje.",
       callNow: "Llamar",
       send: "Enviar",
@@ -314,33 +196,6 @@ export function FloatingAssistant({
           <div className="bg-slate-50 rounded-2xl rounded-tl-md px-4 py-3 text-sm text-slate-700 leading-relaxed">
             {buildGreeting(assistant, lang, brandName)}
           </div>
-
-          {greeting.supported && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={greeting.toggle}
-                className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full text-white shadow-sm hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: palette.primary }}
-              >
-                {greeting.playing ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                {greeting.playing ? L.pause : L.hear}
-              </button>
-              {greeting.playing ? (
-                <span className="text-xs text-emerald-600 inline-flex items-center gap-1.5">
-                  <span className="flex items-end gap-0.5 h-3">
-                    <span className="w-0.5 bg-emerald-600 animate-pulse" style={{ height: "60%", animationDelay: "0ms" }} />
-                    <span className="w-0.5 bg-emerald-600 animate-pulse" style={{ height: "100%", animationDelay: "150ms" }} />
-                    <span className="w-0.5 bg-emerald-600 animate-pulse" style={{ height: "40%", animationDelay: "300ms" }} />
-                  </span>
-                  {L.speaking}
-                </span>
-              ) : !greeting.playedOnce ? (
-                <span className="text-[11px] text-amber-700 inline-flex items-center gap-1 animate-pulse">
-                  <Volume2 className="w-3 h-3" /> {L.tapHint}
-                </span>
-              ) : null}
-            </div>
-          )}
 
           {msgs.map((m, i) => (
             <div key={i} className={m.from === "user" ? "flex justify-end" : "flex justify-start"}>
@@ -449,7 +304,7 @@ export function FloatingAssistant({
                 </div>
               )}
               <div className="grid grid-cols-2 gap-2">
-                <a href={phoneHref} onClick={greeting.pause} className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white text-sm font-bold px-3 py-2.5 rounded-xl shadow-sm hover:opacity-90 transition-opacity">
+                <a href={phoneHref} className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white text-sm font-bold px-3 py-2.5 rounded-xl shadow-sm hover:opacity-90 transition-opacity">
                   <Phone className="w-4 h-4" /> {L.callNow}
                 </a>
                 <button onClick={reset} className="inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-700 text-sm font-bold px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
@@ -463,7 +318,7 @@ export function FloatingAssistant({
           <div className="text-[11px] text-slate-500 text-center leading-snug">
             {pick(lang,
               <>Or call {brandName} at <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a></>,
-              <>O llama a {brandName} al <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a></>)}
+              <>O llame a {brandName} al <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a></>)}
           </div>
         </div>
       </div>
