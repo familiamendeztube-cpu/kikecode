@@ -3,7 +3,7 @@ import type { BusinessTemplate } from "./types";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 /**
- * LUMINA — a fictional bilingual digital creative studio.
+ * LUMINA — a fictional bilingual digital creative studio in Barrio Escalante, San José.
  * This template uses the custom "leonardo" site variant: a cinematic
  * dark-canvas editorial renderer (leonardo-site.tsx) instead of the
  * shared BusinessSite component.
@@ -17,11 +17,11 @@ const luminaStudio: BusinessTemplate = {
   siteVariant: "leonardo",
   brand: {
     name: "LUMINA",
-    city: "Miami",
-    phone: "(555) 010-0099",
-    phoneHref: "tel:+15550100099",
+    city: "Barrio Escalante",
+    phone: "+506 0000-0000",
+    phoneHref: "tel:+50600000000",
     email: "hola@luminastudio.co",
-    address: "88 NE 2nd Ave, Miami, FL 33132",
+    address: "De la iglesia católica de Santa Teresita, 200 m este y 50 m norte, Barrio Escalante, San José",
     heroIcon: Wand2,
     palette: {
       primary: "#6e60ee", primaryDark: "#5245c9", accent: "#d25fff",
@@ -54,7 +54,7 @@ const luminaStudio: BusinessTemplate = {
         eyebrow: "A bilingual creative studio for bold brands",
         title1: "Your Ideas.",
         title2: "Yours to Create.",
-        subtitle: "Branding, websites, and AI-powered content for businesses that refuse to look ordinary. Made in Miami, en inglés y español.",
+        subtitle: "Branding, websites, and AI-powered content for businesses that refuse to look ordinary. Made in Barrio Escalante, San José, en inglés y español.",
         cta1: "Start a Project", cta2: "See Our Work",
         badges: ["Branding", "Websites", "AI Content", "Bilingual EN/ES"],
         ratingTitle: "5.0 / 5", ratingSubtitle: "120+ brands launched",
@@ -89,18 +89,18 @@ const luminaStudio: BusinessTemplate = {
       testimonials: {
         title: "What Clients Say",
         items: [
-          { name: "Valeria M.", role: "Founder, Café Oro", quote: "LUMINA rebranded us in three weeks. Sales are up 40% and people photograph our cups." },
-          { name: "Derek S.", role: "CEO, Solara Fitness", quote: "The website they built feels like a movie. Our sign-ups doubled the first month." },
-          { name: "Camila R.", role: "Owner, Flor & Sal", quote: "They think in Spanish and English at the same time. Our campaigns finally sound like us." },
+          { name: "Valeria M.", role: "Founder, Café Oro · Barrio Amón", quote: "LUMINA rebranded us in three weeks. Sales are up 40% and people photograph our cups." },
+          { name: "Mauricio S.", role: "CEO, Solara Fitness · Escazú", quote: "The website they built feels like a movie. Our sign-ups doubled the first month." },
+          { name: "Camila R.", role: "Owner, Flor & Sal · Santa Ana", quote: "They think in Spanish and English at the same time. Our campaigns finally sound like us." },
         ],
       },
       faq: {
         title: "Frequently Asked Questions",
         items: [
-          { q: "How much does a project cost?", a: "Brand identities start at $2,500 and websites at $4,000. Every project gets a fixed quote up front — no surprises." },
+          { q: "How much does a project cost?", a: "Brand identities start at ₡1 250 000 and websites at ₡2 000 000. Every project gets a fixed quote up front — no surprises." },
           { q: "How fast can you deliver?", a: "First concepts within 5 business days. Most full projects launch in 3–6 weeks." },
           { q: "Do you work with AI?", a: "Yes — we direct AI tools to generate visuals and content, always refined by our designers. You get speed without losing taste." },
-          { q: "Do you work outside Miami?", a: "Absolutely. Half our clients are remote across the U.S. and Latin America. Everything runs smoothly online." },
+          { q: "Do you work outside San José?", a: "Absolutely. Half our clients work with us remotely, from all over Costa Rica and abroad. Everything runs smoothly online." },
         ],
       },
       contact: {
@@ -110,61 +110,61 @@ const luminaStudio: BusinessTemplate = {
         pick: "— Pick a service —",
         services: ["Brand identity", "Website", "AI content", "Social media design", "Full package"],
       },
-      footer: { tagline: "A bilingual creative studio for bold brands.", hours: "Mon–Fri · 9am–6pm", rights: "All rights reserved.", hoursLabel: "Hours" },
+      footer: { tagline: "A bilingual creative studio for bold brands.", hours: "Mon–Fri · 9:00 a.m.–6:00 p.m.", rights: "All rights reserved.", hoursLabel: "Hours" },
     },
     es: {
-      nav: { services: "Trabajo", why: "Estudio", process: "Proceso", testimonials: "Clientes", faq: "FAQ", contact: "Contacto", call: "Llame" },
+      nav: { services: "Trabajo", why: "Estudio", process: "Proceso", testimonials: "Clientes", faq: "Preguntas", contact: "Contacto", call: "Llame" },
       hero: {
         eyebrow: "Un estudio creativo bilingüe para marcas audaces",
-        title1: "Tus Ideas.",
-        title2: "Tuyas para Crear.",
-        subtitle: "Branding, sitios web y contenido con IA para negocios que se niegan a verse ordinarios. Hecho en Miami, in English y en español.",
+        title1: "Sus Ideas.",
+        title2: "Suyas para Crear.",
+        subtitle: "Branding, sitios web y contenido con IA para negocios que se niegan a verse ordinarios. Hecho en Barrio Escalante, San José, in English y en español.",
         cta1: "Iniciar un Proyecto", cta2: "Ver Nuestro Trabajo",
         badges: ["Branding", "Sitios Web", "Contenido IA", "Bilingüe EN/ES"],
-        ratingTitle: "5.0 / 5", ratingSubtitle: "120+ marcas lanzadas",
+        ratingTitle: "5.0 / 5", ratingSubtitle: "Más de 120 marcas lanzadas",
         trustTitle: "Estudio Integral", trustSubtitle: "De estrategia a lanzamiento",
       },
       services: {
-        title: "Lo Que Creamos", blurb: "Cada pixel con intención.",
+        title: "Lo Que Creamos", blurb: "Cada píxel con intención.",
         items: [
           { title: "Identidad de Marca", blurb: "Logos, sistemas de color y lenguajes visuales que hacen su negocio inconfundible." },
-          { title: "Sitios Web y Digital", blurb: "Sitios rápidos e impactantes diseñados para convertir — creados totalmente en casa." },
+          { title: "Sitios Web y Digital", blurb: "Sitios rápidos e impactantes diseñados para convertir — diseñados y desarrollados por nuestro propio equipo." },
           { title: "Estudio de Contenido IA", blurb: "Visuales, fotos de producto e imágenes de campaña generadas con IA y dirigidas con criterio humano." },
         ],
       },
       why: {
         title: "Por Qué las Marcas Eligen LUMINA",
         items: [
-          { title: "Obsesión por el diseño", blurb: "Cuidamos los detalles que otros estudios ignoran — tipografía, movimiento y ritmo." },
-          { title: "Entregas rápidas", blurb: "Conceptos en días, no meses. El impulso es parte del oficio." },
-          { title: "Verdaderamente bilingüe", blurb: "Campañas nacidas en español e inglés — nunca traducidas como una ocurrencia tardía." },
+          { title: "Obsesión por el diseño", blurb: "Cuidamos los detalles que otros estudios pasan por alto — tipografía, movimiento y ritmo." },
+          { title: "Entregas rápidas", blurb: "Conceptos en días, no en meses. El impulso es parte del oficio." },
+          { title: "Verdaderamente bilingüe", blurb: "Campañas nacidas en español e inglés — nunca traducidas a última hora." },
           { title: "De principio a fin", blurb: "Estrategia, diseño, desarrollo y lanzamiento bajo un mismo techo." },
         ],
       },
       process: {
         title: "Cómo Trabajamos",
         items: [
-          { title: "Descubrir", blurb: "Conocemos su negocio, su audiencia y su ambición." },
+          { title: "Descubrir", blurb: "Conocemos su negocio, su público y su ambición." },
           { title: "Conceptualizar", blurb: "Direcciones audaces presentadas rápido — usted elige la que le convence." },
           { title: "Crear", blurb: "Diseño, contenido y desarrollo en sprints creativos intensos." },
-          { title: "Lanzar", blurb: "Publicamos, medimos y seguimos evolucionando su marca." },
+          { title: "Lanzar", blurb: "Publicamos, medimos y seguimos haciendo crecer su marca." },
         ],
       },
       testimonials: {
         title: "Lo Que Dicen los Clientes",
         items: [
-          { name: "Valeria M.", role: "Fundadora, Café Oro", quote: "LUMINA nos renovó la marca en tres semanas. Las ventas subieron 40% y la gente fotografía nuestros vasos." },
-          { name: "Derek S.", role: "CEO, Solara Fitness", quote: "El sitio web que construyeron se siente como una película. Nuestras inscripciones se duplicaron el primer mes." },
-          { name: "Camila R.", role: "Dueña, Flor & Sal", quote: "Piensan en español y en inglés al mismo tiempo. Nuestras campañas por fin suenan como nosotros." },
+          { name: "Valeria M.", role: "Fundadora, Café Oro · Barrio Amón", quote: "LUMINA nos renovó la marca en tres semanas. Las ventas subieron 40% y la gente le toma fotos a nuestros vasos." },
+          { name: "Mauricio S.", role: "CEO, Solara Fitness · Escazú", quote: "El sitio web que construyeron se siente como una película. Nuestras inscripciones se duplicaron el primer mes." },
+          { name: "Camila R.", role: "Dueña, Flor & Sal · Santa Ana", quote: "Piensan en español y en inglés al mismo tiempo. Nuestras campañas por fin suenan como nosotros." },
         ],
       },
       faq: {
         title: "Preguntas Frecuentes",
         items: [
-          { q: "¿Cuánto cuesta un proyecto?", a: "Las identidades de marca comienzan en $2,500 y los sitios web en $4,000. Cada proyecto recibe una cotización fija por adelantado — sin sorpresas." },
+          { q: "¿Cuánto cuesta un proyecto?", a: "Las identidades de marca comienzan en ₡1 250 000 y los sitios web en ₡2 000 000. Cada proyecto recibe una cotización fija por adelantado — sin sorpresas." },
           { q: "¿Qué tan rápido entregan?", a: "Primeros conceptos en 5 días hábiles. La mayoría de los proyectos completos se lanzan en 3–6 semanas." },
           { q: "¿Trabajan con IA?", a: "Sí — dirigimos herramientas de IA para generar visuales y contenido, siempre refinados por nuestros diseñadores. Velocidad sin perder el buen gusto." },
-          { q: "¿Trabajan fuera de Miami?", a: "Por supuesto. La mitad de nuestros clientes están en EE.UU. y Latinoamérica. Todo fluye perfectamente en línea." },
+          { q: "¿Trabajan fuera de San José?", a: "Por supuesto. La mitad de nuestros clientes trabajan con nosotros a distancia, desde todo Costa Rica y el extranjero. Todo fluye perfectamente en línea." },
         ],
       },
       contact: {
@@ -174,7 +174,7 @@ const luminaStudio: BusinessTemplate = {
         pick: "— Elija un servicio —",
         services: ["Identidad de marca", "Sitio web", "Contenido IA", "Diseño para redes", "Paquete completo"],
       },
-      footer: { tagline: "Un estudio creativo bilingüe para marcas audaces.", hours: "Lun–Vie · 9am–6pm", rights: "Todos los derechos reservados.", hoursLabel: "Horario" },
+      footer: { tagline: "Un estudio creativo bilingüe para marcas audaces.", hours: "Lun a vie · 9:00 a. m. – 6:00 p. m.", rights: "Todos los derechos reservados.", hoursLabel: "Horario" },
     },
   },
 };

@@ -14,7 +14,7 @@ const autoServicioRym: BusinessTemplate = {
   brand: {
     name: "Auto Servicio RyM",
     city: "San José",
-    phone: "+506 6419 5247",
+    phone: "+506 6419-5247",
     phoneHref: "tel:+50664195247",
     email: "", // Removed unverified email
     address: "200 mts oeste de Casa Presidencial, contiguo a Edificio Mira, San José",

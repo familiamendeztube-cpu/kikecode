@@ -1,7 +1,7 @@
 import { callFn } from "@/lib/plw";
 import { mergeReplaceArrays } from "@/lib/saved-site";
+import { crPhone } from "@/lib/cr";
 import type { BusinessTemplate } from "@/templates/types";
-import { sanitizePhoneHref } from "./save";
 
 export type ChatMsg = { role: "user" | "assistant"; content: string };
 
@@ -39,10 +39,8 @@ export function applyAiEdit(cur: BusinessTemplate, data: AiEdit): BusinessTempla
   const next: BusinessTemplate = { ...cur };
   if (data.brand) {
     const incoming = { ...data.brand };
-    // Always rebuild phoneHref from the phone we'll actually display.
-    if (incoming.phone) {
-      incoming.phoneHref = sanitizePhoneHref(incoming.phone);
-    }
+    // Always rebuild phoneHref from the phone we'll actually display, in Costa Rican format.
+    if (incoming.phone) Object.assign(incoming, crPhone(incoming.phone));
     next.brand = { ...cur.brand, ...incoming };
   }
   if (data.content) {

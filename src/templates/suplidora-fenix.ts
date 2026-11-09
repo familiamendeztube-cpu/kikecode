@@ -15,7 +15,7 @@ const suplidoraFenix: BusinessTemplate = {
   brand: {
     name: "Suplidora Fénix",
     city: "San José",
-    phone: "+506 7297 4936",
+    phone: "+506 7297-4936",
     phoneHref: "tel:+50672974936",
     email: "",
     address: "",

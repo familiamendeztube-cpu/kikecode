@@ -16,7 +16,9 @@ import { Switch } from "@/components/ui/switch";
 import { getTemplate } from "@/templates";
 import { callFn } from "@/lib/plw";
 import { previewUrl, publishedUrl, type DomainStatus, type SiteStatus } from "@/lib/saved-site";
-import { STATUS_LABEL } from "@/editor/lifecycle";
+import { DOMAIN_STATUS_LABEL, STATUS_LABEL } from "@/editor/lifecycle";
+import { pick } from "@/lib/i18n";
+import { useOperatorLang } from "@/lib/operator-lang";
 
 /** A row of the `kike-sites` "list" action. */
 type SiteRow = {
@@ -34,6 +36,7 @@ type SiteRow = {
 };
 
 export default function Demos() {
+  const { lang } = useOperatorLang();
   const [rows, setRows] = useState<SiteRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -46,7 +49,7 @@ export default function Demos() {
         if (!cancelled) setRows(sites);
       })
       .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Could not load sites");
+        if (!cancelled) setError(e instanceof Error ? e.message : pick(lang, "Could not load sites", "No se pudieron cargar los sitios"));
       });
     return () => {
       cancelled = true;
@@ -67,7 +70,7 @@ export default function Demos() {
     } catch (e) {
       // Revert on failure
       setRows((cur) => cur?.map((r) => (r.id === row.id ? { ...r, status: row.status } : r)) ?? null);
-      setError(e instanceof Error ? e.message : "Could not update");
+      setError(e instanceof Error ? e.message : pick(lang, "Could not update", "No se pudo actualizar"));
     } finally {
       setBusyId(null);
     }
@@ -90,15 +93,19 @@ export default function Demos() {
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight flex items-center gap-2">
               <Radio className="w-6 h-6 text-emerald-500" />
-              Live Demos
+              {pick(lang, "Live Demos", "Demos en vivo")}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Sitios y demos guardados. Un borrador solo se ve con su enlace de vista previa; suspenda un sitio publicado y deja de verse en un minuto.
+              {pick(
+                lang,
+                "Saved sites and demos. A draft can only be seen through its preview link; suspend a published site and it stops showing within a minute.",
+                "Sitios y demos guardados. Un borrador solo se ve con su enlace de vista previa; suspenda un sitio publicado y deja de verse en un minuto.",
+              )}
             </p>
           </div>
           {rows && (
             <div className="text-sm font-semibold px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-              {liveCount} live / {rows.length} total
+              {pick(lang, `${liveCount} live / ${rows.length} total`, `${liveCount} en vivo / ${rows.length} en total`)}
             </div>
           )}
         </div>
@@ -111,13 +118,13 @@ export default function Demos() {
 
         {!rows && !error && (
           <div className="flex items-center gap-2 text-muted-foreground py-16 justify-center">
-            <Loader2 className="w-5 h-5 animate-spin" /> Loading demos…
+            <Loader2 className="w-5 h-5 animate-spin" /> {pick(lang, "Loading demos…", "Cargando demos…")}
           </div>
         )}
 
         {rows && rows.length === 0 && (
           <div className="text-center text-muted-foreground py-16">
-            No hay demos todavía. / No demos created yet.
+            {pick(lang, "No demos created yet.", "No hay demos todavía.")}
           </div>
         )}
 
@@ -125,7 +132,7 @@ export default function Demos() {
           {rows?.map((row) => {
             const tpl = getTemplate(row.slug);
             const live = row.status === "published";
-            const dateStr = new Date(row.created_at).toLocaleDateString("es-CR", {
+            const dateStr = new Date(row.created_at).toLocaleDateString(lang === "es" ? "es-CR" : "en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -144,15 +151,15 @@ export default function Demos() {
                   className={`shrink-0 w-2.5 h-2.5 rounded-full ${
                     live ? "bg-emerald-500 animate-pulse" : row.status === "draft" ? "bg-amber-400" : "bg-slate-400"
                   }`}
-                  title={STATUS_LABEL[row.status]}
+                  title={STATUS_LABEL[row.status][lang]}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold truncate">{row.title}</div>
                   <div className="text-xs text-muted-foreground truncate">
-                    {STATUS_LABEL[row.status]} · {tpl ? `${tpl.industry} · ` : ""}
+                    {STATUS_LABEL[row.status][lang]} · {tpl ? `${pick(lang, tpl.industry, tpl.industryEs)} · ` : ""}
                     {row.city ? `${row.city} · ` : ""}
                     {row.client_name ?? "Demo"}
-                    {row.custom_domain ? ` · ${row.custom_domain}${row.domain_status === "active" ? "" : ` (${row.domain_status})`}` : ""}
+                    {row.custom_domain ? ` · ${row.custom_domain}${row.domain_status === "active" ? "" : ` (${DOMAIN_STATUS_LABEL[row.domain_status][lang]})`}` : ""}
                     {` · ${dateStr}`}
                   </div>
                 </div>
@@ -163,7 +170,7 @@ export default function Demos() {
                     data-testid={`link-edit-${row.id}`}
                   >
                     <Pencil className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Editar</span>
+                    <span className="hidden sm:inline">{pick(lang, "Edit", "Editar")}</span>
                   </Link>
                   {row.status !== "archived" && (
                     <a
@@ -174,7 +181,7 @@ export default function Demos() {
                       data-testid={`link-preview-${row.id}`}
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Vista previa</span>
+                      <span className="hidden sm:inline">{pick(lang, "Preview", "Vista previa")}</span>
                     </a>
                   )}
                   {live ? (
@@ -187,7 +194,7 @@ export default function Demos() {
                         data-testid={`link-open-${row.id}`}
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Abrir</span>
+                        <span className="hidden sm:inline">{pick(lang, "Open", "Abrir")}</span>
                       </a>
                       <button
                         type="button"
@@ -201,13 +208,13 @@ export default function Demos() {
                           <Copy className="w-3.5 h-3.5" />
                         )}
                         <span className="hidden sm:inline">
-                          {copiedId === row.id ? "Copiado" : "Copiar"}
+                          {copiedId === row.id ? pick(lang, "Copied", "Copiado") : pick(lang, "Copy", "Copiar")}
                         </span>
                       </button>
                     </>
                   ) : row.status === "suspended" && (
                     <span className="inline-flex items-center gap-1 text-xs text-muted-foreground px-2">
-                      <Power className="w-3.5 h-3.5" /> Apagado
+                      <Power className="w-3.5 h-3.5" /> {pick(lang, "Off", "Apagado")}
                     </span>
                   )}
                   {(live || row.status === "suspended") && (
@@ -215,7 +222,7 @@ export default function Demos() {
                       checked={live}
                       disabled={busyId === row.id}
                       onCheckedChange={(v) => toggle(row, v)}
-                      aria-label={live ? "Suspend site" : "Resume site"}
+                      aria-label={live ? pick(lang, "Suspend site", "Suspender sitio") : pick(lang, "Resume site", "Reactivar sitio")}
                       data-testid={`switch-${row.id}`}
                     />
                   )}

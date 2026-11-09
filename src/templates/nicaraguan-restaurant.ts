@@ -273,6 +273,8 @@ const nicaraguanRestaurant: BusinessTemplate = {
     },
   },
   realBusiness: true,
+  // A real US business, kept as it is: it opens in English.
+  defaultLang: "en",
   category: "food",
   availability: { en: "Open daily · Call or message to order", es: "Abierto a diario · Llame o escriba para ordenar" },
   assistant: {

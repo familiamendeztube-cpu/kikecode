@@ -143,7 +143,7 @@ export type TemplateAssistant = {
 };
 
 export type OfferIconKey =
-  | "Clock" | "DollarSign" | "ShieldCheck" | "Languages" | "BadgeCheck"
+  | "Clock" | "DollarSign" | "Banknote" | "ShieldCheck" | "Languages" | "BadgeCheck"
   | "Truck" | "Wrench" | "Star" | "Leaf" | "Sparkles" | "Heart";
 
 export type OfferItem = { icon: OfferIconKey; title: string; blurb: string };
@@ -208,11 +208,11 @@ export type InventoryVehicle = {
   /** Optional model year — omit when unknown (e.g. classics). */
   year?: number;
   bodyStyle: "SUV" | "Pickup" | "Sedan";
-  /** Display price, e.g. "₡17.900.000" or "Consultar" when price is on request. */
+  /** Display price, e.g. "₡17 900 000" (es-CR: no-break spaces) or "Consultar" when price is on request. */
   price: string;
   /** Optional approximate USD price, e.g. "$33,800". */
   priceUsd?: string;
-  /** Optional display mileage, e.g. "82,000 km". */
+  /** Optional display mileage, e.g. "82 000 km". */
   mileage?: string;
   transmission?: LocalizedText;
   fuel?: LocalizedText;
@@ -256,6 +256,9 @@ export type BusinessTemplate = {
   content: Record<Lang, LocalizedContent>;
   /** When set, the site renders only in this language and hides the EN/ES toggle. */
   lockedLang?: Lang;
+  /** The language a site opens in when it is not locked. Clients are Costa Rican,
+   *  so Spanish unless set; only the real US businesses open in English. */
+  defaultLang?: Lang;
   /** Custom full-page renderer instead of the shared BusinessSite (see sites/site-renderer.tsx). */
   siteVariant?: "leonardo" | "oryzo" | "rym" | "fenix";
   /** A real, named business: never show fabricated ratings, extra reviews or

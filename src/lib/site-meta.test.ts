@@ -51,9 +51,16 @@ describe("siteHead", () => {
     expect(siteHead(site, "preview", new URL("https://app.netlify.app/preview/abc")).robots).toBe("noindex, nofollow");
   });
 
-  it("never offers an inline photo as the share image, and falls back to English and the title", () => {
+  it("never offers an inline photo as the share image, and falls back to Spanish and the title", () => {
     const head = siteHead({ ...site, photos: { hero: "data:image/jpeg;base64,AAAA" }, overrides: null, content: { en: { hero: { title1: "Sharp", title2: "cuts" } } } }, "domain", new URL("https://elrey.cr/"));
-    expect(head).toMatchObject({ lang: "en", image: null, description: "Sharp cuts" });
+    expect(head).toMatchObject({ lang: "es", image: null, description: "Sharp cuts" });
+    expect(head.jsonLd).toMatchObject({ address: { addressCountry: "CR" } });
+  });
+
+  it("opens in English only when the site does, without claiming Costa Rica", () => {
+    const head = siteHead({ ...site, overrides: { defaultLang: "en" } }, "domain", new URL("https://elrey.cr/"));
+    expect(head.lang).toBe("en");
+    expect(JSON.stringify(head.jsonLd)).not.toContain("addressCountry");
   });
 });
 
@@ -74,7 +81,7 @@ describe("injectHead", () => {
   it("never lets a saved language value out of <html lang>", () => {
     const hostile = { ...site, overrides: { lockedLang: `en"><img src=x onerror=alert(1)>` as never } };
     const html = injectHead(INDEX_HTML, siteHead(hostile, "domain", new URL("https://elrey.cr/")));
-    expect(html).toContain('<html lang="en">');
+    expect(html).toContain('<html lang="es">');
     expect(html).not.toContain("onerror");
   });
 

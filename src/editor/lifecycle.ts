@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { callFn } from "@/lib/plw";
-import type { SiteStatus, StoredSite } from "@/lib/saved-site";
+import { pick } from "@/lib/i18n";
+import { useOperatorLang } from "@/lib/operator-lang";
+import type { DomainStatus, SiteStatus, StoredSite } from "@/lib/saved-site";
+import type { Lang } from "@/templates/types";
 
 /*
   A saved site's lifecycle in the editor: publish the draft, record the
@@ -35,10 +38,10 @@ export const OVERRIDE_REASON_MIN = 10;
 /** kike-sites' APPROVAL_NOTE_MIN. */
 export const APPROVAL_NOTE_MIN = 10;
 
-export const BASIS_TEXT: Record<NonNullable<StoredSite["published_basis"]>, string> = {
-  client_approval: "Client approval / Aprobación del cliente",
-  admin_override: "Admin override / Excepción de administrador",
-  admin_without_approval: "Admin, no new client approval / Administrador, sin nueva aprobación",
+export const BASIS_TEXT: Record<NonNullable<StoredSite["published_basis"]>, Record<Lang, string>> = {
+  client_approval: { en: "Client approval", es: "Aprobación del cliente" },
+  admin_override: { en: "Admin override", es: "Excepción de administrador" },
+  admin_without_approval: { en: "Admin, no new client approval", es: "Administrador, sin nueva aprobación" },
 };
 
 export type DomainCheck = {
@@ -48,24 +51,35 @@ export type DomainCheck = {
   txt: { name: string; value: string };
 };
 
-export const STATUS_LABEL: Record<SiteStatus, string> = {
-  draft: "Draft · Borrador",
-  published: "Published · Publicado",
-  suspended: "Suspended · Suspendido",
-  archived: "Archived · Archivado",
+export const STATUS_LABEL: Record<SiteStatus, Record<Lang, string>> = {
+  draft: { en: "Draft", es: "Borrador" },
+  published: { en: "Published", es: "Publicado" },
+  suspended: { en: "Suspended", es: "Suspendido" },
+  archived: { en: "Archived", es: "Archivado" },
 };
 
-export const BLOCKER_TEXT: Record<Blocker, string> = {
-  archived: "Restore the site before publishing it. / Restaure el sitio antes de publicarlo.",
-  no_client: "Link a PLW client to publish. Demos are shared with the preview link. / Asigne un cliente PLW para publicar; los demos se comparten con la vista previa.",
-  approval_required: "This version needs the client's approval. / Esta versión necesita la aprobación del cliente.",
+export const DOMAIN_STATUS_LABEL: Record<DomainStatus, Record<Lang, string>> = {
+  none: { en: "none", es: "sin dominio" },
+  pending: { en: "pending", es: "pendiente" },
+  verified: { en: "verified", es: "verificado" },
+  active: { en: "active", es: "activo" },
 };
 
-function message(e: unknown): string {
-  return e instanceof Error ? e.message : "Something went wrong.";
+export const BLOCKER_TEXT: Record<Blocker, Record<Lang, string>> = {
+  archived: { en: "Restore the site before publishing it.", es: "Restaure el sitio antes de publicarlo." },
+  no_client: {
+    en: "Link a PLW client to publish. Demos are shared with the preview link.",
+    es: "Asigne un cliente PLW para publicar; los demos se comparten con el enlace de vista previa.",
+  },
+  approval_required: { en: "This version needs the client's approval.", es: "Esta versión necesita la aprobación del cliente." },
+};
+
+function message(e: unknown, lang: Lang): string {
+  return e instanceof Error ? e.message : pick(lang, "Something went wrong.", "Algo salió mal.");
 }
 
 export function useSiteLifecycle(siteId: string | null) {
+  const { lang } = useOperatorLang();
   const [site, setSite] = useState<StoredSite | null>(null);
   const [history, setHistory] = useState<SiteHistory | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -84,7 +98,7 @@ export function useSiteLifecycle(siteId: string | null) {
   }, [siteId]);
 
   useEffect(() => {
-    refresh().catch((e) => setError(message(e)));
+    refresh().catch((e) => setError(message(e, lang)));
   }, [refresh]);
 
   /** One action at a time; a held publish shows its blockers instead of an error. */
@@ -98,7 +112,7 @@ export function useSiteLifecycle(siteId: string | null) {
     } catch (e) {
       const body = (e as { body?: { blockers?: Blocker[]; revision?: { id: string; number: number }; can_override?: boolean } }).body;
       if (body?.blockers) setHeld({ blockers: body.blockers, revision: body.revision ?? null, canOverride: body.can_override === true });
-      else setError(message(e));
+      else setError(message(e, lang));
     } finally {
       setBusy(null);
     }

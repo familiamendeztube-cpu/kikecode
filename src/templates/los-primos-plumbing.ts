@@ -164,6 +164,8 @@ const losPrimosPlumbing: BusinessTemplate = {
     },
   },
   realBusiness: true,
+  // A real US business, kept as it is: it opens in English.
+  defaultLang: "en",
   category: "emergency",
   facts: {
     stats: [

@@ -29,7 +29,7 @@ export function useConsulta() {
 }
 
 function formatPrice(price: number | null) {
-  return price === null ? "Precio: Consultar" : `₡${price.toLocaleString()}`;
+  return price === null ? "Precio: Consultar" : `₡${price.toLocaleString("es-CR")}`;
 }
 
 export function FenixCatalog({

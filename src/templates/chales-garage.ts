@@ -15,7 +15,7 @@ const chalesGarage: BusinessTemplate = {
     name: "Chale's Garage",
     logo: `${TEMPLATE_ASSETS}/chales-garage/logo-mark.png`,
     city: "Muelle, San Carlos · Costa Rica",
-    phone: "8561-2228",
+    phone: "+506 8561-2228",
     phoneHref: "tel:+50685612228",
     email: "Alejandrov@chalesgarage.com",
     address: "Muelle de San Carlos, Alajuela, Costa Rica",
@@ -206,7 +206,7 @@ const chalesGarage: BusinessTemplate = {
   },
   offers: {
     en: [
-      { icon: "DollarSign",  title: "Financing available",    blurb: "Flexible options to fit your budget." },
+      { icon: "Banknote",  title: "Financing available",    blurb: "Flexible options to fit your budget." },
       { icon: "Truck",       title: "Trade-ins welcome",       blurb: "Fair value for your current vehicle." },
       { icon: "ShieldCheck", title: "Every vehicle inspected", blurb: "Checked over before it hits the lot." },
       { icon: "BadgeCheck",  title: "Quality guaranteed",      blurb: "What you see online is what you get." },
@@ -214,7 +214,7 @@ const chalesGarage: BusinessTemplate = {
       { icon: "Star",        title: "Honest, no pressure",     blurb: "Browse and buy at your own pace." },
     ],
     es: [
-      { icon: "DollarSign",  title: "Financiamiento disponible", blurb: "Opciones flexibles a su presupuesto." },
+      { icon: "Banknote",  title: "Financiamiento disponible", blurb: "Opciones flexibles a su presupuesto." },
       { icon: "Truck",       title: "Aceptamos su vehículo",     blurb: "Valor justo por su carro actual." },
       { icon: "ShieldCheck", title: "Cada vehículo revisado",    blurb: "Inspeccionado antes de salir a la venta." },
       { icon: "BadgeCheck",  title: "Calidad garantizada",       blurb: "Lo que ve en línea es lo que recibe." },

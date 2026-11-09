@@ -1,10 +1,11 @@
 import type { CSSProperties, ReactNode } from "react";
+import { waDigits } from "@/lib/cr";
 import type { BrandConfig } from "@/templates/types";
 
-/** wa.me link; without a number WhatsApp opens the contact picker. */
+/** wa.me link; without a number WhatsApp opens the contact picker. A Costa Rican number gets its 506. */
 export function waLink(digits: string, text?: string): string {
   const query = text ? `?text=${encodeURIComponent(text)}` : "";
-  return `https://wa.me/${digits.replace(/\D/g, "")}${query}`;
+  return `https://wa.me/${waDigits(digits)}${query}`;
 }
 
 /* The digits WhatsApp buttons open: the business's own number when PLW has put

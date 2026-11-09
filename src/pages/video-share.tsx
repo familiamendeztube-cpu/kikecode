@@ -9,7 +9,7 @@ import { pick } from "@/lib/i18n";
 export default function VideoShare() {
   const [, params] = useRoute("/video/:id");
   const video = params?.id ? getClientVideo(params.id) : null;
-  const [lang, setLang] = useState<"en" | "es">("en");
+  const [lang, setLang] = useState<"en" | "es">("es");
 
   if (!video) return <NotFound />;
 

@@ -255,7 +255,7 @@ export function BrandFilm({ template, brand, p, lang }: SiteProps) {
               {videoPlaying ? pick(lang, "Now playing", "Reproduciendo") : pick(lang, "Paused", "En pausa")}
             </div>
             <h2 className="text-white font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight max-w-2xl drop-shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
-              {pick(lang, "See the craft in motion", "Mira nuestro trabajo en acción")}
+              {pick(lang, "See the craft in motion", "Vea nuestro trabajo en acción")}
             </h2>
             <p className="text-white/90 mt-3 max-w-xl text-base sm:text-lg drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
               {pick(lang,

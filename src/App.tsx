@@ -1,6 +1,7 @@
 import { Switch, Route } from "wouter";
 import { StaffGate } from "@/components/staff-gate";
 import { OperatorBar } from "@/components/operator-bar";
+import { OperatorLangProvider } from "@/lib/operator-lang";
 import NotFound from "@/pages/not-found";
 
 import Templates from "@/pages/templates";
@@ -39,8 +40,10 @@ function OperatorApp() {
       <Route path="/video/:id" component={VideoShare} />
       <Route>
         <StaffGate>
-          <OperatorBar />
-          <OperatorRoutes />
+          <OperatorLangProvider>
+            <OperatorBar />
+            <OperatorRoutes />
+          </OperatorLangProvider>
         </StaffGate>
       </Route>
     </Switch>

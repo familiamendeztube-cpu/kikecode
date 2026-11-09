@@ -14,10 +14,16 @@ import { MidCta, ProjectSelector, FoodBand, EmergencyBand, Contact, ClosingCta, 
  *  section takes the same props and renders nothing when the template has no
  *  data for it, so the page is just the section order. */
 export default function BusinessSite({ template }: { template: BusinessTemplate }) {
-  const [lang, setLang] = useState<Lang>(template.lockedLang ?? "en");
+  // Costa Rican sites open in Spanish; only a template set to English opens in English.
+  const startLang: Lang = template.lockedLang ?? template.defaultLang ?? "es";
+  const [lang, setLang] = useState<Lang>(startLang);
   useEffect(() => {
-    setLang(template.lockedLang ?? "en");
-  }, [template.slug, template.lockedLang]);
+    setLang(startLang);
+  }, [template.slug, startLang]);
+  // Screen readers and the browser's translate prompt read <html lang>.
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const { brand, assistant } = template;
   const site: SiteProps = { template, brand, p: brand.palette, t: template.content[lang], lang };

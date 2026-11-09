@@ -1,11 +1,11 @@
 import {
-  Clock, DollarSign, ShieldCheck, Languages, BadgeCheck, Truck, Wrench, Star, Leaf, Sparkles, Heart,
+  Clock, DollarSign, Banknote, ShieldCheck, Languages, BadgeCheck, Truck, Wrench, Star, Leaf, Sparkles, Heart,
   type LucideIcon,
 } from "lucide-react";
 import type { BusinessTemplate, Lang, OfferIconKey, TemplateCategory, TemplateFacts } from "@/templates/types";
 
 export const OFFER_ICONS: Record<OfferIconKey, LucideIcon> = {
-  Clock, DollarSign, ShieldCheck, Languages, BadgeCheck, Truck, Wrench, Star, Leaf, Sparkles, Heart,
+  Clock, DollarSign, Banknote, ShieldCheck, Languages, BadgeCheck, Truck, Wrench, Star, Leaf, Sparkles, Heart,
 };
 
 /* Universal trust signals shown as a compact strip on every template. They are
@@ -22,7 +22,7 @@ export const TRUST_SIGNALS: { Icon: LucideIcon; en: string; es: string }[] = [
 /* The assistant greeting invites a request; the business confirms the time (see booking-copy.ts). */
 const BOOKING_INVITE: Record<Lang, string> = {
   en: "Just tell me what you need and I'll send your appointment request to the team.",
-  es: "Solo dime qué necesitas y le envío tu solicitud de cita al equipo.",
+  es: "Solo dígame qué necesita y le envío su solicitud de cita al equipo.",
 };
 export function buildGreeting(assistant: NonNullable<BusinessTemplate["assistant"]>, lang: Lang, brandName: string): string {
   const base = assistant[lang].replace(/\{business\}/g, brandName);

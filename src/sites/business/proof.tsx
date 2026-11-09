@@ -49,7 +49,7 @@ export function Offers({ template, p, lang }: SiteProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader
           eyebrow={pick(lang, "What we offer", "Lo que ofrecemos")}
-          title={pick(lang, "Everything you need", "Todo lo que necesitas")}
+          title={pick(lang, "Everything you need", "Todo lo que necesita")}
           accent={p.primary}
         />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
