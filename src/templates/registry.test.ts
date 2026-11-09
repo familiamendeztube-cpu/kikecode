@@ -20,7 +20,7 @@ const SAVED_SLUGS = [
   "chales-garage", "cleaning", "concrete", "construction", "electrician", "events", "fencing", "flooring",
   "garage-doors", "glass", "handyman", "hvac", "hyperion-synthetic-turf", "landscaping", "los-primos-plumbing",
   "lumina-studio", "moving", "nails", "nicaraguan-restaurant", "painting", "pest-control", "photography",
-  "pool-service", "pressure-washing", "restaurant", "roofing", "suplidora-fenix", "tree-service", "welding",
+  "pool-service", "pressure-washing", "restaurant", "roofing", "snuvalys-construccions", "suplidora-fenix", "tree-service", "welding",
 ];
 
 describe("template registry", () => {

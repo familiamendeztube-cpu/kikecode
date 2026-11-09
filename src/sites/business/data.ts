@@ -8,11 +8,12 @@ export const OFFER_ICONS: Record<OfferIconKey, LucideIcon> = {
   Clock, DollarSign, Banknote, ShieldCheck, Languages, BadgeCheck, Truck, Wrench, Star, Leaf, Sparkles, Heart,
 };
 
-/* Universal trust signals shown as a compact strip on every template. They are
-   still promises about the business (free quotes, a guarantee): on a generic
-   template they carry the Sample tag until staff confirm them (contentConfirmed). */
+/* Universal trust signals shown as a compact strip on generic templates. They are
+   still promises about the business (free quotes, a guarantee): they carry the
+   Sample tag until staff confirm them (contentConfirmed), and a real business,
+   which never made them, does not show the strip (TrustStrip). */
 export const TRUST_SIGNALS: { Icon: LucideIcon; en: string; es: string }[] = [
-  { Icon: Languages, en: "Se habla español", es: "Se habla español" },
+  { Icon: Languages, en: "Spanish & English", es: "Español e inglés" },
   { Icon: DollarSign, en: "Free quotes", es: "Cotización gratis" },
   { Icon: ShieldCheck, en: "Work guaranteed", es: "Trabajo garantizado" },
   { Icon: Clock, en: "Fast response", es: "Respuesta rápida" },
@@ -33,8 +34,11 @@ export function buildGreeting(assistant: NonNullable<BusinessTemplate["assistant
    their own `facts`. The defaults avoid license numbers, town lists and year
    counts, but they still promise things (free estimates, a guarantee): on a
    generic template the sections show them with the Sample tag until staff
-   confirm them with the business (isSampleContent in ui.tsx). */
-export function resolveFacts(template: BusinessTemplate): Required<TemplateFacts> {
+   confirm them with the business (isSampleContent in ui.tsx). A real business
+   carries no Sample tag, so it never gets them: without its own `facts` its
+   stats, areas, certifications and guarantee sections are left out (null). */
+export function resolveFacts(template: BusinessTemplate): Required<TemplateFacts> | null {
+  if (template.realBusiness && !template.facts) return null;
   const primaryCity = (template.brand.city.split(",")[0] ?? template.brand.city).trim();
   const f = template.facts;
   return {
@@ -46,8 +50,8 @@ export function resolveFacts(template: BusinessTemplate): Required<TemplateFacts
     ],
     areasEn: f?.areasEn ?? [primaryCity, "Nearby neighborhoods", "Surrounding suburbs", "Greater metro area"],
     areasEs: f?.areasEs ?? [primaryCity, "Barrios cercanos", "Suburbios cercanos", "Área metropolitana"],
-    certsEn: f?.certsEn ?? ["Se Habla Español", "Free Quotes", "Locally Owned", "Satisfaction Focused", "Fast Response", "Trusted by Neighbors"],
-    certsEs: f?.certsEs ?? ["Se Habla Español", "Cotización Gratis", "Negocio Local", "Enfocados en Satisfacción", "Respuesta Rápida", "Recomendado por Vecinos"],
+    certsEn: f?.certsEn ?? ["Spanish & English", "Free Quotes", "Locally Owned", "Satisfaction Focused", "Fast Response", "Trusted by Neighbors"],
+    certsEs: f?.certsEs ?? ["Español e Inglés", "Cotización Gratis", "Negocio Local", "Enfocados en Satisfacción", "Respuesta Rápida", "Recomendado por Vecinos"],
     guaranteeEn: f?.guaranteeEn ?? { title: "Your satisfaction, guaranteed", blurb: "We treat every customer like a neighbor and stand behind our work. If something isn't right, just tell us and we'll make it right." },
     guaranteeEs: f?.guaranteeEs ?? { title: "Su satisfacción, garantizada", blurb: "Tratamos a cada cliente como a un vecino y respaldamos nuestro trabajo. Si algo no está bien, solo díganos y lo arreglamos." },
   };

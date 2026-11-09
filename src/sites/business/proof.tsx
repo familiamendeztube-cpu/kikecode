@@ -6,6 +6,7 @@ import { OFFER_ICONS, TRUST_SIGNALS, resolveFacts } from "./data";
 /* STATS STRIP */
 export function StatsStrip({ template, p, lang }: SiteProps) {
   const data = resolveFacts(template);
+  if (!data) return null;
   return (
     <section className="bg-white border-b border-slate-200">
       {isSampleContent(template) && <div className="pt-4 text-center"><SampleTag lang={lang} /></div>}
@@ -21,8 +22,10 @@ export function StatsStrip({ template, p, lang }: SiteProps) {
   );
 }
 
-/* UNIVERSAL TRUST STRIP — generic promises, tagged as samples until the business confirms them */
+/* UNIVERSAL TRUST STRIP — generic promises, tagged as samples until the business confirms them.
+   A real business never made them, so it does not get the strip. */
 export function TrustStrip({ template, p, lang }: SiteProps) {
+  if (template.realBusiness) return null;
   return (
     <section className="bg-slate-50 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-x-10">
@@ -76,6 +79,7 @@ export function Offers({ template, p, lang }: SiteProps) {
 /* GUARANTEE CALLOUT */
 export function Guarantee({ template, brand, p, lang }: SiteProps) {
   const data = resolveFacts(template);
+  if (!data) return null;
   return (
     <section className="py-16 text-white" style={{ background: `linear-gradient(135deg, ${p.primaryDark}, ${p.primary})` }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row gap-6 items-center text-center md:text-left">
@@ -110,6 +114,7 @@ export function Guarantee({ template, brand, p, lang }: SiteProps) {
 */
 export function Testimonials({ template, p, t, lang }: SiteProps) {
   const sample = isSampleContent(template);
+  if (!t.testimonials.items.length) return null;
   return (
     <section id="testimonials" className="py-20 sm:py-24 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -139,6 +144,7 @@ export function Testimonials({ template, p, t, lang }: SiteProps) {
 /* CERTIFICATIONS */
 export function Certifications({ template, p, lang }: SiteProps) {
   const data = resolveFacts(template);
+  if (!data) return null;
   return (
     <section className="py-16 bg-white border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
