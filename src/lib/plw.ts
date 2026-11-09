@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 /*
   Kike Code's backend is Professional Latino Workers' Supabase project: staff
   sign in with their PLW accounts, sites are stored by the `kike-sites`
-  function, the AI and greeting audio run in `kike-ai`, and site contact forms
+  function, the editor AI runs in `kike-ai`, and site contact forms
   post to `lead-intake`. The functions live in the PLW repo
   (supabase/functions/kike-*).
 
