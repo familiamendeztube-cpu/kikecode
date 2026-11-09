@@ -19,7 +19,7 @@ One Vite 7 + React 19 + Tailwind 4 app at the repo root; router is `wouter` (`sr
 
 **Professional Latino Workers' Supabase project** (`src/lib/plw.ts`; env `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` in the root `.env`). Saved sites: PLW's `kike-sites` function (table `kike_sites`). Editor AI + greeting audio: `kike-ai`. Contact forms: `lead-intake`, through `submitLead(template.plwSiteId, …)`. Those functions live in the PLW repo (`supabase/functions/kike-*`, `docs/KIKECODE_WEBSITE_INTEGRATION.md`).
 
-- `src/components/staff-gate.tsx` — the operator app needs a PLW staff account (email + password + emailed code, like PLW's `/acceso`). `/share/:id` and `/video/:id` stay public.
+- There is no login: the operator app is open to anyone who reaches it. `/share/:id` and `/video/:id` are the public client links.
 - Client domains: the hand-built ones are mapped in `src/lib/domain-sites.ts`; any other non-localhost host is looked up as a saved site's `custom_domain` (`ClientDomainSite`) before the operator app renders. Client domains are served by Netlify (`netlify.toml`, each domain a domain alias), not Bolt: Bolt's aliases redirect to the primary domain, which hides the hostname this lookup needs.
 - `template.plwSiteId` is set only on a published site loaded from PLW, so forms in template previews and the editor never create leads. A published site's phone is the client's PLW number once one is assigned (set server-side); the typed number moves to `brand.whatsapp`, which `whatsappLink` uses.
 
