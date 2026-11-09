@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Phone, Check, ArrowRight, MessageCircle, Calendar, CalendarCheck, Gauge, Fuel, Cog, Compass, Car, ChevronLeft, ChevronRight, Banknote, Search, RotateCw } from "lucide-react";
 import type { BrandConfig, BrandPalette, Lang, TemplateInventory, InventoryVehicle } from "@/templates/types";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { whatsappLink } from "@/sites/shared/whatsapp";
+import { whatsappLink, WhatsAppButton } from "@/sites/shared/whatsapp";
+import { pick } from "@/lib/i18n";
 import type { SiteProps } from "./ui";
 
 /* ---------------------------------------------------------------- */
@@ -29,27 +30,27 @@ export function InventorySection({ inv, lang, p, brand }: {
   const vehicles = filter === "all" ? inv.vehicles : inv.vehicles.filter((v) => v.bodyStyle === filter);
 
   const L = {
-    eyebrow: lang === "en" ? "Our inventory" : "Nuestro inventario",
-    all: lang === "en" ? "All" : "Todos",
-    view: lang === "en" ? "View details" : "Ver detalles",
-    lookInside: lang === "en" ? "Inside" : "Interior",
-    year: lang === "en" ? "Year" : "Año",
-    mileage: lang === "en" ? "Mileage" : "Kilometraje",
-    transmission: lang === "en" ? "Transmission" : "Transmisión",
-    fuel: lang === "en" ? "Fuel" : "Combustible",
-    drivetrain: lang === "en" ? "Drivetrain" : "Tracción",
-    body: lang === "en" ? "Type" : "Tipo",
-    highlights: lang === "en" ? "Highlights" : "Características",
-    whatsapp: lang === "en" ? "WhatsApp us" : "Consultar por WhatsApp",
-    call: lang === "en" ? "Call now" : "Llamar",
-    available: lang === "en" ? "Available" : "Disponible",
-    finance: lang === "en" ? "Request financing" : "Solicitar financiamiento",
-    visit: lang === "en" ? "Schedule a visit" : "Agendar una visita",
-    view360: lang === "en" ? "360° view" : "Vista 360°",
-    realPhotos: lang === "en" ? "Real photos of this vehicle" : "Fotos reales de este vehículo",
-    photoOf: lang === "en" ? "Photo" : "Foto",
-    prev: lang === "en" ? "Previous photo" : "Foto anterior",
-    next: lang === "en" ? "Next photo" : "Foto siguiente",
+    eyebrow: pick(lang, "Our inventory", "Nuestro inventario"),
+    all: pick(lang, "All", "Todos"),
+    view: pick(lang, "View details", "Ver detalles"),
+    lookInside: pick(lang, "Inside", "Interior"),
+    year: pick(lang, "Year", "Año"),
+    mileage: pick(lang, "Mileage", "Kilometraje"),
+    transmission: pick(lang, "Transmission", "Transmisión"),
+    fuel: pick(lang, "Fuel", "Combustible"),
+    drivetrain: pick(lang, "Drivetrain", "Tracción"),
+    body: pick(lang, "Type", "Tipo"),
+    highlights: pick(lang, "Highlights", "Características"),
+    whatsapp: pick(lang, "WhatsApp us", "Consultar por WhatsApp"),
+    call: pick(lang, "Call now", "Llamar"),
+    available: pick(lang, "Available", "Disponible"),
+    finance: pick(lang, "Request financing", "Solicitar financiamiento"),
+    visit: pick(lang, "Schedule a visit", "Agendar una visita"),
+    view360: pick(lang, "360° view", "Vista 360°"),
+    realPhotos: pick(lang, "Real photos of this vehicle", "Fotos reales de este vehículo"),
+    photoOf: pick(lang, "Photo", "Foto"),
+    prev: pick(lang, "Previous photo", "Foto anterior"),
+    next: pick(lang, "Next photo", "Foto siguiente"),
   };
 
   function openVehicle(v: InventoryVehicle) { setSelected(v); setImgIndex(0); }
@@ -58,21 +59,21 @@ export function InventorySection({ inv, lang, p, brand }: {
     return `${v.name}${yr}`;
   }
   function waLink(v: InventoryVehicle) {
-    const msg = lang === "en"
-      ? `Hi! I'm interested in the ${vehLabel(v)} I saw on your website.`
-      : `¡Hola! Me interesa el ${vehLabel(v)} que vi en su sitio web.`;
+    const msg = pick(lang,
+      `Hi! I'm interested in the ${vehLabel(v)} I saw on your website.`,
+      `¡Hola! Me interesa el ${vehLabel(v)} que vi en su sitio web.`);
     return whatsappLink(brand, msg);
   }
   function waFinance(v: InventoryVehicle) {
-    const msg = lang === "en"
-      ? `Hi! I'd like financing information for the ${vehLabel(v)}.`
-      : `¡Hola! Quisiera información de financiamiento para el ${vehLabel(v)}.`;
+    const msg = pick(lang,
+      `Hi! I'd like financing information for the ${vehLabel(v)}.`,
+      `¡Hola! Quisiera información de financiamiento para el ${vehLabel(v)}.`);
     return whatsappLink(brand, msg);
   }
   function waVisit(v: InventoryVehicle) {
-    const msg = lang === "en"
-      ? `Hi! I'd like to schedule a visit to see the ${vehLabel(v)} in person.`
-      : `¡Hola! Quisiera agendar una visita para ver el ${vehLabel(v)} en persona.`;
+    const msg = pick(lang,
+      `Hi! I'd like to schedule a visit to see the ${vehLabel(v)} in person.`,
+      `¡Hola! Quisiera agendar una visita para ver el ${vehLabel(v)} en persona.`);
     return whatsappLink(brand, msg);
   }
   function stepImg(dir: 1 | -1) {
@@ -243,9 +244,9 @@ export function InventorySection({ inv, lang, p, brand }: {
                 )}
                 <div className="mt-auto space-y-2.5">
                   <div className="flex flex-col sm:flex-row gap-2.5">
-                    <a href={waLink(selected)} target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90" style={{ backgroundColor: "#25D366" }}>
+                    <WhatsAppButton href={waLink(selected)} className="flex-1 inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90">
                       <MessageCircle className="w-4 h-4" /> {L.whatsapp}
-                    </a>
+                    </WhatsAppButton>
                     <a href={brand.phoneHref} className="flex-1 inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90" style={{ backgroundColor: p.primary }}>
                       <Phone className="w-4 h-4" /> {L.call}
                     </a>
@@ -288,15 +289,15 @@ export function FinancingBand({ template, brand, p, lang }: SiteProps) {
             <img src={brand.logo} alt={brand.name} className="mx-auto mb-5 h-16 w-16 rounded-2xl object-contain bg-white/95 ring-1 ring-white/20 p-2 shadow-xl" />
           )}
           <div className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: p.accent }}>
-            {lang === "en" ? "Financing & personal search" : "Financiamiento y búsqueda personalizada"}
+            {pick(lang, "Financing & personal search", "Financiamiento y búsqueda personalizada")}
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            {lang === "en" ? "We make it easy to drive away happy" : "Le hacemos fácil estrenar vehículo"}
+            {pick(lang, "We make it easy to drive away happy", "Le hacemos fácil estrenar vehículo")}
           </h2>
           <p className="mt-4 text-white/75">
-            {lang === "en"
-              ? "Flexible financing and a team that hunts down the exact vehicle you want — just tell us what you're looking for."
-              : "Financiamiento flexible y un equipo que le busca el vehículo exacto que desea — solo díganos qué está buscando."}
+            {pick(lang,
+              "Flexible financing and a team that hunts down the exact vehicle you want — just tell us what you're looking for.",
+              "Financiamiento flexible y un equipo que le busca el vehículo exacto que desea — solo díganos qué está buscando.")}
           </p>
         </div>
         <div className="grid sm:grid-cols-2 gap-5 mt-10 max-w-3xl mx-auto">
@@ -305,40 +306,38 @@ export function FinancingBand({ template, brand, p, lang }: SiteProps) {
               <Banknote className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-xl tracking-tight mb-1.5">
-              {lang === "en" ? "Financing available" : "Financiamiento disponible"}
+              {pick(lang, "Financing available", "Financiamiento disponible")}
             </h3>
             <p className="text-sm text-white/70 leading-relaxed mb-5">
-              {lang === "en"
-                ? "Options to fit your budget, with friendly guidance at every step and credit answers fast."
-                : "Opciones a su presupuesto, con asesoría amable en cada paso y respuesta de crédito rápida."}
+              {pick(lang,
+                "Options to fit your budget, with friendly guidance at every step and credit answers fast.",
+                "Opciones a su presupuesto, con asesoría amable en cada paso y respuesta de crédito rápida.")}
             </p>
-            <a
-              href={whatsappLink(brand, lang === "en" ? "Hi! I'd like to know about your financing options." : "¡Hola! Quisiera conocer sus opciones de financiamiento.")}
-              target="_blank" rel="noopener noreferrer"
-              className="mt-auto inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90" style={{ backgroundColor: "#25D366" }}
+            <WhatsAppButton
+              href={whatsappLink(brand, pick(lang, "Hi! I'd like to know about your financing options.", "¡Hola! Quisiera conocer sus opciones de financiamiento."))}
+              className="mt-auto inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90"
             >
-              <MessageCircle className="w-4 h-4" /> {lang === "en" ? "Ask about financing" : "Consultar financiamiento"}
-            </a>
+              <MessageCircle className="w-4 h-4" /> {pick(lang, "Ask about financing", "Consultar financiamiento")}
+            </WhatsAppButton>
           </div>
           <div className="rounded-2xl bg-white/5 ring-1 ring-white/15 backdrop-blur p-6 flex flex-col">
             <div className="w-12 h-12 rounded-xl grid place-items-center mb-4 text-white" style={{ background: `linear-gradient(135deg, ${p.heroIconFrom}, ${p.heroIconTo})` }}>
               <Search className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-xl tracking-tight mb-1.5">
-              {lang === "en" ? "We find your car for you" : "Le buscamos el carro"}
+              {pick(lang, "We find your car for you", "Le buscamos el carro")}
             </h3>
             <p className="text-sm text-white/70 leading-relaxed mb-5">
-              {lang === "en"
-                ? "Don't see it on the lot? Tell us the make, model, and budget and we'll track it down for you."
-                : "¿No lo ve en el lote? Díganos marca, modelo y presupuesto y se lo conseguimos."}
+              {pick(lang,
+                "Don't see it on the lot? Tell us the make, model, and budget and we'll track it down for you.",
+                "¿No lo ve en el lote? Díganos marca, modelo y presupuesto y se lo conseguimos.")}
             </p>
-            <a
-              href={whatsappLink(brand, lang === "en" ? "Hi! I'm looking for a specific vehicle. Can you help me find it?" : "¡Hola! Estoy buscando un vehículo en específico. ¿Me ayudan a encontrarlo?")}
-              target="_blank" rel="noopener noreferrer"
-              className="mt-auto inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90" style={{ backgroundColor: "#25D366" }}
+            <WhatsAppButton
+              href={whatsappLink(brand, pick(lang, "Hi! I'm looking for a specific vehicle. Can you help me find it?", "¡Hola! Estoy buscando un vehículo en específico. ¿Me ayudan a encontrarlo?"))}
+              className="mt-auto inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90"
             >
-              <MessageCircle className="w-4 h-4" /> {lang === "en" ? "Tell us what you want" : "Díganos qué busca"}
-            </a>
+              <MessageCircle className="w-4 h-4" /> {pick(lang, "Tell us what you want", "Díganos qué busca")}
+            </WhatsAppButton>
           </div>
         </div>
       </div>
@@ -350,14 +349,13 @@ export function FinancingBand({ template, brand, p, lang }: SiteProps) {
 export function FloatingWhatsApp({ template, brand, lang }: SiteProps) {
   if (!template.inventory) return null;
   return (
-    <a
-      href={whatsappLink(brand, lang === "en" ? `Hi! I'm interested in a vehicle from ${brand.name}.` : `¡Hola! Me interesa un vehículo de ${brand.name}.`)}
-      target="_blank" rel="noopener noreferrer"
+    <WhatsAppButton
+      href={whatsappLink(brand, pick(lang, `Hi! I'm interested in a vehicle from ${brand.name}.`, `¡Hola! Me interesa un vehículo de ${brand.name}.`))}
       aria-label="WhatsApp"
       className="hidden lg:inline-flex fixed bottom-6 left-6 z-40 items-center gap-2.5 text-white font-bold pl-3.5 pr-5 py-3 rounded-full shadow-2xl transition-transform hover:-translate-y-0.5"
-      style={{ backgroundColor: "#25D366", boxShadow: "0 20px 40px -10px rgba(37,211,102,0.6)" }}
+      style={{ boxShadow: "0 20px 40px -10px rgba(37,211,102,0.6)" }}
     >
       <MessageCircle className="w-5 h-5" /> WhatsApp
-    </a>
+    </WhatsAppButton>
   );
 }

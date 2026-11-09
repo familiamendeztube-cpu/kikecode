@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import { Phone, ShieldCheck, Star, Check, ArrowRight, Play, Pause } from "lucide-react";
 import type { Lang } from "@/templates/types";
 import { EditableText, ChangePhotoButton } from "@/editor/editable";
-import { SiteImage, type SiteProps } from "./ui";
+import { pick } from "@/lib/i18n";
+import { SiteImage, GHOST_CTA, type SiteProps } from "./ui";
 
 /* Shared play/pause state for a muted looping video. Respects prefers-reduced-motion:
    never autoplay looping footage for users who asked the OS to minimize motion.
@@ -35,7 +36,7 @@ export function AvailabilityBar({ template, brand, p, lang }: SiteProps) {
       <span className="inline-flex items-center gap-2">
         <span className="inline-flex items-center gap-1.5">
           <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-white" /></span>
-          {lang === "en" ? "24-hour AI assistant on call" : "Asistente IA disponible 24 horas"}
+          {pick(lang, "24-hour AI assistant on call", "Asistente IA disponible 24 horas")}
         </span>
         <span className="hidden sm:inline">·</span>
         <span className="hidden sm:inline">{availability[lang]}</span>
@@ -66,13 +67,13 @@ export function SiteHeader({ template, brand, p, t, lang, setLang }: SiteProps &
           </div>
         </a>
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-700">
-          <a href="#offers" className="hover:opacity-80">{lang === "en" ? "What We Offer" : "Lo Que Ofrecemos"}</a>
-          {template.inventory && <a href="#inventory" className="hover:opacity-80">{lang === "en" ? "Inventory" : "Inventario"}</a>}
+          <a href="#offers" className="hover:opacity-80">{pick(lang, "What We Offer", "Lo Que Ofrecemos")}</a>
+          {template.inventory && <a href="#inventory" className="hover:opacity-80">{pick(lang, "Inventory", "Inventario")}</a>}
           <a href="#services" className="hover:opacity-80">{t.nav.services}</a>
           {template.videoGallery && <a href="#videos" className="hover:opacity-80">Videos</a>}
-          <a href="#gallery" className="hover:opacity-80">{lang === "en" ? "Gallery" : "Galería"}</a>
+          <a href="#gallery" className="hover:opacity-80">{pick(lang, "Gallery", "Galería")}</a>
           <a href="#process" className="hover:opacity-80">{t.nav.process}</a>
-          <a href="#areas" className="hover:opacity-80">{lang === "en" ? "Areas" : "Áreas"}</a>
+          <a href="#areas" className="hover:opacity-80">{pick(lang, "Areas", "Áreas")}</a>
           <a href="#testimonials" className="hover:opacity-80">{t.nav.testimonials}</a>
           <a href="#faq" className="hover:opacity-80">{t.nav.faq}</a>
           <a href="#contact" className="hover:opacity-80">{t.nav.contact}</a>
@@ -116,7 +117,7 @@ export function Hero({ template, brand, p, t, lang }: SiteProps) {
           preload="metadata"
           onPlay={() => setVideoPlaying(true)}
           onPause={() => setVideoPlaying(false)}
-          aria-label={lang === "en" ? `${brand.name} project film` : `Video de ${brand.name}`}
+          aria-label={pick(lang, `${brand.name} project film`, `Video de ${brand.name}`)}
         />
       ) : media?.hero ? (
         <SiteImage src={media.hero} alt={`${brand.name} hero`} palette={p} lang={lang} className="absolute inset-0 w-full h-full object-cover" loading="eager" />
@@ -142,7 +143,7 @@ export function Hero({ template, brand, p, t, lang }: SiteProps) {
         <button
           type="button"
           onClick={toggleVideo}
-          aria-label={videoPlaying ? (lang === "en" ? "Pause video" : "Pausar video") : (lang === "en" ? "Play video" : "Reproducir video")}
+          aria-label={videoPlaying ? pick(lang, "Pause video", "Pausar video") : pick(lang, "Play video", "Reproducir video")}
           className="absolute top-4 right-4 z-20 inline-flex items-center justify-center w-11 h-11 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur border border-white/25 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
         >
           {videoPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 translate-x-[1px]" />}
@@ -172,12 +173,12 @@ export function Hero({ template, brand, p, t, lang }: SiteProps) {
             <a href={template.inventory ? "#inventory" : "#contact"} className="inline-flex items-center justify-center gap-2 text-white font-bold px-7 py-4 rounded-lg shadow-2xl transition-all hover:translate-y-[-2px] hover:scale-[1.02]" style={{ backgroundColor: p.primary, boxShadow: `0 18px 40px -10px ${p.primary}` }}>
               {t.hero.cta1} <ArrowRight className="w-4 h-4" />
             </a>
-            <a href={brand.phoneHref} className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur border border-white/30 text-white font-bold px-7 py-4 rounded-lg transition-colors">
+            <a href={brand.phoneHref} className={GHOST_CTA}>
               <Phone className="w-4 h-4" /> {brand.phone}
             </a>
             {template.videoGallery && (
               <a href="#videos" className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur border border-white/25 text-white font-bold px-7 py-4 rounded-lg transition-colors">
-                <Play className="w-4 h-4" /> {lang === "en" ? "Watch Videos" : "Ver Videos"}
+                <Play className="w-4 h-4" /> {pick(lang, "Watch Videos", "Ver Videos")}
               </a>
             )}
           </div>
@@ -236,13 +237,13 @@ export function BrandFilm({ template, brand, p, lang }: SiteProps) {
           preload="metadata"
           onPlay={() => setVideoPlaying(true)}
           onPause={() => setVideoPlaying(false)}
-          aria-label={lang === "en" ? `${brand.name} brand film` : `Video de ${brand.name}`}
+          aria-label={pick(lang, `${brand.name} brand film`, `Video de ${brand.name}`)}
         />
         <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${p.heroFrom}e6 0%, ${p.heroFrom}40 45%, transparent 75%)` }} />
         <button
           type="button"
           onClick={toggleVideo}
-          aria-label={videoPlaying ? (lang === "en" ? "Pause video" : "Pausar video") : (lang === "en" ? "Play video" : "Reproducir video")}
+          aria-label={videoPlaying ? pick(lang, "Pause video", "Pausar video") : pick(lang, "Play video", "Reproducir video")}
           className="absolute top-4 right-4 z-10 inline-flex items-center justify-center w-11 h-11 rounded-full bg-black/45 hover:bg-black/65 text-white backdrop-blur border border-white/25 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
         >
           {videoPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 translate-x-[1px]" />}
@@ -251,15 +252,15 @@ export function BrandFilm({ template, brand, p, lang }: SiteProps) {
           <div className="max-w-7xl mx-auto">
             <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-white/85 mb-3">
               <span className={`inline-flex w-2 h-2 rounded-full ${videoPlaying ? "bg-red-500 animate-pulse" : "bg-white/50"}`} />
-              {videoPlaying ? (lang === "en" ? "Now playing" : "Reproduciendo") : (lang === "en" ? "Paused" : "En pausa")}
+              {videoPlaying ? pick(lang, "Now playing", "Reproduciendo") : pick(lang, "Paused", "En pausa")}
             </div>
             <h2 className="text-white font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight max-w-2xl drop-shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
-              {lang === "en" ? "See the craft in motion" : "Mira nuestro trabajo en acción"}
+              {pick(lang, "See the craft in motion", "Mira nuestro trabajo en acción")}
             </h2>
             <p className="text-white/90 mt-3 max-w-xl text-base sm:text-lg drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
-              {lang === "en"
-                ? `A behind-the-scenes look at how ${brand.name} brings care, skill, and pride to every single job.`
-                : `Un vistazo a cómo ${brand.name} pone cuidado, destreza y orgullo en cada trabajo.`}
+              {pick(lang,
+                `A behind-the-scenes look at how ${brand.name} brings care, skill, and pride to every single job.`,
+                `Un vistazo a cómo ${brand.name} pone cuidado, destreza y orgullo en cada trabajo.`)}
             </p>
           </div>
         </div>

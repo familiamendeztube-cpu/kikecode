@@ -6,6 +6,7 @@ import * as THREE from "three";
 import type { BusinessTemplate } from "@/templates/types";
 import { submitLead } from "@/lib/plw";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
+import { pick } from "@/lib/i18n";
 
 const DEFAULT_HERO = `${TEMPLATE_ASSETS}/barro-ceramica/barro_hero.jpg`;
 const DEFAULT_PORTRAIT = `${TEMPLATE_ASSETS}/barro-ceramica/barro_void.jpg`;
@@ -626,7 +627,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
           )}
           {formError && (
             <p className="mt-6 text-red-400 text-[14px]">
-              {lang === "en" ? "We couldn't send that. Please try again." : "No se pudo enviar. Intente de nuevo."}
+              {pick(lang, "We couldn't send that. Please try again.", "No se pudo enviar. Intente de nuevo.")}
             </p>
           )}
         </div>
