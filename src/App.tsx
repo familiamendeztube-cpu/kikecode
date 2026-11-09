@@ -1,4 +1,5 @@
 import { Switch, Route } from "wouter";
+import { StaffGate } from "@/components/staff-gate";
 import { OperatorBar } from "@/components/operator-bar";
 import NotFound from "@/pages/not-found";
 
@@ -28,14 +29,17 @@ function OperatorRoutes() {
   );
 }
 
+/** Share and video links are what clients open, so only the rest needs a staff sign-in. */
 function OperatorApp() {
   return (
     <Switch>
       <Route path="/share/:id" component={SharePreview} />
       <Route path="/video/:id" component={VideoShare} />
       <Route>
-        <OperatorBar />
-        <OperatorRoutes />
+        <StaffGate>
+          <OperatorBar />
+          <OperatorRoutes />
+        </StaffGate>
       </Route>
     </Switch>
   );
