@@ -14,14 +14,41 @@ export type SavedSite = {
   content: { en: unknown; es: unknown };
   photos: { hero?: string; gallery?: string[]; teamPortrait?: string };
   overrides?: unknown;
+  /** templateVersion(slug) when this content was saved; null before versions existed. */
+  template_version?: number | null;
 };
 
-/** The stored row an editor loads (`kike-sites` action "get"). */
+export type SiteStatus = "draft" | "published" | "suspended" | "archived";
+export type DomainStatus = "none" | "pending" | "verified" | "active";
+
+/** The stored row an editor loads (`kike-sites` action "get"): the draft plus its lifecycle. */
 export type StoredSite = SavedSite & {
   client_id: string | null;
+  former_client_id: string | null;
   custom_domain: string | null;
-  active: boolean;
+  status: SiteStatus;
+  published_revision_id: string | null;
+  published_at: string | null;
+  /** Why the live version went public: the client's approval, an admin override, or an admin without new approval. */
+  published_basis: "client_approval" | "admin_override" | "admin_without_approval" | null;
+  published_basis_note: string | null;
+  preview_token: string;
+  domain_status: DomainStatus;
+  domain_token: string | null;
+  domain_error: string | null;
 };
+
+/** The unlisted link that shows a site's current draft (send it to the client for review). */
+export function previewUrl(token: string): string {
+  return new URL(`/preview/${token}`, window.location.origin).toString();
+}
+
+/** Where the published site lives: its own domain once that serves it, else the share link. */
+export function publishedUrl(site: { id: string; custom_domain: string | null; domain_status: DomainStatus }): string {
+  return site.custom_domain && site.domain_status === "active"
+    ? `https://${site.custom_domain}`
+    : new URL(`/share/${site.id}`, window.location.origin).toString();
+}
 
 /**
  * Replace-arrays merge: when source has an array, it fully REPLACES the target's
@@ -105,27 +132,38 @@ export type PublishedSite =
   | { status: "disabled" }
   | { status: "error"; message: string };
 
-/** Load a published site by its id (share links) or by a client's domain. */
-export async function loadPublishedSite(query: { id: string } | { domain: string }): Promise<PublishedSite> {
+/** A published site by id (share links) or a client's domain, or a draft by its preview token. */
+export type SiteQuery = { id: string } | { domain: string } | { preview: string };
+
+function queryString(query: SiteQuery): string {
+  if ("id" in query) return `id=${encodeURIComponent(query.id)}`;
+  if ("domain" in query) return `domain=${encodeURIComponent(query.domain)}`;
+  return `preview=${encodeURIComponent(query.preview)}`;
+}
+
+/**
+ * Load a site for visitors. A preview renders the draft with no site id, so
+ * its forms show they are a preview and never create a lead.
+ */
+export async function loadPublishedSite(query: SiteQuery): Promise<PublishedSite> {
   if (!hasPlwConfig) return { status: "error", message: "VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are not set." };
-  const param = "id" in query ? `id=${encodeURIComponent(query.id)}` : `domain=${encodeURIComponent(query.domain)}`;
   try {
-    const res = await fetch(`${fnUrl("kike-sites")}?${param}`);
+    const res = await fetch(`${fnUrl("kike-sites")}?${queryString(query)}`);
     if (res.status === 404) return { status: "notfound" };
     if (res.status === 410) return { status: "disabled" };
     if (!res.ok) return { status: "error", message: `Server returned ${res.status}` };
     const saved = (await res.json()) as SavedSite;
     const base = getTemplate(saved.slug);
     if (!base) return { status: "error", message: `Template "${saved.slug}" no longer exists.` };
-    return { status: "ok", template: rebuildTemplate(base, saved, true) };
+    return { status: "ok", template: rebuildTemplate(base, saved, !("preview" in query)) };
   } catch (e) {
     return { status: "error", message: e instanceof Error ? e.message : "Could not load the site." };
   }
 }
 
-/** The published site for an id or domain; null while it loads. */
-export function usePublishedSite(query: { id: string } | { domain: string }): PublishedSite | null {
-  const key = "id" in query ? `id=${query.id}` : `domain=${query.domain}`;
+/** The site for an id, domain or preview token; null while it loads. */
+export function usePublishedSite(query: SiteQuery): PublishedSite | null {
+  const key = queryString(query);
   const [site, setSite] = useState<PublishedSite | null>(null);
   useEffect(() => {
     let cancelled = false;

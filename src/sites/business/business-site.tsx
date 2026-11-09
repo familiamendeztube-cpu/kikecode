@@ -7,7 +7,7 @@ import { StatsStrip, TrustStrip, Offers, Guarantee, Testimonials, Certifications
 import { useGreeting, AssistantStrip, FloatingAssistant } from "./assistant";
 import { VideoGallery, InAction, Transformation, Gallery, ClientTrust, Heritage } from "./media";
 import { InventorySection, FinancingBand, FloatingWhatsApp } from "./inventory";
-import { Services, MeetTheCrew, Why, Process, ServiceAreas, Comparison, Faq } from "./services";
+import { Services, MeetTheCrew, Why, Process, ServiceAreas, Faq } from "./services";
 import { MidCta, ProjectSelector, FoodBand, EmergencyBand, Contact, ClosingCta, Footer, MobileActionBar } from "./contact";
 
 /** The shared site for every template without its own `siteVariant`. Each
@@ -50,7 +50,6 @@ export default function BusinessSite({ template }: { template: BusinessTemplate 
       <Why {...site} />
       <Process {...site} />
       <ServiceAreas {...site} />
-      <Comparison {...site} />
       <Testimonials {...site} />
       <Certifications {...site} />
       <Faq {...site} />

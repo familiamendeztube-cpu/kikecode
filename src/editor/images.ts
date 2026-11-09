@@ -1,4 +1,6 @@
-export const MAX_PHOTO_BYTES = 6 * 1024 * 1024; // 6 MB per file
+import { callFn, supabase } from "@/lib/plw";
+
+export const MAX_PHOTO_BYTES = 6 * 1024 * 1024; // 6 MB per file, before compression
 export const MAX_GALLERY_PHOTOS = 8;
 export const MAX_TOTAL_PHOTOS = 12;
 
@@ -12,10 +14,9 @@ function fileToDataUrl(file: File): Promise<string> {
 }
 
 /**
- * Resize + re-encode an uploaded image to keep the saved payload small.
- * Photos are embedded as base64 in the share-link record, so a raw 6 MB phone
- * photo would blow past the server body limit. We cap the longest edge and
- * re-encode as JPEG. Falls back to the raw data URL if anything goes wrong.
+ * Resize + re-encode an uploaded image to keep it small (and under Storage's
+ * 5 MB limit). We cap the longest edge and re-encode as JPEG. Falls back to the
+ * raw data URL if anything goes wrong.
  */
 export async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<string> {
   const rawUrl = await fileToDataUrl(file);
@@ -62,4 +63,34 @@ export function validatePhotos(files: File[], alreadyLoaded: number): { ok: File
     ? `Skipped ${rejected} file(s) — must be images under 6 MB.`
     : null;
   return { ok, reason };
+}
+
+async function sha256Hex(blob: Blob): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Put a compressed photo in PLW Storage (kike-sites `upload_url`, then a
+ * direct upload with the signed token) and return its public URL. An image
+ * PLW cannot store (Storage not set up yet, offline, an SVG) comes back
+ * unchanged, so editing never stops: the save then carries it inline as before.
+ */
+export async function storeImage(dataUrl: string, siteId: string | null): Promise<string> {
+  if (!dataUrl.startsWith("data:image/")) return dataUrl;
+  try {
+    const blob = await (await fetch(dataUrl)).blob();
+    const signed = await callFn<{ reused: boolean; url: string; path?: string; token?: string }>("kike-sites", {
+      action: "upload_url", mime: blob.type, bytes: blob.size, sha256: await sha256Hex(blob), site_id: siteId,
+    });
+    if (!signed.reused) {
+      const { error } = await supabase.storage.from("kike-site-assets")
+        .uploadToSignedUrl(signed.path!, signed.token!, blob, { contentType: blob.type, cacheControl: "31536000" });
+      if (error) throw error;
+    }
+    return signed.url;
+  } catch (e) {
+    console.warn("Photo kept inline: the Storage upload failed.", e);
+    return dataUrl;
+  }
 }

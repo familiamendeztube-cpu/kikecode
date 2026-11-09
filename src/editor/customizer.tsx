@@ -5,14 +5,18 @@ import {
   Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger,
 } from "@/components/ui/sheet";
 import { supabase } from "@/lib/plw";
+import { previewUrl, publishedUrl } from "@/lib/saved-site";
+import { templateVersion } from "@/templates";
 import type { BusinessTemplate, Lang } from "@/templates/types";
 import { SiteEditor } from "./site-editor";
 import { EditProvider } from "./editable";
 import { blankLike, getByPath, setByPath, type EditPath } from "./edit-path";
-import { compressImage, validatePhotos, MAX_GALLERY_PHOTOS } from "./images";
+import { compressImage, storeImage, validatePhotos, MAX_GALLERY_PHOTOS } from "./images";
 import { brandFields, sanitizePhoneHref, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
 import { applyAiEdit, askAi, type ChatMsg } from "./ai";
-import { AiChatLog, AiComposer, ClientInfoPanel, PhotosPanel, SharePanel, type ShareState } from "./panels";
+import { useSiteLifecycle } from "./lifecycle";
+import { AiChatLog, AiComposer, ClientInfoPanel, ContentCheckPanel, PhotosPanel, PublishPanel, SharePanel, type ShareState } from "./panels";
+import { isSampleContent } from "@/sites/business/ui";
 
 type ClientOption = { id: string; business_name: string };
 type SeedPhotos = { hero?: string; gallery?: string[]; teamPortrait?: string };
@@ -62,6 +66,12 @@ export default function Customizer({
   const [share, setShare] = useState<ShareState>(null);
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+  const lifecycle = useSiteLifecycle(siteId);
+  const savedVersion = lifecycle.site?.template_version ?? null;
+  const currentVersion = templateVersion(original.slug);
+  const templateNotice = savedVersion !== null && savedVersion < currentVersion
+    ? `This site was saved with version ${savedVersion} of its template; the template is now version ${currentVersion}. Check the preview before publishing.`
+    : null;
 
   const [chat, setChat] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState("");
@@ -119,7 +129,7 @@ export default function Customizer({
   }
   async function uploadField(path: EditPath, file: File) {
     if (!file.type.startsWith("image/")) return;
-    setField(path, await compressImage(file));
+    setField(path, await storeImage(await compressImage(file), siteId));
   }
   function addItem(path: EditPath) {
     edit((cur) => {
@@ -159,6 +169,8 @@ export default function Customizer({
     setShareError(null);
     try {
       const saved = await saveSite({ siteId, slug: original.slug, fields, tpl, clientId, customDomain });
+      // A new id reloads the lifecycle by itself; the same id needs a refresh.
+      if (saved.id === siteId) void lifecycle.refresh().catch(() => {});
       setSiteId(saved.id);
       setShare({ url: saved.url, copied: false });
     } catch (e) {
@@ -179,15 +191,20 @@ export default function Customizer({
     }
   }
 
-  /** Validated, compressed photos for an upload (counted against the limit). */
+  /** Validated, compressed photos for an upload (counted against the limit), as data URLs. */
   async function takePhotos(files: File[]): Promise<string[]> {
     const { ok, reason } = validatePhotos(files, photoCountRef.current);
     setPhotoNotice(reason);
     return Promise.all(ok.map((f) => compressImage(f)));
   }
 
+  /** The same photos stored in PLW Storage: the URLs the site keeps. */
+  async function storePhotos(files: File[]): Promise<string[]> {
+    return Promise.all((await takePhotos(files)).map((url) => storeImage(url, siteId)));
+  }
+
   async function uploadHero(file: File) {
-    const [url] = await takePhotos([file]);
+    const [url] = await storePhotos([file]);
     if (!url) return;
     edit((cur) => ({
       ...cur,
@@ -197,7 +214,7 @@ export default function Customizer({
   }
 
   async function uploadGallery(files: FileList) {
-    const urls = await takePhotos(Array.from(files).slice(0, MAX_GALLERY_PHOTOS));
+    const urls = await storePhotos(Array.from(files).slice(0, MAX_GALLERY_PHOTOS));
     if (!urls.length) return;
     edit((cur) => {
       const gallery = fillGallery(cur.media?.gallery ?? [], urls);
@@ -240,8 +257,9 @@ export default function Customizer({
     setPendingImages([]);
     setError(null);
     setSending(true);
-    // Place attached photos on the site immediately, then tell the AI about them.
-    if (imgs.length) placeChatPhotos(imgs);
+    // Place attached photos on the site (stored copies), then tell the AI about
+    // them: kike-ai reads the images themselves, so it gets the data URLs.
+    if (imgs.length) placeChatPhotos(await Promise.all(imgs.map((url) => storeImage(url, siteId))));
     const nextChat: ChatMsg[] = [...chat, { role: "user", content: msg }];
     setChat(nextChat);
 
@@ -293,7 +311,7 @@ export default function Customizer({
               Client Customizer
             </SheetTitle>
             <SheetDescription className="text-slate-400 text-xs">
-              Fill in the client info, drop in their photos, then chat with the AI to tune the copy. All changes update the preview live — nothing is saved.
+              Fill in the client info, drop in their photos, then chat with the AI to tune the copy. Changes show here live; saving keeps a private draft, and only publishing makes it public.
             </SheetDescription>
           </SheetHeader>
 
@@ -319,6 +337,12 @@ export default function Customizer({
 
             <PhotosPanel photoCount={photoCountRef.current} notice={photoNotice} onHero={uploadHero} onGallery={uploadGallery} />
 
+            <ContentCheckPanel
+              applies={!tpl.realBusiness}
+              confirmed={!!tpl.contentConfirmed}
+              onConfirmed={(confirmed) => edit((cur) => ({ ...cur, contentConfirmed: confirmed }))}
+            />
+
             <SharePanel
               clients={clients}
               clientId={clientId}
@@ -332,6 +356,18 @@ export default function Customizer({
               onSave={shareWithClient}
               onCopy={copyShareUrl}
             />
+
+            {siteId && (
+              <PublishPanel
+                lifecycle={lifecycle}
+                previewLink={lifecycle.site ? previewUrl(lifecycle.site.preview_token) : null}
+                publicLink={lifecycle.site ? publishedUrl(lifecycle.site) : null}
+                templateNotice={templateNotice}
+                sampleNotice={isSampleContent(tpl)
+                  ? "Visitors see this site's reviews and claims tagged as samples until you confirm them under \"Reviews & claims\" and save."
+                  : null}
+              />
+            )}
 
             <AiChatLog chat={chat} sending={sending} error={error} />
           </div>
