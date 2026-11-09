@@ -192,10 +192,11 @@ const snuvalysConstruccions: BusinessTemplate = {
     hero: `${assets}/hero-obra-gris.jpg`,
     gallery: [
       `${assets}/mostrador.jpg`,
-      `${assets}/extractor-soda.jpg`,
+      // Landscape crops of two portrait photos, so the small tiles show the work.
+      `${assets}/extractor-soda-ancho.jpg`,
       `${assets}/machimbre.jpg`,
       `${assets}/machimbre-instalacion.jpg`,
-      `${assets}/instalacion-cielo.jpg`,
+      `${assets}/instalacion-cielo-ancho.jpg`,
     ],
     teamPortrait: "",
   },
