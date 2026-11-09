@@ -10,9 +10,6 @@ import { rymWhatsApp } from "./messages";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
 
 function useSEO(template: BusinessTemplate) {
-
-  
-
   useEffect(() => {
     if (typeof window === "undefined" || window.location.hostname !== "autoserviciorym.com") return;
     document.title = "Auto Servicio R&M | Servicio Automotriz en San José";
@@ -44,6 +41,17 @@ function useSEO(template: BusinessTemplate) {
       document.head.removeChild(script);
     };
   }, [template]);
+}
+
+/** A labelled form field; the error is spelled out, not only shown as a red border. */
+function Field({ label, err, children }: { label: string; err?: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="block text-xs text-[var(--text-secondary)] mb-1">{label}</span>
+      {children}
+      {err && <span className="block text-red-400 text-xs mt-1">{err}</span>}
+    </label>
+  );
 }
 
 function RequestModal({ isOpen, onClose, type, brand, siteId }: { isOpen: boolean, onClose: () => void, type: "appointment" | "quote", brand: BrandConfig, siteId?: string }) {
@@ -96,7 +104,7 @@ function RequestModal({ isOpen, onClose, type, brand, siteId }: { isOpen: boolea
     <Dialog.Root open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <Dialog.Content {...returnFocus} className="fixed inset-0 z-[200] bg-black/90 flex items-start md:items-center justify-center p-0 md:p-4 backdrop-blur-md overflow-y-auto">
         <div className="bg-[var(--background-secondary)] w-full min-h-[100dvh] md:min-h-0 md:max-h-[90vh] md:max-w-2xl overflow-y-auto md:rounded-xl shadow-2xl relative p-6 md:p-8 flex flex-col">
-          <button onClick={onClose} className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] p-2"><X className="w-6 h-6" /></button>
+          <button onClick={onClose} aria-label="Cerrar" className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] p-2 rym-press"><X className="w-6 h-6" /></button>
           <div className="mb-8 pr-8">
             <Dialog.Title className="text-2xl font-black mb-2 text-[var(--text-primary)]">{type === "appointment" ? "Solicitar una cita" : "Solicitar valoración"}</Dialog.Title>
             <Dialog.Description className="text-sm text-[var(--text-secondary)]">{type === "appointment" ? "Tu solicitud queda pendiente de confirmación por parte de Auto Servicio RyM." : "Esta solicitud no constituye una cotización final."}</Dialog.Description>
@@ -107,17 +115,17 @@ function RequestModal({ isOpen, onClose, type, brand, siteId }: { isOpen: boolea
             <fieldset className="p-5 border border-[var(--border-subtle)] rounded-lg bg-[var(--surface-elevated)] space-y-4">
               <legend className="text-sm font-bold text-[var(--premium-gold)] px-2">1. Tu vehículo</legend>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Marca</label><input className={inputClass(errors.brand)} placeholder="Ej. Toyota" value={formData.brand} onChange={e=>setFormData({...formData, brand: e.target.value})} /></div>
-                <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Modelo</label><input className={inputClass(errors.model)} placeholder="Ej. RAV4" value={formData.model} onChange={e=>setFormData({...formData, model: e.target.value})} /></div>
-                <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Año</label><input type="number" className={inputClass(errors.year)} placeholder="Ej. 2018" value={formData.year} onChange={e=>setFormData({...formData, year: e.target.value})} /></div>
+                <Field label="Marca" err={errors.brand}><input className={inputClass(errors.brand)} placeholder="Ej. Toyota" value={formData.brand} onChange={e=>setFormData({...formData, brand: e.target.value})} /></Field>
+                <Field label="Modelo" err={errors.model}><input className={inputClass(errors.model)} placeholder="Ej. RAV4" value={formData.model} onChange={e=>setFormData({...formData, model: e.target.value})} /></Field>
+                <Field label="Año" err={errors.year}><input type="number" inputMode="numeric" className={inputClass(errors.year)} placeholder="Ej. 2018" value={formData.year} onChange={e=>setFormData({...formData, year: e.target.value})} /></Field>
               </div>
             </fieldset>
 
             {/* Step 2 */}
             <fieldset className="p-5 border border-[var(--border-subtle)] rounded-lg bg-[var(--surface-elevated)] space-y-4">
               <legend className="text-sm font-bold text-[var(--premium-gold)] px-2">2. Servicio o problema</legend>
-              <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Servicio requerido</label><input className={inputClass(errors.service)} placeholder="Ej. Revisión general" value={formData.service} onChange={e=>setFormData({...formData, service: e.target.value})} /></div>
-              <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Descripción</label><textarea rows={3} className={inputClass(errors.desc)} placeholder="Describí brevemente lo que necesita tu vehículo" value={formData.desc} onChange={e=>setFormData({...formData, desc: e.target.value})} /></div>
+              <Field label="Servicio requerido" err={errors.service}><input className={inputClass(errors.service)} placeholder="Ej. Revisión general" value={formData.service} onChange={e=>setFormData({...formData, service: e.target.value})} /></Field>
+              <Field label="Descripción" err={errors.desc}><textarea rows={3} className={inputClass(errors.desc)} placeholder="Describí brevemente lo que necesita tu vehículo" value={formData.desc} onChange={e=>setFormData({...formData, desc: e.target.value})} /></Field>
             </fieldset>
 
             {/* Step 3 */}
@@ -125,14 +133,14 @@ function RequestModal({ isOpen, onClose, type, brand, siteId }: { isOpen: boolea
               <fieldset className="p-5 border border-[var(--border-subtle)] rounded-lg bg-[var(--surface-elevated)] space-y-4">
                 <legend className="text-sm font-bold text-[var(--premium-gold)] px-2">3. Preferencia</legend>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Fecha preferida</label><input type="date" className={inputClass(errors.date)} value={formData.date} onChange={e=>setFormData({...formData, date: e.target.value})} /></div>
-                  <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Horario preferido</label>
+                  <Field label="Fecha preferida" err={errors.date}><input type="date" className={inputClass(errors.date)} value={formData.date} onChange={e=>setFormData({...formData, date: e.target.value})} /></Field>
+                  <Field label="Horario preferido" err={errors.time}>
                     <select className={inputClass(errors.time)} value={formData.time} onChange={e=>setFormData({...formData, time: e.target.value})}>
                       <option value="">Seleccione</option>
                       <option value="Mañana (7:00 - 12:00)">Mañana (7:00 - 12:00)</option>
                       <option value="Tarde (12:00 - 18:00)">Tarde (12:00 - 18:00)</option>
                     </select>
-                  </div>
+                  </Field>
                 </div>
               </fieldset>
             )}
@@ -141,8 +149,8 @@ function RequestModal({ isOpen, onClose, type, brand, siteId }: { isOpen: boolea
             <fieldset className="p-5 border border-[var(--border-subtle)] rounded-lg bg-[var(--surface-elevated)] space-y-4">
               <legend className="text-sm font-bold text-[var(--premium-gold)] px-2">{type === "appointment" ? "4" : "3"}. Contacto</legend>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Nombre completo</label><input className={inputClass(errors.name)} value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} /></div>
-                <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Teléfono o WhatsApp</label><input type="tel" className={inputClass(errors.phone)} value={formData.phone} onChange={e=>setFormData({...formData, phone: e.target.value})} /></div>
+                <Field label="Nombre completo" err={errors.name}><input autoComplete="name" className={inputClass(errors.name)} value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} /></Field>
+                <Field label="Teléfono o WhatsApp" err={errors.phone}><input type="tel" autoComplete="tel" className={inputClass(errors.phone)} value={formData.phone} onChange={e=>setFormData({...formData, phone: e.target.value})} /></Field>
               </div>
             </fieldset>
 
@@ -152,10 +160,10 @@ function RequestModal({ isOpen, onClose, type, brand, siteId }: { isOpen: boolea
                 <input type="checkbox" className="mt-1 w-5 h-5 accent-[var(--premium-gold)]" checked={formData.consent} onChange={e=>setFormData({...formData, consent: e.target.checked})} />
                 <span className="text-sm text-[var(--text-secondary)]">Acepto ser contactado para confirmar esta solicitud.</span>
               </label>
-              {errors.consent && <p className="text-red-500 text-xs mt-2 px-2">{errors.consent}</p>}
+              {errors.consent && <p className="text-red-400 text-xs mt-2 px-2">{errors.consent}</p>}
             </fieldset>
 
-            <button type="submit" className="w-full bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] py-4 rounded-lg font-bold uppercase tracking-widest transition-colors min-h-[56px] flex items-center justify-center gap-2">
+            <button type="submit" className="w-full bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] py-4 rounded-lg font-bold uppercase tracking-widest rym-press min-h-[56px] flex items-center justify-center gap-2">
               <MessageCircle className="w-5 h-5" />
               {type === "appointment" ? "Solicitar una cita" : "Enviar por WhatsApp"}
             </button>
@@ -164,6 +172,14 @@ function RequestModal({ isOpen, onClose, type, brand, siteId }: { isOpen: boolea
       </Dialog.Content>
     </Dialog.Root>
   );
+}
+
+/** Gallery: the first photo fills one row at sm and a 2x2 block at lg, so the last
+ *  photo widens to close its row instead of leaving an empty cell. */
+function lastTileSpan(count: number): string {
+  if (count < 3) return "";
+  const lg = ["", "lg:col-span-3", "lg:col-span-2"][count % 3]; // lg cells = count + 3
+  return count % 2 === 0 ? `sm:col-span-2 ${lg || "lg:col-span-1"}` : lg; // sm cells = count + 1
 }
 
 const SYMPTOMS = [
@@ -210,9 +226,9 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
   ];
   const GALLERY_IMGS = template.media?.gallery?.length ? template.media.gallery : DEFAULT_GALLERY;
 
-  const SERVICE_IMGS = [
-    GALLERY_IMGS[1], GALLERY_IMGS[2], GALLERY_IMGS[3], GALLERY_IMGS[4]
-  ];
+  // Four different vehicles: the hero already shows the black RAM, so the cards skip its other shots.
+  const SERVICE_IMGS = [1, 2, 7, 8].map((i) => GALLERY_IMGS[i % GALLERY_IMGS.length]);
+  const locationImg = GALLERY_IMGS[11 % GALLERY_IMGS.length];
 
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 800], ["0%", "15%"]);
@@ -269,38 +285,41 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
           --premium-gold-soft: rgba(208, 169, 40, 0.16);
           --text-primary: #F4F4F2;
           --text-secondary: #A8ADB3;
-          --text-muted: #727880;
+          --text-muted: #858B93;
           --metallic-silver: #C8CDD2;
           --border-subtle: rgba(255, 255, 255, 0.10);
           --border-active: rgba(208, 169, 40, 0.55);
         }
         html { scroll-padding-top: 80px; scroll-behavior: smooth; }
         body { background-color: var(--background-primary); color: var(--text-primary); }
+        .rym a:focus-visible, .rym button:focus-visible { outline: 2px solid var(--premium-gold); outline-offset: 2px; }
+        .rym-press { transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+        .rym-press:active { transform: scale(0.97); }
       `}} />
-      <div className="min-h-[100dvh] overflow-x-hidden font-sans selection:bg-[var(--premium-gold)] selection:text-black pb-[calc(72px+env(safe-area-inset-bottom))] lg:pb-0">
+      <div className="rym min-h-[100dvh] overflow-x-hidden font-sans selection:bg-[var(--premium-gold)] selection:text-black pb-[calc(72px+env(safe-area-inset-bottom))] lg:pb-0">
         
         {/* Header */}
         <header className={`fixed top-0 left-0 w-full z-[150] transition-transform duration-300 ${scrollDir === "down" && scrollYPos > 100 && !isOverlayOpen ? "-translate-y-full" : "translate-y-0"} bg-[var(--background-primary)]/90 backdrop-blur-md border-b border-[var(--border-subtle)] h-[64px] md:h-[72px] flex items-center`}>
-          <div className="w-full max-w-7xl mx-auto px-4 md:px-6 flex justify-between items-center">
+          <div className="w-full max-w-7xl mx-auto px-6 flex justify-between items-center">
             <a href="#" className="flex items-center shrink-0">
               <img src={logoImg} alt="Auto Servicio RyM" className="h-10 md:h-12 w-auto object-contain" />
             </a>
             <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-[var(--text-secondary)]">
-              <a href="#servicios" className="hover:text-[var(--premium-gold)] transition-colors">Servicios</a>
-              <a href="#problemas" className="hover:text-[var(--premium-gold)] transition-colors">Problemas comunes</a>
-              <a href="#galeria" className="hover:text-[var(--premium-gold)] transition-colors">Trabajos</a>
-              <a href="#nosotros" className="hover:text-[var(--premium-gold)] transition-colors">Nosotros</a>
-              <a href="#contacto" className="hover:text-[var(--premium-gold)] transition-colors">Ubicación</a>
+              <a href="#servicios" className="hover:text-[var(--premium-gold)] rym-press">Servicios</a>
+              <a href="#problemas" className="hover:text-[var(--premium-gold)] rym-press">Problemas comunes</a>
+              <a href="#galeria" className="hover:text-[var(--premium-gold)] rym-press">Trabajos</a>
+              <a href="#nosotros" className="hover:text-[var(--premium-gold)] rym-press">Nosotros</a>
+              <a href="#contacto" className="hover:text-[var(--premium-gold)] rym-press">Ubicación</a>
             </div>
             <div className="hidden lg:flex items-center gap-4">
-              <button onClick={(e) => openModal("appointment", e)} className="border border-[var(--premium-gold)] text-[var(--premium-gold)] hover:bg-[var(--premium-gold-soft)] px-5 py-2 rounded-md text-sm font-bold uppercase tracking-widest transition-colors h-[44px]">
+              <button onClick={(e) => openModal("appointment", e)} className="border border-[var(--premium-gold)] text-[var(--premium-gold)] hover:bg-[var(--premium-gold-soft)] px-5 py-2 rounded-md text-sm font-bold uppercase tracking-widest rym-press h-[44px]">
                 Solicitar cita
               </button>
-              <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] px-5 py-2 rounded-md text-sm font-bold uppercase tracking-widest transition-colors h-[44px] flex items-center justify-center">
+              <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] px-5 py-2 rounded-md text-sm font-bold uppercase tracking-widest rym-press h-[44px] flex items-center justify-center">
                 WhatsApp
               </a>
             </div>
-            <button className="lg:hidden p-2 text-[var(--text-primary)] h-[44px] w-[44px] flex items-center justify-center" onClick={() => setMenuOpen(true)}>
+            <button aria-label="Abrir menú" className="lg:hidden -mr-2 p-2 text-[var(--text-primary)] h-[44px] w-[44px] flex items-center justify-center rym-press" onClick={() => setMenuOpen(true)}>
               <Menu className="w-6 h-6" />
             </button>
           </div>
@@ -311,11 +330,11 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
           <AnimatePresence>
             {menuOpen && (
               <Dialog.Content {...menuFocus} forceMount asChild aria-describedby={undefined}>
-                <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "tween", duration: 0.3 }} className="fixed inset-0 z-[250] bg-[var(--background-primary)] flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+                <motion.div initial={prefersReducedMotion ? { opacity: 0 } : { x: "100%" }} animate={prefersReducedMotion ? { opacity: 1 } : { x: 0 }} exit={prefersReducedMotion ? { opacity: 0 } : { x: "100%" }} transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }} className="fixed inset-0 z-[250] bg-[var(--background-primary)] flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
                   <Dialog.Title className="sr-only">Menú principal</Dialog.Title>
-                  <div className="h-[64px] flex items-center justify-between px-4 border-b border-[var(--border-subtle)]">
+                  <div className="h-[64px] flex items-center justify-between px-6 border-b border-[var(--border-subtle)]">
                     <img src={logoImg} alt="Auto Servicio RyM" className="h-9 w-auto object-contain" />
-                    <button onClick={() => setMenuOpen(false)} className="p-2 h-[44px] w-[44px] flex items-center justify-center text-[var(--text-secondary)]"><X className="w-6 h-6" /></button>
+                    <button onClick={() => setMenuOpen(false)} aria-label="Cerrar menú" className="-mr-2 p-2 h-[44px] w-[44px] flex items-center justify-center text-[var(--text-secondary)] rym-press"><X className="w-6 h-6" /></button>
                   </div>
                   <nav className="flex flex-col gap-6 p-6 text-xl font-bold text-[var(--text-primary)] flex-grow overflow-y-auto">
                     <a href="#" onClick={() => setMenuOpen(false)}>Inicio</a>
@@ -327,9 +346,9 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
                     <a href="#contacto" onClick={() => setMenuOpen(false)}>Ubicación</a>
                   </nav>
                   <div className="p-6 border-t border-[var(--border-subtle)] bg-[var(--surface-primary)] flex flex-col gap-3">
-                    <a href={template.brand.phoneHref} className="w-full text-center border border-[var(--border-subtle)] text-[var(--text-primary)] py-4 font-bold uppercase tracking-widest rounded-lg min-h-[56px] flex items-center justify-center gap-2"><Phone className="w-5 h-5"/> Llamar</a>
-                    <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="w-full text-center border border-[var(--premium-gold)] text-[var(--premium-gold)] py-4 font-bold uppercase tracking-widest rounded-lg min-h-[56px] flex items-center justify-center gap-2"><MessageCircle className="w-5 h-5"/> WhatsApp</a>
-                    <button onClick={(e) => openModal("appointment", e)} className="w-full bg-[var(--premium-gold)] text-[var(--background-primary)] py-4 font-bold uppercase tracking-widest rounded-lg min-h-[56px] flex items-center justify-center gap-2"><Calendar className="w-5 h-5"/> Solicitar cita</button>
+                    <a href={template.brand.phoneHref} className="w-full text-center border border-[var(--border-subtle)] text-[var(--text-primary)] py-4 font-bold uppercase tracking-widest rounded-lg min-h-[56px] flex items-center justify-center gap-2 rym-press"><Phone className="w-5 h-5"/> Llamar</a>
+                    <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="w-full text-center border border-[var(--premium-gold)] text-[var(--premium-gold)] py-4 font-bold uppercase tracking-widest rounded-lg min-h-[56px] flex items-center justify-center gap-2 rym-press"><MessageCircle className="w-5 h-5"/> WhatsApp</a>
+                    <button onClick={(e) => openModal("appointment", e)} className="w-full bg-[var(--premium-gold)] text-[var(--background-primary)] py-4 font-bold uppercase tracking-widest rounded-lg min-h-[56px] flex items-center justify-center gap-2 rym-press"><Calendar className="w-5 h-5"/> Solicitar cita</button>
                   </div>
                 </motion.div>
               </Dialog.Content>
@@ -338,13 +357,14 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
         </Dialog.Root>
 
         {/* Hero */}
-        <section className="relative h-[85dvh] lg:h-[88dvh] w-full flex flex-col justify-end pb-24 lg:pb-32 overflow-hidden bg-[var(--background-primary)]">
+        <section className="relative min-h-[85dvh] lg:min-h-[88dvh] w-full flex flex-col justify-end pb-24 lg:pb-32 overflow-hidden bg-[var(--background-primary)]">
           <div className="absolute inset-0 z-0">
             <motion.img src={heroImg} alt="" className="w-full h-full object-cover object-center" style={prefersReducedMotion ? {} : { y: heroY }} />
             <div className="absolute inset-0 bg-gradient-to-t from-[var(--background-primary)] via-[var(--background-primary)]/80 to-[var(--background-primary)]/30" />
           </div>
           
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-24 lg:pt-0">
+          {/* Top padding clears the fixed header, so the logo never tucks under it. */}
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-28 md:pt-32">
             <FadeInView>
               <img src={logoImg} alt="Auto Servicio RyM" className="h-16 md:h-20 w-auto object-contain mb-6" />
               <div className="inline-block bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] px-3 py-1 rounded text-xs font-bold tracking-widest uppercase mb-6">
@@ -357,10 +377,10 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
                 Contanos qué presenta tu vehículo y coordiná una revisión directamente con nuestro equipo.
               </p>
               <div className="flex flex-col sm:flex-row items-start gap-4">
-                <button onClick={(e) => openModal("appointment", e)} className="w-full sm:w-auto bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] px-8 py-4 rounded-lg font-bold uppercase tracking-widest transition-colors min-h-[56px] flex items-center justify-center">
+                <button onClick={(e) => openModal("appointment", e)} className="w-full sm:w-auto bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] px-8 py-4 rounded-lg font-bold uppercase tracking-widest rym-press min-h-[56px] flex items-center justify-center">
                   Solicitar una cita
                 </button>
-                <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="w-full sm:w-auto bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--premium-gold)] px-8 py-4 rounded-lg font-bold uppercase tracking-widest transition-colors min-h-[56px] flex items-center justify-center">
+                <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="w-full sm:w-auto bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--premium-gold)] px-8 py-4 rounded-lg font-bold uppercase tracking-widest rym-press min-h-[56px] flex items-center justify-center">
                   Consultar por WhatsApp
                 </a>
               </div>
@@ -371,7 +391,7 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
 
         {/* Symptom Selector */}
         <section id="problemas" className="py-20 lg:py-28 px-6 bg-[var(--background-secondary)] scroll-mt-20">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-[77rem] mx-auto">
             <FadeInView>
               <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3">¿Qué está presentando tu vehículo?</h2>
               <p className="text-[var(--text-secondary)] mb-10 text-lg">Esta guía es informativa y no sustituye una inspección mecánica.</p>
@@ -381,21 +401,22 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
                   const Icon = s.icon;
                   const isActive = selSymptom.id === s.id;
                   return (
-                    <button key={s.id} onClick={() => setSelSymptom(s)} className={`flex flex-col items-start text-left p-4 rounded-lg border transition-colors min-h-[88px] ${isActive ? "border-[var(--premium-gold)] bg-[var(--surface-elevated)]" : "border-[var(--border-subtle)] bg-[var(--surface-primary)] hover:border-[var(--text-secondary)]"}`}>
+                    <button key={s.id} onClick={() => setSelSymptom(s)} aria-pressed={isActive} className={`flex flex-col items-start text-left p-4 rounded-lg border rym-press min-h-[88px] min-w-0 ${isActive ? "border-[var(--premium-gold)] bg-[var(--surface-elevated)]" : "border-[var(--border-subtle)] bg-[var(--surface-primary)] hover:border-[var(--text-secondary)]"}`}>
                       <Icon className={`w-5 h-5 mb-3 ${isActive ? "text-[var(--premium-gold)]" : "text-[var(--text-muted)]"}`} />
-                      <span className={`font-bold text-sm leading-tight ${isActive ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>{s.label}</span>
+                      {/* "Sobrecalentamiento" is wider than a 2-up tile on a phone: hyphenate, else break. */}
+                      <span className={`max-w-full font-bold text-sm leading-tight hyphens-auto [overflow-wrap:anywhere] ${isActive ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>{s.label}</span>
                     </button>
                   );
                 })}
               </div>
 
-              <AnimatePresence mode="wait">
-                <motion.div key={selSymptom.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="bg-[var(--surface-elevated)] border-l-4 border-[var(--premium-gold)] rounded-r-lg p-6 lg:p-8 shadow-lg">
+              {/* Picked many times in a row: the new answer swaps in at once and settles in 180ms (no exit wait). */}
+              <motion.div key={selSymptom.id} initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }} className="bg-[var(--surface-elevated)] border border-[var(--premium-gold)]/40 rounded-lg p-6 lg:p-8 shadow-lg">
                   <div className="flex items-center gap-3 mb-4">
                     <selSymptom.icon className="w-6 h-6 text-[var(--premium-gold)]" />
                     <h3 className="text-xl font-bold">{selSymptom.label}</h3>
                   </div>
-                  <p className="text-[var(--text-secondary)] text-lg mb-6">{selSymptom.exp}</p>
+                  <p className="text-[var(--text-secondary)] text-lg mb-6 max-w-3xl">{selSymptom.exp}</p>
                   
                   {selSymptom.alert && (
                     <div className="bg-[var(--surface-soft)] text-[var(--text-primary)] p-4 border border-[var(--border-subtle)] mb-6 rounded text-sm flex items-start gap-3">
@@ -405,22 +426,21 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
                   )}
                   
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <button onClick={(e) => openModal("appointment", e)} className="bg-[var(--surface-soft)] border border-[var(--border-subtle)] hover:border-[var(--premium-gold)] px-6 py-3 font-bold uppercase tracking-widest text-xs rounded-lg min-h-[48px] transition-colors">
+                    <button onClick={(e) => openModal("appointment", e)} className="bg-[var(--surface-soft)] border border-[var(--border-subtle)] hover:border-[var(--premium-gold)] px-6 py-3 font-bold uppercase tracking-widest text-xs rounded-lg min-h-[48px] rym-press">
                       Solicitar Inspección
                     </button>
-                    <a href={selSymptom.alert ? rymWhatsApp.getEmergencyLink(template.brand, selSymptom.label) : rymWhatsApp.getServiceLink(template.brand, "Revisión", "", "", "", selSymptom.label)} target="_blank" rel="noreferrer" className="bg-[var(--premium-gold)] text-[var(--background-primary)] hover:bg-[var(--premium-gold-dark)] px-6 py-3 font-bold uppercase tracking-widest text-xs rounded-lg min-h-[48px] flex items-center justify-center transition-colors">
+                    <a href={selSymptom.alert ? rymWhatsApp.getEmergencyLink(template.brand, selSymptom.label) : rymWhatsApp.getServiceLink(template.brand, "Revisión", "", "", "", selSymptom.label)} target="_blank" rel="noreferrer" className="bg-[var(--premium-gold)] text-[var(--background-primary)] hover:bg-[var(--premium-gold-dark)] px-6 py-3 font-bold uppercase tracking-widest text-xs rounded-lg min-h-[48px] flex items-center justify-center rym-press">
                       Consultar por WhatsApp
                     </a>
                   </div>
-                </motion.div>
-              </AnimatePresence>
+              </motion.div>
             </FadeInView>
           </div>
         </section>
 
         {/* Services */}
         <section id="servicios" className="py-20 lg:py-28 px-6 bg-[var(--background-primary)] scroll-mt-20">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[77rem] mx-auto">
             <FadeInView>
               <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3">{content.services.title}</h2>
               <p className="text-[var(--text-secondary)] text-lg mb-12">{content.services.blurb}</p>
@@ -430,7 +450,7 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
                 <FadeInView key={i} delay={i * 0.1}>
                   <div className="group relative bg-[var(--surface-elevated)] rounded-xl overflow-hidden border border-[var(--border-subtle)] h-full flex flex-col">
                     <div className="relative h-56 lg:h-64 overflow-hidden">
-                      <img src={SERVICE_IMGS[i % SERVICE_IMGS.length]} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <img src={SERVICE_IMGS[i % SERVICE_IMGS.length]} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-elevated)] via-[var(--surface-elevated)]/50 to-transparent" />
                     </div>
                     <div className="p-6 relative z-10 flex flex-col flex-grow -mt-16">
@@ -438,7 +458,7 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
                       <h3 className="text-xl font-bold mb-3">{item.title}</h3>
                       <p className="text-[var(--text-secondary)] text-sm mb-6 flex-grow leading-relaxed">{item.blurb}</p>
                       <div className="flex items-center gap-4">
-                        <button onClick={(e) => openModal("quote", e)} className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-widest hover:text-[var(--premium-gold)] transition-colors min-h-[44px] flex items-center">
+                        <button onClick={(e) => openModal("quote", e)} className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-widest hover:text-[var(--premium-gold)] rym-press min-h-[44px] flex items-center">
                           Solicitar valoración <ChevronRight className="w-4 h-4 ml-1" />
                         </button>
                       </div>
@@ -452,11 +472,12 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
 
         {/* About */}
         <section id="nosotros" className="py-20 lg:py-28 px-6 bg-[var(--background-secondary)] scroll-mt-20">
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="max-w-[77rem] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <FadeInView>
               <div className="relative aspect-[4/5] rounded-xl overflow-hidden border border-[var(--border-subtle)]">
-                <img src={ownerImg} alt="Auto Servicio RyM" className="w-full h-full object-cover grayscale-[0.2]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--background-secondary)] to-transparent opacity-80" />
+                <img src={ownerImg} alt="Auto Servicio RyM" loading="lazy" className="w-full h-full object-cover grayscale-[0.2]" />
+                {/* Fades only the bottom edge; the owner's face sits in the lower half and stays lit. */}
+                <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[var(--background-secondary)]/70 to-transparent" />
               </div>
             </FadeInView>
             <FadeInView delay={0.2}>
@@ -469,7 +490,7 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
                 <div className="flex gap-3 text-[var(--text-primary)]"><CheckCircle className="w-5 h-5 text-[var(--premium-gold)] shrink-0" /> <span>Trato directo con los mecánicos encargados.</span></div>
                 <div className="flex gap-3 text-[var(--text-primary)]"><CheckCircle className="w-5 h-5 text-[var(--premium-gold)] shrink-0" /> <span>Revisión completa antes de cambiar repuestos.</span></div>
               </div>
-              <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--premium-gold)] px-6 py-3 rounded-lg font-bold uppercase tracking-widest text-sm transition-colors min-h-[48px]">
+              <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--premium-gold)] px-6 py-3 rounded-lg font-bold uppercase tracking-widest text-sm rym-press min-h-[48px]">
                 <MessageCircle className="w-4 h-4" /> Hablar por WhatsApp
               </a>
             </FadeInView>
@@ -478,16 +499,16 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
 
         {/* Trust / Split */}
         <section className="py-20 lg:py-28 px-6 bg-[var(--background-primary)]">
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <FadeInView className="order-2 lg:order-1 space-y-8">
-              <h2 className="text-3xl font-black tracking-tight mb-8">Por qué elegirnos</h2>
+          <div className="max-w-[77rem] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <FadeInView className="order-2 lg:order-1">
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-8">Por qué elegirnos</h2>
               <div className="space-y-6">
                 {content.why.items.map((w,i) => (
                   <div key={i} className="border-b border-[var(--border-subtle)] pb-6 last:border-0 last:pb-0">
                     <div className="flex items-start gap-4">
-                      <div className="text-[var(--premium-gold)] font-black text-xl mt-0.5">0{i+1}</div>
+                      <div className="text-[var(--premium-gold)] font-black text-xl mt-0.5 w-8 shrink-0 tabular-nums">{String(i + 1).padStart(2, "0")}</div>
                       <div>
-                        <h4 className="font-bold text-lg mb-1">{w.title}</h4>
+                        <h3 className="font-bold text-lg mb-1">{w.title}</h3>
                         <p className="text-[var(--text-secondary)] text-sm">{w.blurb}</p>
                       </div>
                     </div>
@@ -497,7 +518,7 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
             </FadeInView>
             <FadeInView delay={0.2} className="order-1 lg:order-2">
               <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-[var(--border-subtle)]">
-                <img src={shopImg} alt="Instalaciones del taller" className="w-full h-full object-cover" />
+                <img src={shopImg} alt="Instalaciones del taller" loading="lazy" className="w-full h-full object-cover" />
               </div>
             </FadeInView>
           </div>
@@ -505,16 +526,16 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
 
         {/* Gallery */}
         <section id="galeria" className="py-20 lg:py-28 px-6 bg-[var(--background-secondary)] scroll-mt-20">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[77rem] mx-auto">
             <FadeInView>
               <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3">Trabajos realizados</h2>
               <p className="text-[var(--text-secondary)] text-lg mb-12">Vehículos que han pasado por nuestro elevador — pickups, SUVs y sedanes de distintas marcas.</p>
             </FadeInView>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[16rem] sm:auto-rows-[13rem] lg:auto-rows-[15rem]">
               {GALLERY_IMGS.map((src, i) => (
-                <FadeInView key={i} delay={Math.min(i, 5) * 0.08} className={`relative group overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] ${i === 0 ? 'sm:col-span-2 lg:col-span-2 aspect-video' : 'aspect-square sm:aspect-video lg:aspect-[4/3]'}`}>
+                <FadeInView key={i} delay={Math.min(i, 5) * 0.08} className={`relative group overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] ${i === 0 ? "sm:col-span-2 lg:row-span-2" : i === GALLERY_IMGS.length - 1 ? lastTileSpan(GALLERY_IMGS.length) : ""}`}>
                   <button type="button" onClick={(e) => { e.preventDefault(); setLightboxIdx(i); }} aria-label={`Ampliar imagen ${i + 1}`} className="w-full h-full block text-left">
-                    <img src={src} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src={src} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                       <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-8 h-8" />
                     </div>
@@ -533,7 +554,7 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
           <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
             <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6">Trabajo preciso. Comunicación clara.</h2>
             <p className="text-[var(--text-secondary)] text-lg md:text-xl mb-10 leading-relaxed">Revisamos tu vehículo, explicamos lo necesario y coordinamos cada paso directamente con vos.</p>
-            <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] px-8 py-4 rounded-lg font-bold uppercase tracking-widest text-sm transition-colors min-h-[56px]">
+            <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] px-8 py-4 rounded-lg font-bold uppercase tracking-widest text-sm rym-press min-h-[56px]">
               <MessageCircle className="w-5 h-5" /> Conversar con nuestro equipo
             </a>
           </div>
@@ -541,14 +562,14 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
 
         {/* Location */}
         <section id="contacto" className="py-20 lg:py-28 px-6 bg-[var(--background-primary)] scroll-mt-20">
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-[77rem] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <FadeInView>
               <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-8">Ubicación y Contacto</h2>
               <div className="space-y-8">
                 <div className="flex gap-4">
                   <MapPin className="w-6 h-6 text-[var(--premium-gold)] shrink-0 mt-1" />
                   <div>
-                    <h4 className="font-bold text-lg mb-1">Dirección</h4>
+                    <h3 className="font-bold text-lg mb-1">Dirección</h3>
                     <p className="text-[var(--text-secondary)] leading-relaxed">{template.brand.address}</p>
                     <div className="mt-3 flex gap-4">
                       <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(template.brand.address)}`} target="_blank" rel="noreferrer" className="text-[var(--text-primary)] font-bold text-xs uppercase tracking-widest hover:text-[var(--premium-gold)] flex items-center gap-1 min-h-[44px]"><ExternalLink className="w-3 h-3" /> Google Maps</a>
@@ -559,18 +580,18 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
                 <div className="flex gap-4">
                   <Clock className="w-6 h-6 text-[var(--premium-gold)] shrink-0 mt-1" />
                   <div>
-                    <h4 className="font-bold text-lg mb-1">Horario</h4>
+                    <h3 className="font-bold text-lg mb-1">Horario</h3>
                     <p className="text-[var(--text-secondary)]">{content.footer.hours}</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
                   <Phone className="w-6 h-6 text-[var(--premium-gold)] shrink-0 mt-1" />
                   <div>
-                    <h4 className="font-bold text-lg mb-1">Contacto</h4>
+                    <h3 className="font-bold text-lg mb-1">Contacto</h3>
                     <p className="text-[var(--text-secondary)]">{template.brand.phone}</p>
                     <div className="mt-3 flex gap-4">
-                      <a href={template.brand.phoneHref} className="border border-[var(--border-subtle)] hover:border-[var(--premium-gold)] text-[var(--text-primary)] px-4 py-2 font-bold uppercase tracking-widest text-xs rounded transition-colors min-h-[44px] flex items-center justify-center">Llamar</a>
-                      <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] px-4 py-2 font-bold uppercase tracking-widest text-xs rounded transition-colors min-h-[44px] flex items-center justify-center">WhatsApp</a>
+                      <a href={template.brand.phoneHref} className="border border-[var(--border-subtle)] hover:border-[var(--premium-gold)] text-[var(--text-primary)] px-4 py-2 font-bold uppercase tracking-widest text-xs rounded-lg rym-press min-h-[44px] flex items-center justify-center">Llamar</a>
+                      <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-[var(--background-primary)] px-4 py-2 font-bold uppercase tracking-widest text-xs rounded-lg rym-press min-h-[44px] flex items-center justify-center">WhatsApp</a>
                     </div>
                   </div>
                 </div>
@@ -578,7 +599,7 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
             </FadeInView>
             <FadeInView delay={0.2}>
               <div className="w-full aspect-video lg:aspect-[4/3] rounded-xl overflow-hidden border border-[var(--border-subtle)]">
-                <img src={GALLERY_IMGS[8]} alt="Ubicación" className="w-full h-full object-cover" />
+                <img src={locationImg} alt="Vehículo en el elevador del taller" loading="lazy" className="w-full h-full object-cover" />
               </div>
             </FadeInView>
           </div>
@@ -586,32 +607,32 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
 
         {/* Footer */}
         <footer className="bg-[var(--background-secondary)] border-t border-[var(--border-subtle)] pt-16 pb-8 px-6">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+          <div className="max-w-[77rem] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             <div className="lg:col-span-1">
               <img src={logoImg} alt="Auto Servicio RyM" className="h-14 w-auto object-contain mb-4" />
               <p className="text-[var(--text-secondary)] text-sm leading-relaxed">{content.hero.subtitle}</p>
             </div>
             
             <div>
-              <h4 className="font-bold uppercase tracking-widest text-[var(--premium-gold)] mb-4 text-xs">Enlaces</h4>
-              <nav className="flex flex-col gap-3 text-[var(--text-secondary)] text-sm">
-                <a href="#servicios" className="hover:text-[var(--text-primary)] transition-colors inline-block py-1">Servicios</a>
-                <a href="#nosotros" className="hover:text-[var(--text-primary)] transition-colors inline-block py-1">Nosotros</a>
-                <button onClick={(e) => openModal("appointment", e)} className="text-left hover:text-[var(--text-primary)] transition-colors py-1">Solicitar Cita</button>
+              <h3 className="font-bold uppercase tracking-widest text-[var(--premium-gold)] mb-4 text-xs">Enlaces</h3>
+              <nav className="flex flex-col text-[var(--text-secondary)] text-sm">
+                <a href="#servicios" className="hover:text-[var(--text-primary)] rym-press min-h-[44px] flex items-center">Servicios</a>
+                <a href="#nosotros" className="hover:text-[var(--text-primary)] rym-press min-h-[44px] flex items-center">Nosotros</a>
+                <button onClick={(e) => openModal("appointment", e)} className="text-left hover:text-[var(--text-primary)] rym-press min-h-[44px]">Solicitar Cita</button>
               </nav>
             </div>
             
             <div className="lg:col-span-2 space-y-2 text-[var(--text-secondary)] text-sm">
-              <h4 className="font-bold uppercase tracking-widest text-[var(--premium-gold)] mb-4 text-xs">Contacto</h4>
+              <h3 className="font-bold uppercase tracking-widest text-[var(--premium-gold)] mb-4 text-xs">Contacto</h3>
               <p className="mb-2">{template.brand.address}</p>
               <p className="mb-4">{content.footer.hours}</p>
               <div className="flex flex-wrap gap-4 pt-2">
-                <a href={template.brand.phoneHref} className="hover:text-[var(--text-primary)] transition-colors min-h-[44px] flex items-center">{template.brand.phone}</a>
+                <a href={template.brand.phoneHref} className="hover:text-[var(--text-primary)] rym-press min-h-[44px] flex items-center">{template.brand.phone}</a>
                 <a href={rymWhatsApp.getGeneralLink(template.brand)} target="_blank" rel="noreferrer" className="hover:text-[var(--premium-gold)] text-[var(--text-primary)] font-bold min-h-[44px] flex items-center">WhatsApp</a>
               </div>
             </div>
           </div>
-          <div className="max-w-7xl mx-auto text-center text-sm text-[var(--text-muted)] border-t border-[var(--border-subtle)] pt-8">
+          <div className="max-w-[77rem] mx-auto text-center text-sm text-[var(--text-muted)] border-t border-[var(--border-subtle)] pt-8">
             <p>Copyright © {new Date().getFullYear()} {template.brand.name}. Todos los derechos reservados.</p>
           </div>
         </footer>
@@ -619,7 +640,7 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
         {/* Mobile Bottom Contact Bar */}
         <AnimatePresence>
           {!isOverlayOpen && (
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "tween", duration: 0.3 }} className="lg:hidden fixed bottom-0 left-0 w-full z-[140] bg-[var(--surface-elevated)] border-t border-[var(--border-subtle)] shadow-[0_-4px_20px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }} className="lg:hidden fixed bottom-0 left-0 w-full z-[140] bg-[var(--surface-elevated)] border-t border-[var(--border-subtle)] shadow-[0_-4px_20px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
               <div className="flex h-[72px] divide-x divide-[var(--border-subtle)]">
                 <a href={template.brand.phoneHref} className="flex-1 flex flex-col items-center justify-center gap-1 text-[var(--text-primary)] active:bg-[var(--surface-soft)]">
                   <Phone className="w-5 h-5" />
@@ -645,10 +666,10 @@ export default function RymSite({ template }: { template: BusinessTemplate }) {
               <Dialog.Content {...lightboxFocus} forceMount asChild aria-describedby={undefined}>
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[300] bg-[var(--background-primary)]/95 backdrop-blur-md flex items-center justify-center p-0 md:p-4" onClick={() => setLightboxIdx(null)}>
                   <Dialog.Title className="sr-only">Galería de imágenes</Dialog.Title>
-                  <button onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }} className="absolute top-[env(safe-area-inset-top)] right-4 md:top-6 md:right-6 text-[var(--text-muted)] hover:text-[var(--text-primary)] z-10 p-2"><X className="w-8 h-8" /></button>
-                  <button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i! - 1 + GALLERY_IMGS.length) % GALLERY_IMGS.length); }} className="absolute left-2 md:left-6 text-[var(--text-muted)] hover:text-[var(--premium-gold)] z-10 p-2"><ChevronLeft className="w-10 h-10 md:w-12 md:h-12" /></button>
+                  <button aria-label="Cerrar" onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }} className="absolute top-[env(safe-area-inset-top)] right-4 md:top-6 md:right-6 text-[var(--text-muted)] hover:text-[var(--text-primary)] z-10 p-2"><X className="w-8 h-8" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i! - 1 + GALLERY_IMGS.length) % GALLERY_IMGS.length); }} aria-label="Imagen anterior" className="absolute left-2 md:left-6 text-[var(--text-muted)] hover:text-[var(--premium-gold)] z-10 p-2"><ChevronLeft className="w-10 h-10 md:w-12 md:h-12" /></button>
                   <img src={GALLERY_IMGS[lightboxIdx]} alt="" onClick={(e) => e.stopPropagation()} className="w-full max-h-[100dvh] object-contain md:max-w-5xl md:border border-[var(--border-subtle)] md:rounded-lg" />
-                  <button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i! + 1) % GALLERY_IMGS.length); }} className="absolute right-2 md:right-6 text-[var(--text-muted)] hover:text-[var(--premium-gold)] z-10 p-2"><ChevronRight className="w-10 h-10 md:w-12 md:h-12" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i! + 1) % GALLERY_IMGS.length); }} aria-label="Imagen siguiente" className="absolute right-2 md:right-6 text-[var(--text-muted)] hover:text-[var(--premium-gold)] z-10 p-2"><ChevronRight className="w-10 h-10 md:w-12 md:h-12" /></button>
                   <div className="absolute bottom-[env(safe-area-inset-bottom)] left-1/2 -translate-x-1/2 text-[var(--text-secondary)] text-sm font-bold tracking-widest mb-4">{lightboxIdx + 1} / {GALLERY_IMGS.length}</div>
                 </motion.div>
               </Dialog.Content>

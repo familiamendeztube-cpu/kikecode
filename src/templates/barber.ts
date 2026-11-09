@@ -86,7 +86,7 @@ const barber: BusinessTemplate = {
       },
       contact: {
         title: "Book Your Chair", blurb: "Tell us what you need and when. We'll confirm your spot fast.",
-        name: "Your name", phone: "Phone", service: "Service needed", message: "Preferred day & time",
+        name: "Your name", phone: "Phone", service: "Service needed", message: "Anything else we should know?",
         submit: "Request Appointment", success: "Thanks — we'll message you on WhatsApp to confirm your chair.",
         pick: "— Pick a service —",
         services: ["Haircut", "Fade / taper", "Beard trim", "Hot towel shave", "Kids cut"],
@@ -150,7 +150,7 @@ const barber: BusinessTemplate = {
       },
       contact: {
         title: "Reserve su Silla", blurb: "Díganos qué necesita y cuándo. Confirmamos su espacio rápido.",
-        name: "Su nombre", phone: "Teléfono", service: "Servicio necesario", message: "Día y hora preferidos",
+        name: "Su nombre", phone: "Teléfono", service: "Servicio necesario", message: "¿Algo más que debamos saber?",
         submit: "Solicitar Cita", success: "Gracias — le escribimos por WhatsApp para confirmar su silla.",
         pick: "— Elija un servicio —",
         services: ["Corte de cabello", "Fade / degradado", "Recorte de barba", "Afeitada con toalla caliente", "Corte de niño"],

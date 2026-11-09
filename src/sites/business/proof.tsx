@@ -1,12 +1,13 @@
 import { Phone, ShieldCheck, Check, Award, MessageSquareQuote } from "lucide-react";
 import { pick } from "@/lib/i18n";
-import { SectionHeader, SampleTag, isSampleContent, Eyebrow, type SiteProps } from "./ui";
+import { SectionHeader, SampleTag, isSampleContent, Eyebrow, PRESS, onColor, type SiteProps } from "./ui";
 import { OFFER_ICONS, TRUST_SIGNALS, resolveFacts } from "./data";
 
 /* STATS STRIP */
 export function StatsStrip({ template, p, lang }: SiteProps) {
+  // Only a template's own figures: the default words repeat the trust strip right below.
   const data = resolveFacts(template);
-  if (!data) return null;
+  if (!data || !template.facts?.stats) return null;
   return (
     <section className="bg-white border-b border-slate-200">
       {isSampleContent(template) && <div className="pt-4 text-center"><SampleTag lang={lang} /></div>}
@@ -55,11 +56,12 @@ export function Offers({ template, p, lang }: SiteProps) {
           title={pick(lang, "Everything you need", "Todo lo que necesita")}
           accent={p.primary}
         />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
+        {/* Four offers sit in one row of four; any other count in rows of three. */}
+        <div className={`grid sm:grid-cols-2 ${offers.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-5 mt-12`}>
           {offers.map((o) => {
             const Icon = OFFER_ICONS[o.icon] ?? Check;
             return (
-              <div key={o.title} className="rounded-2xl p-6 bg-white border border-slate-200 hover:shadow-lg transition-shadow flex gap-4">
+              <div key={o.title} className="rounded-2xl p-6 bg-white border border-slate-200 flex gap-4">
                 <div className="w-12 h-12 shrink-0 rounded-xl grid place-items-center" style={{ backgroundColor: `${p.primary}1A`, color: p.primary }}>
                   <Icon className="w-5 h-5" />
                 </div>
@@ -87,7 +89,7 @@ export function Guarantee({ template, brand, p, lang }: SiteProps) {
           <ShieldCheck className="w-8 h-8" />
         </div>
         <div className="flex-1">
-          <Eyebrow color={p.accent} className="mb-2">
+          <Eyebrow color={onColor(p.accent, [p.primaryDark, p.primary])} className="mb-2">
             {pick(lang, "Our promise", "Nuestra promesa")}
           </Eyebrow>
           {isSampleContent(template) && <SampleTag lang={lang} className="mb-2" />}
@@ -98,7 +100,7 @@ export function Guarantee({ template, brand, p, lang }: SiteProps) {
             {pick(lang, data.guaranteeEn.blurb, data.guaranteeEs.blurb)}
           </p>
         </div>
-        <a href={brand.phoneHref} className="shrink-0 inline-flex items-center gap-2 bg-white text-slate-900 font-bold px-5 py-3 rounded-xl shadow-md hover:opacity-90 transition-opacity">
+        <a href={brand.phoneHref} className={`shrink-0 inline-flex items-center gap-2 bg-white text-slate-900 font-bold px-5 py-3 rounded-xl shadow-md hover:opacity-90 ${PRESS}`}>
           <Phone className="w-4 h-4" /> {brand.phone}
         </a>
       </div>
@@ -141,10 +143,11 @@ export function Testimonials({ template, p, t, lang }: SiteProps) {
   );
 }
 
-/* CERTIFICATIONS */
+/* CERTIFICATIONS — only a template's own list: the default list repeats the
+   trust strip near the top of the page word for word. */
 export function Certifications({ template, p, lang }: SiteProps) {
   const data = resolveFacts(template);
-  if (!data) return null;
+  if (!data || !template.facts?.certsEn) return null;
   return (
     <section className="py-16 bg-white border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -159,7 +162,7 @@ export function Certifications({ template, p, lang }: SiteProps) {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {pick(lang, data.certsEn, data.certsEs).map((c) => (
-            <div key={c} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 flex flex-col items-center text-center gap-2 hover:bg-white hover:shadow-md transition-all">
+            <div key={c} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 flex flex-col items-center text-center gap-2">
               <Award className="w-5 h-5" style={{ color: p.primary }} />
               <span className="text-xs font-semibold text-slate-700 leading-snug">{c}</span>
             </div>

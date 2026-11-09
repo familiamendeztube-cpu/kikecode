@@ -15,7 +15,7 @@ const roofing: BusinessTemplate = {
     city: "Turrialba",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@summitlineroofing.com",
+    email: "hola@summitlineroofing.com",
     address: "Del parque central, 200 m sur y 75 m este, Turrialba, Cartago",
     heroIcon: Home,
     palette: {
@@ -166,9 +166,9 @@ const roofing: BusinessTemplate = {
     roleEn: "Roofing Advisor", roleEs: "Asesora de Techos",
   },
   media: {
-    hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    hero: `${assets}/gal1.jpg`,
+    gallery: [`${assets}/gal5.jpg`, `${assets}/gal2.jpg`, `${assets}/gal4.jpg`, `${assets}/gal3.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -185,8 +185,8 @@ const roofing: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["New clay tile roof", "Roof replacement in progress", "Glazed tile roof", "Moss-covered tile before cleaning", "Worn tile ready for repair", "Old roof ready for replacement"],
-    es: ["Techo nuevo de teja de barro", "Cambio de techo en proceso", "Techo de teja esmaltada", "Teja con musgo antes de limpiar", "Teja desgastada lista para reparar", "Techo viejo listo para cambiar"],
+    en: ["Worn tile ready for repair", "Roof replacement in progress", "Moss-covered tile before cleaning", "Glazed tile roof"],
+    es: ["Teja desgastada lista para reparar", "Cambio de techo en proceso", "Teja con musgo antes de limpiar", "Techo de teja esmaltada"],
   },
 };
 

@@ -23,7 +23,10 @@ export function useConsulta() {
     }
   });
   useEffect(() => {
-    localStorage.setItem("fenix_consulta", JSON.stringify(consulta));
+    // Private browsing or a full quota can throw; the list still works for this visit.
+    try {
+      localStorage.setItem("fenix_consulta", JSON.stringify(consulta));
+    } catch { /* not persisted */ }
   }, [consulta]);
   return [consulta, setConsulta] as const;
 }
@@ -143,25 +146,28 @@ export function FenixCatalog({
     <>
       {/* Mobile Bottom Nav */}
       <div className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--background-primary)] border-t border-[var(--border-subtle)] transition-transform duration-300 pb-[env(safe-area-inset-bottom)] ${isConsultaOpen || activeProduct || isMobileMenuOpen ? 'translate-y-[200%]' : 'translate-y-0'}`}>
-        <div className="flex justify-between items-center h-16 px-6">
-          <a href="#" className="flex flex-col items-center gap-1 text-[var(--text-muted)] hover:text-[var(--premium-gold)] w-1/4">
+        {/* No item is styled as current: the bar has no idea where on the page the visitor is. */}
+        <div className="flex justify-between items-stretch h-16 px-2">
+          <a href="#" className="flex flex-col items-center justify-center gap-1 text-[var(--text-secondary)] hover:text-[var(--premium-gold)] w-1/4">
             <Home className="w-5 h-5" />
             <span className="text-[10px] uppercase font-bold tracking-wider">Inicio</span>
           </a>
-          <a href="#productos" className="flex flex-col items-center gap-1 text-[var(--text-primary)] hover:text-[var(--premium-gold)] w-1/4">
+          <a href="#productos" className="flex flex-col items-center justify-center gap-1 text-[var(--text-secondary)] hover:text-[var(--premium-gold)] w-1/4">
             <Grid className="w-5 h-5" />
             <span className="text-[10px] uppercase font-bold tracking-wider">Catálogo</span>
           </a>
-          <button onClick={() => setIsConsultaOpen(true)} className="relative flex flex-col items-center gap-1 text-[var(--text-muted)] hover:text-[var(--premium-gold)] w-1/4">
-            <MessageCircle className="w-5 h-5" />
+          <button onClick={() => setIsConsultaOpen(true)} className="flex flex-col items-center justify-center gap-1 text-[var(--text-secondary)] hover:text-[var(--premium-gold)] w-1/4">
+            <span className="relative">
+              <MessageCircle className="w-5 h-5" />
+              {consulta.length > 0 && (
+                <span className="absolute -top-1.5 -right-2.5 bg-[var(--premium-gold)] text-black text-[10px] font-bold min-w-4 h-4 px-1 flex items-center justify-center rounded-full">
+                  {consulta.length}
+                </span>
+              )}
+            </span>
             <span className="text-[10px] uppercase font-bold tracking-wider">Consulta</span>
-            {consulta.length > 0 && (
-              <span className="absolute -top-2 ml-4 bg-[var(--premium-gold)] text-black text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
-                {consulta.length}
-              </span>
-            )}
           </button>
-          <a href={whatsappLink(brand)} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1 text-[var(--text-muted)] hover:text-[var(--premium-gold)] w-1/4">
+          <a href={whatsappLink(brand)} target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center gap-1 text-[var(--text-secondary)] hover:text-[var(--premium-gold)] w-1/4">
             <Phone className="w-5 h-5" />
             <span className="text-[10px] uppercase font-bold tracking-wider">WhatsApp</span>
           </a>
@@ -178,14 +184,16 @@ export function FenixCatalog({
               placeholder="Buscar productos..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-[var(--surface-primary)] border border-[var(--border-subtle)] text-[var(--text-primary)] pl-12 pr-4 py-3 md:py-3 text-sm focus:outline-none focus:border-[var(--premium-gold)] transition-colors rounded-none"
+              aria-label="Buscar productos"
+              className="w-full bg-[var(--surface-primary)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] pl-12 pr-4 py-3 text-base md:text-sm focus:outline-none focus:border-[var(--premium-gold)] transition-colors rounded-none"
             />
           </div>
-          
+
           <div className="flex gap-2 w-full md:w-auto">
-            <button 
-              className="md:hidden flex-1 bg-[var(--surface-primary)] border border-[var(--border-subtle)] text-[var(--text-primary)] px-4 py-3 text-sm font-bold uppercase flex items-center justify-center gap-2"
+            <button
+              className="fx-press md:hidden flex-1 bg-[var(--surface-primary)] border border-[var(--border-subtle)] text-[var(--text-primary)] px-4 py-3 text-sm font-bold uppercase flex items-center justify-center gap-2"
               onClick={() => setShowFilters(!showFilters)}
+              aria-expanded={showFilters}
             >
               <Filter className="w-4 h-4" /> Filtros
             </button>
@@ -195,7 +203,8 @@ export function FenixCatalog({
             <select 
               value={selectedCategory} 
               onChange={e => setSelectedCategory(e.target.value as FenixCategory | "all")}
-              className="bg-[var(--surface-primary)] border border-[var(--border-subtle)] text-[var(--text-primary)] px-4 py-3 md:py-3 text-sm focus:outline-none focus:border-[var(--premium-gold)] rounded-none"
+              aria-label="Categoría"
+              className="bg-[var(--surface-primary)] border border-[var(--border-subtle)] text-[var(--text-primary)] px-4 py-3 text-base md:text-sm focus:outline-none focus:border-[var(--premium-gold)] rounded-none"
             >
               <option value="all">Todas las Categorías</option>
               <option value="maquinas">Máquinas</option>
@@ -208,7 +217,8 @@ export function FenixCatalog({
             <select 
               value={selectedBrand} 
               onChange={e => setSelectedBrand(e.target.value)}
-              className="bg-[var(--surface-primary)] border border-[var(--border-subtle)] text-[var(--text-primary)] px-4 py-3 md:py-3 text-sm focus:outline-none focus:border-[var(--premium-gold)] rounded-none"
+              aria-label="Marca"
+              className="bg-[var(--surface-primary)] border border-[var(--border-subtle)] text-[var(--text-primary)] px-4 py-3 text-base md:text-sm focus:outline-none focus:border-[var(--premium-gold)] rounded-none"
             >
               <option value="all">Todas las Marcas</option>
               {brands.map(b => <option key={b} value={b}>{b}</option>)}
@@ -220,8 +230,9 @@ export function FenixCatalog({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {filteredProducts.map(product => (
             <div key={product.id} className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-gold)] transition-colors group flex flex-col rounded-md overflow-hidden">
-              <div className="relative aspect-[4/3] bg-[var(--background-secondary)] p-4 flex items-center justify-center overflow-hidden border-b border-[var(--border-subtle)]">
-                <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+              {/* Most product photos are square: they fill the frame instead of floating as a small white tile. */}
+              <div className="relative aspect-square bg-[var(--background-secondary)] overflow-hidden border-b border-[var(--border-subtle)]">
+                <img src={product.image} alt={product.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-out" />
               </div>
               <div className="p-4 md:p-5 flex flex-col flex-grow">
                 <div className="text-[var(--premium-gold)] text-[10px] font-bold uppercase tracking-widest mb-1">{product.brand}</div>
@@ -237,20 +248,20 @@ export function FenixCatalog({
                 <div className="flex flex-col gap-2 mt-auto">
                   <button 
                     onClick={() => addToConsulta(product, 1)}
-                    className="w-full bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black py-2.5 text-[11px] font-bold uppercase tracking-wider transition-colors rounded-sm"
+                    className="fx-press w-full min-h-11 md:min-h-10 bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black text-[11px] font-bold uppercase tracking-wider rounded-sm"
                   >
                     Agregar a mi consulta
                   </button>
                   <div className="flex gap-2 items-center justify-between">
-                    <a 
+                    <a
                       href={`#producto/${product.id}`}
-                      className="text-[11px] text-[var(--text-secondary)] hover:text-[var(--premium-gold)] uppercase font-bold tracking-wider px-1"
+                      className="min-h-11 md:min-h-9 inline-flex items-center text-[11px] text-[var(--text-secondary)] hover:text-[var(--premium-gold)] transition-colors uppercase font-bold tracking-wider px-1"
                     >
                       Ver detalles
                     </a>
-                    <button 
+                    <button
                       onClick={() => sendSingleWhatsApp(product, 1)}
-                      className="bg-[var(--surface-primary)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-[11px] py-2 px-3 uppercase font-bold tracking-wider transition-colors rounded-sm flex items-center gap-1"
+                      className="fx-press min-h-11 md:min-h-9 bg-[var(--surface-primary)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-[11px] px-3 uppercase font-bold tracking-wider rounded-sm flex items-center gap-1"
                     >
                       <Phone className="w-3 h-3" /> WhatsApp
                     </button>
@@ -273,11 +284,12 @@ export function FenixCatalog({
           <Dialog.Content
             {...productFocus}
             aria-describedby={undefined}
-            className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-6"
+            className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-6 animate-in fade-in-0 duration-200 ease-out"
           >
-            <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] max-w-4xl w-full max-h-[90vh] overflow-y-auto grid grid-cols-1 md:grid-cols-2 rounded-md">
+            {/* Modals stay centred, so the scale-in has no trigger origin. */}
+            <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] max-w-4xl w-full max-h-[90vh] overflow-y-auto grid grid-cols-1 md:grid-cols-2 rounded-md animate-in fade-in-0 motion-safe:zoom-in-95 duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]">
               <div className="relative bg-[var(--background-secondary)] aspect-[4/3] md:aspect-auto flex items-center justify-center p-8 border-b md:border-b-0 md:border-r border-[var(--border-subtle)]">
-                <button onClick={closeProductModal} aria-label="Cerrar detalles" className="absolute top-4 right-4 md:left-4 md:right-auto text-[var(--text-secondary)] hover:text-white z-10 p-2 bg-black/40 rounded-full md:bg-transparent md:p-0">
+                <button onClick={closeProductModal} aria-label="Cerrar detalles" className="fx-press absolute top-3 right-3 md:left-3 md:right-auto text-[var(--text-secondary)] hover:text-white z-10 p-2.5 bg-black/40 rounded-full">
                   <X className="w-6 h-6" />
                 </button>
                 <img src={activeProduct.image} alt={activeProduct.name} className="max-w-full max-h-full object-contain" />
@@ -304,7 +316,8 @@ export function FenixCatalog({
                         <button 
                           key={v}
                           onClick={() => setSelectedVariation(v)}
-                          className={`px-3 py-1.5 border ${selectedVariation === v ? 'border-[var(--premium-gold)] text-[var(--premium-gold)]' : 'border-[var(--border-subtle)] text-[var(--text-secondary)]'} text-xs font-bold uppercase transition-colors rounded-sm`}
+                          aria-pressed={selectedVariation === v}
+                          className={`fx-press min-h-10 px-3 border ${selectedVariation === v ? 'border-[var(--premium-gold)] text-[var(--premium-gold)]' : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white'} text-xs font-bold uppercase rounded-sm`}
                         >
                           {v}
                         </button>
@@ -317,21 +330,21 @@ export function FenixCatalog({
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-bold">Cantidad</div>
                     <div className="flex border border-[var(--border-subtle)] rounded-sm overflow-hidden">
-                      <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-1.5 bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:text-white">-</button>
-                      <div className="px-4 py-1.5 bg-[var(--background-secondary)] text-[var(--text-primary)] font-bold min-w-[2.5rem] text-center text-sm">{quantity}</div>
-                      <button onClick={() => setQuantity(quantity + 1)} className="px-3 py-1.5 bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:text-white">+</button>
+                      <button onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label="Disminuir cantidad" className="w-11 h-11 bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:text-white transition-colors">-</button>
+                      <div aria-live="polite" className="px-4 flex items-center bg-[var(--background-secondary)] text-[var(--text-primary)] font-bold min-w-[2.75rem] justify-center text-sm tabular-nums">{quantity}</div>
+                      <button onClick={() => setQuantity(quantity + 1)} aria-label="Aumentar cantidad" className="w-11 h-11 bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:text-white transition-colors">+</button>
                     </div>
                   </div>
                 
                   <button 
                     onClick={() => addToConsulta(activeProduct, quantity, selectedVariation)}
-                    className="w-full bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black py-3 text-xs md:text-sm font-bold uppercase tracking-wider transition-colors rounded-sm"
+                    className="fx-press w-full bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black py-3.5 text-xs md:text-sm font-bold uppercase tracking-wider rounded-sm"
                   >
                     Agregar a mi consulta
                   </button>
-                  <button 
+                  <button
                     onClick={() => sendSingleWhatsApp(activeProduct, quantity, selectedVariation)}
-                    className="w-full bg-transparent border border-[var(--border-subtle)] hover:bg-[var(--surface-primary)] text-[var(--text-primary)] py-3 text-xs md:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors rounded-sm"
+                    className="fx-press w-full bg-transparent border border-[var(--border-subtle)] hover:bg-[var(--surface-primary)] text-[var(--text-primary)] py-3.5 text-xs md:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 rounded-sm"
                   >
                     <Phone className="w-4 h-4" />
                     Consultar por WhatsApp
@@ -348,16 +361,17 @@ export function FenixCatalog({
         <Dialog.Content
           {...consultaFocus}
           aria-describedby={undefined}
-          className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex justify-end"
+          // Radix waits for this element's exit animation before unmounting; the panel slides on the same clock.
+          className="group fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex justify-end data-[state=open]:animate-in data-[state=closed]:animate-out fade-in-0 fade-out-0 duration-300 data-[state=closed]:duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]"
         >
-          <div className="w-full max-w-md bg-[var(--surface-elevated)] h-full shadow-2xl flex flex-col border-l border-[var(--border-subtle)]">
+          <div className="w-full max-w-md bg-[var(--surface-elevated)] h-full shadow-2xl flex flex-col border-l border-[var(--border-subtle)] group-data-[state=open]:animate-in group-data-[state=closed]:animate-out motion-safe:slide-in-from-right motion-safe:slide-out-to-right duration-300 group-data-[state=closed]:duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]">
             <div className="p-5 md:p-6 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--surface-primary)]">
               <Dialog.Title className="text-lg md:text-xl font-display font-bold uppercase flex items-center gap-3">
                 <MessageCircle className="text-[var(--premium-gold)] w-5 h-5 md:w-6 md:h-6" />
                 Mi Consulta
                 <span className="bg-[var(--premium-gold)] text-black text-[10px] px-2 py-0.5 rounded-full font-bold">{consulta.length}</span>
               </Dialog.Title>
-              <button onClick={() => setIsConsultaOpen(false)} aria-label="Cerrar Mi Consulta" className="text-[var(--text-secondary)] hover:text-white">
+              <button onClick={() => setIsConsultaOpen(false)} aria-label="Cerrar Mi Consulta" className="fx-press p-2.5 -m-2.5 text-[var(--text-secondary)] hover:text-white">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -380,11 +394,11 @@ export function FenixCatalog({
                       </div>
                       <div className="flex justify-between items-end mt-2">
                         <div className="flex items-center border border-[var(--border-subtle)] rounded-sm overflow-hidden bg-[var(--surface-primary)]">
-                          <button onClick={() => updateConsultaQuantity(i, -1)} className="px-2 py-0.5 text-[var(--text-secondary)] hover:text-white" aria-label="Disminuir cantidad">-</button>
-                          <div className="px-2 text-[var(--text-primary)] font-bold text-xs min-w-[1.5rem] text-center">{item.quantity}</div>
-                          <button onClick={() => updateConsultaQuantity(i, 1)} className="px-2 py-0.5 text-[var(--text-secondary)] hover:text-white" aria-label="Aumentar cantidad">+</button>
+                          <button onClick={() => updateConsultaQuantity(i, -1)} className="w-10 h-10 text-[var(--text-secondary)] hover:text-white transition-colors" aria-label="Disminuir cantidad">-</button>
+                          <div className="px-2 text-[var(--text-primary)] font-bold text-xs min-w-[1.75rem] text-center tabular-nums">{item.quantity}</div>
+                          <button onClick={() => updateConsultaQuantity(i, 1)} className="w-10 h-10 text-[var(--text-secondary)] hover:text-white transition-colors" aria-label="Aumentar cantidad">+</button>
                         </div>
-                        <button onClick={() => removeFromConsulta(i)} className="text-red-400 text-[10px] uppercase font-bold hover:underline tracking-wider">Quitar</button>
+                        <button onClick={() => removeFromConsulta(i)} className="min-h-10 px-2 -mr-2 text-red-400 text-[10px] uppercase font-bold hover:underline tracking-wider">Quitar</button>
                       </div>
                     </div>
                   </div>
@@ -400,7 +414,7 @@ export function FenixCatalog({
               <button 
                 onClick={sendMultiWhatsApp}
                 disabled={consulta.length === 0}
-                className="w-full bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] disabled:opacity-50 disabled:hover:bg-[var(--premium-gold)] text-black py-3.5 text-xs md:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors rounded-sm"
+                className="fx-press w-full bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] disabled:opacity-50 disabled:hover:bg-[var(--premium-gold)] text-black py-3.5 text-xs md:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 rounded-sm"
               >
                 <Phone className="w-4 h-4" />
                 Enviar por WhatsApp

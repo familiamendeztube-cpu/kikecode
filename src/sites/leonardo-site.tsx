@@ -96,17 +96,18 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ["start start", "end end"] });
   
-  const roomScale = useTransform(heroProgress, [0, 0.4, 1], [1, 4, 4]);
-  const roomZ = useTransform(heroProgress, [0, 0.4, 1], [0, 800, 800]);
-  const roomOpacity = useTransform(heroProgress, [0, 0.35, 0.4, 1], [1, 1, 0, 0]);
-  
-  const centerOpacity = useTransform(heroProgress, [0, 0.85, 1], [1, 1, 0.4]);
-  const centerScale = useTransform(heroProgress, [0, 0.4, 1], [1, 0.85, 0.85]);
+  // The dolly runs over the whole (short) scroll track, so no screen of it is dead.
+  const roomScale = useTransform(heroProgress, [0, 1], [1, 4]);
+  const roomZ = useTransform(heroProgress, [0, 1], [0, 800]);
+  const roomOpacity = useTransform(heroProgress, [0, 0.875, 1], [1, 1, 0]);
 
-  const ceilingY = useTransform(heroProgress, [0, 0.4, 1], [0, -200, -200]);
-  const floorY = useTransform(heroProgress, [0, 0.4, 1], [0, 200, 200]);
-  const leftX = useTransform(heroProgress, [0, 0.4, 1], [0, -300, -300]);
-  const rightX = useTransform(heroProgress, [0, 0.4, 1], [0, 300, 300]);
+  const centerOpacity = useTransform(heroProgress, [0, 0.85, 1], [1, 1, 0.4]);
+  const centerScale = useTransform(heroProgress, [0, 1], [1, 0.85]);
+
+  const ceilingY = useTransform(heroProgress, [0, 1], [0, -200]);
+  const floorY = useTransform(heroProgress, [0, 1], [0, 200]);
+  const leftX = useTransform(heroProgress, [0, 1], [0, -300]);
+  const rightX = useTransform(heroProgress, [0, 1], [0, 300]);
 
   // Mouse Parallax
   const mouseX = useSpring(0, { stiffness: 400, damping: 40 });
@@ -175,7 +176,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
     : DEFAULT_SHOWCASE_IMAGES;
 
   return (
-    <div className="min-h-screen bg-[#000000] text-[#ffffff] overflow-x-clip">
+    <div className="min-h-screen bg-[#000000] text-[#ffffff] overflow-x-clip" style={{ fontFamily: "Inter, sans-serif" }}>
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-[#e5e5e5]/10">
         <div className="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
@@ -209,7 +210,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
           <div className="flex items-center gap-3">
             <motion.button
               onClick={() => setLang(lang === "en" ? "es" : "en")}
-              className="px-5 py-2 rounded-full border border-[#e5e5e5] text-[14px] text-[#ffffff] hover:border-[#ffffff] transition-colors"
+              className="h-11 px-5 rounded-full border border-[#e5e5e5] text-[14px] text-[#ffffff] hover:border-[#ffffff] transition-colors"
               style={{ fontFamily: "Inter, sans-serif", fontWeight: 500 }}
               whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
               whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
@@ -219,7 +220,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
             </motion.button>
             <motion.a
               href="#contact"
-              className="px-7 py-2.5 rounded-full bg-[#ffffff] text-[#0a0a0a] text-[14px] font-medium hover:bg-[#ffffff] transition-colors inline-block"
+              className="h-11 px-7 rounded-full bg-[#ffffff] text-[#0a0a0a] text-[14px] font-medium inline-flex items-center"
               style={{ fontFamily: "Inter, sans-serif", fontWeight: 500 }}
               whileHover={prefersReducedMotion ? undefined : { scale: 1.04 }}
               whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
@@ -234,7 +235,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
       {/* 1. Hero — Sculptural 3D Dolly */}
       <section 
         ref={heroRef} 
-        className="relative h-[300vh] bg-[#000000]"
+        className={`relative bg-[#000000] ${prefersReducedMotion ? "h-screen" : "h-[180vh]"}`}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -289,7 +290,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
               {/* Left wall word */}
               <motion.div
                 style={{ x: prefersReducedMotion ? 0 : leftX }}
-                className="absolute left-[-15%] top-1/2 -translate-y-1/2 text-[#6e60ee] pointer-events-none select-none"
+                className="hidden md:block absolute left-[-15%] top-1/2 -translate-y-1/2 text-[#6e60ee] pointer-events-none select-none"
               >
                 <div
                   className="whitespace-nowrap"
@@ -309,7 +310,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
               {/* Right wall word */}
               <motion.div
                 style={{ x: prefersReducedMotion ? 0 : rightX }}
-                className="absolute right-[-15%] top-1/2 -translate-y-1/2 text-[#6e60ee] pointer-events-none select-none"
+                className="hidden md:block absolute right-[-15%] top-1/2 -translate-y-1/2 text-[#6e60ee] pointer-events-none select-none"
               >
                 <div
                   className="whitespace-nowrap"
@@ -422,17 +423,15 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
       <Giant3DStats lang={lang} prefersReducedMotion={prefersReducedMotion} />
 
       {/* 4. Built for Makers */}
-      <BuiltForMakers lang={lang} prefersReducedMotion={prefersReducedMotion} />
+      <BuiltForMakers lang={lang} />
 
       {/* 5. Prompt-Card Gallery Grid */}
       <section id="work" className="max-w-[1440px] mx-auto px-6 py-20 relative z-20 bg-[#000000]">
         <div className="mb-12 border-t border-[#e5e5e5]/10 pt-20">
-          <ParallaxHeading prefersReducedMotion={prefersReducedMotion}>
-            {LABELS.gallery[lang]}
-          </ParallaxHeading>
+          <SectionHeader title={LABELS.gallery[lang]} />
 
           {/* Pill Filter Tabs */}
-          <div className="flex items-center justify-center gap-6 flex-wrap mb-12">
+          <div className="flex items-center justify-center gap-x-4 gap-y-3 flex-wrap mt-10 mb-12">
             {(["all", "branding", "web", "content"] as GalleryCategory[]).map((filter) => (
               <motion.button
                 key={filter}
@@ -453,8 +452,8 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
           </div>
         </div>
 
-        {/* Tight 3-column grid with AnimatePresence for filter transitions */}
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Four columns on desktop so the default eight works fill two whole rows. */}
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           <AnimatePresence mode="popLayout">
             {filteredGallery.map((item, i) => (
               <PromptCard
@@ -470,15 +469,15 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
       </section>
 
       {/* 6. Color Card Carousel */}
-      <ColorCardCarousel content={content} prefersReducedMotion={prefersReducedMotion} />
+      <ColorCardCarousel content={content} />
 
       {/* 7. Artist Stories Band */}
       <ArtistStoriesBand lang={lang} prefersReducedMotion={prefersReducedMotion} />
 
       {/* 8. Testimonials */}
       <section id="clients" className="max-w-[1440px] mx-auto px-6 py-24 relative z-20 bg-[#000000]">
-        <SectionHeader title={content.testimonials.title} prefersReducedMotion={prefersReducedMotion} />
-        {isSampleContent(template) && <div className="mt-6"><SampleTag lang={lang} /></div>}
+        <SectionHeader title={content.testimonials.title} />
+        {isSampleContent(template) && <div className="mt-6 flex justify-center"><SampleTag lang={lang} /></div>}
         <div className="grid md:grid-cols-3 gap-6 mt-12">
           {content.testimonials.items.map((item, i) => (
             <TestimonialCard key={i} item={item} index={i} prefersReducedMotion={prefersReducedMotion} />
@@ -488,7 +487,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
 
       {/* 9. FAQ */}
       <section id="faq" className="max-w-[1440px] mx-auto px-6 py-24 relative z-20 bg-[#000000]">
-        <SectionHeader title={content.faq.title} prefersReducedMotion={prefersReducedMotion} />
+        <SectionHeader title={content.faq.title} />
         <div className="max-w-3xl mx-auto mt-12 space-y-6">
           {content.faq.items.map((item, i) => (
             <FaqItem key={i} item={item} index={i} prefersReducedMotion={prefersReducedMotion} />
@@ -499,7 +498,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
       {/* 10. Contact Form */}
       <section id="contact" className="max-w-[1440px] mx-auto px-6 py-24 relative z-20 bg-[#000000]">
         <div className="max-w-2xl mx-auto">
-          <SectionHeader title={content.contact.title} blurb={content.contact.blurb} prefersReducedMotion={prefersReducedMotion} />
+          <SectionHeader title={content.contact.title} blurb={content.contact.blurb} />
           <form onSubmit={handleSubmit} className="mt-12 space-y-6">
             <div>
               <label htmlFor="contact-name" className="sr-only">
@@ -613,8 +612,8 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
                 {pick(lang, "Contact", "Contacto")}
               </h4>
               <div className="space-y-2 text-[14px] text-[#999999]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
-                <p>{template.brand.phone}</p>
-                <p>{template.brand.email}</p>
+                <a href={template.brand.phoneHref} className="block hover:text-[#ffffff] transition-colors">{template.brand.phone}</a>
+                <a href={`mailto:${template.brand.email}`} className="block hover:text-[#ffffff] transition-colors">{template.brand.email}</a>
                 <p>{template.brand.address}</p>
               </div>
             </div>
@@ -671,30 +670,31 @@ function FeatureShowcase({ content, lang, showcaseImages, prefersReducedMotion }
   const slides = LABELS.showcase[lang];
   const items = content.services.items;
 
-  // Background Img Opacities
-  const img1Op = useTransform(scrollYProgress, [0, 0.3, 0.4, 1], [1, 1, 0, 0]);
-  const img2Op = useTransform(scrollYProgress, [0, 0.3, 0.4, 0.55, 0.65, 1], [0, 0, 1, 1, 0, 0]);
-  const img3Op = useTransform(scrollYProgress, [0, 0.6, 0.7, 1], [0, 0, 1, 1]);
+  // Background Img Opacities: each crossfade sits inside the short gap between
+  // two slides' copy, so no stretch of scroll shows a blended image with no text.
+  const img1Op = useTransform(scrollYProgress, [0, 0.31, 0.35, 1], [1, 1, 0, 0]);
+  const img2Op = useTransform(scrollYProgress, [0, 0.31, 0.35, 0.62, 0.66, 1], [0, 0, 1, 1, 0, 0]);
+  const img3Op = useTransform(scrollYProgress, [0, 0.62, 0.66, 1], [0, 0, 1, 1]);
 
   // Background Img Scales (Ken Burns)
-  const img1Scale = useTransform(scrollYProgress, [0, 0.4, 1], [1, 1.1, 1.1]);
-  const img2Scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [1, 1, 1.1, 1.1]);
-  const img3Scale = useTransform(scrollYProgress, [0, 0.6, 1], [1, 1, 1.1]);
+  const img1Scale = useTransform(scrollYProgress, [0, 0.35, 1], [1, 1.1, 1.1]);
+  const img2Scale = useTransform(scrollYProgress, [0, 0.31, 0.66, 1], [1, 1, 1.1, 1.1]);
+  const img3Scale = useTransform(scrollYProgress, [0, 0.62, 1], [1, 1, 1.1]);
 
   // Text Y sliding
-  const t1Y = useTransform(scrollYProgress, [0, 0.25, 0.30, 1], [0, 0, -100, -100]);
-  const t2Y = useTransform(scrollYProgress, [0, 0.38, 0.43, 0.55, 0.60, 1], [100, 100, 0, 0, -100, -100]);
-  const t3Y = useTransform(scrollYProgress, [0, 0.68, 0.73, 0.92, 0.97, 1], [100, 100, 0, 0, -100, -100]);
+  const t1Y = useTransform(scrollYProgress, [0, 0.27, 0.31, 1], [0, 0, -100, -100]);
+  const t2Y = useTransform(scrollYProgress, [0, 0.35, 0.39, 0.58, 0.62, 1], [100, 100, 0, 0, -100, -100]);
+  const t3Y = useTransform(scrollYProgress, [0, 0.66, 0.70, 0.92, 0.97, 1], [100, 100, 0, 0, -100, -100]);
 
   // Text Opacities
-  const t1Op = useTransform(scrollYProgress, [0, 0.25, 0.30, 1], [1, 1, 0, 0]);
-  const t2Op = useTransform(scrollYProgress, [0, 0.38, 0.43, 0.55, 0.60, 1], [0, 0, 1, 1, 0, 0]);
-  const t3Op = useTransform(scrollYProgress, [0, 0.68, 0.73, 0.92, 0.97, 1], [0, 0, 1, 1, 0, 0]);
+  const t1Op = useTransform(scrollYProgress, [0, 0.27, 0.31, 1], [1, 1, 0, 0]);
+  const t2Op = useTransform(scrollYProgress, [0, 0.35, 0.39, 0.58, 0.62, 1], [0, 0, 1, 1, 0, 0]);
+  const t3Op = useTransform(scrollYProgress, [0, 0.66, 0.70, 0.92, 0.97, 1], [0, 0, 1, 1, 0, 0]);
 
   // Pointer events mapping to only be "auto" when text is visible
-  const t1Pointer = useTransform(scrollYProgress, (p) => p < 0.28 ? "auto" : "none");
-  const t2Pointer = useTransform(scrollYProgress, (p) => p >= 0.38 && p <= 0.60 ? "auto" : "none");
-  const t3Pointer = useTransform(scrollYProgress, (p) => p >= 0.68 && p <= 0.97 ? "auto" : "none");
+  const t1Pointer = useTransform(scrollYProgress, (p) => p < 0.29 ? "auto" : "none");
+  const t2Pointer = useTransform(scrollYProgress, (p) => p >= 0.37 && p <= 0.60 ? "auto" : "none");
+  const t3Pointer = useTransform(scrollYProgress, (p) => p >= 0.68 && p <= 0.95 ? "auto" : "none");
 
   const imgOps = [img1Op, img2Op, img3Op];
   const imgScales = [img1Scale, img2Scale, img3Scale];
@@ -797,7 +797,7 @@ function FeatureShowcase({ content, lang, showcaseImages, prefersReducedMotion }
                 </motion.a>
                 <motion.a
                   href="#work"
-                  className="px-8 py-3 rounded-full border border-[#e5e5e5] text-[#ffffff] text-[16px] inline-block font-medium hover:border-[#ffffff]/20 transition-colors"
+                  className="px-8 py-3 rounded-full border border-[#e5e5e5] text-[#ffffff] text-[16px] inline-block font-medium hover:border-[#ffffff] transition-colors"
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -815,22 +815,23 @@ function FeatureShowcase({ content, lang, showcaseImages, prefersReducedMotion }
 
 function Giant3DStats({ lang, prefersReducedMotion }: { lang: "en" | "es", prefersReducedMotion: boolean | null }) {
   const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  
-  const rotateX = useTransform(scrollYProgress, [0.5, 1], [0, 60]);
-  const y = useTransform(scrollYProgress, [0.5, 1], [0, -800]);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+
+  // Tilts as it passes through the screen, without pinning: a pinned stage
+  // that flew the words away left a blank black screen behind it, and pulling
+  // the section up over the showcase laid these words on the last slide's copy.
+  const rotateX = useTransform(scrollYProgress, [0, 0.5, 1], [-25, 0, 35]);
 
   const words = LABELS.stats[lang];
 
   return (
-    <section ref={ref} id="studio" className="relative h-[200vh] z-30 -mt-[50vh] pointer-events-none">
-      <div className="sticky top-0 h-[100vh] w-full flex items-center justify-center overflow-hidden" style={{ perspective: "1200px" }}>
-        <motion.div 
+    <section ref={ref} id="studio" className="relative z-30 py-24 md:py-32 overflow-hidden pointer-events-none">
+      <div className="w-full flex items-center justify-center" style={{ perspective: "1200px" }}>
+        <motion.div
           className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-32 w-full max-w-[1440px] px-6"
-          style={{ 
-            rotateX: prefersReducedMotion ? 0 : rotateX, 
-            y: prefersReducedMotion ? 0 : y, 
-            transformStyle: "preserve-3d" 
+          style={{
+            rotateX: prefersReducedMotion ? 0 : rotateX,
+            transformStyle: "preserve-3d"
           }}
         >
           {/* Left Stat */}
@@ -838,7 +839,7 @@ function Giant3DStats({ lang, prefersReducedMotion }: { lang: "en" | "es", prefe
             className="flex-1 text-[#33d0ff] text-center md:text-right"
             style={{ transform: "rotateY(25deg)", transformOrigin: "right center" }}
           >
-            <div className="text-[clamp(60px,8vw,120px)] font-black leading-[0.8] tracking-tight" style={{ fontFamily: "Inter, sans-serif" }}>
+            <div className="text-[clamp(52px,7vw,104px)] font-black leading-[0.8] tracking-tight" style={{ fontFamily: "Inter, sans-serif" }}>
               {words.left.split(' ').map((word, i) => <div key={i}>{word}</div>)}
             </div>
           </div>
@@ -848,7 +849,7 @@ function Giant3DStats({ lang, prefersReducedMotion }: { lang: "en" | "es", prefe
             className="flex-1 text-[#03e65b] text-center md:text-left"
             style={{ transform: "rotateY(-25deg)", transformOrigin: "left center" }}
           >
-            <div className="text-[clamp(60px,8vw,120px)] font-black leading-[0.8] tracking-tight" style={{ fontFamily: "Inter, sans-serif" }}>
+            <div className="text-[clamp(52px,7vw,104px)] font-black leading-[0.8] tracking-tight" style={{ fontFamily: "Inter, sans-serif" }}>
               {words.right.split(' ').map((word, i) => <div key={i}>{word}</div>)}
             </div>
           </div>
@@ -858,56 +859,42 @@ function Giant3DStats({ lang, prefersReducedMotion }: { lang: "en" | "es", prefe
   );
 }
 
-function BuiltForMakers({ lang, prefersReducedMotion }: { lang: "en" | "es", prefersReducedMotion: boolean | null }) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [100, -100]);
-
+function BuiltForMakers({ lang }: { lang: "en" | "es" }) {
   const words = LABELS.makers[lang];
   return (
-    <section className="py-32 md:py-48 bg-[#000000] overflow-hidden relative z-20">
-      <motion.div ref={ref} style={{ y }} className="max-w-[1440px] mx-auto px-6 flex flex-wrap gap-x-6 gap-y-4 justify-center items-center">
+    <section className="py-20 md:py-28 bg-[#000000] overflow-hidden relative z-20">
+      <div className="max-w-[1440px] mx-auto px-6 flex flex-wrap gap-x-6 gap-y-4 justify-center items-center">
         <span className="text-[clamp(50px,12vw,165px)] font-black text-[#ffffff] leading-[0.8] tracking-tight" style={{ fontFamily: "Inter, sans-serif" }}>{words[0]}</span>
         <div className="w-[clamp(40px,8vw,80px)] h-[clamp(40px,8vw,80px)] rounded-full bg-[#6e60ee]" />
         <span className="text-[clamp(50px,12vw,165px)] font-black text-[#ffffff] leading-[0.8] tracking-tight" style={{ fontFamily: "Inter, sans-serif" }}>{words[1]}</span>
         <div className="w-[clamp(40px,8vw,80px)] h-[clamp(40px,8vw,80px)] bg-[#03e65b]" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
         <span className="text-[clamp(50px,12vw,165px)] font-black text-[#ffffff] leading-[0.8] tracking-tight" style={{ fontFamily: "Inter, sans-serif" }}>{words[2]}</span>
-      </motion.div>
+      </div>
     </section>
   );
 }
 
-function ColorCardCarousel({ content, prefersReducedMotion }: { content: any, prefersReducedMotion: boolean | null }) {
+function ColorCardCarousel({ content }: { content: any }) {
   const colors = ["#03e65b", "#ffc533", "#ff3386", "#33d0ff"];
-  
+
   return (
-    <section id="process" className="py-24 bg-[#000000] relative z-20 overflow-hidden">
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-      <div className="max-w-[1440px] mx-auto px-6 mb-16 text-center">
-        <ParallaxHeading prefersReducedMotion={prefersReducedMotion}>
-          {content.process.title}
-        </ParallaxHeading>
+    <section id="process" className="py-24 bg-[#000000] relative z-20">
+      <div className="max-w-[1440px] mx-auto px-6 mb-16">
+        <SectionHeader title={content.process.title} />
       </div>
+      {/* A plain grid: a hidden-scrollbar carousel hid the last steps from mouse users. */}
       <div className="max-w-[1440px] mx-auto px-6">
-        <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-12 hide-scrollbar">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {content.process.items.map((item: any, i: number) => (
-            <div 
-              key={i} 
-              className="flex-none w-[85vw] md:w-[500px] h-[400px] md:h-[450px] rounded-[24px] p-8 md:p-10 flex flex-col justify-between snap-center"
+            <div
+              key={i}
+              className="@container min-h-[280px] md:min-h-[420px] rounded-[24px] p-8 md:p-10 flex flex-col justify-between gap-8"
               style={{ backgroundColor: colors[i % colors.length] }}
             >
-              <div className="flex justify-between items-start">
-                <p className="text-[18px] md:text-[24px] text-black/80 font-bold" style={{ fontFamily: "Inter, sans-serif" }}>0{i+1}</p>
-                {/* Arrow icon mock */}
-                <div className="w-12 h-12 rounded-full bg-black/10 flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </div>
-              </div>
+              <p className="text-[18px] md:text-[24px] text-black/80 font-bold" style={{ fontFamily: "Inter, sans-serif" }}>0{i+1}</p>
               <div>
-                <h3 className="text-[clamp(40px,8vw,80px)] font-black text-black leading-[0.9] tracking-tight uppercase mb-4" style={{ fontFamily: "Inter, sans-serif" }}>
+                {/* Sized to the card (cqi), so a long step like CONCEPTUALIZAR fits on one line. */}
+                <h3 className="font-black text-black leading-[0.9] tracking-tight uppercase mb-4 break-words" style={{ fontFamily: "Inter, sans-serif", fontSize: "clamp(28px, 10cqi, 80px)" }}>
                   {item.title}
                 </h3>
                 <p className="text-[16px] md:text-[20px] text-black/80 leading-relaxed font-medium" style={{ fontFamily: "Inter, sans-serif" }}>
@@ -949,56 +936,29 @@ function ArtistStoriesBand({ lang, prefersReducedMotion }: { lang: "en" | "es", 
   );
 }
 
-function SectionHeader({ title, blurb, prefersReducedMotion }: { title: string; blurb?: string; prefersReducedMotion: boolean | null }) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [60, -60]);
-
+/** Static on purpose: the scroll parallax these headings had pushed them into
+ *  the filter pills below on phones. */
+function SectionHeader({ title, blurb }: { title: string; blurb?: string }) {
   return (
     <div className="text-center max-w-3xl mx-auto relative z-10">
-      <motion.h2
-        ref={ref}
+      <h2
         style={{
-          y,
           fontFamily: "Inter, sans-serif",
           fontWeight: 800,
           fontSize: "clamp(44px, 6vw, 78px)",
           lineHeight: 0.9,
           letterSpacing: "-0.02em",
         }}
-        className="text-[#6e60ee] mb-4"
+        className="text-[#6e60ee] text-balance"
       >
         {title}
-      </motion.h2>
+      </h2>
       {blurb && (
-        <p className="text-[18px] text-[#999999]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
+        <p className="mt-4 text-[18px] text-[#999999]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
           {blurb}
         </p>
       )}
     </div>
-  );
-}
-
-function ParallaxHeading({ children, prefersReducedMotion }: { children: React.ReactNode; prefersReducedMotion: boolean | null }) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [60, -60]);
-
-  return (
-    <motion.h2
-      ref={ref}
-      style={{
-        y,
-        fontFamily: "Inter, sans-serif",
-        fontWeight: 800,
-        fontSize: "clamp(44px, 6vw, 78px)",
-        lineHeight: 0.9,
-        letterSpacing: "-0.02em",
-      }}
-      className="text-[#6e60ee] text-center relative z-10"
-    >
-      {children}
-    </motion.h2>
   );
 }
 
@@ -1016,7 +976,7 @@ function PromptCard({ item, index, prefersReducedMotion, lang }: { item: Gallery
       animate={isInView ? { opacity: 1, scale: 1 } : {}}
       exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
       transition={{ duration: prefersReducedMotion ? 0 : 0.5, delay: prefersReducedMotion ? 0 : index * 0.05 }}
-      className="relative overflow-hidden rounded-[8px] bg-[#353535] group cursor-pointer flex flex-col"
+      className="relative overflow-hidden rounded-[8px] bg-[#353535] flex flex-col"
       style={{
         boxShadow: "0 0 0 1px rgba(229,229,229,0.06), 0 20px 40px rgba(0,0,0,0.5)",
       }}
@@ -1026,9 +986,11 @@ function PromptCard({ item, index, prefersReducedMotion, lang }: { item: Gallery
         <motion.img
           src={item.src}
           alt={item.altEn}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover origin-center"
-          transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-          whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
+          transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+          whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
         />
       </div>
       
@@ -1058,7 +1020,7 @@ function TestimonialCard({ item, index, prefersReducedMotion }: { item: { name: 
       className="p-8 rounded-lg bg-[#353535] border border-[#e5e5e5]/10"
     >
       <p className="text-[16px] text-[#ffffff] leading-relaxed mb-6" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
-        "{item.quote}"
+        “{item.quote}”
       </p>
       <div>
         <p className="text-[14px] text-[#ffffff] font-bold" style={{ fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
@@ -1087,6 +1049,7 @@ function FaqItem({ item, index, prefersReducedMotion }: { item: { q: string; a: 
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
         className="w-full flex items-center justify-between gap-4 text-left group"
       >
         <h3 className="text-[18px] text-[#ffffff] font-bold group-hover:text-[#6e60ee] transition-colors" style={{ fontFamily: "Inter, sans-serif", fontWeight: 700 }}>

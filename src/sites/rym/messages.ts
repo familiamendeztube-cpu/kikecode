@@ -8,7 +8,9 @@ export const rymWhatsApp = {
   },
 
   getServiceLink(brand: BrandConfig, service: string, year: string, make: string, model: string, description: string) {
-    const text = `Hola, quiero consultar por el servicio de ${service}. Mi vehículo es ${year} ${make} ${model}. Presenta lo siguiente: ${description}.`;
+    // The symptom picker sends no vehicle; an empty "Mi vehículo es   ." reads broken.
+    const vehicle = [year, make, model].filter(Boolean).join(" ");
+    const text = `Hola, quiero consultar por el servicio de ${service}.${vehicle ? ` Mi vehículo es ${vehicle}.` : ""} Presenta lo siguiente: ${description}.`;
     return whatsappLink(brand, text);
   },
 

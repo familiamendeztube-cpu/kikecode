@@ -26,7 +26,7 @@ const BOOKING_INVITE: Record<Lang, string> = {
   es: "Solo dígame qué necesita y le envío su solicitud de cita al equipo.",
 };
 export function buildGreeting(assistant: NonNullable<BusinessTemplate["assistant"]>, lang: Lang, brandName: string): string {
-  const base = assistant[lang].replace(/\{business\}/g, brandName);
+  const base = assistant[lang].replace(/\{business\}(\.?)/g, (_, dot: string) => (brandName.endsWith(".") ? brandName : brandName + dot));
   return `${base} ${BOOKING_INVITE[lang]}`;
 }
 
@@ -61,7 +61,7 @@ export function resolveFacts(template: BusinessTemplate): Required<TemplateFacts
    default 3 fields (no extra). */
 export function categoryExtraField(cat: TemplateCategory): { en: string; es: string; type: "text" | "date" } | null {
   switch (cat) {
-    case "auto": return { en: "Vehicle of interest", es: "Vehículo de interés", type: "text" };
+    case "auto": return { en: "Vehicle (make, model, year)", es: "Vehículo (marca, modelo y año)", type: "text" };
     case "moving": return { en: "Moving date", es: "Fecha de mudanza", type: "date" };
     case "food": return { en: "Event date (if catering)", es: "Fecha del evento (si es catering)", type: "date" };
     case "beauty": return { en: "Preferred date & time", es: "Fecha y hora preferida", type: "text" };

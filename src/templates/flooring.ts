@@ -15,7 +15,7 @@ const flooring: BusinessTemplate = {
     city: "Rohrmoser",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@terrastoneflooring.com",
+    email: "hola@terrastoneflooring.com",
     address: "De la iglesia católica, 100 m norte y 75 m oeste, Rohrmoser, Pavas, San José",
     heroIcon: Layers,
     palette: {
@@ -166,9 +166,9 @@ const flooring: BusinessTemplate = {
     roleEn: "Flooring Advisor", roleEs: "Asesora de Pisos",
   },
   media: {
-    hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    hero: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal4.jpg`, `${assets}/gal6.jpg`, `${assets}/gal3.jpg`, `${assets}/gal1.jpg`, `${assets}/gal5.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -185,8 +185,8 @@ const flooring: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Hardwood floor install", "Porcelain tile work", "Luxury vinyl plank", "Floor refinishing", "Tile backsplash", "Finished living room"],
-    es: ["Instalación de piso de madera", "Enchape de porcelanato", "Piso vinílico", "Restauración de pisos", "Salpicadero de cerámica", "Sala terminada"],
+    en: ["Renovated kitchen", "Light wood floor, dining room", "Living room floor", "Rustic wood up close", "Finished living room"],
+    es: ["Cocina renovada", "Piso de madera clara en el comedor", "Piso de sala", "Madera rústica de cerca", "Sala terminada"],
   },
 };
 

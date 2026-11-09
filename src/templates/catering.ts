@@ -23,7 +23,7 @@ const catering: BusinessTemplate = {
       heroFrom: "#1a0a0f", heroVia: "#2a1410", heroTo: "#140a08",
       heroGlow1: "rgba(225,29,72,0.50)", heroGlow2: "rgba(245,158,11,0.32)",
       heroIconFrom: "#E11D48", heroIconTo: "#F59E0B",
-      contactFrom: "#E11D48", contactTo: "#F59E0B",
+      contactFrom: "#E11D48", contactTo: "#9f1239",
     },
   },
   serviceIcons: [Utensils, Truck, Users],
@@ -168,8 +168,8 @@ const catering: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal5.jpg`, `${assets}/gal6.jpg`, `${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal4.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -186,8 +186,8 @@ const catering: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Bocas platter", "Mixed grill for events", "Event buffet spread", "Pork for the taco bar", "Buffet service", "Crispy tacos"],
-    es: ["Bandeja de bocas", "Parrillada para eventos", "Bufé para eventos", "Cerdo para la barra de tacos", "Servicio de bufé", "Tacos dorados"],
+    en: ["Event buffet", "Food-truck tacos", "Bocas platter", "Grilled board for groups", "House-style meats"],
+    es: ["Bufé para eventos", "Tacos del food truck", "Bandeja de bocas", "Parrillada para grupos", "Carnes de la casa"],
   },
 };
 

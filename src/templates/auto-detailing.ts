@@ -15,7 +15,7 @@ const autoDetailing: BusinessTemplate = {
     city: "Santa Ana",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@brilloautodetailing.com",
+    email: "hola@brilloautodetailing.com",
     address: "De la iglesia católica de Santa Ana, 300 m oeste y 50 m norte, Santa Ana, San José",
     heroIcon: Car,
     palette: {
@@ -86,7 +86,7 @@ const autoDetailing: BusinessTemplate = {
       },
       contact: {
         title: "Book Your Detail", blurb: "Tell us about your vehicle. We respond same day.",
-        name: "Your name", phone: "Phone", service: "Service needed", message: "Vehicle make/model and what you'd like",
+        name: "Your name", phone: "Phone", service: "Service needed", message: "Tell us what you'd like",
         submit: "Request Booking", success: "Thank you — we'll message you today to confirm your detail.",
         pick: "— Pick a service —",
         services: ["Full detail", "Ceramic coating", "Interior deep clean", "Paint correction", "Wash & wax", "Other"],
@@ -150,7 +150,7 @@ const autoDetailing: BusinessTemplate = {
       },
       contact: {
         title: "Reserve su Detallado", blurb: "Cuéntenos de su vehículo. Respondemos el mismo día.",
-        name: "Su nombre", phone: "Teléfono", service: "Servicio necesario", message: "Marca/modelo del vehículo y lo que desea",
+        name: "Su nombre", phone: "Teléfono", service: "Servicio necesario", message: "Cuéntenos qué desea",
         submit: "Solicitar Reserva", success: "Gracias — le escribiremos hoy para confirmar su detallado.",
         pick: "— Elija un servicio —",
         services: ["Detallado completo", "Recubrimiento cerámico", "Limpieza interior", "Corrección de pintura", "Lavado y encerado", "Otro"],
@@ -168,8 +168,8 @@ const autoDetailing: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/team.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -186,8 +186,8 @@ const autoDetailing: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Showroom-shine exterior", "Deep interior clean", "Ceramic coating", "Paint correction", "Headlight restoration", "Engine bay detail"],
-    es: ["Brillo de exhibición", "Limpieza interior profunda", "Recubrimiento cerámico", "Corrección de pintura", "Restauración de focos", "Detallado de motor"],
+    en: ["Foam wash", "Polish & coating", "Interior like new", "Headlights & paint that shine", "Spotless wheels", "Hand wash"],
+    es: ["Lavado con espuma", "Pulido y recubrimiento", "Interior como nuevo", "Focos y pintura con brillo", "Aros impecables", "Lavado a mano"],
   },
 };
 

@@ -15,7 +15,7 @@ const fencing: BusinessTemplate = {
     city: "Atenas",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@borderlinefence.com",
+    email: "hola@borderlinefence.com",
     address: "Del parque central, 200 m norte y 50 m oeste, Atenas, Alajuela",
     heroIcon: Fence,
     palette: {
@@ -23,7 +23,7 @@ const fencing: BusinessTemplate = {
       heroFrom: "#1c1410", heroVia: "#2a1c14", heroTo: "#1c1410",
       heroGlow1: "rgba(154,52,18,0.55)", heroGlow2: "rgba(15,118,110,0.30)",
       heroIconFrom: "#9A3412", heroIconTo: "#0F766E",
-      contactFrom: "#9A3412", contactTo: "#0F766E",
+      contactFrom: "#9A3412", contactTo: "#7c2d12",
     },
   },
   serviceIcons: [Hammer, Wrench, Square],
@@ -94,7 +94,7 @@ const fencing: BusinessTemplate = {
       footer: { tagline: "Built-to-last fencing across the region.", hours: "Mon–Sat · 7:00 a.m.–7:00 p.m.", rights: "All rights reserved.", hoursLabel: "Hours" },
     },
     es: {
-      nav: { services: "Servicios", why: "Por Qué", process: "Proceso", testimonials: "Reseñas", faq: "FAQ", contact: "Contacto", call: "Llame" },
+      nav: { services: "Servicios", why: "Por Qué", process: "Proceso", testimonials: "Reseñas", faq: "Preguntas", contact: "Contacto", call: "Llame" },
       hero: {
         eyebrow: "Hechas para durar, a un precio justo",
         title1: "Cercas de Calidad para",
@@ -167,8 +167,8 @@ const fencing: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal3.jpg`, `${assets}/gal2.jpg`, `${assets}/gal1.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -185,8 +185,8 @@ const fencing: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["New wood privacy fence", "Vinyl fence install", "Aluminum & metal fence", "Custom gate build", "Chain-link fencing", "Finished backyard fence"],
-    es: ["Cerca de madera nueva", "Instalación de cerca de vinil", "Cerca de aluminio y metal", "Portón a la medida", "Cerca de malla ciclón", "Cerca de patio terminada"],
+    en: ["Painted wood fence", "Home with a wood railing", "Chain-link fencing"],
+    es: ["Cerca de madera pintada", "Casa con baranda de madera", "Cerca de malla ciclón"],
   },
 };
 

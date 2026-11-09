@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Phone, ArrowRight, Play, ThumbsUp, CheckCircle2 } from "lucide-react";
 import { pick } from "@/lib/i18n";
-import { SiteImage, SectionHeader, Eyebrow, type SiteProps } from "./ui";
+import { SiteImage, SectionHeader, Eyebrow, SampleTag, isSampleContent, CARD_ROW, PRESS, type SiteProps } from "./ui";
 
 /* VIDEO GALLERY — click-to-play portrait cards (no autoplay; fast on mobile) */
 export function VideoGallery({ template, p, lang }: SiteProps) {
@@ -20,7 +20,7 @@ export function VideoGallery({ template, p, lang }: SiteProps) {
           dark
           accent={p.accent}
         />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+        <div className={`${CARD_ROW} gap-6 mt-12`}>
           {template.videoGallery.items.map((v) => (
             <VideoCard
               key={v.src}
@@ -55,7 +55,7 @@ function VideoCard({ src, poster, title, caption, ctaLabel, palette }: {
   const ref = useRef<HTMLVideoElement | null>(null);
   const [playing, setPlaying] = useState(false);
   return (
-    <figure className="group relative rounded-2xl overflow-hidden border border-white/10 bg-slate-900 shadow-xl">
+    <figure className="group relative w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] rounded-2xl overflow-hidden border border-white/10 bg-slate-900 shadow-xl">
       <div className="relative aspect-[3/4] overflow-hidden bg-black">
         <video
           ref={ref}
@@ -76,7 +76,7 @@ function VideoCard({ src, poster, title, caption, ctaLabel, palette }: {
             aria-label={title}
             className="absolute inset-0 grid place-items-center bg-gradient-to-t from-black/70 via-black/10 to-black/30 transition-colors hover:from-black/60"
           >
-            <span className="inline-flex items-center justify-center w-16 h-16 rounded-full text-white shadow-2xl transition-transform group-hover:scale-110" style={{ backgroundColor: palette.primary }}>
+            <span className="inline-flex items-center justify-center w-16 h-16 rounded-full text-white shadow-2xl transition-transform duration-200 group-hover:scale-105 group-active:scale-95" style={{ backgroundColor: palette.primary }}>
               <Play className="w-7 h-7 translate-x-[2px]" />
             </span>
           </button>
@@ -95,10 +95,13 @@ function VideoCard({ src, poster, title, caption, ctaLabel, palette }: {
 
 /* IN ACTION — photo-forward feature band. Its copy is generic promises ("done
    right the first time", "background-checked professionals"), so a real
-   business, which never made them, does not get it; its photos are in Gallery. */
+   business, which never made them, does not get it; its photos are in Gallery.
+   On a generic template the promises carry the Sample tag, like every other claim.
+   The words fit any trade: a barbershop gets no "property" or "job site". */
 export function InAction({ template, brand, p, lang }: SiteProps) {
   const media = template.media;
-  if (!media || template.realBusiness) return null;
+  // It shows the last two gallery photos: with fewer, it would show a broken image.
+  if (!media || template.realBusiness || media.gallery.length < 2) return null;
   return (
     <section className="py-20 sm:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-16 lg:space-y-24">
@@ -122,18 +125,19 @@ export function InAction({ template, brand, p, lang }: SiteProps) {
             <Eyebrow color={p.primary}>
               {pick(lang, "See us on the job", "Véanos trabajando")}
             </Eyebrow>
-            <h3 className="font-extrabold text-3xl sm:text-4xl tracking-tight text-slate-900 mb-4">
+            {isSampleContent(template) && <SampleTag lang={lang} className="mb-3" />}
+            <h3 className="text-balance font-extrabold text-3xl sm:text-4xl tracking-tight text-slate-900 mb-4">
               {pick(lang, "Skilled hands you can trust", "Manos expertas en quien confiar")}
             </h3>
             <p className="text-slate-600 leading-relaxed mb-6 text-lg">
               {pick(lang,
-                "From the first knock to the final walk-through, our crew treats your property like our own — careful prep, premium materials, and a clean job site every single day.",
-                "Desde que tocamos la puerta hasta la inspección final, tratamos su propiedad como la nuestra — preparación cuidadosa, materiales premium y un sitio de trabajo limpio todos los días.")}
+                "From the first hello to the last detail, we treat every job with care — careful prep, quality materials, and everything left clean.",
+                "Del primer saludo al último detalle, cuidamos cada trabajo: preparación cuidadosa, buenos materiales y todo limpio al terminar.")}
             </p>
             <ul className="space-y-3">
               {pick(lang,
                 ["Background-checked, uniformed professionals", "Upfront pricing — no surprises", "Photos and updates as the work gets done"],
-                ["Profesionales uniformados y verificados", "Precios claros — sin sorpresas", "Fotos y avisos mientras avanza el trabajo"]).map((li) => (
+                ["Profesionales uniformados y verificados", "Precios claros, sin sorpresas", "Fotos y avisos mientras avanza el trabajo"]).map((li) => (
                 <li key={li} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" style={{ color: p.primary }} />
                   <span className="text-slate-700">{li}</span>
@@ -154,7 +158,7 @@ export function InAction({ template, brand, p, lang }: SiteProps) {
             <Eyebrow color={p.primary}>
               {pick(lang, "Every step", "En cada paso")}
             </Eyebrow>
-            <h3 className="font-extrabold text-3xl sm:text-4xl tracking-tight text-slate-900 mb-4">
+            <h3 className="text-balance font-extrabold text-3xl sm:text-4xl tracking-tight text-slate-900 mb-4">
               {pick(lang, "Clear from start to finish", "Claro de principio a fin")}
             </h3>
             <p className="text-slate-600 leading-relaxed mb-6 text-lg">
@@ -162,7 +166,7 @@ export function InAction({ template, brand, p, lang }: SiteProps) {
                 "You'll know what's happening and what it costs — no runaround.",
                 "Sabrá qué está pasando y cuánto cuesta, sin vueltas.")}
             </p>
-            <a href={brand.phoneHref} className="inline-flex items-center gap-2 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg hover:opacity-90 transition-opacity" style={{ backgroundColor: p.primary }}>
+            <a href={brand.phoneHref} className={`inline-flex items-center gap-2 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primary }}>
               <Phone className="w-4 h-4" /> {brand.phone}
             </a>
           </div>
@@ -211,6 +215,12 @@ export function Gallery({ template, p, lang }: SiteProps) {
   const media = template.media;
   const captions = template.galleryCaptions?.[lang] ?? [];
   if (!media?.gallery.length) return null;
+  // The first photo fills 2x2, so n photos take n + 3 cells. The last photo widens
+  // over whatever cells the final row would leave empty (only past 3 photos, when
+  // it sits in a full-width row of its own).
+  const n = media.gallery.length;
+  const spare = (cols: number) => (cols - ((n + 3) % cols)) % cols;
+  const lastWide = n > 3 ? `${["", "col-span-2"][spare(2)]} ${["lg:col-span-1", "lg:col-span-2", "lg:col-span-3"][spare(3)]}` : "";
   return (
     <section id="gallery" className="py-20 sm:py-24 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -219,12 +229,12 @@ export function Gallery({ template, p, lang }: SiteProps) {
           title={pick(lang, "Real projects, real results", "Proyectos reales, resultados reales")}
           accent={p.primary}
         />
-        <div className="grid grid-cols-2 lg:grid-cols-4 auto-rows-[170px] sm:auto-rows-[220px] gap-4 mt-12">
+        <div className="grid grid-cols-2 lg:grid-cols-3 auto-rows-[170px] sm:auto-rows-[240px] gap-4 mt-12">
           {media.gallery.map((src, i) => (
-            <figure key={src} className={`group relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
-              <SiteImage src={src} alt={captions[i] ?? `Project ${i+1}`} palette={p} lang={lang} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <figure key={src} className={`group relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm ${i === 0 ? "col-span-2 row-span-2" : i === n - 1 ? lastWide : ""}`}>
+              <SiteImage src={src} alt={captions[i] ?? `Project ${i+1}`} palette={p} lang={lang} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
               {captions[i] && (
-                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white text-sm font-semibold p-4">
+                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent text-white text-sm font-semibold p-4 pt-12 [text-shadow:0_1px_2px_rgb(0_0_0/0.5)]">
                   {captions[i]}
                 </figcaption>
               )}
@@ -252,9 +262,9 @@ export function ClientTrust({ template, p, lang }: SiteProps) {
           {template.clientTrust.images.map((img) => (
             <figure key={img.src} className="group relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img src={img.src} alt={img.caption[lang]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                <img src={img.src} alt={img.caption[lang]} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
               </div>
-              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent text-white text-sm font-semibold p-5">
+              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent text-white text-sm font-semibold p-5 pt-12 [text-shadow:0_1px_2px_rgb(0_0_0/0.5)]">
                 {img.caption[lang]}
               </figcaption>
             </figure>
@@ -288,10 +298,10 @@ export function Heritage({ template, p, lang }: SiteProps) {
               <img
                 src={img.src}
                 alt={img[lang]}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 loading="lazy"
               />
-              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white text-sm font-semibold p-4">
+              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent text-white text-sm font-semibold p-4 pt-12 [text-shadow:0_1px_2px_rgb(0_0_0/0.5)]">
                 {img[lang]}
               </figcaption>
             </figure>

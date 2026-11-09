@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, Suspense, useLayoutEffect } from "react";
-import { motion, useScroll, useTransform, useReducedMotion, useInView, useMotionValueEvent, type MotionValue } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useState, useRef, useEffect, Suspense, useLayoutEffect, Component, type ReactNode } from "react";
+import { motion, useScroll, useTransform, useReducedMotion, useInView, useMotionValueEvent, transform, type MotionValue } from "framer-motion";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import type { BusinessTemplate } from "@/templates/types";
@@ -34,6 +34,33 @@ const LABELS = {
   instagram: { en: "Instagram", es: "Instagram" },
 };
 
+const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#dc5000]";
+const PRESS = "transition-[color,background-color,border-color,transform] duration-150 ease-out active:scale-[0.97]";
+
+/** A failed mug model (network, bad GLB) must not take the whole page down: R3F
+ *  rethrows canvas errors to the parent tree, so this swaps in the PNG fallback. */
+class SceneBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onError(); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+/** One letter of the sliding word. Its own component, so the hook count stays
+ *  fixed when the word's length changes with the language. */
+function SlidingLetter({ letter, i, progress, reduced }: { letter: string; i: number; progress: MotionValue<number>; reduced: boolean | null }) {
+  const speed = 1 + (i % 4) * 0.15;
+  const x = useTransform(progress, [0, 1], [`${50 * speed}vw`, `${-50 * speed}vw`]);
+  return (
+    <motion.span
+      style={{ x: reduced ? 0 : x }}
+      className={`${reduced ? "text-[9vw]" : "text-[clamp(120px,25vw,400px)]"} font-medium leading-[0.9] uppercase whitespace-nowrap ${letter === " " ? "w-[10vw]" : ""}`}
+    >
+      {letter}
+    </motion.span>
+  );
+}
+
 function AnimatedDivider({ reduced }: { reduced: boolean | null }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-10%" });
@@ -51,14 +78,16 @@ function AnimatedDivider({ reduced }: { reduced: boolean | null }) {
   );
 }
 
-// Preload the mug model
-useGLTF.preload(`${TEMPLATE_ASSETS}/barro-ceramica/barro_mug.glb`);
+// No module-level useGLTF.preload: site-renderer imports this file for every
+// site, so a preload here fetched the 1.8 MB mug on every client's page.
 
 function Mug3D({ progressRef, mouseRef }: { progressRef: React.MutableRefObject<number>; mouseRef: React.MutableRefObject<{ x: number; y: number }> }) {
   const { scene } = useGLTF(`${TEMPLATE_ASSETS}/barro-ceramica/barro_mug.glb`) as any;
   const meshRef = useRef<THREE.Group>(null);
   const idleTime = useRef(0);
   const normalizedScale = useRef(1);
+  // Narrow screens: shrink so the mug (up to ~2.3 units wide with its handle) stays inside the frame.
+  const fit = useThree((s) => Math.min(1, s.viewport.width / 3.4));
 
   // Normalize model size on mount (use layoutEffect to ensure scene is ready)
   useLayoutEffect(() => {
@@ -109,7 +138,7 @@ function Mug3D({ progressRef, mouseRef }: { progressRef: React.MutableRefObject<
     }
 
     meshRef.current.position.set(0, y, z);
-    meshRef.current.scale.setScalar(scale);
+    meshRef.current.scale.setScalar(scale * fit);
 
     // Continuous tumbling rotation (doubled speed, scroll-driven base + idle wobble)
     const baseTumble = scrollProgress * Math.PI * 12; // ~6 full rotations across journey (2x)
@@ -175,7 +204,10 @@ function Mug3DLayer({ progress }: { progress: MotionValue<number> }) {
     };
   }, []);
 
-  const layerOpacity = useTransform(progress, [0, 0.05, 0.11, 0.75, 0.85], [0, 0, 1, 1, 0]);
+  // Function form on purpose: the range form makes framer 12 run opacity on a
+  // native ScrollTimeline over the whole page, ignoring the hero target, so the
+  // mug never faded out (it popped off at 0.86).
+  const layerOpacity = useTransform(progress, (v) => transform(v, [0, 0.05, 0.11, 0.75, 0.85], [0, 0, 1, 1, 0]));
   const layerVisibility = useTransform(progress, (v) => (v < 0.86 ? "visible" : "hidden"));
 
   return (
@@ -187,7 +219,9 @@ function Mug3DLayer({ progress }: { progress: MotionValue<number> }) {
         dpr={[1, 1.75]}
         gl={{ antialias: true, alpha: true }}
         camera={{ position: [0, 0, 5], fov: 50 }}
-        style={{ width: "100%", height: "100%" }}
+        // R3F gives its wrapper pointer-events:auto, which made this invisible
+        // full-screen layer swallow every click in the hero. Pointer tilt reads window events.
+        style={{ width: "100%", height: "100%", pointerEvents: "none" }}
       >
         <Suspense fallback={null}>
           <Scene3D progressRef={progressRef} mouseRef={mouseRef} />
@@ -289,9 +323,8 @@ function PNGFallbackLayer({
         visibility: isVisible ? "visible" : "hidden" 
       }}
     >
-      <motion.div 
-        className="pointer-events-auto cursor-grab active:cursor-grabbing"
-        style={{ 
+      <motion.div
+        style={{
           x: mugX, 
           y: mugY, 
           scale: mugScale, 
@@ -354,10 +387,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
   const heroGroupRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: heroGroupProgress } = useScroll({ target: heroGroupRef, offset: ["start start", "end start"] });
 
-  // Section 2 scroll logic (Fallback for reduced motion)
   const voidRef = useRef<HTMLElement>(null);
-  const { scrollYProgress: voidProgress } = useScroll({ target: voidRef, offset: ["start end", "end start"] });
-  const voidImgY = useTransform(voidProgress, [0, 1], ["20%", "-20%"]);
 
   // Section 4 scroll logic
   const textureRef = useRef<HTMLElement>(null);
@@ -370,12 +400,6 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
   const p1X = useTransform(stripProgress, [0, 0.33], ["0%", "10%"]);
   const p2X = useTransform(stripProgress, [0, 0.33, 0.66], ["-10%", "0%", "10%"]);
   const p3X = useTransform(stripProgress, [0.33, 0.66, 1], ["-10%", "0%", "0%"]);
-
-  // Section 6 scroll logic
-  const footerRef = useRef<HTMLElement>(null);
-  const { scrollYProgress: footerProgress } = useScroll({ target: footerRef, offset: ["start end", "end end"] });
-  const footerTitleY = useTransform(footerProgress, [0, 1], [150, 0]);
-  const footerTitleOpacity = useTransform(footerProgress, [0, 0.5], [0, 1]);
 
   const lead = useLeadForm(template.plwSiteId, lang);
   const leadOutcome = leadOutcomeMessage(lead.state, lang);
@@ -405,7 +429,9 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
     <div className="min-h-screen bg-[#100904] text-[#ffedd7] overflow-x-clip" style={{ fontFamily: "Inter, sans-serif" }}>
       
       {!prefersReducedMotion && webglAvailable && (
-        <Mug3DLayer progress={heroGroupProgress} />
+        <SceneBoundary onError={() => setWebglAvailable(false)}>
+          <Mug3DLayer progress={heroGroupProgress} />
+        </SceneBoundary>
       )}
 
       {!prefersReducedMotion && !webglAvailable && (
@@ -433,7 +459,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
             <div className="flex flex-col items-end gap-4">
               <button
                 onClick={() => setLang(lang === "en" ? "es" : "en")}
-                className="px-4 py-1.5 rounded-full border border-[#40372e] text-[10px] uppercase tracking-wider hover:bg-[#382416] transition-colors cursor-pointer z-10"
+                className={`relative px-4 py-1.5 rounded-full border border-[#40372e] text-[10px] uppercase tracking-wider hover:bg-[#382416] cursor-pointer z-10 after:absolute after:-inset-[9px] after:content-[''] ${PRESS} ${FOCUS}`}
               >
                 {lang === "en" ? "ES" : "EN"}
               </button>
@@ -443,15 +469,15 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
             </div>
           </header>
 
-          <div className="relative z-10 flex justify-between items-end w-full">
+          <div className="relative z-10 flex flex-col items-start gap-6 md:flex-row md:justify-between md:items-end w-full">
             <div className="max-w-md">
-              <p className="text-[16px] md:text-[22px] font-normal leading-[1.26] lowercase first-letter:uppercase text-[#ffedd7]">
+              <p className="text-[16px] md:text-[22px] font-normal leading-[1.26] text-[#ffedd7] text-pretty">
                 {content.hero.subtitle}
               </p>
             </div>
-            <button 
-              onClick={() => voidRef.current?.scrollIntoView({ behavior: "smooth" })}
-              className="px-6 py-3 rounded-[36px] border border-[#ffedd7] text-[10px] uppercase tracking-wider hover:bg-[#ffedd7] hover:text-[#100904] transition-colors cursor-pointer z-10"
+            <button
+              onClick={() => voidRef.current?.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" })}
+              className={`inline-flex items-center min-h-11 px-6 rounded-[36px] border border-[#ffedd7] text-[10px] uppercase tracking-wider whitespace-nowrap hover:bg-[#ffedd7] hover:text-[#100904] cursor-pointer z-10 ${PRESS} ${FOCUS}`}
             >
               {content.hero.cta1}
             </button>
@@ -459,25 +485,24 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
         </section>
 
         {/* 2. Void Overlap Reveal */}
-        <section id="void" ref={voidRef} className="relative min-h-[150vh] bg-[#100904] flex items-center justify-center overflow-hidden">
+        {/* No overflow-hidden here: it would make this section the sticky child's scroll container, so it never stuck. */}
+        <section id="void" ref={voidRef} className="relative min-h-[150vh] bg-[#100904]">
           <AnimatedDivider reduced={prefersReducedMotion} />
           <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+            {/* 10.5vw keeps the longest line ("QUE ES ETERNA" ≈ 7.9em + its 0.5em indent) inside 390–1440px screens. */}
             <div className="absolute inset-0 flex flex-col items-center justify-center z-0">
-              <h2 className="text-[clamp(80px,18vw,240px)] font-medium leading-[0.8] uppercase text-[#382416] whitespace-nowrap">
+              <h2 className="text-[clamp(32px,10.5vw,240px)] font-medium leading-[0.8] uppercase text-[#382416] whitespace-nowrap">
                 {LABELS.voidText1[lang]}
               </h2>
-              <h2 className="text-[clamp(80px,18vw,240px)] font-medium leading-[0.8] uppercase text-[#382416] whitespace-nowrap ml-12 md:ml-32">
+              <h2 className="text-[clamp(32px,10.5vw,240px)] font-medium leading-[0.8] uppercase text-[#382416] whitespace-nowrap ml-[0.5em]">
                 {LABELS.voidText2[lang]}
               </h2>
             </div>
-            
+
             {prefersReducedMotion && (
-              <motion.div 
-                className="relative z-10 w-[80vw] md:w-[60vw] max-w-[800px] aspect-[4/5] md:aspect-[16/9]"
-                style={{ y: voidImgY }}
-              >
+              <div className="relative z-10 w-[80vw] md:w-[60vw] max-w-[800px] aspect-[4/5] md:aspect-[16/9]">
                 <img src={voidImg} alt={template.brand.name} className="w-full h-full object-cover drop-shadow-[0_40px_80px_rgba(0,0,0,0.8)]" />
-              </motion.div>
+              </div>
             )}
           </div>
         </section>
@@ -495,23 +520,13 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
       <section ref={textureRef} className="relative h-screen flex items-center justify-center overflow-hidden">
         <AnimatedDivider reduced={prefersReducedMotion} />
         <div className="absolute inset-0 z-0">
-          <img src={textureImg} alt="Texture" className="w-full h-full object-cover opacity-80" />
+          <img src={textureImg} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80" />
           <div className="absolute inset-0 bg-[#100904]/20" />
         </div>
-        <div className="relative z-10 flex mix-blend-overlay text-[#ffedd7]">
-          {LABELS.sustainable[lang].split("").map((letter, i) => {
-            const speed = 1 + (i % 4) * 0.15;
-            const letterX = useTransform(textureProgress, [0, 1], [`${50 * speed}vw`, `${-50 * speed}vw`]);
-            return (
-              <motion.span 
-                key={i} 
-                style={{ x: prefersReducedMotion ? 0 : letterX }} 
-                className={`text-[clamp(120px,25vw,400px)] font-medium leading-[0.9] uppercase whitespace-nowrap ${letter === ' ' ? 'w-[10vw]' : ''}`}
-              >
-                {letter}
-              </motion.span>
-            );
-          })}
+        <div className="relative z-10 flex mix-blend-overlay text-[#ffedd7]" aria-label={LABELS.sustainable[lang]} role="img">
+          {LABELS.sustainable[lang].split("").map((letter, i) => (
+            <SlidingLetter key={i} letter={letter} i={i} progress={textureProgress} reduced={prefersReducedMotion} />
+          ))}
         </div>
       </section>
 
@@ -521,7 +536,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
           <AnimatedDivider reduced={prefersReducedMotion} />
           <div className="w-full min-h-screen flex flex-col items-center justify-center p-6 relative border-b border-dashed border-[#40372e]">
             <div className="w-full max-w-[600px] aspect-[4/5] relative">
-              <img src={strip1Img} alt="Gallery 1" className="w-full h-full object-cover" />
+              <img src={strip1Img} alt={template.brand.name} className="w-full h-full object-cover" />
               <div className="absolute bottom-6 left-6 px-4 py-2 bg-[#382416] rounded-full text-[10px] uppercase">
                 {LABELS.stackCaption[lang]}
               </div>
@@ -529,7 +544,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
           </div>
           <div className="w-full min-h-screen flex flex-col items-center justify-center p-6 relative border-b border-dashed border-[#40372e]">
             <div className="w-full max-w-[600px] aspect-[4/5] relative">
-              <img src={strip2Img} alt="Gallery 2" className="w-full h-full object-cover" />
+              <img src={strip2Img} alt={template.brand.name} className="w-full h-full object-cover" />
               <div className="absolute bottom-6 left-6 px-4 py-2 bg-[#382416] rounded-full text-[10px] uppercase">
                 {LABELS.campCaption[lang]}
               </div>
@@ -537,11 +552,11 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
           </div>
           <div className="w-full min-h-screen flex items-center justify-center p-6 relative bg-[#dc5000]">
             <div className="w-full max-w-[600px] aspect-[4/5] relative flex flex-col items-center justify-center text-center p-12">
-              <img src={strip3Img} alt="Gallery 3" className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-50" />
+              <img src={strip3Img} alt="" className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-50" />
               <h2 className="relative z-10 text-[clamp(40px,8vw,100px)] font-medium leading-[0.9] uppercase text-[#ffedd7]">
                 {LABELS.panelClaim[lang]}
               </h2>
-              <a href="#order" className="relative z-10 mt-12 px-8 py-4 rounded-[36px] bg-[#100904] text-[#ffedd7] text-[12px] uppercase tracking-widest hover:bg-[#382416] transition-colors inline-block z-10">
+              <a href="#order" className={`relative z-10 mt-12 px-8 py-4 rounded-[36px] bg-[#100904] text-[#ffedd7] text-[12px] uppercase tracking-widest hover:bg-[#382416] inline-block ${PRESS} ${FOCUS}`}>
                 {content.hero.cta2}
               </a>
             </div>
@@ -551,32 +566,33 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
         <section ref={stripRef} className="relative h-[300vh] bg-[#100904]">
           <AnimatedDivider reduced={prefersReducedMotion} />
           <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
-            <motion.div className="flex w-[300vw] h-full" style={{ x: stripX }}>
-              <div className="w-[100vw] h-full flex flex-col items-center justify-center p-6 relative">
+            {/* Percent, not vw: 100vw counts the scrollbar, so the last panel ended ~15px off-screen. */}
+            <motion.div className="flex w-[300%] shrink-0 h-full" style={{ x: stripX }}>
+              <div className="w-1/3 h-full flex flex-col items-center justify-center p-6 relative">
                 <div className="w-full max-w-[600px] aspect-[4/5] relative overflow-hidden">
-                  <motion.img src={strip1Img} alt="Gallery 1" style={{ x: p1X, scale: 1.25 }} className="w-full h-full object-cover" />
+                  <motion.img src={strip1Img} alt={template.brand.name} style={{ x: p1X, scale: 1.25 }} className="w-full h-full object-cover" />
                   <div className="absolute bottom-6 left-6 px-4 py-2 bg-[#382416] rounded-full text-[10px] uppercase">
                     {LABELS.stackCaption[lang]}
                   </div>
                 </div>
               </div>
 
-              <div className="w-[100vw] h-full flex flex-col items-center justify-center p-6 relative">
+              <div className="w-1/3 h-full flex flex-col items-center justify-center p-6 relative">
                 <div className="w-full max-w-[600px] aspect-[4/5] relative overflow-hidden">
-                  <motion.img src={strip2Img} alt="Gallery 2" style={{ x: p2X, scale: 1.25 }} className="w-full h-full object-cover" />
+                  <motion.img src={strip2Img} alt={template.brand.name} style={{ x: p2X, scale: 1.25 }} className="w-full h-full object-cover" />
                   <div className="absolute bottom-6 left-6 px-4 py-2 bg-[#382416] rounded-full text-[10px] uppercase">
                     {LABELS.campCaption[lang]}
                   </div>
                 </div>
               </div>
 
-              <div className="w-[100vw] h-full flex items-center justify-center p-6 relative bg-[#dc5000] overflow-hidden">
-                <motion.img src={strip3Img} alt="Gallery 3" style={{ x: p3X, scale: 1.25 }} className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-50" />
+              <div className="w-1/3 h-full flex items-center justify-center p-6 relative bg-[#dc5000] overflow-hidden">
+                <motion.img src={strip3Img} alt="" style={{ x: p3X, scale: 1.25 }} className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-50" />
                 <div className="w-full max-w-[600px] aspect-[4/5] relative flex flex-col items-center justify-center text-center p-12">
                   <h2 className="relative z-10 text-[clamp(40px,8vw,100px)] font-medium leading-[0.9] uppercase text-[#ffedd7]">
                     {LABELS.panelClaim[lang]}
                   </h2>
-                  <a href="#order" className="relative z-10 mt-12 px-8 py-4 rounded-[36px] bg-[#100904] text-[#ffedd7] text-[12px] uppercase tracking-widest hover:bg-[#382416] transition-colors inline-block z-10">
+                  <a href="#order" className={`relative z-10 mt-12 px-8 py-4 rounded-[36px] bg-[#100904] text-[#ffedd7] text-[12px] uppercase tracking-widest hover:bg-[#382416] inline-block ${PRESS} ${FOCUS}`}>
                     {content.hero.cta2}
                   </a>
                 </div>
@@ -587,40 +603,42 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
       )}
 
       {/* 6. Closing / Contact Section */}
-      <footer id="order" ref={footerRef} className="relative min-h-screen bg-[#100904] flex flex-col justify-between overflow-hidden">
+      <footer id="order" className="relative min-h-screen bg-[#100904] flex flex-col justify-between overflow-hidden">
         <AnimatedDivider reduced={prefersReducedMotion} />
         <div className="absolute inset-0 z-0">
-          <img src={beansImg} alt="Background" className="w-full h-full object-cover opacity-30" />
+          <img src={beansImg} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#100904] via-[#100904]/80 to-[#100904]/20" />
         </div>
 
         <div className="relative z-10 flex-grow flex flex-col items-center justify-center px-6 py-32">
-          <motion.h2 
-            className="text-[clamp(50px,10vw,120px)] font-medium leading-[0.9] uppercase text-[#ffedd7] text-center max-w-5xl mb-16"
-            style={{ y: prefersReducedMotion ? 0 : footerTitleY, opacity: prefersReducedMotion ? 1 : footerTitleOpacity }}
-          >
+          <h2 className="text-[clamp(50px,10vw,120px)] font-medium leading-[0.9] uppercase text-[#ffedd7] text-center max-w-5xl mb-6 text-balance">
             {content.contact.title}
-          </motion.h2>
-          
+          </h2>
+          <p className="mb-12 max-w-md text-center text-[16px] md:text-[18px] leading-snug text-[#ffedd7]/80 text-pretty">
+            {content.contact.blurb}
+          </p>
+
           <form onSubmit={handleSubmit} className="w-full max-w-xl flex flex-col md:flex-row gap-4">
-            <input 
-              type="email" 
+            <input
+              type="email"
               name="email"
+              autoComplete="email"
+              aria-label={LABELS.waitlistPlaceholder[lang].replace("...", "")}
               placeholder={LABELS.waitlistPlaceholder[lang]}
               required
-              className="flex-grow bg-transparent border-b border-[#40372e] py-4 px-2 text-[20px] font-normal lowercase placeholder:uppercase placeholder:text-[#6c5f51] focus:outline-none focus:border-[#dc5000] transition-colors z-10"
+              className="flex-grow bg-transparent border-b border-[#40372e] py-4 px-2 text-[20px] font-normal lowercase placeholder:uppercase placeholder:text-[#8f8070] focus:outline-none focus:border-[#dc5000] transition-[border-color] duration-150 z-10"
             />
             <button
               type="submit"
               disabled={lead.sending}
               aria-busy={lead.sending}
-              className="px-8 py-4 rounded-[36px] bg-[#382416] text-[#ffedd7] text-[12px] uppercase tracking-widest hover:bg-[#ffedd7] hover:text-[#100904] transition-colors whitespace-nowrap z-10 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+              className={`px-8 py-4 rounded-[36px] bg-[#382416] text-[#ffedd7] text-[12px] uppercase tracking-widest hover:bg-[#ffedd7] hover:text-[#100904] whitespace-nowrap z-10 cursor-pointer disabled:opacity-60 disabled:cursor-wait disabled:active:scale-100 ${PRESS} ${FOCUS}`}
             >
               {lead.sending ? (lang === "en" ? "Sending…" : "Enviando…") : LABELS.submitText[lang]}
             </button>
           </form>
           {lead.isPreview && (
-            <p className="mt-6 text-[#6c5f51] text-[13px]">{previewNotice(lang)}</p>
+            <p className="mt-6 text-[#8f8070] text-[13px] text-center">{previewNotice(lang)}</p>
           )}
           {lead.state.status === "sent" && (
             <p role="status" className="mt-6 text-[#dc5000] text-[14px] uppercase tracking-wider">{content.contact.success}</p>
@@ -632,10 +650,14 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
           )}
         </div>
 
-        <div className="relative z-10 w-full px-6 py-8 border-t border-dashed border-[#40372e] flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest text-[#6c5f51]">
-          <div className="flex gap-6 z-10">
-            <a href="#" className="hover:text-[#dc5000] transition-colors">{content.nav.faq}</a>
-            <a href="#" className="hover:text-[#dc5000] transition-colors">{LABELS.instagram[lang]}</a>
+        <div className="relative z-10 w-full px-6 py-8 border-t border-dashed border-[#40372e] flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest text-[#8f8070]">
+          {/* Only real links: the old FAQ and Instagram links both went to "#". */}
+          <div className="flex gap-6 z-10 empty:hidden md:empty:block">
+            {template.brand.socials?.instagram && (
+              <a href={template.brand.socials.instagram} target="_blank" rel="noopener noreferrer" className={`inline-block py-3 hover:text-[#dc5000] transition-colors ${FOCUS}`}>
+                {LABELS.instagram[lang]}
+              </a>
+            )}
           </div>
           <div className="px-4 py-2 border border-dashed border-[#40372e] rounded-[22.5px] text-[#dc5000]">
             {LABELS.credit[lang]}

@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from "framer-motion";
+import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Play, Pause, X, Instagram, Menu, MapPin, ArrowRight, MessageCircle } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import type { BusinessTemplate } from "@/templates/types";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
-import { FadeInView } from "@/sites/shared/fade-in-view";
 import { useReturnFocus } from "@/sites/shared/return-focus";
 import { whatsappLink } from "@/sites/shared/whatsapp";
 import { FenixCatalog, useConsulta } from "./fenix-catalog";
@@ -21,7 +20,7 @@ function BackgroundVideo({ src, poster, reducedMotion, ariaLabel }: { src: strin
   }, [playing]);
 
   if (reducedMotion) {
-    return <img src={poster} alt="" className="absolute inset-0 w-full h-full object-cover" />;
+    return <img src={poster} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />;
   }
 
   return (
@@ -35,11 +34,11 @@ function BackgroundVideo({ src, poster, reducedMotion, ariaLabel }: { src: strin
         loop
         playsInline
         preload="metadata"
-        className="absolute inset-0 w-full h-full object-cover opacity-50"
+        className="absolute inset-0 w-full h-full object-cover opacity-60"
       />
       <button
         onClick={() => setPlaying(!playing)}
-        className="absolute bottom-6 right-6 z-30 bg-black/60 hover:bg-black/90 text-white p-3 rounded-full backdrop-blur-sm transition-colors border border-white/10"
+        className="fx-press absolute bottom-6 right-6 z-30 bg-black/60 hover:bg-black/90 text-white p-3 rounded-full backdrop-blur-sm border border-white/10"
         aria-label={playing ? `Pausar ${ariaLabel}` : `Reproducir ${ariaLabel}`}
       >
         {playing ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
@@ -52,21 +51,22 @@ function FAQItem({ q, a }: { q: string, a: string }) {
   const [open, setOpen] = useState(false);
   const reduced = useReducedMotion();
   return (
-    <div className="border-b border-[var(--border-subtle)]">
-      <button 
+    <div className="border-b border-[var(--border-subtle)] last:border-b-0">
+      <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         className="w-full py-5 text-left flex justify-between items-center group"
       >
-        <span className="font-bold text-base md:text-lg pr-8 text-white transition-colors">{q}</span>
-        <ChevronRight className={`w-5 h-5 shrink-0 text-[var(--premium-gold)] transition-transform duration-300 ${open ? 'rotate-90' : ''}`} />
+        <span className="font-bold text-base md:text-lg pr-8 text-white group-hover:text-[var(--premium-gold)] transition-colors">{q}</span>
+        <ChevronRight className={`w-5 h-5 shrink-0 text-[var(--premium-gold)] transition-transform duration-200 ease-out ${open ? 'rotate-90' : ''}`} />
       </button>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {open && (
           <motion.div
             initial={reduced ? { opacity: 1, height: "auto" } : { height: 0, opacity: 0 }}
             animate={reduced ? { opacity: 1, height: "auto" } : { height: "auto", opacity: 1 }}
             exit={reduced ? { opacity: 0, height: 0 } : { height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
             className="overflow-hidden"
           >
             <p className="pb-5 text-[var(--text-secondary)] text-sm md:text-base leading-relaxed">{a}</p>
@@ -103,9 +103,6 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
   const activeHeroVideo = isCustomHero && !template.media?.heroVideo ? undefined : heroVideo;
   const shopImg = `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_shop2.jpg`;
 
-  const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 1000], ["0%", "15%"]);
-
   const categoryMap: { id: FenixCategory; title: string; img: string }[] = [
     { id: "maquinas", title: "Máquinas", img: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_clipper_kit.jpg` },
     { id: "trimmers", title: "Trimmers", img: `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_clipper_box.jpg` },
@@ -134,9 +131,21 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
           --premium-gold-soft: rgba(212, 175, 55, 0.16);
           --text-primary: #F5F2EA;
           --text-secondary: #A8A8A8;
-          --text-muted: #707070;
+          --text-muted: #8A8A8A;
           --border-subtle: rgba(255, 255, 255, 0.10);
           --border-gold: rgba(212, 175, 55, 0.55);
+        }
+        /* Buttons answer the press; colour changes stay quick. */
+        .fenix-theme .fx-press {
+          transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+        }
+        .fenix-theme .fx-press:active:not(:disabled) { transform: scale(0.97); }
+        @media (prefers-reduced-motion: reduce) {
+          .fenix-theme .fx-press:active:not(:disabled) { transform: none; }
+        }
+        .fenix-theme :is(a, button):focus-visible {
+          outline: 2px solid var(--premium-gold);
+          outline-offset: 2px;
         }
         .fenix-theme h1, .fenix-theme h2, .fenix-theme h3, .fenix-theme .font-display {
           font-family: 'Oswald', 'Inter', sans-serif;
@@ -149,7 +158,7 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
       `}} />
 
       {/* HEADER */}
-      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-[var(--background-primary)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] py-3' : 'bg-transparent py-4 md:py-6'}`}>
+      <header className={`fixed top-0 w-full z-50 transition-[background-color,border-color,padding] duration-200 ease-out ${scrolled ? 'bg-[var(--background-primary)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] py-3' : 'bg-transparent py-4 md:py-6'}`}>
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center">
           <a href="#" className="flex items-center gap-3 z-50">
             <img src={template.brand.logo || `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_logo.jpg`} alt={template.brand.name} className="w-10 h-10 md:w-14 md:h-14 rounded-full object-cover border border-[var(--premium-gold)]" />
@@ -163,7 +172,7 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
             <a href="#faq" className="hover:text-[var(--premium-gold)] transition-colors">FAQ</a>
             <button
               onClick={() => setConsultaOpen(true)}
-              className="bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2 rounded-sm"
+              className="fx-press bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black px-4 py-2 text-xs font-bold uppercase tracking-wider flex items-center gap-2 rounded-sm"
             >
               <MessageCircle className="w-4 h-4" />
               Mi Consulta
@@ -174,10 +183,11 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
           {/* Mobile Hamburger */}
           <button 
             className="md:hidden text-[var(--text-primary)] p-2 z-50"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Menu"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Abrir menú"
+            aria-expanded={mobileMenuOpen}
           >
-            {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+            <Menu className="w-7 h-7" />
           </button>
         </div>
       </header>
@@ -188,17 +198,21 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
           {mobileMenuOpen && (
             <Dialog.Content {...menuFocus} forceMount asChild aria-describedby={undefined}>
               <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="fixed inset-0 z-[45] bg-[var(--background-primary)] flex flex-col pt-24 px-6 md:hidden overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom))]"
+                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : -12 }}
+                animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.23, 1, 0.32, 1] } }}
+                exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -8, transition: { duration: 0.15, ease: "easeOut" } }}
+                className="fixed inset-0 z-[55] bg-[var(--background-primary)] flex flex-col pt-24 px-6 md:hidden overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom))]"
               >
+                {/* The menu covers the header and closes from inside: a modal dialog blocks taps on the header's button. */}
+                <Dialog.Close aria-label="Cerrar menú" className="fx-press absolute top-4 right-4 p-2 text-[var(--text-primary)]">
+                  <X className="w-7 h-7" />
+                </Dialog.Close>
                 <Dialog.Title className="sr-only">Menú</Dialog.Title>
                 <nav className="flex flex-col gap-6 text-xl font-bold font-display text-[var(--text-primary)]">
                   <a href="#" onClick={() => setMobileMenuOpen(false)} className="hover:text-[var(--premium-gold)] border-b border-[var(--border-subtle)] pb-4">Inicio</a>
                   <a href="#productos" onClick={() => setMobileMenuOpen(false)} className="hover:text-[var(--premium-gold)] border-b border-[var(--border-subtle)] pb-4">Catálogo</a>
                   <a href="#categorias" onClick={() => setMobileMenuOpen(false)} className="hover:text-[var(--premium-gold)] border-b border-[var(--border-subtle)] pb-4">Categorías</a>
-                  <a href="#comprar" onClick={() => setMobileMenuOpen(false)} className="hover:text-[var(--premium-gold)] border-b border-[var(--border-subtle)] pb-4">Nosotros</a>
+                  <a href="#comprar" onClick={() => setMobileMenuOpen(false)} className="hover:text-[var(--premium-gold)] border-b border-[var(--border-subtle)] pb-4">Cómo comprar</a>
                   <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="hover:text-[var(--premium-gold)] border-b border-[var(--border-subtle)] pb-4">Preguntas frecuentes</a>
                   <a href="#ubicacion" onClick={() => setMobileMenuOpen(false)} className="hover:text-[var(--premium-gold)] border-b border-[var(--border-subtle)] pb-4">Ubicación</a>
                   <a href={template.brand.socials?.instagram || "#"} onClick={() => setMobileMenuOpen(false)} target="_blank" className="hover:text-[var(--premium-gold)] border-b border-[var(--border-subtle)] pb-4">Instagram</a>
@@ -208,7 +222,7 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
                       setMobileMenuOpen(false);
                       setConsultaOpen(true);
                     }}
-                    className="text-left hover:text-[var(--premium-gold)] text-[var(--premium-gold)] pb-4"
+                    className="text-left uppercase hover:text-[var(--premium-gold-dark)] text-[var(--premium-gold)] pb-4"
                   >
                     Mi consulta
                   </button>
@@ -220,28 +234,22 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
       </Dialog.Root>
 
       {/* 1. HERO */}
-      <section className="relative min-h-[90dvh] md:min-h-[85vh] w-full flex flex-col justify-end pb-24 md:pb-0 md:justify-center overflow-hidden bg-[var(--background-primary)]">
-        {prefersReducedMotion ? (
-          <div className="absolute inset-0 z-0">
+      <section className="relative min-h-[90dvh] md:min-h-[100dvh] w-full flex flex-col justify-end pb-24 md:pb-0 md:justify-center overflow-hidden bg-[var(--background-primary)]">
+        <div className="absolute inset-0 z-0">
+          {activeHeroVideo ? (
+            <BackgroundVideo src={activeHeroVideo} poster={heroPoster} reducedMotion={prefersReducedMotion} ariaLabel="hero" />
+          ) : (
             <img src={heroPoster} alt="" className="w-full h-full object-cover opacity-60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--background-primary)] via-[var(--background-primary)]/60 to-transparent" />
-          </div>
-        ) : (
-          <motion.div className="absolute inset-0 z-0" style={{ y: heroY }}>
-            {activeHeroVideo ? (
-              <BackgroundVideo src={activeHeroVideo} poster={heroPoster} reducedMotion={false} ariaLabel="hero" />
-            ) : (
-              <img src={heroPoster} alt="" className="w-full h-full object-cover opacity-60" />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--background-primary)] via-[var(--background-primary)]/80 to-[var(--background-primary)]/20" />
-          </motion.div>
-        )}
-        
+          )}
+          {/* Darkest behind the copy: the bottom on phones, the left on desktop. */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t md:bg-gradient-to-r from-[var(--background-primary)] via-[var(--background-primary)]/70 md:via-[var(--background-primary)]/50 to-[var(--background-primary)]/10" />
+        </div>
+
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-8 pointer-events-none">
           <motion.div
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
             animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             className="pointer-events-auto max-w-2xl"
           >
             <div className="text-[var(--premium-gold)] text-[10px] md:text-xs font-bold tracking-[0.15em] mb-4 uppercase inline-block border border-[var(--border-gold)] bg-[var(--premium-gold-soft)] px-3 py-1">
@@ -257,10 +265,10 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
-              <a href="#productos" className="w-full sm:w-auto bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black px-6 py-4 md:py-3 text-sm font-bold uppercase tracking-wide transition-colors text-center">
+              <a href="#productos" className="fx-press w-full sm:w-auto bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black px-6 py-4 md:py-3 text-sm font-bold uppercase tracking-wide text-center">
                 Ver catálogo
               </a>
-              <a href={whatsappUrl} target="_blank" rel="noreferrer" className="w-full sm:w-auto border border-[var(--text-secondary)] text-[var(--text-primary)] hover:border-[var(--text-primary)] hover:bg-[var(--surface-primary)] px-6 py-4 md:py-3 text-sm font-bold uppercase tracking-wide transition-colors text-center">
+              <a href={whatsappUrl} target="_blank" rel="noreferrer" className="fx-press w-full sm:w-auto border border-[var(--text-secondary)] text-[var(--text-primary)] hover:border-[var(--text-primary)] hover:bg-[var(--surface-primary)] px-6 py-4 md:py-3 text-sm font-bold uppercase tracking-wide text-center">
                 Consultar por WhatsApp
               </a>
             </div>
@@ -273,16 +281,20 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
 
       {/* 2. CATEGORY GRID */}
       <section id="categorias" className="py-12 md:py-24 px-4 md:px-8 bg-[var(--background-secondary)] border-b border-[var(--border-subtle)]">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
-            {catCounts.map((cat, i) => (
-              <a 
-                key={cat.id} 
+        {/* 76rem = the header's max-w-7xl minus its padding, so every section shares the same left and right edge. */}
+        <div className="max-w-[76rem] mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {catCounts.map((cat, i) => {
+              // The first tile is wide; with an even count the last one is too, so no row ends half empty.
+              const wide = i === 0 || (i === catCounts.length - 1 && catCounts.length % 2 === 0);
+              return (
+              <a
+                key={cat.id}
                 href={`#productos`}
                 onClick={() => setCategory(cat.id)}
-                className={`group relative overflow-hidden bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col justify-end ${i === 0 ? 'col-span-2 aspect-[2/1]' : 'col-span-1 aspect-square md:aspect-square'}`}
+                className={`group relative overflow-hidden bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col justify-end ${wide ? 'col-span-2 aspect-[2/1] md:aspect-auto' : 'aspect-square'}`}
               >
-                <img src={cat.img} alt={cat.title} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 group-hover:opacity-80 transition-all duration-700" />
+                <img src={cat.img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-[1.03] group-hover:opacity-80 transition-[transform,opacity] duration-300 ease-out" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/40 to-transparent" />
                 <div className="relative p-3 md:p-6 w-full">
                   <div className="flex justify-between items-end">
@@ -290,11 +302,12 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
                       <h3 className="text-sm md:text-2xl font-display font-bold text-white mb-1 group-hover:text-[var(--premium-gold)] transition-colors leading-tight">{cat.title}</h3>
                       <p className="text-[10px] md:text-xs text-[var(--text-secondary)] uppercase tracking-wider">{cat.count} {cat.count === 1 ? "producto" : "productos"}</p>
                     </div>
-                    <ArrowRight className="hidden md:block w-5 h-5 text-[var(--premium-gold)] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                    <ArrowRight className="hidden md:block w-5 h-5 text-[var(--premium-gold)] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-[opacity,transform] duration-200 ease-out" />
                   </div>
                 </div>
               </a>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -331,32 +344,27 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
 
       {/* 4. CÓMO COMPRAR */}
       <section id="comprar" className="py-16 md:py-24 px-4 md:px-8 bg-[var(--surface-primary)] border-y border-[var(--border-subtle)]">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-[76rem] mx-auto">
           <div className="mb-10 text-center md:text-left">
             <h2 className="text-2xl md:text-4xl font-display font-bold mb-3">Proceso de Compra</h2>
             <div className="w-12 h-[2px] bg-[var(--premium-gold)] mx-auto md:mx-0" />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
             <div className="hidden md:block absolute top-8 left-[16%] right-[16%] h-[1px] bg-[var(--border-gold)]" />
-            
-            <FadeInView delay={0.1} className="relative bg-[var(--background-primary)] p-6 md:p-8 border border-[var(--border-subtle)] text-center md:text-left">
-              <div className="text-4xl md:text-5xl font-display font-black text-[var(--premium-gold-soft)] absolute top-4 right-4 leading-none">01</div>
-              <h3 className="text-lg md:text-xl font-bold mb-2 text-[var(--premium-gold)] relative z-10">Explorá el catálogo</h3>
-              <p className="text-sm text-[var(--text-secondary)] relative z-10">Revisá productos, características y opciones disponibles.</p>
-            </FadeInView>
-            
-            <FadeInView delay={0.2} className="relative bg-[var(--background-primary)] p-6 md:p-8 border border-[var(--border-subtle)] text-center md:text-left">
-              <div className="text-4xl md:text-5xl font-display font-black text-[var(--premium-gold-soft)] absolute top-4 right-4 leading-none">02</div>
-              <h3 className="text-lg md:text-xl font-bold mb-2 text-[var(--premium-gold)] relative z-10">Agregá productos a Mi consulta</h3>
-              <p className="text-sm text-[var(--text-secondary)] relative z-10">Seleccioná los productos de tu interés a la lista de consulta.</p>
-            </FadeInView>
-            
-            <FadeInView delay={0.3} className="relative bg-[var(--background-primary)] p-6 md:p-8 border border-[var(--border-subtle)] text-center md:text-left">
-              <div className="text-4xl md:text-5xl font-display font-black text-[var(--premium-gold-soft)] absolute top-4 right-4 leading-none">03</div>
-              <h3 className="text-lg md:text-xl font-bold mb-2 text-[var(--premium-gold)] relative z-10">Enviá la lista por WhatsApp</h3>
-              <p className="text-sm text-[var(--text-secondary)] relative z-10">Nuestro equipo confirmará disponibilidad y método de pago.</p>
-            </FadeInView>
+
+            {[
+              ["01", "Explorá el catálogo", "Revisá productos, características y opciones disponibles."],
+              ["02", "Agregá productos a Mi consulta", "Seleccioná los productos de tu interés a la lista de consulta."],
+              ["03", "Enviá la lista por WhatsApp", "Nuestro equipo confirmará disponibilidad y método de pago."],
+            ].map(([n, title, body]) => (
+              <div key={n} className="relative bg-[var(--background-primary)] p-6 md:p-8 border border-[var(--border-subtle)]">
+                <div aria-hidden className="text-4xl md:text-5xl font-display font-black text-[var(--premium-gold-soft)] absolute top-4 right-4 leading-none">{n}</div>
+                {/* pr-12 keeps long titles clear of the step number in the corner. */}
+                <h3 className="text-lg md:text-xl font-bold mb-2 pr-12 text-[var(--premium-gold)] relative z-10">{title}</h3>
+                <p className="text-sm text-[var(--text-secondary)] relative z-10">{body}</p>
+              </div>
+            ))}
           </div>
           
           <div className="mt-8 text-center text-[10px] md:text-[11px] text-[var(--text-muted)] tracking-wider">
@@ -368,8 +376,9 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
       {/* 5. STORE SECTION */}
       <section id="ubicacion" className="py-0 bg-[var(--background-primary)]">
         <div className="grid grid-cols-1 lg:grid-cols-2">
-          <div className="relative h-[30vh] lg:h-auto border-b lg:border-b-0 lg:border-r border-[var(--border-subtle)]">
-            <img src={shopImg} alt="Suplidora Fénix" className="w-full h-full object-cover" />
+          {/* The photo is portrait: absolute, so it fills the row instead of setting a 1000px+ row height. */}
+          <div className="relative h-[30vh] lg:h-auto lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-[var(--border-subtle)]">
+            <img src={shopImg} alt="Suplidora Fénix" className="absolute inset-0 w-full h-full object-cover" />
           </div>
           <div className="p-8 md:p-20 flex flex-col justify-center bg-[var(--surface-primary)]">
             <h2 className="text-2xl md:text-5xl font-display font-bold mb-6">Visitá Suplidora Fénix</h2>
@@ -385,10 +394,10 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <a href="https://www.google.com/maps/search/Suplidora+Fenix+Mall+San+Pedro" target="_blank" rel="noreferrer" className="w-full sm:w-auto bg-[var(--surface-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)] text-[var(--text-primary)] px-6 py-4 md:py-3 text-sm font-bold uppercase tracking-wide transition-colors text-center flex items-center justify-center gap-2">
+              <a href="https://www.google.com/maps/search/Suplidora+Fenix+Mall+San+Pedro" target="_blank" rel="noreferrer" className="fx-press w-full sm:w-auto bg-[var(--surface-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)] text-[var(--text-primary)] px-6 py-4 md:py-3 text-sm font-bold uppercase tracking-wide text-center flex items-center justify-center gap-2">
                 <MapPin className="w-4 h-4" /> Cómo llegar
               </a>
-              <a href={whatsappUrl} target="_blank" rel="noreferrer" className="w-full sm:w-auto bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black px-6 py-4 md:py-3 text-sm font-bold uppercase tracking-wide transition-colors text-center">
+              <a href={whatsappUrl} target="_blank" rel="noreferrer" className="fx-press w-full sm:w-auto bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black px-6 py-4 md:py-3 text-sm font-bold uppercase tracking-wide text-center">
                 Contactar Tienda
               </a>
             </div>
@@ -413,7 +422,7 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
 
       {/* 7. Footer */}
       <footer className="bg-[var(--background-primary)] py-16 px-4 md:px-8 pb-32 md:pb-16 text-center md:text-left border-t border-[var(--border-subtle)]">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="max-w-[76rem] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
               <img src={template.brand.logo || `${TEMPLATE_ASSETS}/suplidora-fenix/fenix_logo.jpg`} alt={template.brand.name} className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border border-[var(--premium-gold)]" />
@@ -429,25 +438,25 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
           
           <div>
             <h4 className="font-bold text-[var(--text-primary)] mb-4 uppercase text-xs tracking-wider">Navegación</h4>
-            <ul className="space-y-3 text-sm text-[var(--text-secondary)]">
-              <li><a href="#productos" className="hover:text-[var(--premium-gold)]">Catálogo</a></li>
-              <li><a href="#categorias" className="hover:text-[var(--premium-gold)]">Categorías</a></li>
-              <li><a href="#comprar" className="hover:text-[var(--premium-gold)]">Proceso de compra</a></li>
-              <li><a href="#faq" className="hover:text-[var(--premium-gold)]">Preguntas frecuentes</a></li>
+            <ul className="md:space-y-3 text-sm text-[var(--text-secondary)]">
+              <li><a href="#productos" className="inline-flex items-center min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Catálogo</a></li>
+              <li><a href="#categorias" className="inline-flex items-center min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Categorías</a></li>
+              <li><a href="#comprar" className="inline-flex items-center min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Proceso de compra</a></li>
+              <li><a href="#faq" className="inline-flex items-center min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Preguntas frecuentes</a></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-bold text-[var(--text-primary)] mb-4 uppercase text-xs tracking-wider">Contacto</h4>
-            <ul className="space-y-3 text-sm text-[var(--text-secondary)]">
-              <li><a href={whatsappUrl} target="_blank" className="hover:text-[var(--premium-gold)] inline-flex items-center gap-2"><ArrowRight className="w-3 h-3" /> WhatsApp</a></li>
-              <li><a href={template.brand.socials?.instagram || "#"} target="_blank" className="hover:text-[var(--premium-gold)] inline-flex items-center gap-2"><Instagram className="w-3 h-3" /> Instagram</a></li>
-              <li><a href="#ubicacion" className="hover:text-[var(--premium-gold)] inline-flex items-center gap-2"><MapPin className="w-3 h-3" /> Mall San Pedro</a></li>
+            <ul className="md:space-y-3 text-sm text-[var(--text-secondary)]">
+              <li><a href={whatsappUrl} target="_blank" className="inline-flex items-center gap-2 min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors"><ArrowRight className="w-3 h-3" /> WhatsApp</a></li>
+              <li><a href={template.brand.socials?.instagram || "#"} target="_blank" className="inline-flex items-center gap-2 min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors"><Instagram className="w-3 h-3" /> Instagram</a></li>
+              <li><a href="#ubicacion" className="inline-flex items-center gap-2 min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors"><MapPin className="w-3 h-3" /> Mall San Pedro</a></li>
             </ul>
           </div>
         </div>
         
-        <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-[var(--border-subtle)] text-[10px] text-[var(--text-muted)] uppercase tracking-wider flex flex-col md:flex-row justify-center items-center">
+        <div className="max-w-[76rem] mx-auto mt-12 pt-8 border-t border-[var(--border-subtle)] text-[10px] text-[var(--text-muted)] uppercase tracking-wider flex flex-col md:flex-row justify-center items-center">
           <p>&copy; {new Date().getFullYear()} Suplidora Fénix. Todos los derechos reservados.</p>
         </div>
       </footer>

@@ -15,7 +15,7 @@ const welding: BusinessTemplate = {
     city: "Desamparados",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@ironforgewelding.com",
+    email: "hola@ironforgewelding.com",
     address: "Del cementerio de Desamparados, 300 m sur y 75 m este, Desamparados, San José",
     heroIcon: Flame,
     palette: {

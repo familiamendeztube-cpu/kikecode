@@ -182,7 +182,7 @@ const landscaping: BusinessTemplate = {
   media: {
     hero: `${assets}/hero.jpg`,
     video: `${assets}/brand-film.mp4`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
+    gallery: [`${assets}/gal1.jpg`, `${assets}/action2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal4.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -204,8 +204,8 @@ const landscaping: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Hedge trim & shape", "Full-garden redesign", "Smart sprinkler tune-up"],
-    es: ["Corte y forma de setos", "Rediseño completo del jardín", "Ajuste de aspersores inteligentes"],
+    en: ["Weekly lawn mowing", "Hedge trim & shape", "New stone paths & beds", "Lawn care on the route", "Seasonal flower planting", "Finished garden path"],
+    es: ["Corte de zacate semanal", "Poda y forma de setos", "Caminos de piedra y jardineras nuevas", "Mantenimiento de zacate en ruta", "Siembra de flores de temporada", "Camino de jardín terminado"],
   },
 };
 

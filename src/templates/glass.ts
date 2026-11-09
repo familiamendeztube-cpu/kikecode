@@ -182,6 +182,7 @@ const glass: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
+    heroFocus: "75% 50%",
     gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
@@ -209,7 +210,6 @@ const glass: BusinessTemplate = {
     images: [
       { src: `${assets}/trust1.jpg`, caption: { en: "Happy homeowner with new windows", es: "Cliente feliz con sus ventanas nuevas" } },
       { src: `${assets}/trust2.jpg`, caption: { en: "Choosing a custom mirror together", es: "Eligiendo un espejo a medida juntos" } },
-      { src: `${assets}/team.jpg`, caption: { en: "Our crew travels countrywide", es: "Nuestro equipo viaja por todo el país" } },
     ],
   },
 };

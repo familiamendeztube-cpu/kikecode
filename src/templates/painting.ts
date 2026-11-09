@@ -15,7 +15,7 @@ const painting: BusinessTemplate = {
     city: "Coronado",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@carlospainting.com",
+    email: "hola@carlospainting.com",
     address: "Del parque central de San Isidro, 200 m norte y 50 m este, San Isidro, Vázquez de Coronado, San José",
     heroIcon: Brush,
     palette: {
@@ -183,7 +183,7 @@ const painting: BusinessTemplate = {
   media: {
     hero: `${assets}/hero.jpg`,
     video: `${assets}/brand-film.mp4`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
+    gallery: [`${assets}/gal3.jpg`, `${assets}/gal2.jpg`, `${assets}/gal1.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -205,8 +205,8 @@ const painting: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Crew on-site, exterior repaint", "Living room finish, premium low-VOC", "Detail prep — tape, sand, prime"],
-    es: ["Cuadrilla en sitio, repintado exterior", "Acabado en sala, bajo en VOC", "Preparación al detalle — cinta, lija, sellador"],
+    en: ["Detail prep — tape, sand, prime", "Fine finish, low-VOC", "Crew on-site, exterior repaint"],
+    es: ["Preparación al detalle — cinta, lija, sellador", "Acabado fino, bajo en VOC", "Cuadrilla en sitio, repintado exterior"],
   },
 };
 

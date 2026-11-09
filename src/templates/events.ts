@@ -183,7 +183,7 @@ const events: BusinessTemplate = {
   media: {
     hero: `${assets}/hero.jpg`,
     video: `${assets}/brand-film.mp4`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
+    gallery: [`${assets}/gal3.jpg`, `${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -205,8 +205,8 @@ const events: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Wedding reception setup", "Pastel birthday backdrop", "Quinceañera dance floor"],
-    es: ["Montaje de recepción de boda", "Backdrop de cumpleaños en tonos pastel", "Pista de baile de quince años"],
+    en: ["Quinceañera dance floor", "Wedding reception setup", "Pastel birthday backdrop"],
+    es: ["Pista de baile de quince años", "Montaje de recepción de boda", "Backdrop de cumpleaños en tonos pastel"],
   },
 };
 

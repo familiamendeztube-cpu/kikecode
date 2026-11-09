@@ -3,39 +3,8 @@ import { Phone, Mail, MapPin, Clock, Check, ArrowRight, MessageCircle, CheckCirc
 import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
 import { whatsappLink, WhatsAppButton } from "@/sites/shared/whatsapp";
 import { pick } from "@/lib/i18n";
-import { SectionHeader, FormField, Eyebrow, GHOST_CTA, type SiteProps } from "./ui";
+import { SectionHeader, FormField, Eyebrow, PRESS, scrimFor, dimmed, onColor, type SiteProps } from "./ui";
 import { categoryExtraField } from "./data";
-
-/* MID CTA BANNER */
-export function MidCta({ template, brand, p, t, lang }: SiteProps) {
-  const media = template.media;
-  return (
-    <section className="relative overflow-hidden" style={{ background: `linear-gradient(115deg, ${p.heroFrom}, ${p.heroVia}, ${p.heroTo})` }}>
-      {media?.hero && (
-        <img src={media.hero} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover opacity-20" loading="lazy" />
-      )}
-      <div className="absolute inset-0" style={{ background: `linear-gradient(115deg, ${p.heroFrom}f2, ${p.heroTo}b3)` }} />
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center text-white">
-        <h2 className="font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight mb-4 drop-shadow-[0_2px_16px_rgba(0,0,0,0.4)]">
-          {pick(lang, "Ready when you are", "Listos cuando usted quiera")}
-        </h2>
-        <p className="text-white/90 text-lg max-w-2xl mx-auto mb-8">
-          {pick(lang,
-            "Tell us what you need and we'll prepare a quote.",
-            "Cuéntenos qué necesita y le preparamos una cotización.")}
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <a href="#contact" className="inline-flex items-center justify-center gap-2 font-bold px-7 py-4 rounded-lg shadow-2xl transition-all hover:translate-y-[-2px] bg-white" style={{ color: p.primaryDark }}>
-            {t.hero.cta1} <ArrowRight className="w-4 h-4" />
-          </a>
-          <a href={brand.phoneHref} className={GHOST_CTA}>
-            <Phone className="w-4 h-4" /> {brand.phone}
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* PROJECT SELECTOR — interactive */
 export function ProjectSelector({ template, p, lang }: SiteProps) {
@@ -78,7 +47,7 @@ export function ProjectSelector({ template, p, lang }: SiteProps) {
             <p className="text-slate-700 max-w-2xl mx-auto leading-relaxed">
               {template.projectSelector.recommendation[lang]}
             </p>
-            <a href="#contact" className="inline-flex items-center justify-center gap-2 mt-5 text-white font-bold px-6 py-3 rounded-lg shadow-md transition-opacity hover:opacity-90" style={{ backgroundColor: p.primary }}>
+            <a href="#contact" className={`inline-flex items-center justify-center gap-2 mt-5 text-white font-bold px-6 py-3 rounded-lg shadow-md hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primary }}>
               {pick(lang, "Request a Quote", "Solicite una Cotización")} <ArrowRight className="w-4 h-4" />
             </a>
           </div>
@@ -96,15 +65,15 @@ export function FoodBand({ template, brand, lang }: SiteProps) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
         <div>
           <h3 className="text-2xl font-extrabold tracking-tight">
-            {pick(lang, "Hungry? Order or reserve in seconds", "¿Con hambre? Ordene o reserve en segundos")}
+            {pick(lang, "Hungry? Order in seconds", "¿Con hambre? Pida en segundos")}
           </h3>
           <p className="mt-1 text-white/70">
-            {pick(lang, "Message us on WhatsApp for pickup, delivery, or a table.", "Escríbanos por WhatsApp para recoger, entrega o una mesa.")}
+            {pick(lang, "Message us on WhatsApp to order for pickup or delivery.", "Escríbanos por WhatsApp para pedir, recoger o recibir a domicilio.")}
           </p>
         </div>
         <WhatsAppButton
           href={whatsappLink(brand, pick(lang, `Hi ${brand.name}! I'd like to place an order.`, `¡Hola ${brand.name}! Quisiera hacer un pedido.`))}
-          className="shrink-0 inline-flex items-center justify-center gap-2 font-bold px-7 py-4 rounded-lg text-white shadow-xl transition-transform hover:translate-y-[-2px]"
+          className={`shrink-0 inline-flex items-center justify-center gap-2 font-bold px-7 py-4 rounded-lg text-white shadow-xl hover:-translate-y-0.5 ${PRESS}`}
         >
           <MessageCircle className="w-5 h-5" /> {pick(lang, "Order on WhatsApp", "Ordenar por WhatsApp")}
         </WhatsAppButton>
@@ -130,7 +99,7 @@ export function EmergencyBand({ template, brand, p, lang }: SiteProps) {
             </p>
           </div>
         </div>
-        <a href={brand.phoneHref} className="shrink-0 inline-flex items-center justify-center gap-2 bg-white font-bold px-7 py-4 rounded-lg shadow-xl transition-transform hover:translate-y-[-2px]" style={{ color: p.primaryDark }}>
+        <a href={brand.phoneHref} className={`shrink-0 inline-flex items-center justify-center gap-2 bg-white font-bold px-7 py-4 rounded-lg shadow-xl hover:-translate-y-0.5 ${PRESS}`} style={{ color: p.primaryDark }}>
           <Phone className="w-5 h-5" /> {brand.phone}
         </a>
       </div>
@@ -140,26 +109,34 @@ export function EmergencyBand({ template, brand, p, lang }: SiteProps) {
 
 export function Contact({ template, brand, p, t, lang }: SiteProps) {
   const extraField = categoryExtraField(template.category ?? "trades");
-  const input = "w-full h-11 rounded-lg border border-slate-300 px-3 outline-none focus:ring-2";
-  const ring = { ["--tw-ring-color" as never]: `${p.primary}40` };
+  // 16px text: a smaller input makes iOS zoom the page on focus.
+  const input = "w-full h-11 rounded-lg border border-slate-300 px-3 text-base outline-none focus:ring-2";
+  const ring = { ["--tw-ring-color" as never]: p.primary };
   const availability = template.availability;
   const lead = useLeadForm(template.plwSiteId, lang);
   const outcome = leadOutcomeMessage(lead.state, lang, brand.phone);
+  const icon = "w-5 h-5 shrink-0 mt-px";
+  // A light brand color (amber, gold, cyan) under white text gets just enough dimming to read at 4.5:1.
+  const scrim = Math.max(scrimFor(p.contactFrom), scrimFor(p.contactTo));
+  const ink = onColor(p.accent, [dimmed(p.contactFrom, scrim), dimmed(p.contactTo, scrim)]);
+  const overlay = scrim ? `linear-gradient(rgb(0 0 0 / ${scrim.toFixed(2)}), rgb(0 0 0 / ${scrim.toFixed(2)})), ` : "";
   return (
-    <section id="contact" className="py-20 sm:py-24 text-white" style={{ background: `linear-gradient(135deg, ${p.contactFrom}, ${p.contactTo})` }}>
+    // Two brand hues blended in sRGB go gray in the middle; oklab keeps the blend clean.
+    // The flat color is the fallback where `in oklab` is not supported.
+    <section id="contact" className="py-20 sm:py-24 text-white" style={{ backgroundColor: p.contactFrom, backgroundImage: `${overlay}linear-gradient(135deg in oklab, ${p.contactFrom}, ${p.contactTo})` }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-start">
         <div>
-          <Eyebrow color={p.accent}>{t.nav.contact}</Eyebrow>
-          <h2 className="font-extrabold text-4xl sm:text-5xl leading-tight tracking-tight mb-4">{t.contact.title}</h2>
+          <Eyebrow color={ink}>{t.nav.contact}</Eyebrow>
+          <h2 className="text-balance font-extrabold text-4xl sm:text-5xl leading-tight tracking-tight mb-4">{t.contact.title}</h2>
           <p className="text-white/90 mb-8 text-lg">{t.contact.blurb}</p>
           <div className="space-y-3 text-sm">
-            <div className="flex items-center gap-3"><Phone className="w-5 h-5" style={{ color: p.accent }} /> <a href={brand.phoneHref} className="hover:underline">{brand.phone}</a></div>
+            <div className="flex items-start gap-3"><Phone className={icon} style={{ color: ink }} /> <a href={brand.phoneHref} className="hover:underline">{brand.phone}</a></div>
             {brand.phoneAlt && (
-              <div className="flex items-center gap-3"><Phone className="w-5 h-5" style={{ color: p.accent }} /> <a href={brand.phoneAltHref ?? `tel:${brand.phoneAlt.replace(/[^\d+]/g, "")}`} className="hover:underline">{brand.phoneAlt}</a></div>
+              <div className="flex items-start gap-3"><Phone className={icon} style={{ color: ink }} /> <a href={brand.phoneAltHref ?? `tel:${brand.phoneAlt.replace(/[^\d+]/g, "")}`} className="hover:underline">{brand.phoneAlt}</a></div>
             )}
-            <div className="flex items-center gap-3"><Mail className="w-5 h-5" style={{ color: p.accent }} /> <a href={`mailto:${brand.email}`} className="hover:underline">{brand.email}</a></div>
-            <div className="flex items-center gap-3"><MapPin className="w-5 h-5" style={{ color: p.accent }} /> {brand.address}</div>
-            <div className="flex items-center gap-3"><Clock className="w-5 h-5" style={{ color: p.accent }} /> {availability ? availability[lang] : t.footer.hours}</div>
+            <div className="flex items-start gap-3"><Mail className={icon} style={{ color: ink }} /> <a href={`mailto:${brand.email}`} className="hover:underline break-all">{brand.email}</a></div>
+            <div className="flex items-start gap-3"><MapPin className={icon} style={{ color: ink }} /> {brand.address}</div>
+            <div className="flex items-start gap-3"><Clock className={icon} style={{ color: ink }} /> {availability ? availability[lang] : t.footer.hours}</div>
           </div>
         </div>
 
@@ -195,7 +172,7 @@ export function Contact({ template, brand, p, t, lang }: SiteProps) {
                 <input name="phone" required type="tel" className={input} style={ring} />
               </FormField>
               <FormField label={t.contact.service}>
-                <select name="service" className="w-full h-11 rounded-lg border border-slate-300 px-3 bg-white outline-none focus:ring-2" style={ring}>
+                <select name="service" className="w-full h-11 rounded-lg border border-slate-300 px-3 text-base bg-white outline-none focus:ring-2" style={ring}>
                   <option value="">{t.contact.pick}</option>
                   {t.contact.services.map((s) => <option key={s}>{s}</option>)}
                 </select>
@@ -206,7 +183,7 @@ export function Contact({ template, brand, p, t, lang }: SiteProps) {
                 </FormField>
               )}
               <FormField label={t.contact.message}>
-                <textarea name="message" rows={4} className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:ring-2" style={ring} />
+                <textarea name="message" rows={4} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base outline-none focus:ring-2" style={ring} />
               </FormField>
               {lead.isPreview && (
                 <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{previewNotice(lang)}</p>
@@ -216,7 +193,7 @@ export function Contact({ template, brand, p, t, lang }: SiteProps) {
                   {outcome}
                 </p>
               )}
-              <button type="submit" disabled={lead.sending} aria-busy={lead.sending} className="w-full h-12 rounded-lg text-white font-bold shadow-md transition-opacity hover:opacity-90 disabled:opacity-60 disabled:cursor-wait" style={{ backgroundColor: p.primary }}>
+              <button type="submit" disabled={lead.sending} aria-busy={lead.sending} className={`w-full h-12 rounded-lg text-white font-bold shadow-md hover:opacity-90 disabled:opacity-60 disabled:cursor-wait ${PRESS}`} style={{ backgroundColor: p.primary }}>
                 {lead.sending ? (lang === "en" ? "Sending…" : "Enviando…") : t.contact.submit}
               </button>
             </>
@@ -227,32 +204,33 @@ export function Contact({ template, brand, p, t, lang }: SiteProps) {
   );
 }
 
-/* CLOSING CTA — strong final ask on every template */
+/* The WhatsApp greeting the closing band and the phone bar start with. Neutral,
+   so it fits a barbershop or a bakery as well as a roofer. */
+function hello(brand: SiteProps["brand"], lang: SiteProps["lang"]): string {
+  return pick(lang, `Hi ${brand.name}! I have a question.`, `¡Hola ${brand.name}! Tengo una consulta.`);
+}
+
+/* CLOSING CTA — the last ask, after the form: call or message. */
 export function ClosingCta({ brand, p, lang }: SiteProps) {
   return (
     <section className="py-16 sm:py-20 text-white" style={{ background: `linear-gradient(135deg, ${p.primaryDark}, ${p.primary})` }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-        <h2 className="font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight mb-4 drop-shadow-[0_2px_16px_rgba(0,0,0,0.3)]">
-          {pick(lang, "Ready to get started?", "¿Listo para empezar?")}
+        <h2 className="text-balance font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight mb-4 drop-shadow-[0_2px_16px_rgba(0,0,0,0.3)]">
+          {pick(lang, "Questions? Talk to us", "¿Tiene preguntas? Hablemos")}
         </h2>
         <p className="text-white/90 text-lg max-w-2xl mx-auto mb-8">
-          {pick(lang,
-            `Talk to ${brand.name} today about your project.`,
-            `Hable hoy con ${brand.name} sobre su proyecto.`)}
+          {pick(lang, `Call or message ${brand.name.replace(/\.$/, "")} today.`, `Llame o escriba hoy a ${brand.name.replace(/\.$/, "")}.`)}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <a href={brand.phoneHref} className="inline-flex items-center justify-center gap-2 bg-white font-bold px-7 py-4 rounded-lg shadow-2xl transition-all hover:translate-y-[-2px]" style={{ color: p.primaryDark }}>
+          <a href={brand.phoneHref} className={`inline-flex items-center justify-center gap-2 bg-white font-bold px-7 py-4 rounded-lg shadow-2xl hover:-translate-y-0.5 ${PRESS}`} style={{ color: p.primaryDark }}>
             <Phone className="w-4 h-4" /> {pick(lang, "Call now", "Llamar ahora")}
           </a>
           <WhatsAppButton
-            href={whatsappLink(brand, pick(lang, `Hi! I'd like a quote from ${brand.name}.`, `¡Hola! Quisiera una cotización de ${brand.name}.`))}
-            className="inline-flex items-center justify-center gap-2 font-bold px-7 py-4 rounded-lg shadow-2xl text-white transition-all hover:translate-y-[-2px]"
+            href={whatsappLink(brand, hello(brand, lang))}
+            className={`inline-flex items-center justify-center gap-2 font-bold px-7 py-4 rounded-lg shadow-2xl text-white hover:-translate-y-0.5 ${PRESS}`}
           >
             <MessageCircle className="w-4 h-4" /> WhatsApp
           </WhatsAppButton>
-          <a href="#contact" className={GHOST_CTA}>
-            {pick(lang, "Request a quote", "Solicitar cotización")} <ArrowRight className="w-4 h-4" />
-          </a>
         </div>
       </div>
     </section>
@@ -269,7 +247,8 @@ export function Footer({ template, brand, p, t, lang }: SiteProps) {
     { href: brand.socials?.instagram, label: "Instagram", Icon: Instagram },
   ].filter((s) => s.href);
   return (
-    <footer className="bg-slate-950 text-slate-300 py-12">
+    // Under lg the fixed action bar sits over the last 5rem of the page.
+    <footer className="bg-slate-950 text-slate-300 pt-12 pb-28 lg:pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center gap-2 mb-3">
@@ -315,7 +294,7 @@ export function Footer({ template, brand, p, t, lang }: SiteProps) {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-10 pt-6 border-t border-slate-800 text-xs text-slate-500 flex flex-col sm:flex-row gap-2 justify-between">
-        <div>© {new Date().getFullYear()} {brand.name}. {t.footer.rights}</div>
+        <div>© {new Date().getFullYear()} {brand.name.replace(/\.$/, "")}. {t.footer.rights}</div>
         <div>{brand.city}</div>
       </div>
     </footer>
@@ -323,21 +302,23 @@ export function Footer({ template, brand, p, t, lang }: SiteProps) {
 }
 
 /* MOBILE STICKY ACTION BAR — Call / WhatsApp / Quote */
-export function MobileActionBar({ brand, p, lang }: SiteProps) {
+export function MobileActionBar({ brand, p, t, lang }: SiteProps) {
+  const button = `text-sm font-bold py-3.5 rounded-xl shadow-2xl flex items-center justify-center gap-1.5 ${PRESS}`;
   return (
-    <div className="lg:hidden fixed bottom-3 left-3 right-3 grid grid-cols-3 gap-2 z-40">
-      <a href={brand.phoneHref} className="text-white text-sm font-bold py-3.5 rounded-xl shadow-2xl flex items-center justify-center gap-1.5" style={{ backgroundColor: p.primary, boxShadow: `0 18px 36px -12px ${p.primary}80` }}>
+    <div className="lg:hidden fixed bottom-3 left-3 right-3 grid grid-cols-3 gap-2 z-40 pb-[env(safe-area-inset-bottom)]">
+      <a href={brand.phoneHref} className={`text-white ${button}`} style={{ backgroundColor: p.primary, boxShadow: `0 18px 36px -12px ${p.primary}80` }}>
         <Phone className="w-4 h-4" /> {pick(lang, "Call", "Llamar")}
       </a>
       <WhatsAppButton
-        href={whatsappLink(brand, pick(lang, `Hi! I'd like a quote from ${brand.name}.`, `¡Hola! Quisiera una cotización de ${brand.name}.`))}
-        className="text-white text-sm font-bold py-3.5 rounded-xl shadow-2xl flex items-center justify-center gap-1.5"
+        href={whatsappLink(brand, hello(brand, lang))}
+        className={`text-white ${button}`}
         style={{ boxShadow: "0 18px 36px -12px rgba(37,211,102,0.5)" }}
       >
         <MessageCircle className="w-4 h-4" /> WhatsApp
       </WhatsAppButton>
-      <a href="#contact" className="text-slate-900 bg-white text-sm font-bold py-3.5 rounded-xl shadow-2xl flex items-center justify-center gap-1.5 ring-1 ring-slate-200">
-        <Send className="w-4 h-4" /> {pick(lang, "Quote", "Cotizar")}
+      {/* "Quote" fits a roofer, not a barbershop or a bakery: the form's own name fits all. */}
+      <a href="#contact" className={`text-slate-900 bg-white ring-1 ring-slate-200 ${button}`}>
+        <Send className="w-4 h-4" /> {t.nav.contact}
       </a>
     </div>
   );

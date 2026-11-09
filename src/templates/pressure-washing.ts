@@ -1,8 +1,7 @@
 import { Droplets, Home, Building2, Waves, Clock, Sparkles, ShieldCheck, Languages } from "lucide-react";
 import type { BusinessTemplate } from "./types";
-import { TEMPLATE_ASSETS } from "@/lib/plw";
-
-const assets = `${TEMPLATE_ASSETS}/pressure-washing`;
+// Its stock photos (a laundromat, a sponge, a mop) were not pressure washing; new ones go in
+// template-assets/pressure-washing/ and back into media.
 
 const pressureWashing: BusinessTemplate = {
   slug: "pressure-washing",
@@ -15,7 +14,7 @@ const pressureWashing: BusinessTemplate = {
     city: "San Isidro de El General",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@aquashinewash.com",
+    email: "hola@aquashinewash.com",
     address: "Costado norte del parque central, San Isidro de El General, Pérez Zeledón, San José",
     heroIcon: Droplets,
     palette: {
@@ -166,9 +165,9 @@ const pressureWashing: BusinessTemplate = {
     roleEn: "Cleaning Advisor", roleEs: "Asesora de Limpieza",
   },
   media: {
-    hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    hero: "",
+    gallery: [],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -185,8 +184,8 @@ const pressureWashing: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Driveway power wash", "House exterior wash", "Deck & patio cleaning", "Roof soft wash", "Sidewalk cleaning", "Before & after shine"],
-    es: ["Lavado de cochera", "Lavado de fachada", "Limpieza de terraza", "Lavado suave de techo", "Limpieza de aceras", "Antes y después"],
+    en: [],
+    es: [],
   },
 };
 

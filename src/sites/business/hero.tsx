@@ -3,8 +3,7 @@ import { Phone, ShieldCheck, Star, Check, ArrowRight, Play, Pause } from "lucide
 import type { Lang } from "@/templates/types";
 import { EditableText, ChangePhotoButton } from "@/editor/editable";
 import { pick } from "@/lib/i18n";
-import { SiteImage, GHOST_CTA, type SiteProps } from "./ui";
-import { resolveFacts } from "./data";
+import { SiteImage, GHOST_CTA, PRESS, type SiteProps } from "./ui";
 
 /* Shared play/pause state for a muted looping video. Respects prefers-reduced-motion:
    never autoplay looping footage for users who asked the OS to minimize motion.
@@ -36,13 +35,14 @@ export function AvailabilityBar({ template, brand, p, lang }: SiteProps) {
     <div className="text-white text-xs sm:text-sm font-semibold py-2 px-4 text-center" style={{ background: `linear-gradient(90deg, ${p.primaryDark}, ${p.primary})` }}>
       <span className="inline-flex items-center gap-2">
         <span className="inline-flex items-center gap-1.5">
-          <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-white" /></span>
-          {pick(lang, "Request an appointment online, any time", "Solicite su cita en línea, a cualquier hora")}
+          <span className="relative flex h-2 w-2"><span className="animate-ping motion-reduce:animate-none absolute inline-flex h-full w-full rounded-full bg-white opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-white" /></span>
+          {pick(lang, "Send us a request online, any time", "Envíenos su solicitud en línea, a cualquier hora")}
         </span>
+        {/* A phone wraps mid-number on a phone screen, and the header's Call button already has it. */}
         <span className="hidden sm:inline">·</span>
         <span className="hidden sm:inline">{availability[lang]}</span>
-        <span>·</span>
-        <span>{brand.phone}</span>
+        <span className="hidden sm:inline">·</span>
+        <span className="hidden sm:inline whitespace-nowrap">{brand.phone}</span>
       </span>
     </div>
   );
@@ -54,43 +54,43 @@ export function SiteHeader({ template, brand, p, t, lang, setLang }: SiteProps &
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        <a href="#top" className="flex items-center gap-2 shrink-0">
+        {/* A long business name truncates rather than push the Call button off a phone screen. */}
+        <a href="#top" className="flex items-center gap-2 min-w-0">
           {brand.logo ? (
-            <img src={brand.logo} alt={brand.name} className="w-11 h-11 rounded-full object-contain bg-white ring-1 ring-slate-200" />
+            <img src={brand.logo} alt={brand.name} className="w-11 h-11 shrink-0 rounded-full object-contain bg-white ring-1 ring-slate-200" />
           ) : (
-            <div className="w-9 h-9 rounded-lg grid place-items-center text-white" style={{ backgroundColor: p.primary }}>
+            <div className="w-9 h-9 shrink-0 rounded-lg grid place-items-center text-white" style={{ backgroundColor: p.primary }}>
               <HeroIcon className="w-5 h-5" />
             </div>
           )}
-          <div className="leading-tight">
-            <div className="font-bold text-slate-900 tracking-tight">{brand.name}</div>
-            <div className="text-[10px] uppercase tracking-widest text-slate-500 hidden sm:block">{brand.city}</div>
+          <div className="leading-tight min-w-0">
+            <div className="font-bold text-slate-900 tracking-tight truncate">{brand.name}</div>
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 hidden sm:block truncate">{brand.city}</div>
           </div>
         </a>
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-700">
-          {/* Each link only when its section renders (Offers, Gallery, ServiceAreas hide without data). */}
-          {template.offers && <a href="#offers" className="hover:opacity-80">{pick(lang, "What We Offer", "Lo Que Ofrecemos")}</a>}
-          {template.inventory && <a href="#inventory" className="hover:opacity-80">{pick(lang, "Inventory", "Inventario")}</a>}
-          <a href="#services" className="hover:opacity-80">{t.nav.services}</a>
-          {template.videoGallery && <a href="#videos" className="hover:opacity-80">Videos</a>}
-          {!!template.media?.gallery.length && <a href="#gallery" className="hover:opacity-80">{pick(lang, "Gallery", "Galería")}</a>}
-          <a href="#process" className="hover:opacity-80">{t.nav.process}</a>
-          {resolveFacts(template) && <a href="#areas" className="hover:opacity-80">{pick(lang, "Areas", "Áreas")}</a>}
-          {t.testimonials.items.length > 0 && <a href="#testimonials" className="hover:opacity-80">{t.nav.testimonials}</a>}
-          <a href="#faq" className="hover:opacity-80">{t.nav.faq}</a>
-          <a href="#contact" className="hover:opacity-80">{t.nav.contact}</a>
+        {/* The sections a visitor jumps to; with offers, process and areas too, a dealership's ten
+            links wrapped onto two lines. Each link only when its section renders. */}
+        <nav className="hidden xl:flex items-center gap-6 text-sm font-medium text-slate-700 whitespace-nowrap [&>a]:transition-opacity [&>a:hover]:opacity-70">
+          {template.inventory && <a href="#inventory">{pick(lang, "Inventory", "Inventario")}</a>}
+          <a href="#services">{t.nav.services}</a>
+          {template.videoGallery && <a href="#videos">Videos</a>}
+          {!!template.media?.gallery.length && <a href="#gallery">{pick(lang, "Gallery", "Galería")}</a>}
+          {t.testimonials.items.length > 0 && <a href="#testimonials">{t.nav.testimonials}</a>}
+          <a href="#faq">{t.nav.faq}</a>
+          <a href="#contact">{t.nav.contact}</a>
         </nav>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {!template.lockedLang && (
             <button
               onClick={() => setLang(lang === "en" ? "es" : "en")}
-              className="text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-md border border-slate-300 hover:opacity-80 transition-colors"
+              className={`h-10 text-xs font-bold uppercase tracking-widest px-3 rounded-md border border-slate-300 hover:bg-slate-50 ${PRESS}`}
             >{lang === "en" ? "ES" : "EN"}</button>
           )}
-          <a href={brand.phoneHref} className="inline-flex items-center gap-2 text-white text-sm font-semibold px-3.5 sm:px-4 py-2 rounded-lg shadow-sm transition-opacity hover:opacity-90" style={{ backgroundColor: p.primary }}>
+          {/* On a phone it is an icon only: the action bar at the bottom has the labeled Call button, and the business name needs the room. */}
+          <a href={brand.phoneHref} className={`h-10 w-10 sm:w-auto inline-flex items-center justify-center gap-2 text-white text-sm font-semibold sm:px-4 rounded-lg shadow-sm hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primary }}>
             <Phone className="w-4 h-4" />
             <span className="hidden sm:inline">{brand.phone}</span>
-            <span className="sm:hidden">{t.nav.call}</span>
+            <span className="sr-only">{t.nav.call}</span>
           </a>
         </div>
       </div>
@@ -122,7 +122,7 @@ export function Hero({ template, brand, p, t, lang }: SiteProps) {
           aria-label={pick(lang, `${brand.name} project film`, `Video de ${brand.name}`)}
         />
       ) : media?.hero ? (
-        <SiteImage src={media.hero} alt={`${brand.name} hero`} palette={p} lang={lang} className="absolute inset-0 w-full h-full object-cover" loading="eager" />
+        <SiteImage src={media.hero} alt={`${brand.name} hero`} palette={p} lang={lang} position={media.heroFocus} className="absolute inset-0 w-full h-full object-cover" loading="eager" />
       ) : (
         <div className="absolute inset-0 grid place-items-center" style={{ background: `linear-gradient(135deg, ${p.heroIconFrom}, ${p.heroIconTo})` }}>
           <HeroIcon className="w-48 h-48 text-white/15 drop-shadow-2xl" />
@@ -166,20 +166,20 @@ export function Hero({ template, brand, p, t, lang }: SiteProps) {
             <Star className="w-3.5 h-3.5" style={{ fill: p.accent, color: p.accent }} />{" "}
             <EditableText as="span" path={["content", lang, "hero", "eyebrow"]} value={t.hero.eyebrow} />
           </div>
-          <h1 className="font-extrabold text-4xl sm:text-6xl lg:text-7xl leading-[1.05] sm:leading-[1.02] tracking-tight mb-4 sm:mb-6 drop-shadow-[0_4px_24px_rgba(0,0,0,0.45)]">
+          <h1 className="text-balance font-extrabold text-4xl sm:text-6xl lg:text-7xl leading-[1.05] sm:leading-[1.02] tracking-tight mb-4 sm:mb-6 drop-shadow-[0_4px_24px_rgba(0,0,0,0.45)]">
             <EditableText as="span" path={["content", lang, "hero", "title1"]} value={t.hero.title1} />{" "}
             <EditableText as="span" path={["content", lang, "hero", "title2"]} value={t.hero.title2} style={{ color: p.accent }} />
           </h1>
           <EditableText as="p" multiline path={["content", lang, "hero", "subtitle"]} value={t.hero.subtitle} className="text-base sm:text-xl text-white/90 max-w-xl mb-7 sm:mb-9 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]" />
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <a href={template.inventory ? "#inventory" : "#contact"} className="inline-flex items-center justify-center gap-2 text-white font-bold px-7 py-4 rounded-lg shadow-2xl transition-all hover:translate-y-[-2px] hover:scale-[1.02]" style={{ backgroundColor: p.primary, boxShadow: `0 18px 40px -10px ${p.primary}` }}>
+            <a href={template.inventory ? "#inventory" : "#contact"} className={`inline-flex items-center justify-center gap-2 text-white font-bold px-7 py-4 rounded-lg shadow-2xl hover:-translate-y-0.5 ${PRESS}`} style={{ backgroundColor: p.primary, boxShadow: `0 18px 40px -10px ${p.primary}` }}>
               {t.hero.cta1} <ArrowRight className="w-4 h-4" />
             </a>
             <a href={brand.phoneHref} className={GHOST_CTA}>
               <Phone className="w-4 h-4" /> {brand.phone}
             </a>
             {template.videoGallery && (
-              <a href="#videos" className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur border border-white/25 text-white font-bold px-7 py-4 rounded-lg transition-colors">
+              <a href="#videos" className={GHOST_CTA}>
                 <Play className="w-4 h-4" /> {pick(lang, "Watch Videos", "Ver Videos")}
               </a>
             )}
@@ -256,7 +256,7 @@ export function BrandFilm({ template, brand, p, lang }: SiteProps) {
         <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 lg:p-14">
           <div className="max-w-7xl mx-auto">
             <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-white/85 mb-3">
-              <span className={`inline-flex w-2 h-2 rounded-full ${videoPlaying ? "bg-red-500 animate-pulse" : "bg-white/50"}`} />
+              <span className={`inline-flex w-2 h-2 rounded-full ${videoPlaying ? "bg-red-500 animate-pulse motion-reduce:animate-none" : "bg-white/50"}`} />
               {videoPlaying ? pick(lang, "Now playing", "Reproduciendo") : pick(lang, "Paused", "En pausa")}
             </div>
             <h2 className="text-white font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight max-w-2xl drop-shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
