@@ -17,12 +17,12 @@ export function MidCta({ template, brand, p, t, lang }: SiteProps) {
       <div className="absolute inset-0" style={{ background: `linear-gradient(115deg, ${p.heroFrom}f2, ${p.heroTo}b3)` }} />
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center text-white">
         <h2 className="font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight mb-4 drop-shadow-[0_2px_16px_rgba(0,0,0,0.4)]">
-          {pick(lang, "Ready when you are — day or night", "Listos cuando usted quiera — de día o de noche")}
+          {pick(lang, "Ready when you are", "Listos cuando usted quiera")}
         </h2>
         <p className="text-white/90 text-lg max-w-2xl mx-auto mb-8">
           {pick(lang,
-            "Get a free, no-obligation estimate in minutes. Real people, real answers, in your language.",
-            "Reciba un estimado gratis y sin compromiso en minutos. Personas reales, respuestas reales, en su idioma.")}
+            "Tell us what you need and we'll prepare a quote.",
+            "Cuéntenos qué necesita y le preparamos una cotización.")}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a href="#contact" className="inline-flex items-center justify-center gap-2 font-bold px-7 py-4 rounded-lg shadow-2xl transition-all hover:translate-y-[-2px] bg-white" style={{ color: p.primaryDark }}>
@@ -79,7 +79,7 @@ export function ProjectSelector({ template, p, lang }: SiteProps) {
               {template.projectSelector.recommendation[lang]}
             </p>
             <a href="#contact" className="inline-flex items-center justify-center gap-2 mt-5 text-white font-bold px-6 py-3 rounded-lg shadow-md transition-opacity hover:opacity-90" style={{ backgroundColor: p.primary }}>
-              {pick(lang, "Get a Free Estimate", "Estimado Gratis")} <ArrowRight className="w-4 h-4" />
+              {pick(lang, "Request a Quote", "Solicite una Cotización")} <ArrowRight className="w-4 h-4" />
             </a>
           </div>
         )}
@@ -237,15 +237,15 @@ export function ClosingCta({ brand, p, lang }: SiteProps) {
         </h2>
         <p className="text-white/90 text-lg max-w-2xl mx-auto mb-8">
           {pick(lang,
-            `Talk to ${brand.name} today — in English or Spanish. Free quote, no obligation.`,
-            `Hable hoy con ${brand.name} — en inglés o español. Cotización gratis, sin compromiso.`)}
+            `Talk to ${brand.name} today about your project.`,
+            `Hable hoy con ${brand.name} sobre su proyecto.`)}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a href={brand.phoneHref} className="inline-flex items-center justify-center gap-2 bg-white font-bold px-7 py-4 rounded-lg shadow-2xl transition-all hover:translate-y-[-2px]" style={{ color: p.primaryDark }}>
             <Phone className="w-4 h-4" /> {pick(lang, "Call now", "Llamar ahora")}
           </a>
           <WhatsAppButton
-            href={whatsappLink(brand, pick(lang, `Hi! I'd like a free quote from ${brand.name}.`, `¡Hola! Quisiera una cotización gratis de ${brand.name}.`))}
+            href={whatsappLink(brand, pick(lang, `Hi! I'd like a quote from ${brand.name}.`, `¡Hola! Quisiera una cotización de ${brand.name}.`))}
             className="inline-flex items-center justify-center gap-2 font-bold px-7 py-4 rounded-lg shadow-2xl text-white transition-all hover:translate-y-[-2px]"
           >
             <MessageCircle className="w-4 h-4" /> WhatsApp
@@ -330,7 +330,7 @@ export function MobileActionBar({ brand, p, lang }: SiteProps) {
         <Phone className="w-4 h-4" /> {pick(lang, "Call", "Llamar")}
       </a>
       <WhatsAppButton
-        href={whatsappLink(brand, pick(lang, `Hi! I'd like a free quote from ${brand.name}.`, `¡Hola! Quisiera una cotización gratis de ${brand.name}.`))}
+        href={whatsappLink(brand, pick(lang, `Hi! I'd like a quote from ${brand.name}.`, `¡Hola! Quisiera una cotización de ${brand.name}.`))}
         className="text-white text-sm font-bold py-3.5 rounded-xl shadow-2xl flex items-center justify-center gap-1.5"
         style={{ boxShadow: "0 18px 36px -12px rgba(37,211,102,0.5)" }}
       >

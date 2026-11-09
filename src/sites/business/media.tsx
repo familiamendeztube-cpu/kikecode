@@ -153,12 +153,12 @@ export function InAction({ template, brand, p, lang }: SiteProps) {
               {pick(lang, "Bilingual, every step", "Bilingüe en cada paso")}
             </Eyebrow>
             <h3 className="font-extrabold text-3xl sm:text-4xl tracking-tight text-slate-900 mb-4">
-              {pick(lang, "We speak your language", "Hablamos su idioma")}
+              {pick(lang, "Clear from start to finish", "Claro de principio a fin")}
             </h3>
             <p className="text-slate-600 leading-relaxed mb-6 text-lg">
               {pick(lang,
-                "English or Spanish, you'll always know exactly what's happening and what it costs. Real people answer the phone, day or night — no robots, no runaround.",
-                "En inglés o español, siempre sabrá exactamente qué está pasando y cuánto cuesta. Personas reales contestan el teléfono, de día o de noche — sin robots, sin vueltas.")}
+                "You'll know what's happening and what it costs — no runaround.",
+                "Sabrá qué está pasando y cuánto cuesta, sin vueltas.")}
             </p>
             <a href={brand.phoneHref} className="inline-flex items-center gap-2 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg hover:opacity-90 transition-opacity" style={{ backgroundColor: p.primary }}>
               <Phone className="w-4 h-4" /> {brand.phone}

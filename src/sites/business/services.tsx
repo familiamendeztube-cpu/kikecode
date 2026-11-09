@@ -77,7 +77,7 @@ export function MeetTheCrew({ template, brand, p, lang }: SiteProps) {
           {isSampleContent(template) && <SampleTag lang={lang} className="mb-3" />}
           {data && (
             <div className="grid sm:grid-cols-3 gap-4">
-              {data.stats.slice(0, 3).map((s) => (
+              {(data?.stats ?? []).slice(0, 3).map((s) => (
                 <div key={s.value} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
                   <div className="font-extrabold text-2xl tracking-tight" style={{ color: p.primary }}>{pick(lang, s.value, s.valueEs || s.value)}</div>
                   <div className="text-xs text-slate-600 mt-1">{pick(lang, s.labelEn, s.labelEs)}</div>
@@ -141,6 +141,7 @@ export function Process({ p, t, lang }: SiteProps) {
 /* SERVICE AREAS */
 export function ServiceAreas({ template, brand, p, lang }: SiteProps) {
   const data = resolveFacts(template);
+  if (!data) return null;
   return (
     <section id="areas" className="py-20 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">

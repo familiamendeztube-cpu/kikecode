@@ -4,6 +4,7 @@ import type { Lang } from "@/templates/types";
 import { EditableText, ChangePhotoButton } from "@/editor/editable";
 import { pick } from "@/lib/i18n";
 import { SiteImage, GHOST_CTA, type SiteProps } from "./ui";
+import { resolveFacts } from "./data";
 
 /* Shared play/pause state for a muted looping video. Respects prefers-reduced-motion:
    never autoplay looping footage for users who asked the OS to minimize motion.
@@ -67,14 +68,15 @@ export function SiteHeader({ template, brand, p, t, lang, setLang }: SiteProps &
           </div>
         </a>
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-700">
-          <a href="#offers" className="hover:opacity-80">{pick(lang, "What We Offer", "Lo Que Ofrecemos")}</a>
+          {/* Each link only when its section renders (Offers, Gallery, ServiceAreas hide without data). */}
+          {template.offers && <a href="#offers" className="hover:opacity-80">{pick(lang, "What We Offer", "Lo Que Ofrecemos")}</a>}
           {template.inventory && <a href="#inventory" className="hover:opacity-80">{pick(lang, "Inventory", "Inventario")}</a>}
           <a href="#services" className="hover:opacity-80">{t.nav.services}</a>
           {template.videoGallery && <a href="#videos" className="hover:opacity-80">Videos</a>}
-          <a href="#gallery" className="hover:opacity-80">{pick(lang, "Gallery", "Galería")}</a>
+          {!!template.media?.gallery.length && <a href="#gallery" className="hover:opacity-80">{pick(lang, "Gallery", "Galería")}</a>}
           <a href="#process" className="hover:opacity-80">{t.nav.process}</a>
-          <a href="#areas" className="hover:opacity-80">{pick(lang, "Areas", "Áreas")}</a>
-          <a href="#testimonials" className="hover:opacity-80">{t.nav.testimonials}</a>
+          {resolveFacts(template) && <a href="#areas" className="hover:opacity-80">{pick(lang, "Areas", "Áreas")}</a>}
+          {t.testimonials.items.length > 0 && <a href="#testimonials" className="hover:opacity-80">{t.nav.testimonials}</a>}
           <a href="#faq" className="hover:opacity-80">{t.nav.faq}</a>
           <a href="#contact" className="hover:opacity-80">{t.nav.contact}</a>
         </nav>
@@ -202,15 +204,18 @@ export function Hero({ template, brand, p, t, lang }: SiteProps) {
               <div className="text-slate-500">{t.hero.trustSubtitle}</div>
             </div>
           </div>
-          <div className="bg-white text-slate-900 rounded-2xl shadow-2xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-100 grid place-items-center text-amber-600 shrink-0">
-              <Star className="w-5 h-5 fill-amber-500" />
+          {/* A business with no rating leaves ratingTitle empty and gets no star card. */}
+          {t.hero.ratingTitle && (
+            <div className="bg-white text-slate-900 rounded-2xl shadow-2xl p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-100 grid place-items-center text-amber-600 shrink-0">
+                <Star className="w-5 h-5 fill-amber-500" />
+              </div>
+              <div className="text-xs">
+                <div className="font-bold">{t.hero.ratingTitle}</div>
+                <div className="text-slate-500">{t.hero.ratingSubtitle}</div>
+              </div>
             </div>
-            <div className="text-xs">
-              <div className="font-bold">{t.hero.ratingTitle}</div>
-              <div className="text-slate-500">{t.hero.ratingSubtitle}</div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </section>

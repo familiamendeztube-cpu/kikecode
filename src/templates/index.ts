@@ -35,9 +35,11 @@ import luminaStudio from "./lumina-studio";
 import barroCeramica from "./barro-ceramica";
 import autoServicioRym from "./auto-servicio-rym";
 import suplidoraFenix from "./suplidora-fenix";
+import snuvalysConstruccions from "./snuvalys-construccions";
 import type { BusinessTemplate } from "./types";
 
 export const TEMPLATES: BusinessTemplate[] = [
+  snuvalysConstruccions,
   chalesGarage,
   hyperionSyntheticTurf,
   losPrimosPlumbing,
