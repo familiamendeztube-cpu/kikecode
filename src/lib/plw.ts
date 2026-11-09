@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
 /*
-  Kike Code's backend is Professional Latino Workers' Supabase project: sites
-  are stored by the `kike-sites` function, the AI and greeting audio run in `kike-ai`, and site contact forms
+  Kike Code's backend is Professional Latino Workers' Supabase project: staff
+  sign in with their PLW accounts, sites are stored by the `kike-sites`
+  function, the AI and greeting audio run in `kike-ai`, and site contact forms
   post to `lead-intake`. The functions live in the PLW repo
   (supabase/functions/kike-*).
 
@@ -23,7 +24,7 @@ export const TEMPLATE_ASSETS = `${url}/storage/v1/object/public/template-assets/
 // A placeholder keeps createClient from throwing at import when the env is
 // missing; every caller checks hasPlwConfig first.
 export const supabase = createClient(url || "http://localhost", anonKey || "missing-anon-key", {
-  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  auth: { storageKey: "kike-plw-auth" },
 });
 
 export function fnUrl(name: string): string {
@@ -31,17 +32,18 @@ export function fnUrl(name: string): string {
 }
 
 /**
- * POST to a PLW edge function with the public anon key. Throws with the
+ * POST to a PLW edge function as the signed-in staff member. Throws with the
  * server's error text; `fields` on the error names what failed validation.
  */
 export async function callFn<T>(name: string, body: Record<string, unknown>): Promise<T> {
   if (!hasPlwConfig) throw new Error("PLW is not configured (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).");
+  const { data: { session } } = await supabase.auth.getSession();
   const res = await fetch(fnUrl(name), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       apikey: anonKey,
-      Authorization: `Bearer ${anonKey}`,
+      Authorization: `Bearer ${session?.access_token ?? anonKey}`,
     },
     body: JSON.stringify(body),
   });
