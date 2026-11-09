@@ -29,7 +29,7 @@ export function bookingCopy(lang: Lang, brandName: string) {
       }
     : {
         whenPrompt: (need: string) => `Entendido — "${need}". ¿Cuándo te quedaría mejor? ${brandName} te confirmará la hora exacta.`,
-        whenPh: "O escribe un día y una hora…",
+        whenPh: "O escriba un día y una hora…",
         contactPrompt: (when: string) => `Anotado: ${when}. ¿A qué número te escribe ${brandName} para confirmar?`,
         doneMsg: (phone: string) => `✅ Solicitud enviada. ${brandName} te escribirá al ${phone} para confirmar la hora. Tu cita no está confirmada hasta que te respondan.`,
         doneBadge: "Solicitud enviada — pendiente de confirmar",

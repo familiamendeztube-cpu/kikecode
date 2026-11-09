@@ -12,11 +12,11 @@ const nails: BusinessTemplate = {
   defaultServicesField: "Manicures, Pedicures, Acrylics, Gel & dip, Nail art, Spa treatments",
   brand: {
     name: "Bella Uñas Studio",
-    city: "Miami",
-    phone: "(555) 010-0012",
-    phoneHref: "tel:+15550100012",
+    city: "Moravia",
+    phone: "+506 0000-0000",
+    phoneHref: "tel:+50600000000",
     email: "hola@bellaunasstudio.com",
-    address: "318 Coral Way, Miami, FL 33145",
+    address: "Del parque central, 200 m este y 50 m norte, San Vicente, Moravia, San José",
     heroIcon: Sparkles,
     palette: {
       primary: "#C026D3", primaryDark: "#86198f", accent: "#F472B6",
@@ -39,7 +39,7 @@ const nails: BusinessTemplate = {
         cta1: "Book Now", cta2: "Call Now",
         badges: ["Walk-Ins Welcome", "Bilingual EN/ES", "Sanitized Tools", "Custom Nail Art"],
         ratingTitle: "4.9 / 5", ratingSubtitle: "800+ happy clients",
-        trustTitle: "Licensed Techs", trustSubtitle: "Hospital-grade sanitation",
+        trustTitle: "Health Permit Up to Date", trustSubtitle: "Hospital-grade sanitation",
       },
       services: {
         title: "What We Offer", blurb: "Relax, refresh, and leave glowing.",
@@ -70,16 +70,16 @@ const nails: BusinessTemplate = {
       testimonials: {
         title: "What Clients Say",
         items: [
-          { name: "Daniela V.", role: "Regular client", quote: "My gel set lasts three weeks with zero chips. The art is always exactly what I picture. Obsessed!" },
-          { name: "Karen B.", role: "Bride", quote: "They did my entire bridal party. Gorgeous, on time, and so relaxing. Everyone loved it." },
-          { name: "Priya S.", role: "Busy mom", quote: "Spotless studio, friendly techs, and my pedicure felt like a mini vacation. My new go-to spot." },
+          { name: "Daniela V.", role: "Regular client, Moravia", quote: "My gel set lasts three weeks with zero chips. The art is always exactly what I picture. Obsessed!" },
+          { name: "Karla B.", role: "Bride, Guadalupe", quote: "They did my entire bridal party. Gorgeous, on time, and so relaxing. Everyone loved it." },
+          { name: "Melissa S.", role: "Busy mom, Tibás", quote: "Spotless studio, friendly techs, and my pedicure felt like a mini vacation. My new go-to spot." },
         ],
       },
       faq: {
         title: "Frequently Asked Questions",
         items: [
           { q: "Do you take walk-ins?", a: "Yes! Walk-ins are welcome, though booking ahead guarantees your preferred time and tech." },
-          { q: "How much is a full set?", a: "Acrylic and gel full sets start at $45; pedicures from $35. Nail art is priced by design." },
+          { q: "How much is a full set?", a: "Acrylic and gel full sets start at ₡22 500; pedicures from ₡17 500. Nail art is priced by design." },
           { q: "How long does gel last?", a: "Gel typically lasts 2–3 weeks without chipping. We also offer safe, gentle removal." },
           { q: "Are your tools sanitized?", a: "Always. We use fresh files per client and hospital-grade sterilization for all reusable tools." },
         ],
@@ -87,11 +87,11 @@ const nails: BusinessTemplate = {
       contact: {
         title: "Book Your Appointment", blurb: "Tell us the look you want and when. We'll confirm fast.",
         name: "Your name", phone: "Phone", service: "Service needed", message: "Preferred day & time",
-        submit: "Request Appointment", success: "Thanks — we'll text you to confirm your appointment.",
+        submit: "Request Appointment", success: "Thanks — we'll message you on WhatsApp to confirm your appointment.",
         pick: "— Pick a service —",
         services: ["Manicure", "Pedicure", "Acrylic / gel full set", "Nail art", "Spa treatment"],
       },
-      footer: { tagline: "Beautiful, long-lasting nails in a relaxing studio.", hours: "Tue–Sun · 9am–7pm", rights: "All rights reserved.", hoursLabel: "Hours" },
+      footer: { tagline: "Beautiful, long-lasting nails in a relaxing studio.", hours: "Tue–Sun · 9:00 a.m.–7:00 p.m.", rights: "All rights reserved.", hoursLabel: "Hours" },
     },
     es: {
       nav: { services: "Servicios", why: "Por Qué", process: "Proceso", testimonials: "Reseñas", faq: "FAQ", contact: "Contacto", call: "Llame" },
@@ -99,11 +99,11 @@ const nails: BusinessTemplate = {
         eyebrow: "Consintiendo manos y pies desde 2015",
         title1: "Uñas Hermosas y Cuidado Spa para",
         title2: "Cada Ocasión y el Día a Día",
-        subtitle: "Manicuras, pedicuras, acrílicas, gel y arte de uñas personalizado en un estudio limpio y relajante. Técnicas bilingües. Sin cita bienvenidas.",
+        subtitle: "Manicuras, pedicuras, acrílicas, gel y arte de uñas personalizado en un estudio limpio y relajante. Técnicas bilingües. Sin cita, bienvenidas.",
         cta1: "Reserve Ahora", cta2: "Llame Ahora",
         badges: ["Sin Cita Bienvenidas", "Bilingüe EN/ES", "Herramientas Esterilizadas", "Arte Personalizado"],
         ratingTitle: "4.9 / 5", ratingSubtitle: "800+ clientas felices",
-        trustTitle: "Técnicas con Licencia", trustSubtitle: "Higiene de grado hospitalario",
+        trustTitle: "Permiso Sanitario al Día", trustSubtitle: "Higiene de grado hospitalario",
       },
       services: {
         title: "Lo Que Ofrecemos", blurb: "Relájese, renuévese y salga radiante.",
@@ -114,7 +114,7 @@ const nails: BusinessTemplate = {
         ],
       },
       why: {
-        title: "Por Qué Nos Aman",
+        title: "Por Qué Nos Prefieren",
         items: [
           { title: "Puntuales y sin prisas", blurb: "Respetamos su cita y cuidamos cada detalle." },
           { title: "Impecable y esterilizado", blurb: "Herramientas nuevas para cada clienta y limpieza de grado hospitalario." },
@@ -125,41 +125,41 @@ const nails: BusinessTemplate = {
       process: {
         title: "Cómo Funciona",
         items: [
-          { title: "Reserve o pásese", blurb: "Aparte su lugar en línea o simplemente venga." },
+          { title: "Reserve o venga", blurb: "Aparte su espacio en línea o simplemente venga." },
           { title: "Elija su estilo", blurb: "Explore nuestra pared de colores e ideas de arte, o pida una recomendación." },
           { title: "Relájese y déjese consentir", blurb: "Disfrute un tratamiento relajante de principio a fin." },
-          { title: "Salga radiante", blurb: "Salga con uñas impecables listas para presumir." },
+          { title: "Salga radiante", blurb: "Salga con uñas impecables, listas para lucir." },
         ],
       },
       testimonials: {
         title: "Lo Que Dicen Las Clientas",
         items: [
-          { name: "Daniela V.", role: "Clienta frecuente", quote: "Mi set de gel dura tres semanas sin saltarse. El arte siempre es justo lo que imagino. ¡Encantada!" },
-          { name: "Karen B.", role: "Novia", quote: "Atendieron a todo mi cortejo de boda. Hermosas, puntuales y muy relajante. A todas les encantó." },
-          { name: "Priya S.", role: "Mamá ocupada", quote: "Estudio impecable, técnicas amables y mi pedicura se sintió como mini vacaciones. Mi nuevo lugar favorito." },
+          { name: "Daniela V.", role: "Clienta frecuente en Moravia", quote: "Mi set de gel dura tres semanas sin descascararse. El arte siempre es justo lo que imagino. ¡Encantada!" },
+          { name: "Karla B.", role: "Novia en Guadalupe", quote: "Atendieron a todo mi cortejo de boda. Hermosas, puntuales y muy relajante. A todas les encantó." },
+          { name: "Melissa S.", role: "Mamá ocupada en Tibás", quote: "Estudio impecable, técnicas amables y mi pedicura se sintió como unas mini vacaciones. Mi nuevo lugar favorito." },
         ],
       },
       faq: {
         title: "Preguntas Frecuentes",
         items: [
-          { q: "¿Aceptan sin cita?", a: "¡Sí! Son bienvenidas sin cita, aunque reservar antes garantiza su hora y técnica preferidas." },
-          { q: "¿Cuánto cuesta un set completo?", a: "Los sets de acrílico y gel desde $45; las pedicuras desde $35. El arte se cotiza según el diseño." },
-          { q: "¿Cuánto dura el gel?", a: "El gel suele durar 2–3 semanas sin saltarse. También ofrecemos remoción segura y delicada." },
+          { q: "¿Atienden sin cita?", a: "¡Sí! Son bienvenidas sin cita, aunque reservar antes garantiza su hora y técnica preferidas." },
+          { q: "¿Cuánto cuesta un set completo?", a: "Los sets de acrílico y gel desde ₡22 500; las pedicuras desde ₡17 500. El arte se cotiza según el diseño." },
+          { q: "¿Cuánto dura el gel?", a: "El gel suele durar 2–3 semanas sin descascararse. También ofrecemos remoción segura y delicada." },
           { q: "¿Esterilizan sus herramientas?", a: "Siempre. Usamos limas nuevas por clienta y esterilización de grado hospitalario para todo lo reutilizable." },
         ],
       },
       contact: {
         title: "Reserve su Cita", blurb: "Díganos el estilo que desea y cuándo. Confirmamos rápido.",
         name: "Su nombre", phone: "Teléfono", service: "Servicio necesario", message: "Día y hora preferidos",
-        submit: "Solicitar Cita", success: "Gracias — le mandamos un texto para confirmar su cita.",
+        submit: "Solicitar Cita", success: "Gracias — le escribimos por WhatsApp para confirmar su cita.",
         pick: "— Elija un servicio —",
         services: ["Manicura", "Pedicura", "Set completo de acrílico / gel", "Arte de uñas", "Tratamiento spa"],
       },
-      footer: { tagline: "Uñas hermosas y duraderas en un estudio relajante.", hours: "Mar–Dom · 9am–7pm", rights: "Todos los derechos reservados.", hoursLabel: "Horario" },
+      footer: { tagline: "Uñas hermosas y duraderas en un estudio relajante.", hours: "Mar a dom · 9:00 a. m. – 7:00 p. m.", rights: "Todos los derechos reservados.", hoursLabel: "Horario" },
     },
   },
   category: "beauty",
-  availability: { en: "Mon–Sat · 9am–7pm", es: "Lun–Sáb · 9am–7pm" },
+  availability: { en: "Mon–Sat · 9:00 a.m.–7:00 p.m.", es: "Lun a sáb · 9:00 a. m. – 7:00 p. m." },
   assistant: {
     name: "Sofía",
     en: "Hi! Thanks for contacting {business}. What service would you like to book?",
@@ -181,7 +181,7 @@ const nails: BusinessTemplate = {
     es: [
       { icon: "Sparkles", title: "Experiencia spa relajante", blurb: "Relájese mientras la consentimos." },
       { icon: "ShieldCheck", title: "Herramientas esterilizadas", blurb: "Higiene de grado hospitalario." },
-      { icon: "Clock", title: "Sin cita, bienvenida", blurb: "Pase o reserve su lugar." },
+      { icon: "Clock", title: "Sin cita, bienvenida", blurb: "Venga o reserve su espacio." },
       { icon: "Languages", title: "Bilingüe EN/ES", blurb: "Le atendemos en su idioma." },
     ],
   },

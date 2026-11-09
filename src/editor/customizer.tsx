@@ -12,11 +12,14 @@ import { SiteEditor } from "./site-editor";
 import { EditProvider } from "./editable";
 import { blankLike, getByPath, setByPath, type EditPath } from "./edit-path";
 import { compressImage, storeImage, validatePhotos, MAX_GALLERY_PHOTOS } from "./images";
-import { brandFields, sanitizePhoneHref, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
+import { crPhone } from "@/lib/cr";
+import { brandFields, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
 import { applyAiEdit, askAi, type ChatMsg } from "./ai";
 import { useSiteLifecycle } from "./lifecycle";
 import { AiChatLog, AiComposer, ClientInfoPanel, ContentCheckPanel, PhotosPanel, PublishPanel, SharePanel, type ShareState } from "./panels";
 import { isSampleContent } from "@/sites/business/ui";
+import { pick } from "@/lib/i18n";
+import { useOperatorLang } from "@/lib/operator-lang";
 
 type ClientOption = { id: string; business_name: string };
 type SeedPhotos = { hero?: string; gallery?: string[]; teamPortrait?: string };
@@ -53,9 +56,10 @@ export default function Customizer({
   /** Editing a site already saved in PLW (the /sites/:id/edit page). */
   savedSite?: SavedSiteRef;
 }) {
+  const { lang } = useOperatorLang();
   const [tpl, setTpl] = useState<BusinessTemplate>(original);
   const [open, setOpen] = useState(startOpen);
-  const [editLang, setEditLang] = useState<Lang>(original.lockedLang ?? "en");
+  const [editLang, setEditLang] = useState<Lang>(original.lockedLang ?? original.defaultLang ?? "es");
   const [fields, setFields] = useState<BrandFields>(() => brandFields(original.brand));
 
   // Once saved, later saves update the same site, so its link never changes.
@@ -70,7 +74,11 @@ export default function Customizer({
   const savedVersion = lifecycle.site?.template_version ?? null;
   const currentVersion = templateVersion(original.slug);
   const templateNotice = savedVersion !== null && savedVersion < currentVersion
-    ? `This site was saved with version ${savedVersion} of its template; the template is now version ${currentVersion}. Check the preview before publishing.`
+    ? pick(
+      lang,
+      `This site was saved with version ${savedVersion} of its template; the template is now version ${currentVersion}. Check the preview before publishing.`,
+      `Este sitio se guardó con la versión ${savedVersion} de su plantilla; la plantilla ahora está en la versión ${currentVersion}. Revise la vista previa antes de publicar.`,
+    )
     : null;
 
   const [chat, setChat] = useState<ChatMsg[]>([]);
@@ -148,7 +156,7 @@ export default function Customizer({
   }
 
   function applyBrandFields() {
-    setTpl((cur) => ({ ...cur, brand: { ...cur.brand, ...fields, phoneHref: sanitizePhoneHref(fields.phone) } }));
+    setTpl((cur) => ({ ...cur, brand: { ...cur.brand, ...fields, ...crPhone(fields.phone) } }));
   }
 
   function resetAll() {
@@ -193,7 +201,7 @@ export default function Customizer({
 
   /** Validated, compressed photos for an upload (counted against the limit), as data URLs. */
   async function takePhotos(files: File[]): Promise<string[]> {
-    const { ok, reason } = validatePhotos(files, photoCountRef.current);
+    const { ok, reason } = validatePhotos(files, photoCountRef.current, lang);
     setPhotoNotice(reason);
     return Promise.all(ok.map((f) => compressImage(f)));
   }
@@ -276,7 +284,7 @@ export default function Customizer({
       }
       setChat([...nextChat, { role: "assistant", content: data.reply }]);
     } catch (e) {
-      const m = e instanceof Error ? e.message : "Request failed";
+      const m = e instanceof Error ? e.message : pick(lang, "Request failed", "No se pudo completar la solicitud");
       setError(m);
       setChat([...nextChat, { role: "assistant", content: `⚠️ ${m}` }]);
     } finally {
@@ -298,7 +306,7 @@ export default function Customizer({
           data-testid="button-open-customizer"
         >
           <Sparkles className="w-4 h-4" />
-          Customize for client
+          {pick(lang, "Customize for client", "Personalizar para el cliente")}
         </button>
       )}
 
@@ -308,10 +316,14 @@ export default function Customizer({
           <SheetHeader className="px-5 py-4 border-b border-slate-800 bg-gradient-to-r from-fuchsia-950/40 to-purple-950/40">
             <SheetTitle className="text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-fuchsia-400" />
-              Client Customizer
+              {pick(lang, "Client Customizer", "Editor del cliente")}
             </SheetTitle>
             <SheetDescription className="text-slate-400 text-xs">
-              Fill in the client info, drop in their photos, then chat with the AI to tune the copy. Changes show here live; saving keeps a private draft, and only publishing makes it public.
+              {pick(
+                lang,
+                "Fill in the client info, drop in their photos, then chat with the AI to tune the copy. Changes show here live; saving keeps a private draft, and only publishing makes it public.",
+                "Llene los datos del cliente, agregue sus fotos y converse con la IA para ajustar los textos. Los cambios se ven aquí al instante; al guardar se crea un borrador privado y solo al publicar se hace público.",
+              )}
             </SheetDescription>
           </SheetHeader>
 
@@ -320,9 +332,13 @@ export default function Customizer({
 
             {/* Universal editor — every word and image */}
             <section className="space-y-3">
-              <h3 className="text-xs uppercase tracking-wider text-slate-400 font-semibold">Edit every field</h3>
+              <h3 className="text-xs uppercase tracking-wider text-slate-400 font-semibold">{pick(lang, "Edit every field", "Editar cada campo")}</h3>
               <p className="text-[11px] text-slate-500">
-                Click any section to expand it. Every word and image on the site is editable here — switch EN/ES to edit each language.
+                {pick(
+                  lang,
+                  "Click any section to expand it. Every word and image on the site is editable here — switch EN/ES to edit each language.",
+                  "Haga clic en una sección para abrirla. Aquí puede editar cada palabra e imagen del sitio; cambie entre EN y ES para editar cada idioma.",
+                )}
               </p>
               <SiteEditor
                 tpl={tpl}
@@ -364,7 +380,11 @@ export default function Customizer({
                 publicLink={lifecycle.site ? publishedUrl(lifecycle.site) : null}
                 templateNotice={templateNotice}
                 sampleNotice={isSampleContent(tpl)
-                  ? "Visitors see this site's reviews and claims tagged as samples until you confirm them under \"Reviews & claims\" and save."
+                  ? pick(
+                    lang,
+                    "Visitors see this site's reviews and claims tagged as samples until you confirm them under \"Reviews & claims\" and save.",
+                    "Los visitantes ven las reseñas y afirmaciones de este sitio marcadas como ejemplo hasta que usted las confirme en \"Reseñas y afirmaciones\" y guarde.",
+                  )
                   : null}
               />
             )}

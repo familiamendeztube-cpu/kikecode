@@ -2,23 +2,38 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Eye } from "lucide-react";
 import { TEMPLATES } from "@/templates";
 import { Layout } from "@/components/layout";
+import { pick } from "@/lib/i18n";
+import { useOperatorLang } from "@/lib/operator-lang";
 
 export default function Templates() {
+  const { lang } = useOperatorLang();
   return (
     <Layout>
       <div className="mb-8">
         <h1 className="font-display text-3xl sm:text-4xl tracking-tight mb-2">
-          <span className="text-gradient">Website Templates</span>
+          <span className="text-gradient">{pick(lang, "Website Templates", "Plantillas de sitios web")}</span>
         </h1>
         <p className="text-muted-foreground max-w-2xl">
-          Dozens of state-of-the-art bilingual templates built for the businesses Latino entrepreneurs actually run.
-          Preview live, then click <strong className="text-foreground">Customize</strong> to fill in a client's
-          details, tune the copy, and create a share link.
+          {pick(
+            lang,
+            <>
+              Dozens of state-of-the-art bilingual templates built for the businesses Costa Rican entrepreneurs actually
+              run. Preview live, then click <strong className="text-foreground">Customize</strong> to fill in a client's
+              details, tune the copy, and save a draft with its preview link.
+            </>,
+            <>
+              Decenas de plantillas bilingües de primer nivel, hechas para los negocios que de verdad tienen los
+              emprendedores costarricenses. Véalas en vivo y luego haga clic en{" "}
+              <strong className="text-foreground">Personalizar</strong> para llenar los datos del cliente, ajustar los
+              textos y crear un enlace de vista previa.
+            </>,
+          )}
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {TEMPLATES.map((t) => {
+        {/* Costa Rican templates first; the real US businesses (kept as they are) last. */}
+        {[...TEMPLATES].sort((a, b) => Number(a.defaultLang === "en") - Number(b.defaultLang === "en")).map((t) => {
           const Icon = t.brand.heroIcon;
           const p = t.brand.palette;
           return (
@@ -28,7 +43,7 @@ export default function Templates() {
             >
               <div className="aspect-[5/3] relative overflow-hidden bg-slate-900">
                 {t.media?.hero ? (
-                  <img src={t.media.hero} alt={t.industry} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                  <img src={t.media.hero} alt={pick(lang, t.industry, t.industryEs)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                 ) : (
                   <div className="absolute inset-0 grid place-items-center" style={{ background: `linear-gradient(135deg, ${p.heroIconFrom}, ${p.heroIconTo})` }}>
                     <Icon className="w-16 h-16 text-white/95 drop-shadow-2xl" />
@@ -36,7 +51,7 @@ export default function Templates() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                 <div className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-black/50 backdrop-blur text-white px-2 py-1 rounded-full">
-                  Bilingual EN/ES
+                  {pick(lang, "Bilingual EN/ES", "Bilingüe EN/ES")}
                 </div>
                 <div className="absolute top-3 right-3 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest bg-white/15 backdrop-blur border border-white/25 text-white px-2 py-1 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> 24/7
@@ -54,25 +69,26 @@ export default function Templates() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute inset-0 z-10"
-                aria-label={`Preview ${t.brand.name}`}
+                aria-label={pick(lang, `Preview ${t.brand.name}`, `Vista previa de ${t.brand.name}`)}
               />
 
               <div className="p-5 flex-1 flex flex-col">
-                <h3 className="font-display text-lg tracking-tight mb-1">{t.industry}</h3>
+                <h3 className="font-display text-lg tracking-tight mb-1">{pick(lang, t.industry, t.industryEs)}</h3>
                 <p className="text-xs text-muted-foreground/80 mb-3">
-                  <span className="font-semibold text-foreground/70">Spanish:</span> {t.industryEs}
+                  <span className="font-semibold text-foreground/70">{pick(lang, "Spanish:", "En inglés:")}</span>{" "}
+                  {pick(lang, t.industryEs, t.industry)}
                 </p>
-                <p className="text-sm text-muted-foreground mb-5 line-clamp-2">{t.content.en.hero.subtitle}</p>
+                <p className="text-sm text-muted-foreground mb-5 line-clamp-2">{t.content[t.lockedLang ?? lang].hero.subtitle}</p>
 
                 <div className="mt-auto grid grid-cols-2 gap-2 relative z-20">
                   <Button asChild size="sm" className="w-full font-bold bg-primary hover:bg-primary/90">
                     <a href={`/templates/${t.slug}/preview`} target="_blank" rel="noopener noreferrer">
-                      <Eye className="w-3.5 h-3.5 mr-1.5" /> View Live
+                      <Eye className="w-3.5 h-3.5 mr-1.5" /> {pick(lang, "View Live", "Ver en vivo")}
                     </a>
                   </Button>
                   <Button asChild size="sm" variant="outline" className="w-full font-medium">
                     <a href={`/templates/${t.slug}/preview?customize=1`} target="_blank" rel="noopener noreferrer">
-                      Customize <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                      {pick(lang, "Customize", "Personalizar")} <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                     </a>
                   </Button>
                 </div>
@@ -83,9 +99,19 @@ export default function Templates() {
       </div>
 
       <div className="mt-10 rounded-2xl border border-border/40 bg-background/40 p-5 text-sm text-muted-foreground">
-        <span className="font-semibold text-foreground">How it works:</span>{" "}
-        <strong>View Live</strong> opens the template with placeholder business data so you can see exactly what your customer will get.{" "}
-        <strong>Customize</strong> opens the same live preview with the editor drawer already open — fill in the client's name, phone, photos, tune the copy with AI, then hit <em>Create share link</em> to get a URL you can text or email to the client.
+        {pick(
+          lang,
+          <>
+            <span className="font-semibold text-foreground">How it works:</span>{" "}
+            <strong>View Live</strong> opens the template with placeholder business data so you can see exactly what your customer will get.{" "}
+            <strong>Customize</strong> opens the same live preview with the editor drawer already open — fill in the client's name, phone, photos, tune the copy with AI, then hit <em>Save draft &amp; get preview link</em> to get a link you can text or email to the client.
+          </>,
+          <>
+            <span className="font-semibold text-foreground">Cómo funciona:</span>{" "}
+            <strong>Ver en vivo</strong> abre la plantilla con datos de ejemplo para que vea exactamente lo que recibirá su cliente.{" "}
+            <strong>Personalizar</strong> abre la misma vista previa con el editor ya abierto: llene el nombre, el teléfono y las fotos del cliente, ajuste los textos con IA y luego pulse <em>Guardar borrador y obtener enlace de vista previa</em> para obtener un enlace que puede enviarle al cliente por mensaje o correo.
+          </>,
+        )}
       </div>
     </Layout>
   );

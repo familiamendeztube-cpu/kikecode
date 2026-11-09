@@ -16,6 +16,7 @@ One Vite 7 + React 19 + Tailwind 4 app at the repo root; router is `wouter` (`sr
 - `lib/` — `plw.ts` (Supabase client, `callFn`, `submitLead`), `saved-site.ts` (sites for visitors, `usePublishedSite`, preview/public links), `site-meta.ts` (each site's `<head>` for crawlers), `i18n.ts`, `domain-sites.ts`, `client-videos.ts`.
 - `netlify/edge-functions/site-meta.ts` — on the Netlify build only: rewrites a client site's head, robots.txt and sitemap.xml.
 - Bilingual copy: data with `{ en, es }` fields reads as `text[lang]`; copy written inline in a component uses `pick(lang, "English", "Español")`.
+- Every client is Costa Rican (owner decision 2026-11-09). Sites and the staff editor open in Spanish with an English switch (staff: `useOperatorLang()` in `lib/operator-lang.tsx`). Phones go through `lib/cr.ts` (`crPhone`: "+506 8888-1234", `tel:+506…`; `waDigits` adds 506 for WhatsApp); prices are colones in es-CR form ("₡45 000", no-break space); Costa Rican addresses, metric units, usted. Only the three real US businesses keep their US data (`defaultLang: "en"`). `templates/registry.test.ts` enforces this for every other template.
 
 ## Backend
 

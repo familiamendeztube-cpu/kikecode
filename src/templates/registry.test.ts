@@ -37,6 +37,29 @@ describe("template registry", () => {
   });
 });
 
+/*
+  Every client is Costa Rican. Only the real US businesses (defaultLang "en")
+  keep their own US data, as the owner decided on 2026-11-09.
+*/
+describe("Costa Rican templates", () => {
+  const costaRican = TEMPLATES.filter((t) => t.defaultLang !== "en");
+
+  it("open in Spanish, except the real US businesses", () => {
+    expect(TEMPLATES.filter((t) => t.defaultLang === "en").map((t) => t.slug).sort())
+      .toEqual(["hyperion-synthetic-turf", "los-primos-plumbing", "nicaraguan-restaurant"]);
+  });
+
+  it.each(costaRican.map((t) => [t.slug, t] as const))("%s has a Costa Rican phone, address and prices", (_slug, t) => {
+    expect(t.brand.phone).toMatch(/^\+506 \d{4}-\d{4}$/);
+    expect(t.brand.phoneHref).toBe(`tel:+506${t.brand.phone.slice(5).replace("-", "")}`);
+    // No US ZIP code or state abbreviation ("Miami, FL 33135").
+    expect(`${t.brand.address} | ${t.brand.city}`).not.toMatch(/\b\d{5}\b|, [A-Z]{2}\b/);
+    const text = JSON.stringify(t);
+    // Colones, not dollars; metric units; no US sample numbers.
+    expect(text).not.toMatch(/\$ ?\d|DollarSign|\(555\)|555-01|\d ?(miles?|mi)\b|°F|\bsq\.? ?ft\b|square f(ee|oo)t/i);
+  });
+});
+
 describe("a saved site from every template", () => {
   it.each(TEMPLATES.map((t) => [t.slug, t] as const))("%s loads back from what the editor saves", (_slug, base) => {
     const payload = sitePayload(base.slug, brandFields({ ...base.brand, name: "Negocio de Prueba" }), base);

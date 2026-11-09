@@ -6,9 +6,12 @@ import { getTemplate } from "@/templates";
 import type { BusinessTemplate } from "@/templates/types";
 import { callFn } from "@/lib/plw";
 import { rebuildTemplate, type StoredSite } from "@/lib/saved-site";
+import { pick } from "@/lib/i18n";
+import { useOperatorLang } from "@/lib/operator-lang";
 
 /** Reopen a saved site in the customizer; saving updates it in place. */
 export default function EditSite() {
+  const { lang } = useOperatorLang();
   const [, params] = useRoute("/sites/:id/edit");
   const id = params?.id;
   const [loaded, setLoaded] = useState<{ site: StoredSite; template: BusinessTemplate } | null>(null);
@@ -20,11 +23,11 @@ export default function EditSite() {
     callFn<{ site: StoredSite }>("kike-sites", { action: "get", id })
       .then(({ site }) => {
         const base = getTemplate(site.slug);
-        if (!base) throw new Error(`Template "${site.slug}" no longer exists.`);
+        if (!base) throw new Error(pick(lang, `Template "${site.slug}" no longer exists.`, `La plantilla "${site.slug}" ya no existe.`));
         if (!cancelled) setLoaded({ site, template: rebuildTemplate(base, site, false) });
       })
       .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Could not load the site.");
+        if (!cancelled) setError(e instanceof Error ? e.message : pick(lang, "Could not load the site.", "No se pudo cargar el sitio."));
       });
     return () => { cancelled = true; };
   }, [id]);
@@ -39,7 +42,7 @@ export default function EditSite() {
   if (!loaded) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center gap-2 text-sm text-muted-foreground">
-        <Loader2 className="w-5 h-5 animate-spin" /> Loading site…
+        <Loader2 className="w-5 h-5 animate-spin" /> {pick(lang, "Loading site…", "Cargando el sitio…")}
       </div>
     );
   }

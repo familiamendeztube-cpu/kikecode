@@ -205,13 +205,13 @@ export function FloatingAssistant({
     },
     {
       online: "Asistente virtual · recibe solicitudes a toda hora",
-      tapHint: "Toca para escuchar mi voz",
+      tapHint: "Toque para escuchar mi voz",
       speaking: `${assistant.name} está hablando…`,
       hear: "Escuchar",
       pause: "Pausar",
-      needPh: "Escribe lo que necesitas…",
+      needPh: "Escriba lo que necesita…",
       contactPh: "Tu número de teléfono",
-      invalidPhone: "Mmm, eso no parece un teléfono — escribe un número al que podamos enviarte mensaje.",
+      invalidPhone: "Mmm, eso no parece un teléfono: escriba un número al que le podamos enviar un mensaje.",
       callNow: "Llamar",
       send: "Enviar",
     });

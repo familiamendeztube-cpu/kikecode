@@ -1,3 +1,4 @@
+import { crPhone } from "@/lib/cr";
 import { callFn } from "@/lib/plw";
 import { previewUrl, uploadedPhotos, type SiteStatus } from "@/lib/saved-site";
 import { templateVersion } from "@/templates";
@@ -11,11 +12,6 @@ export type BrandFields = Pick<BusinessTemplate["brand"], "name" | "phone" | "ci
 
 export function brandFields({ name, phone, city, address, email }: BusinessTemplate["brand"]): BrandFields {
   return { name, phone, city, address, email };
-}
-
-export function sanitizePhoneHref(phone: string): string {
-  const digits = phone.replace(/[^\d+]/g, "");
-  return digits.length >= 3 ? `tel:${digits}` : "tel:";
 }
 
 /** The content kike-sites stores for a site: what `save` sends and a revision freezes. */
@@ -38,6 +34,7 @@ export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemp
       heritage: tpl.heritage,
       // Read by the edge function that writes the site's <head> (src/lib/site-meta.ts).
       lockedLang: tpl.lockedLang,
+      defaultLang: tpl.defaultLang,
       // Staff's confirmation that reviews and claims are true (else they show as samples).
       contentConfirmed: tpl.contentConfirmed,
     }),
@@ -45,8 +42,8 @@ export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemp
   return {
     slug,
     template_version: templateVersion(slug),
-    // Apply any pending form-field edits before saving.
-    brand: { ...fields, phoneHref: sanitizePhoneHref(fields.phone) },
+    // Apply any pending form-field edits before saving; the phone in Costa Rican format.
+    brand: { ...fields, ...crPhone(fields.phone) },
     content: tpl.content,
     photos: uploadedPhotos(tpl.media),
     overrides,

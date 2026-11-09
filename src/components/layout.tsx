@@ -1,8 +1,11 @@
 import { Link } from "wouter";
 import { LayoutTemplate } from "lucide-react";
 import type { ReactNode } from "react";
+import { pick } from "@/lib/i18n";
+import { useOperatorLang } from "@/lib/operator-lang";
 
 export function Layout({ children }: { children: ReactNode }) {
+  const { lang } = useOperatorLang();
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
@@ -15,10 +18,10 @@ export function Layout({ children }: { children: ReactNode }) {
           </Link>
           <nav className="flex items-center gap-5 text-xs font-bold uppercase tracking-widest text-muted-foreground">
             <Link href="/" className="hover:text-foreground transition-colors hidden sm:block">
-              Templates
+              {pick(lang, "Templates", "Plantillas")}
             </Link>
             <Link href="/videos" className="hover:text-primary transition-colors">
-              My Videos
+              {pick(lang, "My Videos", "Mis videos")}
             </Link>
           </nav>
         </div>

@@ -222,6 +222,8 @@ const hyperionSyntheticTurf: BusinessTemplate = {
     },
   },
   realBusiness: true,
+  // A real US business, kept as it is: it opens in English.
+  defaultLang: "en",
   facts: {
     stats: [
       { value: "Premium", valueEs: "Premium", labelEn: "Synthetic turf", labelEs: "Césped sintético" },

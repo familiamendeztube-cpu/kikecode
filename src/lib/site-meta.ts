@@ -16,7 +16,7 @@ export type PublicSiteData = {
   brand: { name: string; city?: string; phone?: string; email?: string; address?: string };
   content?: Partial<Record<Lang, { hero?: Hero }>>;
   photos?: { hero?: string } | null;
-  overrides?: { media?: { hero?: string }; lockedLang?: Lang } | null;
+  overrides?: { media?: { hero?: string }; lockedLang?: Lang; defaultLang?: Lang } | null;
 };
 
 /** A client's own domain (indexable), a share link (a copy of it) or a preview (a draft). */
@@ -54,8 +54,10 @@ function webImage(...candidates: (string | undefined)[]): string | null {
 }
 
 export function siteHead(site: PublicSiteData, kind: PageKind, url: URL): SiteHead {
-  // Only the two known values: lang lands inside <html lang="…">.
-  const lang: Lang = site.overrides?.lockedLang === "es" ? "es" : "en";
+  // Only the two known values: lang lands inside <html lang="…">. Clients are
+  // Costa Rican, so Spanish unless the site opens in English.
+  const english = (site.overrides?.lockedLang ?? site.overrides?.defaultLang) === "en";
+  const lang: Lang = english ? "en" : "es";
   const hero = site.content?.[lang]?.hero ?? site.content?.en?.hero ?? site.content?.es?.hero ?? {};
   const name = str(site.brand?.name);
   const city = str(site.brand?.city);
@@ -72,7 +74,7 @@ export function siteHead(site: PublicSiteData, kind: PageKind, url: URL): SiteHe
         ...(str(site.brand?.phone) ? { telephone: str(site.brand.phone) } : {}),
         ...(str(site.brand?.email) ? { email: str(site.brand.email) } : {}),
         ...(str(site.brand?.address) || city
-          ? { address: { "@type": "PostalAddress", ...(str(site.brand.address) ? { streetAddress: str(site.brand.address) } : {}), ...(city ? { addressLocality: city } : {}) } }
+          ? { address: { "@type": "PostalAddress", ...(str(site.brand.address) ? { streetAddress: str(site.brand.address) } : {}), ...(city ? { addressLocality: city } : {}), ...(english ? {} : { addressCountry: "CR" }) } }
           : {}),
         ...(image ? { image } : {}),
       }
@@ -94,7 +96,7 @@ export function renderHead(head: SiteHead): string {
     `<meta property="og:title" content="${attr(head.title)}" />`,
     `<meta property="og:description" content="${attr(head.description)}" />`,
     `<meta property="og:url" content="${attr(head.canonical)}" />`,
-    `<meta property="og:locale" content="${head.lang === "es" ? "es_LA" : "en_US"}" />`,
+    `<meta property="og:locale" content="${head.lang === "es" ? "es_CR" : "en_US"}" />`,
     `<meta name="twitter:card" content="${head.image ? "summary_large_image" : "summary"}" />`,
     `<meta name="twitter:title" content="${attr(head.title)}" />`,
     `<meta name="twitter:description" content="${attr(head.description)}" />`,

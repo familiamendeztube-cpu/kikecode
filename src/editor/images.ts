@@ -1,4 +1,6 @@
+import { pick } from "@/lib/i18n";
 import { callFn, supabase } from "@/lib/plw";
+import type { Lang } from "@/templates/types";
 
 export const MAX_PHOTO_BYTES = 6 * 1024 * 1024; // 6 MB per file, before compression
 export const MAX_GALLERY_PHOTOS = 8;
@@ -47,10 +49,14 @@ export async function compressImage(file: File, maxDim = 1600, quality = 0.82): 
 }
 
 /** Split picked files into the ones to use and a notice about the rest. */
-export function validatePhotos(files: File[], alreadyLoaded: number): { ok: File[]; reason: string | null } {
+export function validatePhotos(files: File[], alreadyLoaded: number, lang: Lang): { ok: File[]; reason: string | null } {
   const remainingSlots = MAX_TOTAL_PHOTOS - alreadyLoaded;
   if (remainingSlots <= 0) {
-    return { ok: [], reason: `Photo limit reached (${MAX_TOTAL_PHOTOS} max). Hit Reset to clear.` };
+    return {
+      ok: [],
+      reason: pick(lang, `Photo limit reached (${MAX_TOTAL_PHOTOS} max). Hit Reset to clear.`,
+        `Llegó al límite de fotos (máximo ${MAX_TOTAL_PHOTOS}). Use Restablecer para empezar de nuevo.`),
+    };
   }
   const ok: File[] = [];
   let rejected = 0;
@@ -60,7 +66,7 @@ export function validatePhotos(files: File[], alreadyLoaded: number): { ok: File
     ok.push(f);
   }
   const reason = rejected > 0
-    ? `Skipped ${rejected} file(s) — must be images under 6 MB.`
+    ? pick(lang, `Skipped ${rejected} file(s) — must be images under 6 MB.`, `Se omitieron ${rejected} archivo(s): deben ser imágenes de menos de 6 MB.`)
     : null;
   return { ok, reason };
 }
