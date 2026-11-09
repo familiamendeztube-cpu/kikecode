@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import type { BusinessTemplate, Lang } from "@/templates/types";
-import type { SiteProps } from "./ui";
+import { readablePalette, type SiteProps } from "./ui";
 import { AvailabilityBar, SiteHeader, Hero, BrandFilm } from "./hero";
 import { StatsStrip, TrustStrip, Offers, Guarantee, Testimonials, Certifications } from "./proof";
 import { AssistantStrip, FloatingAssistant } from "./assistant";
 import { VideoGallery, InAction, Transformation, Gallery, ClientTrust, Heritage } from "./media";
 import { InventorySection, FinancingBand, FloatingWhatsApp } from "./inventory";
 import { Services, MeetTheCrew, Why, Process, ServiceAreas, Faq } from "./services";
-import { MidCta, ProjectSelector, FoodBand, EmergencyBand, Contact, ClosingCta, Footer, MobileActionBar } from "./contact";
+import { ProjectSelector, FoodBand, EmergencyBand, Contact, ClosingCta, Footer, MobileActionBar } from "./contact";
 
 /** The shared site for every template without its own `siteVariant`. Each
  *  section takes the same props and renders nothing when the template has no
@@ -25,10 +25,15 @@ export default function BusinessSite({ template }: { template: BusinessTemplate 
   }, [lang]);
 
   const { brand, assistant } = template;
-  const site: SiteProps = { template, brand, p: brand.palette, t: template.content[lang], lang };
+  // Every brand color moved just far enough to read where the site draws it (ui.tsx).
+  const site: SiteProps = { template, brand, p: readablePalette(brand.palette), t: template.content[lang], lang };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 antialiased" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    // Anchored sections stop below the sticky header; selected text takes the brand's tint.
+    <div
+      className="min-h-screen bg-white text-slate-900 antialiased [&_section[id]]:scroll-mt-16 selection:bg-[color-mix(in_oklab,var(--brand)_25%,white)] selection:text-slate-900"
+      style={{ fontFamily: "'Inter', system-ui, sans-serif", ["--brand" as never]: site.p.primary }}
+    >
       <AvailabilityBar {...site} />
       <SiteHeader {...site} setLang={setLang} />
       <Hero {...site} />
@@ -54,7 +59,6 @@ export default function BusinessSite({ template }: { template: BusinessTemplate 
       <Testimonials {...site} />
       <Certifications {...site} />
       <Faq {...site} />
-      <MidCta {...site} />
       <ProjectSelector {...site} />
       <FoodBand {...site} />
       <EmergencyBand {...site} />
@@ -65,7 +69,6 @@ export default function BusinessSite({ template }: { template: BusinessTemplate 
       <MobileActionBar {...site} />
       {assistant && <FloatingAssistant
         assistant={assistant}
-        portraitSrc={template.media?.teamPortrait}
         brandName={brand.name}
         phone={brand.phone}
         phoneHref={brand.phoneHref}

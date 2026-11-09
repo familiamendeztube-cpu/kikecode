@@ -3,25 +3,22 @@ import { Phone, Quote, MessageCircle, Calendar, Clock, Send, X } from "lucide-re
 import type { BusinessTemplate, Lang } from "@/templates/types";
 import { pick } from "@/lib/i18n";
 import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
-import type { SiteProps } from "./ui";
+import { PRESS, type SiteProps } from "./ui";
 import { buildGreeting } from "./data";
 import { bookingCopy, PREFERRED_TIMES } from "./booking-copy";
 
-/* The assistant greets in text only: the spoken greeting was removed (owner decision 2026-11-09). */
+/* The assistant greets in text only: the spoken greeting was removed (owner decision 2026-11-09).
+   It is virtual, so it shows its initial, never a person's photo: the team portrait it once
+   borrowed gave "Sofía" a man's face, a roof or a beetle. */
 export function AssistantStrip({ template, brand, p, lang }: SiteProps) {
-  const media = template.media;
   const assistant = template.assistant;
   if (!assistant) return null;
   return (
     <section id="assistant" className="border-b border-slate-200 bg-gradient-to-br from-slate-50 to-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 grid md:grid-cols-[auto,1fr,auto] gap-6 items-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 grid md:grid-cols-[auto_1fr_auto] gap-6 items-center">
         <div className="flex items-center gap-4">
           <div className="relative shrink-0">
-            {media?.teamPortrait ? (
-              <img src={media.teamPortrait} alt={assistant.name} className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg" />
-            ) : (
-              <div className="w-20 h-20 rounded-full grid place-items-center text-white font-extrabold text-2xl shadow-lg" style={{ background: `linear-gradient(135deg, ${p.heroIconFrom}, ${p.heroIconTo})` }}>{assistant.name.charAt(0)}</div>
-            )}
+            <div className="w-20 h-20 rounded-full grid place-items-center text-white font-extrabold text-2xl shadow-lg" style={{ background: `linear-gradient(135deg, ${p.primaryDark}, ${p.primary})` }}>{assistant.name.charAt(0)}</div>
             <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white" title="online" />
             {brand.logo && (
               <img src={brand.logo} alt="" className="absolute -top-1.5 -left-1.5 w-8 h-8 rounded-full object-contain bg-white ring-2 ring-white shadow-md" />
@@ -43,7 +40,7 @@ export function AssistantStrip({ template, brand, p, lang }: SiteProps) {
           </p>
         </div>
 
-        <a href={brand.phoneHref} className="hidden md:inline-flex items-center justify-center gap-2 text-white font-bold px-5 py-3 rounded-xl shadow-md hover:opacity-90 transition-opacity" style={{ backgroundColor: p.primaryDark }}>
+        <a href={brand.phoneHref} className={`hidden md:inline-flex items-center justify-center gap-2 text-white font-bold px-5 py-3 rounded-xl shadow-md hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primaryDark }}>
           <MessageCircle className="w-4 h-4" />
           {pick(lang, "Talk to a human", "Hable con una persona")}
         </a>
@@ -53,10 +50,9 @@ export function AssistantStrip({ template, brand, p, lang }: SiteProps) {
 }
 
 export function FloatingAssistant({
-  assistant, portraitSrc, brandName, phone, phoneHref, palette, lang, services, siteId,
+  assistant, brandName, phone, phoneHref, palette, lang, services, siteId,
 }: {
   assistant: NonNullable<BusinessTemplate["assistant"]>;
-  portraitSrc: string | undefined;
   brandName: string;
   phone: string;
   phoneHref: string;
@@ -67,7 +63,8 @@ export function FloatingAssistant({
   siteId?: string;
 }) {
   const [need, setNeed] = useState("");
-  const [minimized, setMinimized] = useState(false);
+  // Starts as the round launcher: open, the panel would cover a quarter of every screen of the page.
+  const [minimized, setMinimized] = useState(true);
   const [step, setStep] = useState<"need" | "when" | "contact" | "done">("need");
   const [msgs, setMsgs] = useState<{ from: "bot" | "user"; text: string }[]>([]);
   const [draft, setDraft] = useState("");
@@ -148,39 +145,32 @@ export function FloatingAssistant({
     return (
       <button
         onClick={() => setMinimized(false)}
-        className="fixed bottom-5 right-5 z-50 w-16 h-16 rounded-full shadow-2xl ring-4 ring-white/80 overflow-hidden hover:scale-105 transition-transform hidden lg:block"
+        className="fixed bottom-5 right-5 z-50 w-16 h-16 rounded-full shadow-2xl ring-4 ring-white/80 overflow-hidden hover:scale-105 active:scale-95 transition-[scale,opacity] duration-200 starting:scale-90 starting:opacity-0 hidden lg:block"
         aria-label={pick(lang, "Open assistant", "Abrir asistente")}
       >
-        {portraitSrc ? (
-          <img src={portraitSrc} alt={assistant.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full grid place-items-center text-white font-extrabold text-xl" style={{ background: `linear-gradient(135deg, ${palette.heroIconFrom}, ${palette.heroIconTo})` }}>
-            {assistant.name.charAt(0)}
-          </div>
-        )}
+        <div className="w-full h-full grid place-items-center text-white font-extrabold text-xl" style={{ background: `linear-gradient(135deg, ${palette.primaryDark}, ${palette.primary})` }}>
+          {assistant.name.charAt(0)}
+        </div>
         <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white" />
       </button>
     );
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 w-[min(370px,calc(100vw-2.5rem))] hidden lg:block">
+    // Grows out of the launcher's corner.
+    <div className="fixed bottom-5 right-5 z-50 w-[min(370px,calc(100vw-2.5rem))] hidden lg:block origin-bottom-right transition-[scale,opacity] duration-200 starting:scale-95 starting:opacity-0">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[80vh]">
         {/* header */}
         <div className="px-4 py-3 flex items-center gap-3 text-white shrink-0" style={{ background: `linear-gradient(135deg, ${palette.primaryDark}, ${palette.primary})` }}>
           <div className="relative">
-            {portraitSrc ? (
-              <img src={portraitSrc} alt={assistant.name} className="w-11 h-11 rounded-full object-cover border-2 border-white/80" />
-            ) : (
-              <div className="w-11 h-11 rounded-full grid place-items-center bg-white/20 font-extrabold">{assistant.name.charAt(0)}</div>
-            )}
+            <div className="w-11 h-11 rounded-full grid place-items-center bg-white/20 font-extrabold">{assistant.name.charAt(0)}</div>
             <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white" />
           </div>
           <div className="flex-1 leading-tight">
             <div className="font-bold">{assistant.name}</div>
             <div className="text-[11px] opacity-90 flex items-center gap-1.5">
               <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
+                <span className="animate-ping motion-reduce:animate-none absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-300" />
               </span>
               {L.online}

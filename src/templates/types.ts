@@ -98,6 +98,8 @@ export type TemplateMedia = {
   heroVideo?: string;
   /** Poster frame for the hero video (falls back to `hero`). */
   heroPoster?: string;
+  /** Where the hero photo's subject sits, as CSS object-position ("70% 50%"), so a phone's narrow crop keeps it. */
+  heroFocus?: string;
   gallery: string[];
   teamPortrait: string;
   /** Optional cinematic brand-film loop shown full-bleed under the hero. */

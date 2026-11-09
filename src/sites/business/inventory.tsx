@@ -126,10 +126,10 @@ export function InventorySection({ inv, lang, p, brand }: {
             <button
               key={v.id}
               onClick={() => openVehicle(v)}
-              className="group text-left rounded-2xl overflow-hidden bg-slate-900 ring-1 ring-white/10 hover:ring-white/25 hover:-translate-y-1 transition-all"
+              className="group text-left rounded-2xl overflow-hidden bg-slate-900 ring-1 ring-white/10 hover:ring-white/25 hover:-translate-y-0.5 active:scale-[0.99] transition-[translate,scale,box-shadow] duration-200"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-slate-800">
-                <img src={v.images[0]} alt={v.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src={v.images[0]} alt={v.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                 <span className="absolute top-3 left-3 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-black/55 backdrop-blur ring-1 ring-white/15">{v.year ? `${v.year} · ` : ""}{bodyLabel(v.bodyStyle, lang)}</span>
                 <span className="absolute top-3 right-3 text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: p.accent, color: "#111827" }}>{(v.status?.[lang]) ?? L.available}</span>
@@ -186,11 +186,11 @@ export function InventorySection({ inv, lang, p, brand }: {
                       <span className="absolute top-3 right-3 text-[11px] font-bold text-white px-2.5 py-1 rounded-full bg-black/55 backdrop-blur ring-1 ring-white/15">{imgIndex + 1} / {selected.images.length}</span>
                       <button
                         type="button" onClick={() => stepImg(-1)} aria-label={L.prev}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/45 hover:bg-black/65 text-white backdrop-blur transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-11 h-11 rounded-full bg-black/45 hover:bg-black/65 text-white backdrop-blur transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
                       ><ChevronLeft className="w-5 h-5" /></button>
                       <button
                         type="button" onClick={() => stepImg(1)} aria-label={L.next}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/45 hover:bg-black/65 text-white backdrop-blur transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-11 h-11 rounded-full bg-black/45 hover:bg-black/65 text-white backdrop-blur transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
                       ><ChevronRight className="w-5 h-5" /></button>
                       <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] font-medium text-white/90 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur">{L.realPhotos}</span>
                     </>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, MapPinned } from "lucide-react";
 import { pick } from "@/lib/i18n";
-import { SiteImage, SectionHeader, Eyebrow, SampleTag, isSampleContent, type SiteProps } from "./ui";
+import { SiteImage, SectionHeader, Eyebrow, CARD_ROW, type SiteProps } from "./ui";
 import { resolveFacts } from "./data";
 
 /* SERVICES */
@@ -11,15 +11,15 @@ export function Services({ template, p, t, lang }: SiteProps) {
     <section id="services" className="py-20 sm:py-24 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader eyebrow={t.nav.services} title={t.services.title} blurb={t.services.blurb} accent={p.primary} eyebrowPath={["content", lang, "nav", "services"]} titlePath={["content", lang, "services", "title"]} blurbPath={["content", lang, "services", "blurb"]} />
-        <div className="grid md:grid-cols-3 gap-6 mt-12">
+        <div className={`${CARD_ROW} gap-6 mt-12`}>
           {t.services.items.map((s, i) => {
             const Icon = template.serviceIcons[i] ?? template.serviceIcons[0]!;
             const photo = media?.gallery[i] ?? media?.hero;
             return (
-              <div key={s.title} className="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:shadow-xl hover:-translate-y-1 transition-all">
+              <div key={s.title} className="group w-full md:w-[calc((100%-3rem)/3)] bg-white rounded-2xl overflow-hidden border border-slate-200">
                 {photo && (
                   <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                    <img src={photo} alt={s.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                    <img src={photo} alt={s.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
                   </div>
                 )}
@@ -40,51 +40,29 @@ export function Services({ template, p, t, lang }: SiteProps) {
 }
 
 /* MEET THE CREW */
+/* The facts strip near the top already shows the stats, so the crew section is
+   the photo and its words only. No made-up initials standing in for real staff. */
 export function MeetTheCrew({ template, brand, p, lang }: SiteProps) {
   const media = template.media;
-  const data = resolveFacts(template);
   if (!media?.teamPortrait) return null;
   return (
     <section className="py-20 sm:py-24 bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-[0.9fr,1.1fr] gap-12 lg:gap-16 items-center">
-        <div className="relative">
-          <div className="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-200">
-            <SiteImage src={media.teamPortrait} alt={brand.name} palette={p} lang={lang} className="w-full h-full object-cover" />
-          </div>
-          <div className="absolute -bottom-5 left-5 right-5 sm:left-8 sm:right-auto bg-white rounded-2xl shadow-xl px-5 py-4 ring-1 ring-slate-100 flex items-center gap-3">
-            <div className="flex -space-x-2">
-              {["A", "M", "J"].map((c) => (
-                <span key={c} className="w-8 h-8 rounded-full border-2 border-white grid place-items-center text-white text-xs font-bold" style={{ background: `linear-gradient(135deg, ${p.heroIconFrom}, ${p.heroIconTo})` }}>{c}</span>
-              ))}
-            </div>
-            <div className="text-xs leading-tight">
-              <div className="font-extrabold text-slate-900">{pick(lang, "Your local crew", "Su equipo local")}</div>
-            </div>
-          </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-[0.9fr_1.1fr] gap-12 lg:gap-16 items-center">
+        <div className="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-200">
+          <SiteImage src={media.teamPortrait} alt={brand.name} palette={p} lang={lang} className="w-full h-full object-cover" />
         </div>
         <div>
           <Eyebrow color={p.primary}>
             {pick(lang, "Meet the team", "Conozca al equipo")}
           </Eyebrow>
-          <h2 className="font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-slate-900 mb-4">
+          <h2 className="text-balance font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-slate-900 mb-4">
             {pick(lang, `The team behind ${brand.name}`, `El equipo detrás de ${brand.name}`)}
           </h2>
-          <p className="text-slate-600 leading-relaxed mb-7 text-lg">
+          <p className="text-slate-600 leading-relaxed text-lg">
             {pick(lang,
               `We're your neighbors in ${brand.city.split(",")[0]}, proud of our work and proud to serve our community.`,
               `Somos sus vecinos en ${brand.city.split(",")[0]}, orgullosos de nuestro trabajo y de servir a nuestra comunidad.`)}
           </p>
-          {isSampleContent(template) && <SampleTag lang={lang} className="mb-3" />}
-          {data && (
-            <div className="grid sm:grid-cols-3 gap-4">
-              {(data?.stats ?? []).slice(0, 3).map((s) => (
-                <div key={s.value} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
-                  <div className="font-extrabold text-2xl tracking-tight" style={{ color: p.primary }}>{pick(lang, s.value, s.valueEs || s.value)}</div>
-                  <div className="text-xs text-slate-600 mt-1">{pick(lang, s.labelEn, s.labelEs)}</div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </section>
@@ -122,9 +100,9 @@ export function Process({ p, t, lang }: SiteProps) {
     <section id="process" className="py-20 sm:py-24 text-white" style={{ background: `linear-gradient(135deg, ${p.heroFrom}, ${p.heroTo})` }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader eyebrow={t.nav.process} title={t.process.title} dark accent={p.accent} eyebrowPath={["content", lang, "nav", "process"]} titlePath={["content", lang, "process", "title"]} />
-        <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-12">
+        <ol className={`${CARD_ROW} gap-x-5 gap-y-9 mt-12`}>
           {t.process.items.map((s, i) => (
-            <li key={s.title} className="relative rounded-2xl p-6 bg-white/5 border border-white/10 backdrop-blur">
+            <li key={s.title} className="relative w-full sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-3.75rem)/4)] rounded-2xl p-6 bg-white/5 border border-white/10">
               <div className="absolute -top-4 left-6 w-10 h-10 rounded-xl text-white grid place-items-center font-extrabold shadow-lg" style={{ backgroundColor: p.primary }}>
                 {i + 1}
               </div>
@@ -140,22 +118,24 @@ export function Process({ p, t, lang }: SiteProps) {
 
 /* SERVICE AREAS */
 export function ServiceAreas({ template, brand, p, lang }: SiteProps) {
+  // Only a template's own places: the default list fits no real town.
   const data = resolveFacts(template);
-  if (!data) return null;
+  if (!data || !template.facts?.areasEs) return null;
+  const town = brand.city.split(",")[0]!.trim().replace(/ /g, "\u00a0"); // never "Santo / Domingo"
   return (
     <section id="areas" className="py-20 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader
           eyebrow={pick(lang, "Service area", "Área de servicio")}
-          title={pick(lang, `Proudly serving ${brand.city.split(",")[0]} & surrounding areas`, `Sirviendo con orgullo a ${brand.city.split(",")[0]} y áreas cercanas`)}
+          title={pick(lang, `Proudly serving ${town} & surrounding areas`, `Sirviendo con orgullo a ${town} y áreas cercanas`)}
           blurb={pick(lang,
-            "Same-day arrival across our service area. Not on the list? Call — we probably still come out.",
-            "Llegada el mismo día en toda nuestra área. ¿No está en la lista? Llama — probablemente vamos.")}
+            "Not on the list? Call and ask.",
+            "¿No está en la lista? Llámenos y pregunte.")}
           accent={p.primary}
         />
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {pick(lang, data.areasEn, data.areasEs).map((city) => (
-            <div key={city} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 hover:shadow-md transition-shadow">
+            <div key={city} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
               <MapPinned className="w-4 h-4 shrink-0" style={{ color: p.primary }} />
               <span className="text-sm font-medium text-slate-700">{city}</span>
             </div>
@@ -178,9 +158,9 @@ export function Faq({ p, t, lang }: SiteProps) {
             const open = openFaq === i;
             return (
               <div key={it.q}>
-                <button onClick={() => setOpenFaq(open ? null : i)} className="w-full flex items-center justify-between gap-4 py-5 text-left">
+                <button onClick={() => setOpenFaq(open ? null : i)} aria-expanded={open} className="w-full flex items-center justify-between gap-4 py-5 text-left">
                   <span className="font-semibold text-slate-900">{it.q}</span>
-                  <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`} />
                 </button>
                 {open && <p className="pb-5 text-slate-600 leading-relaxed">{it.a}</p>}
               </div>
