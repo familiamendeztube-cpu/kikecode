@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ImageOff } from "lucide-react";
 import type { BusinessTemplate, BrandConfig, BrandPalette, Lang, LocalizedContent } from "@/templates/types";
 import { EditableText } from "@/editor/editable";
+import { pick } from "@/lib/i18n";
 
 /** What every section of the business site renders from. */
 export type SiteProps = {
@@ -37,7 +38,7 @@ export function SiteImage({ src, alt, className, palette, lang, loading = "lazy"
         <div className="text-white/90 px-4">
           <ImageOff className="w-8 h-8 mx-auto mb-2 opacity-80" />
           <div className="text-xs font-semibold tracking-wide">
-            {lang === "en" ? "Original photo pending" : "Imagen original pendiente"}
+            {pick(lang, "Original photo pending", "Imagen original pendiente")}
           </div>
         </div>
       </div>
@@ -46,15 +47,20 @@ export function SiteImage({ src, alt, className, palette, lang, loading = "lazy"
   return <img src={src} alt={alt} className={className} loading={loading} onError={() => setFailed(true)} />;
 }
 
-/* Group slugs into broad industry categories so the renderer can adapt the quote
-   form and show category-specific "wow" bands without hardcoding per-slug. */
+/** The small colored label above a heading. */
+export function Eyebrow({ color, className = "mb-3", children }: { color: string; className?: string; children: ReactNode }) {
+  return <div className={`text-xs font-bold uppercase tracking-widest ${className}`} style={{ color }}>{children}</div>;
+}
+
+/** See-through call-to-action over a dark or photo background. */
+export const GHOST_CTA = "inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur border border-white/30 text-white font-bold px-7 py-4 rounded-lg transition-colors";
 
 export function SectionHeader({ eyebrow, title, blurb, dark, accent, titlePath, eyebrowPath, blurbPath }: { eyebrow: string; title: string; blurb?: string; dark?: boolean; accent: string; titlePath?: (string | number)[]; eyebrowPath?: (string | number)[]; blurbPath?: (string | number)[] }) {
   return (
     <div className="text-center max-w-2xl mx-auto">
-      <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: accent }}>
+      <Eyebrow color={accent}>
         {eyebrowPath ? <EditableText as="span" path={eyebrowPath} value={eyebrow} /> : eyebrow}
-      </div>
+      </Eyebrow>
       <h2 className={`font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight ${dark ? "text-white" : "text-slate-900"}`}>
         {titlePath ? <EditableText as="span" path={titlePath} value={title} /> : title}
       </h2>
@@ -67,7 +73,7 @@ export function SectionHeader({ eyebrow, title, blurb, dark, accent, titlePath, 
   );
 }
 
-export function FormField({ label, children }: { label: string; children: React.ReactNode }) {
+export function FormField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
       <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">{label}</label>

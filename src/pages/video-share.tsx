@@ -4,6 +4,7 @@ import { Phone, Globe } from "lucide-react";
 import { getClientVideo } from "@/lib/client-videos";
 import { getTemplate } from "@/templates";
 import NotFound from "@/pages/not-found";
+import { pick } from "@/lib/i18n";
 
 export default function VideoShare() {
   const [, params] = useRoute("/video/:id");
@@ -20,7 +21,6 @@ export default function VideoShare() {
   const phone = brand?.phone ?? "(562) 550-9099";
   const phoneHref = brand?.phoneHref ?? "tel:+15625509099";
   const logo = brand?.logo;
-  const t = (en: string, es: string) => (lang === "en" ? en : es);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
@@ -58,10 +58,10 @@ export default function VideoShare() {
 
         <div className="text-center mt-8">
           <span className="inline-block text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4" style={{ backgroundColor: `${accent}22`, color: accent }}>
-            {t("Professional Latino Workers", "Trabajadores Latinos Profesionales")}
+            {pick(lang, "Professional Latino Workers", "Trabajadores Latinos Profesionales")}
           </span>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t(video.title.en, video.title.es)}</h1>
-          <p className="text-slate-400 mt-3 max-w-md mx-auto leading-relaxed">{t(video.caption.en, video.caption.es)}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{video.title[lang]}</h1>
+          <p className="text-slate-400 mt-3 max-w-md mx-auto leading-relaxed">{video.caption[lang]}</p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
@@ -69,7 +69,7 @@ export default function VideoShare() {
               className="inline-flex items-center justify-center gap-2 font-bold rounded-xl px-6 py-3.5 w-full sm:w-auto text-white shadow-lg transition-transform hover:scale-[1.02]"
               style={{ backgroundColor: primary }}
             >
-              <Phone className="w-4.5 h-4.5" /> {t("Call", "Llamar")} {phone}
+              <Phone className="w-4.5 h-4.5" /> {pick(lang, "Call", "Llamar")} {phone}
             </a>
             {tpl && (
               <a
@@ -78,7 +78,7 @@ export default function VideoShare() {
                 rel="noreferrer"
                 className="inline-flex items-center justify-center gap-2 font-bold rounded-xl px-6 py-3.5 w-full sm:w-auto border border-white/20 hover:bg-white/10 transition-colors"
               >
-                {t("Get a Free Quote", "Cotización Gratis")}
+                {pick(lang, "Get a Free Quote", "Cotización Gratis")}
               </a>
             )}
           </div>

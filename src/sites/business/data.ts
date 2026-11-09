@@ -25,7 +25,7 @@ const BOOKING_INVITE: Record<Lang, string> = {
   es: "Solo dime qué necesitas y le envío tu solicitud de cita al equipo.",
 };
 export function buildGreeting(assistant: NonNullable<BusinessTemplate["assistant"]>, lang: Lang, brandName: string): string {
-  const base = (lang === "en" ? assistant.en : assistant.es).replace(/\{business\}/g, brandName);
+  const base = assistant[lang].replace(/\{business\}/g, brandName);
   return `${base} ${BOOKING_INVITE[lang]}`;
 }
 

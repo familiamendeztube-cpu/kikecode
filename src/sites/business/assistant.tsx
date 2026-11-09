@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Phone, Quote, Play, Pause, Volume2, MessageCircle, Calendar, Clock, Send, X } from "lucide-react";
 import type { BusinessTemplate, Lang } from "@/templates/types";
 import { fnUrl } from "@/lib/plw";
+import { pick } from "@/lib/i18n";
 import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
 import type { SiteProps } from "./ui";
 import { buildGreeting } from "./data";
@@ -119,10 +120,10 @@ export function AssistantStrip({ template, brand, p, lang, greeting }: SiteProps
           </div>
           <div>
             <div className="text-xs font-bold uppercase tracking-widest mb-0.5" style={{ color: p.primary }}>
-              {lang === "en" ? "Virtual assistant" : "Asistente virtual"}
+              {pick(lang, "Virtual assistant", "Asistente virtual")}
             </div>
             <div className="font-extrabold text-xl tracking-tight">{assistant.name}</div>
-            <div className="text-xs text-slate-500">{lang === "en" ? assistant.roleEn : assistant.roleEs} · {brand.name}</div>
+            <div className="text-xs text-slate-500">{pick(lang, assistant.roleEn, assistant.roleEs)} · {brand.name}</div>
           </div>
         </div>
 
@@ -141,11 +142,11 @@ export function AssistantStrip({ template, brand, p, lang, greeting }: SiteProps
               >
                 {greeting.playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 {greeting.playing
-                  ? (lang === "en" ? "Pause" : "Pausar")
-                  : (lang === "en" ? "Listen to greeting" : "Escuchar saludo")}
+                  ? pick(lang, "Pause", "Pausar")
+                  : pick(lang, "Listen to greeting", "Escuchar saludo")}
               </button>
               <div className="text-xs text-slate-500 inline-flex items-center gap-1.5">
-                <Volume2 className="w-3.5 h-3.5" /> {lang === "en" ? "15-second voice intro" : "Saludo de 15 segundos"}
+                <Volume2 className="w-3.5 h-3.5" /> {pick(lang, "15-second voice intro", "Saludo de 15 segundos")}
               </div>
             </div>
           )}
@@ -153,7 +154,7 @@ export function AssistantStrip({ template, brand, p, lang, greeting }: SiteProps
 
         <a href={brand.phoneHref} className="hidden md:inline-flex items-center justify-center gap-2 text-white font-bold px-5 py-3 rounded-xl shadow-md hover:opacity-90 transition-opacity" style={{ backgroundColor: p.primaryDark }}>
           <MessageCircle className="w-4 h-4" />
-          {lang === "en" ? "Talk to a human" : "Habla con una persona"}
+          {pick(lang, "Talk to a human", "Habla con una persona")}
         </a>
       </div>
     </section>
@@ -189,31 +190,31 @@ export function FloatingAssistant({
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs, step]);
 
-  const L = lang === "en"
-    ? {
-        online: "Virtual assistant · takes requests any time",
-        tapHint: "Tap anywhere to hear my voice",
-        speaking: `${assistant.name} is speaking…`,
-        hear: "Hear greeting",
-        pause: "Pause",
-        needPh: "Type what you need…",
-        contactPh: "Your phone number",
-        invalidPhone: "Hmm, that doesn't look like a phone number — please enter a number we can text.",
-        callNow: "Call now",
-        send: "Send",
-      }
-    : {
-        online: "Asistente virtual · recibe solicitudes a toda hora",
-        tapHint: "Toca para escuchar mi voz",
-        speaking: `${assistant.name} está hablando…`,
-        hear: "Escuchar",
-        pause: "Pausar",
-        needPh: "Escribe lo que necesitas…",
-        contactPh: "Tu número de teléfono",
-        invalidPhone: "Mmm, eso no parece un teléfono — escribe un número al que podamos enviarte mensaje.",
-        callNow: "Llamar",
-        send: "Enviar",
-      };
+  const L = pick(lang,
+    {
+      online: "Virtual assistant · takes requests any time",
+      tapHint: "Tap anywhere to hear my voice",
+      speaking: `${assistant.name} is speaking…`,
+      hear: "Hear greeting",
+      pause: "Pause",
+      needPh: "Type what you need…",
+      contactPh: "Your phone number",
+      invalidPhone: "Hmm, that doesn't look like a phone number — please enter a number we can text.",
+      callNow: "Call now",
+      send: "Send",
+    },
+    {
+      online: "Asistente virtual · recibe solicitudes a toda hora",
+      tapHint: "Toca para escuchar mi voz",
+      speaking: `${assistant.name} está hablando…`,
+      hear: "Escuchar",
+      pause: "Pausar",
+      needPh: "Escribe lo que necesitas…",
+      contactPh: "Tu número de teléfono",
+      invalidPhone: "Mmm, eso no parece un teléfono — escribe un número al que podamos enviarte mensaje.",
+      callNow: "Llamar",
+      send: "Enviar",
+    });
 
   function submitNeed(text: string) {
     const v = text.trim();
@@ -244,7 +245,7 @@ export function FloatingAssistant({
     // The chat asks only for a phone, so the lead is named after the chat itself.
     const result = await lead.submit({
       form: "assistant",
-      name: lang === "en" ? "Website chat visitor" : "Visitante del chat del sitio",
+      name: pick(lang, "Website chat visitor", "Visitante del chat del sitio"),
       phone: v,
       service: need,
       preferredTime: when,
@@ -266,7 +267,7 @@ export function FloatingAssistant({
       <button
         onClick={() => setMinimized(false)}
         className="fixed bottom-5 right-5 z-50 w-16 h-16 rounded-full shadow-2xl ring-4 ring-white/80 overflow-hidden hover:scale-105 transition-transform hidden lg:block"
-        aria-label={lang === "en" ? "Open assistant" : "Abrir asistente"}
+        aria-label={pick(lang, "Open assistant", "Abrir asistente")}
       >
         {portraitSrc ? (
           <img src={portraitSrc} alt={assistant.name} className="w-full h-full object-cover" />
@@ -303,7 +304,7 @@ export function FloatingAssistant({
               {L.online}
             </div>
           </div>
-          <button onClick={() => setMinimized(true)} aria-label={lang === "en" ? "Minimize assistant" : "Minimizar asistente"} className="opacity-70 hover:opacity-100 transition-opacity">
+          <button onClick={() => setMinimized(true)} aria-label={pick(lang, "Minimize assistant", "Minimizar asistente")} className="opacity-70 hover:opacity-100 transition-opacity">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -460,9 +461,9 @@ export function FloatingAssistant({
 
           {lead.isPreview && <p className="text-[11px] text-amber-800 text-center leading-snug">{previewNotice(lang)}</p>}
           <div className="text-[11px] text-slate-500 text-center leading-snug">
-            {lang === "en"
-              ? <>Or call {brandName} at <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a></>
-              : <>O llama a {brandName} al <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a></>}
+            {pick(lang,
+              <>Or call {brandName} at <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a></>,
+              <>O llama a {brandName} al <a href={phoneHref} className="font-bold text-slate-700 hover:underline">{phone}</a></>)}
           </div>
         </div>
       </div>

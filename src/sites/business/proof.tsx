@@ -1,5 +1,6 @@
 import { Phone, ShieldCheck, Check, Award, MessageSquareQuote } from "lucide-react";
-import { SectionHeader, SampleTag, isSampleContent, type SiteProps } from "./ui";
+import { pick } from "@/lib/i18n";
+import { SectionHeader, SampleTag, isSampleContent, Eyebrow, type SiteProps } from "./ui";
 import { OFFER_ICONS, TRUST_SIGNALS, resolveFacts } from "./data";
 
 /* STATS STRIP */
@@ -11,8 +12,8 @@ export function StatsStrip({ template, p, lang }: SiteProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-2 sm:grid-cols-4 gap-6">
         {data.stats.map((s) => (
           <div key={s.value} className="text-center flex flex-col">
-            <div className="font-extrabold text-2xl sm:text-3xl leading-tight tracking-tight flex items-center justify-center min-h-[2.5rem] sm:min-h-[3.25rem]" style={{ color: p.primary }}>{lang === "es" && s.valueEs ? s.valueEs : s.value}</div>
-            <div className="text-xs sm:text-sm text-slate-600 mt-1">{lang === "en" ? s.labelEn : s.labelEs}</div>
+            <div className="font-extrabold text-2xl sm:text-3xl leading-tight tracking-tight flex items-center justify-center min-h-[2.5rem] sm:min-h-[3.25rem]" style={{ color: p.primary }}>{pick(lang, s.value, s.valueEs || s.value)}</div>
+            <div className="text-xs sm:text-sm text-slate-600 mt-1">{pick(lang, s.labelEn, s.labelEs)}</div>
           </div>
         ))}
       </div>
@@ -31,7 +32,7 @@ export function TrustStrip({ template, p, lang }: SiteProps) {
             <span className="grid place-items-center w-8 h-8 rounded-full shrink-0" style={{ backgroundColor: `${p.primary}14`, color: p.primary }}>
               <s.Icon className="w-4 h-4" />
             </span>
-            {lang === "en" ? s.en : s.es}
+            {s[lang]}
           </div>
         ))}
       </div>
@@ -47,8 +48,8 @@ export function Offers({ template, p, lang }: SiteProps) {
     <section id="offers" className="py-20 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader
-          eyebrow={lang === "en" ? "What we offer" : "Lo que ofrecemos"}
-          title={lang === "en" ? "Everything you need" : "Todo lo que necesitas"}
+          eyebrow={pick(lang, "What we offer", "Lo que ofrecemos")}
+          title={pick(lang, "Everything you need", "Todo lo que necesitas")}
           accent={p.primary}
         />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
@@ -82,15 +83,15 @@ export function Guarantee({ template, brand, p, lang }: SiteProps) {
           <ShieldCheck className="w-8 h-8" />
         </div>
         <div className="flex-1">
-          <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: p.accent }}>
-            {lang === "en" ? "Our promise" : "Nuestra promesa"}
-          </div>
+          <Eyebrow color={p.accent} className="mb-2">
+            {pick(lang, "Our promise", "Nuestra promesa")}
+          </Eyebrow>
           {isSampleContent(template) && <SampleTag lang={lang} className="mb-2" />}
           <h3 className="font-extrabold text-2xl sm:text-3xl tracking-tight mb-2">
-            {lang === "en" ? data.guaranteeEn.title : data.guaranteeEs.title}
+            {pick(lang, data.guaranteeEn.title, data.guaranteeEs.title)}
           </h3>
           <p className="text-white/90 leading-relaxed">
-            {lang === "en" ? data.guaranteeEn.blurb : data.guaranteeEs.blurb}
+            {pick(lang, data.guaranteeEn.blurb, data.guaranteeEs.blurb)}
           </p>
         </div>
         <a href={brand.phoneHref} className="shrink-0 inline-flex items-center gap-2 bg-white text-slate-900 font-bold px-5 py-3 rounded-xl shadow-md hover:opacity-90 transition-opacity">
@@ -142,16 +143,16 @@ export function Certifications({ template, p, lang }: SiteProps) {
     <section className="py-16 bg-white border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10">
-          <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: p.primary }}>
-            {lang === "en" ? "Why choose us" : "Por qué elegirnos"}
-          </div>
+          <Eyebrow color={p.primary} className="mb-2">
+            {pick(lang, "Why choose us", "Por qué elegirnos")}
+          </Eyebrow>
           <h3 className="font-extrabold text-2xl sm:text-3xl tracking-tight text-slate-900">
-            {lang === "en" ? "What you can count on" : "Con lo que puede contar"}
+            {pick(lang, "What you can count on", "Con lo que puede contar")}
           </h3>
           {isSampleContent(template) && <SampleTag lang={lang} className="mt-3" />}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {(lang === "en" ? data.certsEn : data.certsEs).map((c) => (
+          {pick(lang, data.certsEn, data.certsEs).map((c) => (
             <div key={c} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 flex flex-col items-center text-center gap-2 hover:bg-white hover:shadow-md transition-all">
               <Award className="w-5 h-5" style={{ color: p.primary }} />
               <span className="text-xs font-semibold text-slate-700 leading-snug">{c}</span>

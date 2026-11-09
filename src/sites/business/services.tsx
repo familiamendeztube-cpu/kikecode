@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, MapPinned } from "lucide-react";
-import { SiteImage, SectionHeader, SampleTag, isSampleContent, type SiteProps } from "./ui";
+import { pick } from "@/lib/i18n";
+import { SiteImage, SectionHeader, Eyebrow, SampleTag, isSampleContent, type SiteProps } from "./ui";
 import { resolveFacts } from "./data";
 
 /* SERVICES */
@@ -57,29 +58,29 @@ export function MeetTheCrew({ template, brand, p, lang }: SiteProps) {
               ))}
             </div>
             <div className="text-xs leading-tight">
-              <div className="font-extrabold text-slate-900">{lang === "en" ? "Your local crew" : "Su equipo local"}</div>
+              <div className="font-extrabold text-slate-900">{pick(lang, "Your local crew", "Su equipo local")}</div>
             </div>
           </div>
         </div>
         <div>
-          <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: p.primary }}>
-            {lang === "en" ? "Meet the team" : "Conozca al equipo"}
-          </div>
+          <Eyebrow color={p.primary}>
+            {pick(lang, "Meet the team", "Conozca al equipo")}
+          </Eyebrow>
           <h2 className="font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-slate-900 mb-4">
-            {lang === "en" ? `The team behind ${brand.name}` : `El equipo detrás de ${brand.name}`}
+            {pick(lang, `The team behind ${brand.name}`, `El equipo detrás de ${brand.name}`)}
           </h2>
           <p className="text-slate-600 leading-relaxed mb-7 text-lg">
-            {lang === "en"
-              ? `We're your neighbors in ${brand.city.split(",")[0]}, proud of our work and proud to serve our community.`
-              : `Somos sus vecinos en ${brand.city.split(",")[0]}, orgullosos de nuestro trabajo y de servir a nuestra comunidad.`}
+            {pick(lang,
+              `We're your neighbors in ${brand.city.split(",")[0]}, proud of our work and proud to serve our community.`,
+              `Somos sus vecinos en ${brand.city.split(",")[0]}, orgullosos de nuestro trabajo y de servir a nuestra comunidad.`)}
           </p>
           {isSampleContent(template) && <SampleTag lang={lang} className="mb-3" />}
           {data && (
             <div className="grid sm:grid-cols-3 gap-4">
               {data.stats.slice(0, 3).map((s) => (
                 <div key={s.value} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
-                  <div className="font-extrabold text-2xl tracking-tight" style={{ color: p.primary }}>{lang === "es" && s.valueEs ? s.valueEs : s.value}</div>
-                  <div className="text-xs text-slate-600 mt-1">{lang === "en" ? s.labelEn : s.labelEs}</div>
+                  <div className="font-extrabold text-2xl tracking-tight" style={{ color: p.primary }}>{pick(lang, s.value, s.valueEs || s.value)}</div>
+                  <div className="text-xs text-slate-600 mt-1">{pick(lang, s.labelEn, s.labelEs)}</div>
                 </div>
               ))}
             </div>
@@ -144,15 +145,15 @@ export function ServiceAreas({ template, brand, p, lang }: SiteProps) {
     <section id="areas" className="py-20 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeader
-          eyebrow={lang === "en" ? "Service area" : "Área de servicio"}
-          title={lang === "en" ? `Proudly serving ${brand.city.split(",")[0]} & surrounding areas` : `Sirviendo con orgullo a ${brand.city.split(",")[0]} y áreas cercanas`}
-          blurb={lang === "en"
-            ? "Same-day arrival across our service area. Not on the list? Call — we probably still come out."
-            : "Llegada el mismo día en toda nuestra área. ¿No está en la lista? Llama — probablemente vamos."}
+          eyebrow={pick(lang, "Service area", "Área de servicio")}
+          title={pick(lang, `Proudly serving ${brand.city.split(",")[0]} & surrounding areas`, `Sirviendo con orgullo a ${brand.city.split(",")[0]} y áreas cercanas`)}
+          blurb={pick(lang,
+            "Same-day arrival across our service area. Not on the list? Call — we probably still come out.",
+            "Llegada el mismo día en toda nuestra área. ¿No está en la lista? Llama — probablemente vamos.")}
           accent={p.primary}
         />
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {(lang === "en" ? data.areasEn : data.areasEs).map((city) => (
+          {pick(lang, data.areasEn, data.areasEs).map((city) => (
             <div key={city} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 hover:shadow-md transition-shadow">
               <MapPinned className="w-4 h-4 shrink-0" style={{ color: p.primary }} />
               <span className="text-sm font-medium text-slate-700">{city}</span>
