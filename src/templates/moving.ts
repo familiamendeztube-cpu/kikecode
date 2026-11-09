@@ -183,7 +183,7 @@ const moving: BusinessTemplate = {
   media: {
     hero: `${assets}/hero.jpg`,
     video: `${assets}/brand-film.mp4`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
+    gallery: [`${assets}/gal3.jpg`, `${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -192,7 +192,7 @@ const moving: BusinessTemplate = {
       { icon: "Truck",       title: "Local & long-distance",  blurb: "Moves across Costa Rica, every day." },
       { icon: "Banknote",    title: "Flat-rate quotes",       blurb: "Free in-home estimate — no hidden fees." },
       { icon: "ShieldCheck", title: "Fully insured",          blurb: "Cargo coverage included on every move." },
-      { icon: "Languages",   title: "Bilingüe EN/ES",         blurb: "Cuadrillas bilingües en cada camión." },
+      { icon: "Languages",   title: "Bilingual EN/ES",         blurb: "Bilingual crews on every truck." },
       { icon: "BadgeCheck",  title: "Same-day available",     blurb: "Last-minute? We have crews on standby." },
     ],
     es: [
@@ -200,13 +200,13 @@ const moving: BusinessTemplate = {
       { icon: "Truck",       title: "Local y larga distancia", blurb: "Mudanzas a todo Costa Rica, todos los días." },
       { icon: "Banknote",    title: "Precios fijos",           blurb: "Cotización gratis en casa — sin cargos ocultos." },
       { icon: "ShieldCheck", title: "Totalmente asegurado",    blurb: "Cobertura de carga incluida en cada mudanza." },
-      { icon: "Languages",   title: "Bilingual EN/ES",         blurb: "Bilingual crews on every truck." },
+      { icon: "Languages",   title: "Bilingüe EN/ES",         blurb: "Cuadrillas bilingües en cada camión." },
       { icon: "BadgeCheck",  title: "Mismo día disponible",    blurb: "¿De último momento? Tenemos cuadrillas listas." },
     ],
   },
   galleryCaptions: {
-    en: ["Furniture wrapped & loaded", "Boxes organized in the truck", "Welcome to your new home"],
-    es: ["Muebles envueltos y cargados", "Cajas ordenadas en el camión", "Bienvenidos a su nuevo hogar"],
+    en: ["Welcome to your new home", "Boxes organized in the truck", "Furniture wrapped with care"],
+    es: ["Bienvenidos a su nuevo hogar", "Cajas ordenadas en el camión", "Muebles envueltos con cuidado"],
   },
 };
 

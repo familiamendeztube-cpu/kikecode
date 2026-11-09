@@ -15,7 +15,7 @@ const poolService: BusinessTemplate = {
     city: "Playas del Coco",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@clearwavepools.com",
+    email: "hola@clearwavepools.com",
     address: "De la plaza de deportes de Playas del Coco, 150 m este, Sardinal, Carrillo, Guanacaste",
     heroIcon: Waves,
     palette: {
@@ -167,8 +167,8 @@ const poolService: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -185,8 +185,8 @@ const poolService: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Crystal-clear pool", "Weekly cleaning service", "Filter & pump repair", "Chemical balancing", "Tile & deck cleaning", "Green-to-clean recovery"],
-    es: ["Piscina cristalina", "Limpieza semanal", "Reparación de filtro y bomba", "Balance químico", "Limpieza de azulejo y borde", "Recuperación de agua verde"],
+    en: ["Crystal-clear pool", "Clean water every week", "Treated, balanced water", "Ready for a swim"],
+    es: ["Piscina cristalina", "Agua limpia cada semana", "Agua tratada y balanceada", "Lista para nadar"],
   },
 };
 

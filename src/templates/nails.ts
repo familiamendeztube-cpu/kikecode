@@ -23,7 +23,7 @@ const nails: BusinessTemplate = {
       heroFrom: "#1a0f1f", heroVia: "#26122a", heroTo: "#140a17",
       heroGlow1: "rgba(192,38,211,0.50)", heroGlow2: "rgba(244,114,182,0.32)",
       heroIconFrom: "#C026D3", heroIconTo: "#F472B6",
-      contactFrom: "#C026D3", contactTo: "#F472B6",
+      contactFrom: "#C026D3", contactTo: "#86198f",
     },
   },
   serviceIcons: [Brush, Sparkles, Heart],
@@ -86,7 +86,7 @@ const nails: BusinessTemplate = {
       },
       contact: {
         title: "Book Your Appointment", blurb: "Tell us the look you want and when. We'll confirm fast.",
-        name: "Your name", phone: "Phone", service: "Service needed", message: "Preferred day & time",
+        name: "Your name", phone: "Phone", service: "Service needed", message: "Anything else we should know?",
         submit: "Request Appointment", success: "Thanks — we'll message you on WhatsApp to confirm your appointment.",
         pick: "— Pick a service —",
         services: ["Manicure", "Pedicure", "Acrylic / gel full set", "Nail art", "Spa treatment"],
@@ -101,7 +101,7 @@ const nails: BusinessTemplate = {
         title2: "Cada Ocasión y el Día a Día",
         subtitle: "Manicuras, pedicuras, acrílicas, gel y arte de uñas personalizado en un estudio limpio y relajante. Técnicas bilingües. Sin cita, bienvenidas.",
         cta1: "Reserve Ahora", cta2: "Llame Ahora",
-        badges: ["Sin Cita Bienvenidas", "Bilingüe EN/ES", "Herramientas Esterilizadas", "Arte Personalizado"],
+        badges: ["Sin Cita, Bienvenidas", "Bilingüe EN/ES", "Herramientas Esterilizadas", "Arte Personalizado"],
         ratingTitle: "4.9 / 5", ratingSubtitle: "800+ clientas felices",
         trustTitle: "Permiso Sanitario al Día", trustSubtitle: "Higiene de grado hospitalario",
       },
@@ -150,7 +150,7 @@ const nails: BusinessTemplate = {
       },
       contact: {
         title: "Reserve su Cita", blurb: "Díganos el estilo que desea y cuándo. Confirmamos rápido.",
-        name: "Su nombre", phone: "Teléfono", service: "Servicio necesario", message: "Día y hora preferidos",
+        name: "Su nombre", phone: "Teléfono", service: "Servicio necesario", message: "¿Algo más que debamos saber?",
         submit: "Solicitar Cita", success: "Gracias — le escribimos por WhatsApp para confirmar su cita.",
         pick: "— Elija un servicio —",
         services: ["Manicura", "Pedicura", "Set completo de acrílico / gel", "Arte de uñas", "Tratamiento spa"],
@@ -168,8 +168,8 @@ const nails: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal1.jpg`, `${assets}/gal4.jpg`, `${assets}/gal3.jpg`, `${assets}/gal2.jpg`, `${assets}/gal5.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -186,8 +186,8 @@ const nails: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Acrylic full set", "Gel manicure", "Spa pedicure", "Custom nail art", "Dip powder", "Pampered hands"],
-    es: ["Set completo de acrílico", "Manicura en gel", "Pedicura spa", "Arte de uñas", "Polvo dip", "Manos consentidas"],
+    en: ["Manicure at the salon", "One-on-one attention", "Nail art", "Seasonal colors", "Colors to choose from"],
+    es: ["Manicura en el salón", "Atención personalizada", "Arte de uñas", "Esmaltes de temporada", "Colores para elegir"],
   },
 };
 

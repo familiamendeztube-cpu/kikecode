@@ -15,7 +15,7 @@ const hvac: BusinessTemplate = {
     city: "Puntarenas",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@polarpeakhvac.com",
+    email: "hola@polarpeakhvac.com",
     address: "Del parque central, 100 m norte y 25 m este, Puntarenas centro, Puntarenas",
     heroIcon: Wind,
     palette: {
@@ -168,8 +168,8 @@ const hvac: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal3.jpg`, `${assets}/gal2.jpg`, `${assets}/gal4.jpg`, `${assets}/gal6.jpg`, `${assets}/gal5.jpg`, `${assets}/gal1.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -186,8 +186,8 @@ const hvac: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["New mini-split install", "Ventilation ductwork", "Mini-split maintenance", "Condenser units", "Coil cleaning", "Emergency repair"],
-    es: ["Instalación de mini-split nuevo", "Ductos de ventilación", "Mantenimiento de mini-split", "Unidades condensadoras", "Limpieza de serpentín", "Reparación de emergencia"],
+    en: ["Mini-split install", "Ventilation ducts", "Condenser maintenance", "Duct cleaning", "Clean coil", "New mini-split"],
+    es: ["Instalación de mini-split", "Ductos de ventilación", "Mantenimiento de condensadoras", "Limpieza de ductos", "Serpentín limpio", "Mini-split nuevo"],
   },
 };
 

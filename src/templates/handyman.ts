@@ -15,7 +15,7 @@ const handyman: BusinessTemplate = {
     city: "Guadalupe",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@hernandezhandyman.com",
+    email: "hola@hernandezhandyman.com",
     address: "De la iglesia católica de Guadalupe, 300 m norte y 50 m este, Guadalupe, Goicoechea, San José",
     heroIcon: Wrench,
     palette: {
@@ -182,7 +182,7 @@ const handyman: BusinessTemplate = {
   media: {
     hero: `${assets}/hero.jpg`,
     video: `${assets}/brand-film.mp4`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
+    gallery: [`${assets}/action1.jpg`, `${assets}/gal4.jpg`, `${assets}/gal2.jpg`, `${assets}/gal1.jpg`, `${assets}/gal3.jpg`, `${assets}/action2.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -204,8 +204,8 @@ const handyman: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Kitchen sink — leak repair", "Drywall patch & paint match", "Light fixture install"],
-    es: ["Fregadero — reparación de fuga", "Parche de gypsum y pintura igualada", "Instalación de lámpara"],
+    en: ["Kitchen cabinet fitting", "Shelf leveled & mounted", "Light fixture install", "Kitchen sink — leak repair", "Drywall patch & paint match"],
+    es: ["Ajuste de gabinetes de cocina", "Repisa nivelada e instalada", "Instalación de lámpara", "Fregadero — reparación de fuga", "Parche de gypsum y pintura igualada"],
   },
 };
 

@@ -15,7 +15,7 @@ const electrician: BusinessTemplate = {
     city: "Tres Ríos",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@brightvoltelectric.com",
+    email: "hola@brightvoltelectric.com",
     address: "Costado sur de la iglesia católica, 150 m este, Tres Ríos, La Unión, Cartago",
     heroIcon: Zap,
     palette: {
@@ -167,8 +167,8 @@ const electrician: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal4.jpg`, `${assets}/gal6.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -185,8 +185,8 @@ const electrician: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Panel upgrade", "Recessed lighting", "EV charger install", "Outlet & wiring repair", "Ceiling fan install", "Whole-home rewiring"],
-    es: ["Cambio de tablero eléctrico", "Luces empotradas", "Cargador para carro eléctrico", "Reparación de tomacorrientes y cableado", "Instalación de abanico de techo", "Recableado completo"],
+    en: ["Panel upgrade", "Lighting & outlet supplies", "Labeled breaker panel", "Tools for every job"],
+    es: ["Cambio de tablero eléctrico", "Material para iluminación y tomacorrientes", "Tablero de breakers rotulado", "Herramientas para cada trabajo"],
   },
 };
 

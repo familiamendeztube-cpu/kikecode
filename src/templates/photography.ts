@@ -11,7 +11,7 @@ const photography: BusinessTemplate = {
   websiteType: "Creative Services Website",
   defaultServicesField: "Quinceañeras, Weddings, Family portraits, Events, Newborn & maternity, Studio sessions",
   brand: {
-    name: "Luz & Recuerdos Photography",
+    name: "Luz & Recuerdos Fotografía",
     city: "Tamarindo",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
@@ -168,7 +168,7 @@ const photography: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
+    gallery: [`${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal2.jpg`, `${assets}/gal6.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -186,8 +186,8 @@ const photography: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Wedding photography", "Quinceañera portraits", "Family sessions", "Newborn shoot", "Event coverage", "Studio portraits"],
-    es: ["Fotografía de bodas", "Retratos de quinceañera", "Sesiones familiares", "Sesión de recién nacido", "Cobertura de eventos", "Retratos de estudio"],
+    en: ["Wedding photography", "Outdoor session", "Event coverage", "Professional gear", "Photographer at work"],
+    es: ["Fotografía de bodas", "Sesión al aire libre", "Cobertura de eventos", "Equipo profesional", "Fotógrafa en acción"],
   },
 };
 

@@ -182,7 +182,7 @@ const cleaning: BusinessTemplate = {
   media: {
     hero: `${assets}/hero.jpg`,
     video: `${assets}/brand-film.mp4`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
+    gallery: [`${assets}/gal1.jpg`, `${assets}/action1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -191,7 +191,7 @@ const cleaning: BusinessTemplate = {
       { icon: "Sparkles",    title: "Eco supplies included", blurb: "Non-toxic products safe for kids & pets." },
       { icon: "Banknote",    title: "Flat-rate by home size",blurb: "Studio apartments from ₡45 000 · 3-bedroom homes from ₡90 000." },
       { icon: "ShieldCheck", title: "Insured staff",         blurb: "Background-checked cleaners on every visit." },
-      { icon: "Languages",   title: "Bilingüe EN/ES",        blurb: "Equipos bilingües en cada turno." },
+      { icon: "Languages",   title: "Bilingual EN/ES",        blurb: "Bilingual teams on every shift." },
       { icon: "BadgeCheck",  title: "Re-clean guarantee",    blurb: "Not happy? We come back free within 24 hours." },
     ],
     es: [
@@ -199,13 +199,13 @@ const cleaning: BusinessTemplate = {
       { icon: "Sparkles",    title: "Productos ecológicos",   blurb: "Productos no tóxicos seguros para niños y mascotas." },
       { icon: "Banknote",    title: "Precio fijo por tamaño", blurb: "Apartamentos tipo estudio desde ₡45 000 · casas de 3 cuartos desde ₡90 000." },
       { icon: "ShieldCheck", title: "Personal asegurado",     blurb: "Personal con verificación de antecedentes." },
-      { icon: "Languages",   title: "Bilingual EN/ES",        blurb: "Bilingual teams on every shift." },
+      { icon: "Languages",   title: "Bilingüe EN/ES",        blurb: "Equipos bilingües en cada turno." },
       { icon: "BadgeCheck",  title: "Garantía de re-limpieza",blurb: "¿No le gustó? Regresamos gratis en 24 horas." },
     ],
   },
   galleryCaptions: {
-    en: ["Deep clean — full kitchen", "Move-out bathroom shine", "Recurring vacuum & dust"],
-    es: ["Limpieza profunda — cocina completa", "Baño reluciente para mudanza", "Aspirado y sacudido recurrente"],
+    en: ["Weekly vacuum & dust", "Counters wiped down", "Move-out bathroom shine", "Bedrooms dusted & tidied"],
+    es: ["Aspirado y sacudido semanal", "Superficies desinfectadas", "Baño reluciente para mudanza", "Habitaciones sacudidas y ordenadas"],
   },
 };
 

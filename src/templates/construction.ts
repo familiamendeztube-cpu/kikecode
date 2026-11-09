@@ -12,7 +12,7 @@ const construction: BusinessTemplate = {
     city: "Ciudad Quesada",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@brightstoneconstruction.com",
+    email: "hola@brightstoneconstruction.com",
     address: "Del parque central, 300 m norte y 50 m este, Ciudad Quesada, San Carlos, Alajuela",
     heroIcon: HardHat,
     palette: {

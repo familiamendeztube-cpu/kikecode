@@ -183,7 +183,7 @@ const beauty: BusinessTemplate = {
   media: {
     hero: `${assets}/hero.jpg`,
     video: `${assets}/brand-film.mp4`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
+    gallery: [`${assets}/gal3.jpg`, `${assets}/gal1.jpg`, `${assets}/action2.jpg`, `${assets}/gal2.jpg`, `${assets}/action1.jpg`, `${assets}/gal4.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -192,7 +192,7 @@ const beauty: BusinessTemplate = {
       { icon: "Sparkles",    title: "Master colorists",       blurb: "Balayage, highlights, color correction specialists." },
       { icon: "Heart",       title: "First visit -20%",       blurb: "New clients save on any service over ₡40 000." },
       { icon: "Banknote",    title: "Transparent menu",       blurb: "Every price listed online — zero surprises." },
-      { icon: "Languages",   title: "Bilingüe EN/ES",         blurb: "Estilistas bilingües en cada turno." },
+      { icon: "Languages",   title: "Bilingual EN/ES",         blurb: "Bilingual stylists on every shift." },
       { icon: "BadgeCheck",  title: "1,200+ five-star",       blurb: "Five-star reviews from our clients on Google." },
     ],
     es: [
@@ -200,13 +200,13 @@ const beauty: BusinessTemplate = {
       { icon: "Sparkles",    title: "Coloristas expertas",     blurb: "Especialistas en balayage, mechas y correcciones de color." },
       { icon: "Heart",       title: "Primera visita -20%",     blurb: "Clientas nuevas ahorran en servicios de más de ₡40 000." },
       { icon: "Banknote",    title: "Precios a la vista",      blurb: "Cada precio publicado en línea — sin sorpresas." },
-      { icon: "Languages",   title: "Bilingual EN/ES",         blurb: "Bilingual stylists on every shift." },
+      { icon: "Languages",   title: "Bilingüe EN/ES",         blurb: "Estilistas bilingües en cada turno." },
       { icon: "BadgeCheck",  title: "Más de 1200 de 5 estrellas", blurb: "Reseñas de cinco estrellas de nuestras clientas en Google." },
     ],
   },
   galleryCaptions: {
-    en: ["Gel manicure detail", "Modern studio floor", "Color & highlight service"],
-    es: ["Detalle de manicure en gel", "Nuestro salón moderno", "Servicio de color y mechas"],
+    en: ["Color & highlight service", "Gel manicure detail", "Bridal & event makeup", "Our modern salon"],
+    es: ["Servicio de color y mechas", "Detalle de manicure en gel", "Maquillaje para novias y eventos", "Nuestro salón moderno"],
   },
 };
 

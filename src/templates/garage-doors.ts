@@ -15,7 +15,7 @@ const garageDoors: BusinessTemplate = {
     city: "Curridabat",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@overheadgaragedoors.com",
+    email: "hola@overheadgaragedoors.com",
     address: "De la plaza de deportes de Curridabat, 150 m norte y 25 m este, Curridabat, San José",
     heroIcon: Home,
     palette: {
@@ -23,7 +23,7 @@ const garageDoors: BusinessTemplate = {
       heroFrom: "#0b1220", heroVia: "#111c33", heroTo: "#0b1220",
       heroGlow1: "rgba(37,99,235,0.55)", heroGlow2: "rgba(245,158,11,0.35)",
       heroIconFrom: "#3B82F6", heroIconTo: "#F59E0B",
-      contactFrom: "#2563EB", contactTo: "#F59E0B",
+      contactFrom: "#2563EB", contactTo: "#1E3A8A",
     },
   },
   serviceIcons: [Home, Wrench, Zap],
@@ -168,8 +168,8 @@ const garageDoors: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal2.jpg`, `${assets}/gal5.jpg`, `${assets}/gal1.jpg`, `${assets}/gal3.jpg`, `${assets}/gal6.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -186,8 +186,8 @@ const garageDoors: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["New garage door install", "Spring & cable repair", "Opener installation", "Custom carriage door", "Same-day repair", "Finished modern door"],
-    es: ["Instalación de puerta nueva", "Reparación de resortes y cables", "Instalación de motor", "Puerta estilo carruaje", "Reparación el mismo día", "Puerta moderna terminada"],
+    en: ["Garage doors installed", "Roll-up door", "Sectional door panels", "Classic carriage door", "Install detail"],
+    es: ["Puertas de cochera instaladas", "Puerta enrollable", "Paneles de puerta seccional", "Portón clásico de madera", "Detalle de instalación"],
   },
 };
 

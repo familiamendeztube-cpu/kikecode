@@ -15,7 +15,7 @@ const auto: BusinessTemplate = {
     city: "Alajuela",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "service@ramirezauto.com",
+    email: "servicio@ramirezauto.com",
     address: "Del parque central, 400 m oeste y 50 m sur, Alajuela, Alajuela",
     heroIcon: Car,
     palette: {
@@ -164,7 +164,7 @@ const auto: BusinessTemplate = {
       { value: "20+", labelEn: "Years under the hood", labelEs: "Años bajo el capó" },
       { value: "12 000+", labelEn: "Cars repaired", labelEs: "Carros reparados" },
       { value: "4.8★", labelEn: "Google rating", labelEs: "Calificación en Google" },
-      { value: "12mo", labelEn: "Parts & labor warranty", labelEs: "Garantía en repuestos y mano de obra" },
+      { value: "12mo", valueEs: "12 meses", labelEn: "Parts & labor warranty", labelEs: "Garantía en repuestos y mano de obra" },
     ],
     areasEn: ["Alajuela", "San Rafael", "San Antonio", "La Guácima", "Río Segundo", "Turrúcares", "Carrizal", "El Coyol", "Ciruelas", "Grecia", "Atenas", "Heredia"],
     areasEs: ["Alajuela", "San Rafael", "San Antonio", "La Guácima", "Río Segundo", "Turrúcares", "Carrizal", "El Coyol", "Ciruelas", "Grecia", "Atenas", "Heredia"],
@@ -183,7 +183,7 @@ const auto: BusinessTemplate = {
   media: {
     hero: `${assets}/hero.jpg`,
     video: `${assets}/brand-film.mp4`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
+    gallery: [`${assets}/gal3.jpg`, `${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -205,8 +205,8 @@ const auto: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Engine diagnostics", "Tire rotation & balance", "Lifts, bays, modern shop"],
-    es: ["Diagnóstico de motor", "Rotación y balanceo", "Elevadores, bahías, taller moderno"],
+    en: ["Brakes & rotors", "Engine diagnostics", "Tire rotation & balance"],
+    es: ["Frenos y discos", "Diagnóstico de motor", "Rotación y balanceo"],
   },
 };
 

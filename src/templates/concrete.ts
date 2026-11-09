@@ -15,11 +15,11 @@ const concrete: BusinessTemplate = {
     city: "Cartago",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@solidformconcrete.com",
+    email: "hola@solidformconcrete.com",
     address: "Del parque central, 400 m norte y 100 m este, Cartago, Cartago",
     heroIcon: Square,
     palette: {
-      primary: "#64748B", primaryDark: "#334155", accent: "#0EA5E9",
+      primary: "#0369A1", primaryDark: "#0C4A6E", accent: "#0EA5E9",
       heroFrom: "#0f172a", heroVia: "#1e293b", heroTo: "#0b1120",
       heroGlow1: "rgba(100,116,139,0.55)", heroGlow2: "rgba(14,165,233,0.35)",
       heroIconFrom: "#94A3B8", heroIconTo: "#0EA5E9",
@@ -167,8 +167,8 @@ const concrete: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal3.jpg`, `${assets}/gal6.jpg`, `${assets}/team.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -185,8 +185,8 @@ const concrete: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["New concrete driveway", "Stamped patio", "Sidewalk & walkway", "Foundation slab", "Decorative finish", "Finished pour"],
-    es: ["Entrada de concreto nueva", "Patio estampado", "Acera y caminos", "Losa de cimiento", "Acabado decorativo", "Chorrea terminada"],
+    en: ["Residential job", "Concrete surface", "Stamped concrete"],
+    es: ["Obra residencial", "Superficie de concreto", "Concreto estampado"],
   },
 };
 

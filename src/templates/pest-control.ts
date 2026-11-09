@@ -15,7 +15,7 @@ const pestControl: BusinessTemplate = {
     city: "Limón",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@shieldguardpest.com",
+    email: "hola@shieldguardpest.com",
     address: "De la iglesia católica, 100 m oeste y 50 m sur, Limón centro, Limón",
     heroIcon: Bug,
     palette: {
@@ -23,7 +23,7 @@ const pestControl: BusinessTemplate = {
       heroFrom: "#0b1f12", heroVia: "#14321f", heroTo: "#0b1f12",
       heroGlow1: "rgba(22,163,74,0.55)", heroGlow2: "rgba(202,138,4,0.32)",
       heroIconFrom: "#16A34A", heroIconTo: "#CA8A04",
-      contactFrom: "#16A34A", contactTo: "#CA8A04",
+      contactFrom: "#16A34A", contactTo: "#14532d",
     },
   },
   serviceIcons: [Shield, Home, Sparkles],
@@ -167,8 +167,8 @@ const pestControl: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal1.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -185,8 +185,8 @@ const pestControl: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Home perimeter treatment", "Termite inspection", "Rodent exclusion", "Ant & roach control", "Mosquito fumigation", "Eco-friendly products"],
-    es: ["Tratamiento del perímetro", "Inspección de comején", "Control de roedores", "Hormigas y cucarachas", "Fumigación contra zancudos", "Productos ecológicos"],
+    en: ["Large-area spraying", "Insect identification", "Pest inspection", "Beetle control"],
+    es: ["Fumigación de áreas grandes", "Identificación de insectos", "Inspección de plagas", "Control de escarabajos"],
   },
 };
 

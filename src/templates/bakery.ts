@@ -183,7 +183,7 @@ const bakery: BusinessTemplate = {
   media: {
     hero: `${assets}/hero.jpg`,
     video: `${assets}/brand-film.mp4`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
+    gallery: [`${assets}/gal2.jpg`, `${assets}/gal1.jpg`, `${assets}/gal3.jpg`, `${assets}/action1.jpg`, `${assets}/action2.jpg`, `${assets}/gal4.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -205,8 +205,8 @@ const bakery: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Pan dulce — daily display", "Custom wedding cake", "Fresh from the oven"],
-    es: ["Pan dulce — vitrina del día", "Queque de boda personalizado", "Recién salido del horno"],
+    en: ["Custom wedding cake", "Pan dulce, fresh from the oven", "Today's pastry case"],
+    es: ["Queque de boda personalizado", "Pan dulce recién horneado", "Vitrina de repostería del día"],
   },
 };
 

@@ -192,14 +192,7 @@ const losPrimosPlumbing: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [
-      `${assets}/gal1.jpg`,
-      `${assets}/gal2.jpg`,
-      `${assets}/gal3.jpg`,
-      `${assets}/action1.jpg`,
-      `${assets}/action2.jpg`,
-      `${assets}/gal4.jpg`,
-    ],
+    gallery: [`${assets}/action1.jpg`, `${assets}/gal3.jpg`, `${assets}/gal2.jpg`, `${assets}/gal1.jpg`, `${assets}/gal4.jpg`],
     teamPortrait: `${assets}/team.jpg`,
   },
   offers: {
@@ -221,22 +214,8 @@ const losPrimosPlumbing: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: [
-      "Clean, modern bathroom remodels",
-      "Tankless & tank water heater installs",
-      "Leak detection and pipe repair",
-      "Fast drain & sewer cleaning",
-      "Friendly, uniformed local crew",
-      "Kitchen sink & faucet installation",
-    ],
-    es: [
-      "Remodelaciones de baño limpias y modernas",
-      "Instalación de calentadores con y sin tanque",
-      "Detección de fugas y reparación de tuberías",
-      "Limpieza rápida de drenajes y alcantarillado",
-      "Equipo local amable y uniformado",
-      "Instalación de fregaderos y llaves de cocina",
-    ],
+    en: ["Fast drain & sewer cleaning", "Leak detection and pipe repair", "Tankless & tank water heater installs", "Clean, modern bathroom remodels", "Kitchen sink & faucet installation"],
+    es: ["Limpieza rápida de drenajes y alcantarillado", "Detección de fugas y reparación de tuberías", "Instalación de calentadores con y sin tanque", "Remodelaciones de baño limpias y modernas", "Instalación de fregaderos y llaves de cocina"],
   },
   videoGallery: {
     title: { en: "Watch Our Work in Action", es: "Vea Nuestro Trabajo en Acción" },

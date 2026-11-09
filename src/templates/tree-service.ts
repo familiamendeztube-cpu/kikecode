@@ -15,7 +15,7 @@ const treeService: BusinessTemplate = {
     city: "San Ramón",
     phone: "+506 0000-0000",
     phoneHref: "tel:+50600000000",
-    email: "hello@timberlinetreecare.com",
+    email: "hola@timberlinetreecare.com",
     address: "De la iglesia católica de San Ramón, 300 m oeste y 100 m norte, San Ramón, Alajuela",
     heroIcon: TreePine,
     palette: {
@@ -23,7 +23,7 @@ const treeService: BusinessTemplate = {
       heroFrom: "#0c1f14", heroVia: "#13321f", heroTo: "#0c1f14",
       heroGlow1: "rgba(21,128,61,0.55)", heroGlow2: "rgba(161,98,7,0.30)",
       heroIconFrom: "#15803D", heroIconTo: "#A16207",
-      contactFrom: "#15803D", contactTo: "#A16207",
+      contactFrom: "#15803D", contactTo: "#14532d",
     },
   },
   serviceIcons: [Scissors, Truck, Leaf],
@@ -119,7 +119,7 @@ const treeService: BusinessTemplate = {
           { title: "Respuesta rápida y confiable", blurb: "Llegamos pronto — incluso en emergencias por temporal." },
           { title: "Bilingüe: inglés y español",   blurb: "Comunicación clara que lo respeta." },
           { title: "Asegurados ante el INS",       blurb: "Su propiedad y nuestro equipo están totalmente protegidos." },
-          { title: "Limpieza completa",            blurb: "Dejamos su propiedad más limpia de como la encontramos." },
+          { title: "Limpieza completa",            blurb: "Dejamos su propiedad más limpia de lo que la encontramos." },
         ],
       },
       process: {
@@ -167,8 +167,8 @@ const treeService: BusinessTemplate = {
   },
   media: {
     hero: `${assets}/hero.jpg`,
-    gallery: [`${assets}/gal1.jpg`, `${assets}/gal2.jpg`, `${assets}/gal3.jpg`, `${assets}/gal4.jpg`, `${assets}/gal5.jpg`, `${assets}/gal6.jpg`],
-    teamPortrait: `${assets}/team.jpg`,
+    gallery: [`${assets}/gal4.jpg`, `${assets}/gal2.jpg`, `${assets}/gal1.jpg`],
+    teamPortrait: "",
   },
   offers: {
     en: [
@@ -185,8 +185,8 @@ const treeService: BusinessTemplate = {
     ],
   },
   galleryCaptions: {
-    en: ["Large tree removal", "Professional trimming", "Stump grinding", "Storm cleanup", "Crown reduction", "Lot clearing"],
-    es: ["Corta de árbol grande", "Poda profesional", "Remoción de tocones", "Limpieza después de un temporal", "Reducción de copa", "Limpieza de lote"],
+    en: ["Chainsaw cutting", "Stump ready for removal", "Site cleared after the job"],
+    es: ["Corte con motosierra", "Tocón listo para remover", "Terreno limpio después del trabajo"],
   },
 };
 
