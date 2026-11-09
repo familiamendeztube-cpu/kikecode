@@ -93,10 +93,12 @@ function VideoCard({ src, poster, title, caption, ctaLabel, palette }: {
   );
 }
 
-/* IN ACTION — photo-forward feature band */
+/* IN ACTION — photo-forward feature band. Its copy is generic promises ("done
+   right the first time", "background-checked professionals"), so a real
+   business, which never made them, does not get it; its photos are in Gallery. */
 export function InAction({ template, brand, p, lang }: SiteProps) {
   const media = template.media;
-  if (!media) return null;
+  if (!media || template.realBusiness) return null;
   return (
     <section className="py-20 sm:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-16 lg:space-y-24">
@@ -118,7 +120,7 @@ export function InAction({ template, brand, p, lang }: SiteProps) {
           </div>
           <div>
             <Eyebrow color={p.primary}>
-              {pick(lang, "See us on the job", "Míranos trabajando")}
+              {pick(lang, "See us on the job", "Véanos trabajando")}
             </Eyebrow>
             <h3 className="font-extrabold text-3xl sm:text-4xl tracking-tight text-slate-900 mb-4">
               {pick(lang, "Skilled hands you can trust", "Manos expertas en quien confiar")}
@@ -150,7 +152,7 @@ export function InAction({ template, brand, p, lang }: SiteProps) {
           </div>
           <div className="lg:order-1">
             <Eyebrow color={p.primary}>
-              {pick(lang, "Bilingual, every step", "Bilingüe en cada paso")}
+              {pick(lang, "Every step", "En cada paso")}
             </Eyebrow>
             <h3 className="font-extrabold text-3xl sm:text-4xl tracking-tight text-slate-900 mb-4">
               {pick(lang, "Clear from start to finish", "Claro de principio a fin")}

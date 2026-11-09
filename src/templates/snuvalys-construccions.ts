@@ -3,6 +3,9 @@ import {
   MessageCircle, Store, Clock,
 } from "lucide-react";
 import type { BusinessTemplate } from "./types";
+import { TEMPLATE_ASSETS } from "@/lib/plw";
+
+const assets = `${TEMPLATE_ASSETS}/snuvalys-construccions`;
 
 /*
   Snuvalys Construccions — a real client in San José, Costa Rica (contact:
@@ -11,8 +14,8 @@ import type { BusinessTemplate } from "./types";
   and its posts (obra gris, a counter, tongue-and-groove wall, an industrial
   exhaust for a soda, a shop remodel). It has no reviews, ratings, years in
   business or certifications online, so the site shows none: no testimonials,
-  no `facts`, an empty hero rating. Photos: add the client's own project photos
-  (none are bundled yet).
+  no `facts`, an empty hero rating. Photos: the owner's own, in the
+  template-assets bucket under snuvalys-construccions/.
 */
 const snuvalysConstruccions: BusinessTemplate = {
   slug: "snuvalys-construccions",
@@ -23,6 +26,8 @@ const snuvalysConstruccions: BusinessTemplate = {
     "General construction, Remodeling, Building maintenance, Electrical systems, Air conditioning & cold rooms, Medical installations, Epoxy floors, Tiling, Drywall (gypsum), Kitchen & soda furniture",
   brand: {
     name: "Snuvalys Construccions",
+    // The blueprint house from the business's own card, cropped square for the round logo slots.
+    logo: `${assets}/logo-mark.jpg`,
     city: "San José",
     phone: "+506 6173-6310",
     phoneHref: "tel:+50661736310",
@@ -180,6 +185,23 @@ const snuvalysConstruccions: BusinessTemplate = {
     en: "Hi! Thanks for contacting {business}. What work can we help you with?",
     es: "¡Hola! Gracias por escribir a {business}. ¿En qué trabajo le podemos ayudar?",
     roleEn: "Virtual assistant", roleEs: "Asistente virtual",
+  },
+  // The business's own photos (sent by its owner, 2026-11-09). No team portrait:
+  // we do not know who the people in the photos are.
+  media: {
+    hero: `${assets}/hero-obra-gris.jpg`,
+    gallery: [
+      `${assets}/mostrador.jpg`,
+      `${assets}/extractor-soda.jpg`,
+      `${assets}/machimbre.jpg`,
+      `${assets}/machimbre-instalacion.jpg`,
+      `${assets}/instalacion-cielo.jpg`,
+    ],
+    teamPortrait: "",
+  },
+  galleryCaptions: {
+    en: ["Counter with a marble-look top", "Industrial exhaust for a soda", "Tongue-and-groove wall", "Tongue-and-groove going up", "Ceiling installation"],
+    es: ["Mostrador con sobre tipo mármol", "Extractor industrial para soda", "Pared forrada de machimbre", "Instalación de machimbre", "Instalación en cielo raso"],
   },
   offers: {
     en: [
