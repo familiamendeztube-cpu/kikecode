@@ -116,6 +116,7 @@ export function Contact({ template, brand, p, t, lang }: SiteProps) {
   const lead = useLeadForm(template.plwSiteId, lang);
   const outcome = leadOutcomeMessage(lead.state, lang, brand.phone);
   const icon = "w-5 h-5 shrink-0 mt-px";
+  const row = "flex items-start gap-3 py-1.5";
   // A light brand color (amber, gold, cyan) under white text gets just enough dimming to read at 4.5:1.
   const scrim = Math.max(scrimFor(p.contactFrom), scrimFor(p.contactTo));
   const ink = onColor(p.accent, [dimmed(p.contactFrom, scrim), dimmed(p.contactTo, scrim)]);
@@ -129,14 +130,15 @@ export function Contact({ template, brand, p, t, lang }: SiteProps) {
           <Eyebrow color={ink}>{t.nav.contact}</Eyebrow>
           <h2 className="text-balance font-extrabold text-4xl sm:text-5xl leading-tight tracking-tight mb-4">{t.contact.title}</h2>
           <p className="text-white/90 mb-8 text-lg">{t.contact.blurb}</p>
-          <div className="space-y-3 text-sm">
-            <div className="flex items-start gap-3"><Phone className={icon} style={{ color: ink }} /> <a href={brand.phoneHref} className="hover:underline">{brand.phone}</a></div>
+          {/* Phone and email rows are the links themselves, so the tap target is the whole 32px row. */}
+          <div className="text-sm">
+            <a href={brand.phoneHref} className={`${row} w-fit hover:underline`}><Phone className={icon} style={{ color: ink }} /> {brand.phone}</a>
             {brand.phoneAlt && (
-              <div className="flex items-start gap-3"><Phone className={icon} style={{ color: ink }} /> <a href={brand.phoneAltHref ?? `tel:${brand.phoneAlt.replace(/[^\d+]/g, "")}`} className="hover:underline">{brand.phoneAlt}</a></div>
+              <a href={brand.phoneAltHref ?? `tel:${brand.phoneAlt.replace(/[^\d+]/g, "")}`} className={`${row} w-fit hover:underline`}><Phone className={icon} style={{ color: ink }} /> {brand.phoneAlt}</a>
             )}
-            <div className="flex items-start gap-3"><Mail className={icon} style={{ color: ink }} /> <a href={`mailto:${brand.email}`} className="hover:underline break-all">{brand.email}</a></div>
-            <div className="flex items-start gap-3"><MapPin className={icon} style={{ color: ink }} /> {brand.address}</div>
-            <div className="flex items-start gap-3"><Clock className={icon} style={{ color: ink }} /> {availability ? availability[lang] : t.footer.hours}</div>
+            <a href={`mailto:${brand.email}`} className={`${row} w-fit max-w-full wrap-anywhere hover:underline`}><Mail className={icon} style={{ color: ink }} /> {brand.email}</a>
+            <div className={row}><MapPin className={icon} style={{ color: ink }} /> {brand.address}</div>
+            <div className={row}><Clock className={icon} style={{ color: ink }} /> {availability ? availability[lang] : t.footer.hours}</div>
           </div>
         </div>
 
@@ -274,7 +276,7 @@ export function Footer({ template, brand, p, t, lang }: SiteProps) {
             {brand.phoneAlt && (
               <li><a href={brand.phoneAltHref ?? `tel:${brand.phoneAlt.replace(/[^\d+]/g, "")}`} className="hover:text-white">{brand.phoneAlt}</a></li>
             )}
-            <li><a href={`mailto:${brand.email}`} className="hover:text-white">{brand.email}</a></li>
+            <li className="wrap-anywhere"><a href={`mailto:${brand.email}`} className="hover:text-white">{brand.email}</a></li>
             <li>{brand.address}</li>
           </ul>
           {socials.length > 0 && (

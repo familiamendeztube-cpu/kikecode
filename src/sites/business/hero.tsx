@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { Phone, ShieldCheck, Star, Check, ArrowRight, Play, Pause } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Phone, ShieldCheck, Star, Check, ArrowRight, Play, Pause, Menu, X } from "lucide-react";
 import type { Lang } from "@/templates/types";
 import { EditableText, ChangePhotoButton } from "@/editor/editable";
 import { pick } from "@/lib/i18n";
@@ -48,9 +49,22 @@ export function AvailabilityBar({ template, brand, p, lang }: SiteProps) {
   );
 }
 
-/* TOP BAR */
+/* TOP BAR — the section links inline from 1280px; below that, behind a menu button. */
 export function SiteHeader({ template, brand, p, t, lang, setLang }: SiteProps & { setLang: (lang: Lang) => void }) {
   const HeroIcon = brand.heroIcon;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const goTo = useRef<string | null>(null);
+  // The sections a visitor jumps to (offers, process and areas made a dealership's list wrap),
+  // each only when its section renders.
+  const links = [
+    template.inventory && { href: "#inventory", label: pick(lang, "Inventory", "Inventario") },
+    { href: "#services", label: t.nav.services },
+    template.videoGallery && { href: "#videos", label: "Videos" },
+    !!template.media?.gallery.length && { href: "#gallery", label: pick(lang, "Gallery", "Galería") },
+    t.testimonials.items.length > 0 && { href: "#testimonials", label: t.nav.testimonials },
+    { href: "#faq", label: t.nav.faq },
+    { href: "#contact", label: t.nav.contact },
+  ].filter((l): l is { href: string; label: string } => !!l);
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -68,16 +82,8 @@ export function SiteHeader({ template, brand, p, t, lang, setLang }: SiteProps &
             <div className="text-[10px] uppercase tracking-widest text-slate-500 hidden sm:block truncate">{brand.city}</div>
           </div>
         </a>
-        {/* The sections a visitor jumps to; with offers, process and areas too, a dealership's ten
-            links wrapped onto two lines. Each link only when its section renders. */}
         <nav className="hidden xl:flex items-center gap-6 text-sm font-medium text-slate-700 whitespace-nowrap [&>a]:transition-opacity [&>a:hover]:opacity-70">
-          {template.inventory && <a href="#inventory">{pick(lang, "Inventory", "Inventario")}</a>}
-          <a href="#services">{t.nav.services}</a>
-          {template.videoGallery && <a href="#videos">Videos</a>}
-          {!!template.media?.gallery.length && <a href="#gallery">{pick(lang, "Gallery", "Galería")}</a>}
-          {t.testimonials.items.length > 0 && <a href="#testimonials">{t.nav.testimonials}</a>}
-          <a href="#faq">{t.nav.faq}</a>
-          <a href="#contact">{t.nav.contact}</a>
+          {links.map((l) => <a key={l.href} href={l.href}>{l.label}</a>)}
         </nav>
         <div className="flex items-center gap-2 shrink-0">
           {!template.lockedLang && (
@@ -86,12 +92,57 @@ export function SiteHeader({ template, brand, p, t, lang, setLang }: SiteProps &
               className={`h-10 text-xs font-bold uppercase tracking-widest px-3 rounded-md border border-slate-300 hover:bg-slate-50 ${PRESS}`}
             >{lang === "en" ? "ES" : "EN"}</button>
           )}
-          {/* On a phone it is an icon only: the action bar at the bottom has the labeled Call button, and the business name needs the room. */}
-          <a href={brand.phoneHref} className={`h-10 w-10 sm:w-auto inline-flex items-center justify-center gap-2 text-white text-sm font-semibold sm:px-4 rounded-lg shadow-sm hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primary }}>
+          {/* Not on a phone: the action bar at the bottom has the labeled Call button, and the business name needs the room. */}
+          <a href={brand.phoneHref} className={`hidden sm:inline-flex h-10 items-center justify-center gap-2 text-white text-sm font-semibold px-4 rounded-lg shadow-sm hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primary }}>
             <Phone className="w-4 h-4" />
-            <span className="hidden sm:inline">{brand.phone}</span>
+            {brand.phone}
             <span className="sr-only">{t.nav.call}</span>
           </a>
+          <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
+            <Dialog.Trigger aria-label={pick(lang, "Menu", "Menú")} className={`xl:hidden h-10 w-10 grid place-items-center rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 ${PRESS}`}>
+              <Menu className="w-5 h-5" />
+            </Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 z-[60] bg-slate-950/40 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:duration-150" />
+              {/* Drops from the header it belongs to; closing is quicker than opening. A chosen
+                  link scrolls once the menu has closed and the page can scroll again. */}
+              <Dialog.Content
+                aria-describedby={undefined}
+                onCloseAutoFocus={(e) => {
+                  const target = goTo.current;
+                  if (!target) return;
+                  goTo.current = null;
+                  e.preventDefault();
+                  requestAnimationFrame(() => document.querySelector(target)?.scrollIntoView());
+                }}
+                className="fixed inset-x-0 top-0 z-[60] bg-white shadow-xl rounded-b-2xl pb-6 ease-out data-[state=open]:animate-in data-[state=open]:fade-in-0 motion-safe:data-[state=open]:slide-in-from-top-4 data-[state=open]:duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 motion-safe:data-[state=closed]:slide-out-to-top-4 data-[state=closed]:duration-150"
+              >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                  <div className="h-16 flex items-center justify-between gap-4">
+                    <Dialog.Title className="font-bold text-slate-900 tracking-tight truncate">{brand.name}</Dialog.Title>
+                    <Dialog.Close aria-label={pick(lang, "Close menu", "Cerrar menú")} className={`h-10 w-10 shrink-0 grid place-items-center rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 ${PRESS}`}>
+                      <X className="w-5 h-5" />
+                    </Dialog.Close>
+                  </div>
+                  <nav className="grid">
+                    {links.map((l) => (
+                      <a
+                        key={l.href}
+                        href={l.href}
+                        onClick={(e) => { e.preventDefault(); goTo.current = l.href; setMenuOpen(false); }}
+                        className="py-3.5 text-lg font-semibold text-slate-900 border-b border-slate-100 transition-colors hover:text-slate-500"
+                      >
+                        {l.label}
+                      </a>
+                    ))}
+                  </nav>
+                  <a href={brand.phoneHref} className={`mt-5 h-12 w-full inline-flex items-center justify-center gap-2 rounded-lg text-white font-bold shadow-sm hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primary }}>
+                    <Phone className="w-4 h-4" /> {brand.phone}
+                  </a>
+                </div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
         </div>
       </div>
     </header>

@@ -613,7 +613,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
               </h4>
               <div className="space-y-2 text-[14px] text-[#999999]" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
                 <a href={template.brand.phoneHref} className="block hover:text-[#ffffff] transition-colors">{template.brand.phone}</a>
-                <a href={`mailto:${template.brand.email}`} className="block hover:text-[#ffffff] transition-colors">{template.brand.email}</a>
+                <a href={`mailto:${template.brand.email}`} className="block wrap-anywhere hover:text-[#ffffff] transition-colors">{template.brand.email}</a>
                 <p>{template.brand.address}</p>
               </div>
             </div>
@@ -1050,7 +1050,7 @@ function FaqItem({ item, index, prefersReducedMotion }: { item: { q: string; a: 
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        className="w-full flex items-center justify-between gap-4 text-left group"
+        className="w-full flex items-center justify-between gap-4 py-2 -my-2 text-left group"
       >
         <h3 className="text-[18px] text-[#ffffff] font-bold group-hover:text-[#6e60ee] transition-colors" style={{ fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
           {item.q}

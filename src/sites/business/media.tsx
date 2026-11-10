@@ -1,6 +1,9 @@
 import { useRef, useState } from "react";
-import { Phone, ArrowRight, Play, ThumbsUp, CheckCircle2 } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Phone, ArrowRight, Play, ThumbsUp, CheckCircle2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import type { Lang } from "@/templates/types";
 import { pick } from "@/lib/i18n";
+import { useReturnFocus } from "@/sites/shared/return-focus";
 import { SiteImage, SectionHeader, Eyebrow, SampleTag, isSampleContent, CARD_ROW, PRESS, type SiteProps } from "./ui";
 
 /* VIDEO GALLERY — click-to-play portrait cards (no autoplay; fast on mobile) */
@@ -85,7 +88,7 @@ function VideoCard({ src, poster, title, caption, ctaLabel, palette }: {
       <figcaption className="p-5">
         <div className="font-bold tracking-tight mb-1 text-white">{title}</div>
         <p className="text-sm text-slate-400 leading-relaxed mb-4">{caption}</p>
-        <a href="#contact" className="inline-flex items-center gap-1.5 text-sm font-bold transition-opacity hover:opacity-80" style={{ color: palette.accent }}>
+        <a href="#contact" className="inline-flex items-center gap-1.5 py-2.5 -my-2.5 text-sm font-bold transition-opacity hover:opacity-80" style={{ color: palette.accent }}>
           {ctaLabel} <ArrowRight className="w-4 h-4" />
         </a>
       </figcaption>
@@ -212,6 +215,7 @@ export function Transformation({ template, p, lang }: SiteProps) {
 
 /* GALLERY */
 export function Gallery({ template, p, lang }: SiteProps) {
+  const [open, setOpen] = useState<number | null>(null);
   const media = template.media;
   const captions = template.galleryCaptions?.[lang] ?? [];
   if (!media?.gallery.length) return null;
@@ -232,9 +236,16 @@ export function Gallery({ template, p, lang }: SiteProps) {
         <div className="grid grid-cols-2 lg:grid-cols-3 auto-rows-[170px] sm:auto-rows-[240px] gap-4 mt-12">
           {media.gallery.map((src, i) => (
             <figure key={src} className={`group relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm ${i === 0 ? "col-span-2 row-span-2" : i === n - 1 ? lastWide : ""}`}>
-              <SiteImage src={src} alt={captions[i] ?? `Project ${i+1}`} palette={p} lang={lang} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+              <button
+                type="button"
+                onClick={() => setOpen(i)}
+                aria-label={pick(lang, `Enlarge photo ${i + 1}`, `Ampliar foto ${i + 1}`) + (captions[i] ? `: ${captions[i]}` : "")}
+                className="block w-full h-full cursor-zoom-in focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
+              >
+                <SiteImage src={src} alt={captions[i] ?? `Project ${i+1}`} palette={p} lang={lang} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+              </button>
               {captions[i] && (
-                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent text-white text-sm font-semibold p-4 pt-12 [text-shadow:0_1px_2px_rgb(0_0_0/0.5)]">
+                <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent text-white text-sm font-semibold p-4 pt-12 [text-shadow:0_1px_2px_rgb(0_0_0/0.5)]">
                   {captions[i]}
                 </figcaption>
               )}
@@ -242,7 +253,74 @@ export function Gallery({ template, p, lang }: SiteProps) {
           ))}
         </div>
       </div>
+      <Lightbox photos={media.gallery} captions={captions} index={open} onIndex={setOpen} lang={lang} />
     </section>
+  );
+}
+
+/* LIGHTBOX — a gallery photo opened full size. Arrows, ←/→ and a swipe step through the
+   photos without animating (people flip through many in a row); opening fades and grows
+   from 95% and closing is quicker than opening. A click beside the photo or Esc closes it. */
+function Lightbox({ photos, captions, index, onIndex, lang }: {
+  photos: string[];
+  captions: string[];
+  index: number | null;
+  onIndex: (i: number | null) => void;
+  lang: Lang;
+}) {
+  const focus = useReturnFocus();
+  const swipe = useRef({ x: 0, moved: false });
+  const n = photos.length;
+  const step = (by: number) => { if (index !== null) onIndex((index + by + n) % n); };
+  const control = "absolute grid place-items-center w-11 h-11 rounded-full bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-[background-color,scale] duration-150 focus-visible:outline-2 focus-visible:outline-white";
+  return (
+    <Dialog.Root open={index !== null} onOpenChange={(o) => { if (!o) onIndex(null); }}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:duration-150" />
+        <Dialog.Content
+          {...focus}
+          aria-describedby={undefined}
+          onKeyDown={(e) => { if (e.key === "ArrowRight") step(1); if (e.key === "ArrowLeft") step(-1); }}
+          onPointerDown={(e) => { swipe.current = { x: e.clientX, moved: false }; }}
+          onPointerUp={(e) => {
+            const dx = e.clientX - swipe.current.x;
+            if (Math.abs(dx) > 50) { swipe.current.moved = true; step(dx < 0 ? 1 : -1); }
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget && !swipe.current.moved) onIndex(null); }}
+          className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 px-4 py-16 sm:px-20 outline-none ease-out data-[state=open]:animate-in data-[state=open]:fade-in-0 motion-safe:data-[state=open]:zoom-in-95 data-[state=open]:duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 motion-safe:data-[state=closed]:zoom-out-95 data-[state=closed]:duration-150"
+        >
+          {index !== null && (
+            <>
+              <Dialog.Title className="sr-only">{captions[index] || pick(lang, "Photo", "Foto")} · {index + 1} / {n}</Dialog.Title>
+              <img
+                src={photos[index]}
+                alt={captions[index] ?? ""}
+                draggable={false}
+                // Sized by its own proportions, so the rounded corners and shadow sit on the photo itself.
+                className="w-auto h-auto max-w-full max-h-[calc(100dvh-9rem)] rounded-lg shadow-2xl select-none"
+              />
+              <p className="text-sm text-white/80 text-center">
+                <span className="tabular-nums">{index + 1} / {n}</span>
+                {captions[index] && <> · {captions[index]}</>}
+              </p>
+              <Dialog.Close className={`${control} top-4 right-4`} aria-label={pick(lang, "Close", "Cerrar")}>
+                <X className="w-5 h-5" />
+              </Dialog.Close>
+              {n > 1 && (
+                <>
+                  <button type="button" onClick={() => step(-1)} aria-label={pick(lang, "Previous photo", "Foto anterior")} className={`${control} left-3 sm:left-6 top-1/2 -translate-y-1/2`}>
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button type="button" onClick={() => step(1)} aria-label={pick(lang, "Next photo", "Foto siguiente")} className={`${control} right-3 sm:right-6 top-1/2 -translate-y-1/2`}>
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+            </>
+          )}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 

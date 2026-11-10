@@ -167,9 +167,9 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6 text-sm font-semibold text-[var(--text-secondary)]">
-            <a href="#productos" className="hover:text-[var(--premium-gold)] transition-colors">Catálogo</a>
-            <a href="#comprar" className="hover:text-[var(--premium-gold)] transition-colors">Cómo comprar</a>
-            <a href="#faq" className="hover:text-[var(--premium-gold)] transition-colors">FAQ</a>
+            <a href="#productos" className="py-3 hover:text-[var(--premium-gold)] transition-colors">Catálogo</a>
+            <a href="#comprar" className="py-3 hover:text-[var(--premium-gold)] transition-colors">Cómo comprar</a>
+            <a href="#faq" className="py-3 hover:text-[var(--premium-gold)] transition-colors">FAQ</a>
             <button
               onClick={() => setConsultaOpen(true)}
               className="fx-press bg-[var(--premium-gold)] hover:bg-[var(--premium-gold-dark)] text-black px-4 py-2 text-xs font-bold uppercase tracking-wider flex items-center gap-2 rounded-sm"
@@ -439,19 +439,19 @@ export default function FenixSite({ template }: { template: BusinessTemplate }) 
           <div>
             <h4 className="font-bold text-[var(--text-primary)] mb-4 uppercase text-xs tracking-wider">Navegación</h4>
             <ul className="md:space-y-3 text-sm text-[var(--text-secondary)]">
-              <li><a href="#productos" className="inline-flex items-center min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Catálogo</a></li>
-              <li><a href="#categorias" className="inline-flex items-center min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Categorías</a></li>
-              <li><a href="#comprar" className="inline-flex items-center min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Proceso de compra</a></li>
-              <li><a href="#faq" className="inline-flex items-center min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Preguntas frecuentes</a></li>
+              <li><a href="#productos" className="inline-flex items-center min-h-11 lg:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Catálogo</a></li>
+              <li><a href="#categorias" className="inline-flex items-center min-h-11 lg:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Categorías</a></li>
+              <li><a href="#comprar" className="inline-flex items-center min-h-11 lg:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Proceso de compra</a></li>
+              <li><a href="#faq" className="inline-flex items-center min-h-11 lg:min-h-0 hover:text-[var(--premium-gold)] transition-colors">Preguntas frecuentes</a></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-bold text-[var(--text-primary)] mb-4 uppercase text-xs tracking-wider">Contacto</h4>
             <ul className="md:space-y-3 text-sm text-[var(--text-secondary)]">
-              <li><a href={whatsappUrl} target="_blank" className="inline-flex items-center gap-2 min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors"><ArrowRight className="w-3 h-3" /> WhatsApp</a></li>
-              <li><a href={template.brand.socials?.instagram || "#"} target="_blank" className="inline-flex items-center gap-2 min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors"><Instagram className="w-3 h-3" /> Instagram</a></li>
-              <li><a href="#ubicacion" className="inline-flex items-center gap-2 min-h-11 md:min-h-0 hover:text-[var(--premium-gold)] transition-colors"><MapPin className="w-3 h-3" /> Mall San Pedro</a></li>
+              <li><a href={whatsappUrl} target="_blank" className="inline-flex items-center gap-2 min-h-11 lg:min-h-0 hover:text-[var(--premium-gold)] transition-colors"><ArrowRight className="w-3 h-3" /> WhatsApp</a></li>
+              <li><a href={template.brand.socials?.instagram || "#"} target="_blank" className="inline-flex items-center gap-2 min-h-11 lg:min-h-0 hover:text-[var(--premium-gold)] transition-colors"><Instagram className="w-3 h-3" /> Instagram</a></li>
+              <li><a href="#ubicacion" className="inline-flex items-center gap-2 min-h-11 lg:min-h-0 hover:text-[var(--premium-gold)] transition-colors"><MapPin className="w-3 h-3" /> Mall San Pedro</a></li>
             </ul>
           </div>
         </div>
