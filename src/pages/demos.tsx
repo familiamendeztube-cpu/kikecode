@@ -32,8 +32,12 @@ type SiteRow = {
   domain_status: DomainStatus;
   status: SiteStatus;
   preview_token: string;
+  /** The latest publish: a republish restarts it. */
+  published_at: string | null;
   created_at: string;
 };
+
+const DAY_MS = 86_400_000;
 
 export default function Demos() {
   const { lang } = useOperatorLang();
@@ -132,11 +136,19 @@ export default function Demos() {
           {rows?.map((row) => {
             const tpl = getTemplate(row.slug);
             const live = row.status === "published";
-            const dateStr = new Date(row.created_at).toLocaleDateString(lang === "es" ? "es-CR" : "en-US", {
+            const locale = lang === "es" ? "es-CR" : "en-US";
+            const dateStr = new Date(row.created_at).toLocaleDateString(locale, {
               year: "numeric",
               month: "short",
               day: "numeric",
             });
+            // How long a live site has been up, so staff can end a one-week trial (Suspend).
+            const publishedAgo = live && row.published_at
+              ? new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(
+                  -Math.floor((Date.now() - Date.parse(row.published_at)) / DAY_MS),
+                  "day",
+                )
+              : null;
             return (
               <div
                 key={row.id}
@@ -161,6 +173,7 @@ export default function Demos() {
                     {row.client_name ?? "Demo"}
                     {row.custom_domain ? ` · ${row.custom_domain}${row.domain_status === "active" ? "" : ` (${DOMAIN_STATUS_LABEL[row.domain_status][lang]})`}` : ""}
                     {` · ${dateStr}`}
+                    {publishedAgo && ` · ${pick(lang, "Published", "Publicado")} ${publishedAgo}`}
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
