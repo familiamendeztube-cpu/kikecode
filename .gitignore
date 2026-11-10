@@ -50,3 +50,6 @@ Thumbs.db
 # The lockfile is pnpm-lock.yaml (Netlify builds with pnpm); Bolt's npm would
 # otherwise leave a second one here.
 package-lock.json
+
+# Browser logs from Claude's Playwright tool.
+.playwright-mcp/
