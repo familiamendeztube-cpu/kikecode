@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import {
   Send, Upload, X, Loader2, RotateCcw, Image as ImageIcon, ChevronRight,
   Share2, Copy, Check, ExternalLink, Paperclip, Rocket, Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IconSwap } from "@/components/icon-swap";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -104,8 +105,8 @@ export function PhotosPanel({ photoCount, notice, onHero, onGallery }: {
         )}
       </p>
       {photoCount > 0 && (
-        <p className="text-[11px] text-emerald-400">
-          ✓ {pick(lang, `${photoCount} photo(s) loaded into preview`, `${photoCount} foto(s) cargada(s) en la vista previa`)}
+        <p className="flex items-center gap-1 text-[11px] text-emerald-400">
+          <Check className="w-3 h-3 shrink-0" /> {pick(lang, `${photoCount} photo(s) loaded into preview`, `${photoCount} foto(s) cargada(s) en la vista previa`)}
         </p>
       )}
       {notice && (
@@ -212,7 +213,7 @@ export function SharePanel({
         </div>
       </div>
       <Button onClick={onSave} disabled={saving} size="sm"
-        className="w-full bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white border-0"
+        className="w-full rounded-[4px] bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white border-0"
         data-testid="button-share-client">
         {saving ? (
           <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> {pick(lang, "Saving…", "Guardando…")}</>
@@ -232,7 +233,7 @@ export function SharePanel({
               data-testid="input-share-url" />
             <Button size="sm" variant="secondary" onClick={onCopy}
               className="h-8 px-2.5 shrink-0" data-testid="button-copy-share">
-              {share.copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              <IconSwap swapped={share.copied} from={<Copy className="w-3.5 h-3.5" />} to={<Check className="w-3.5 h-3.5" />} />
             </Button>
             <a href={share.url} target="_blank" rel="noreferrer"
               className="h-8 px-2.5 shrink-0 inline-flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200"
@@ -240,8 +241,8 @@ export function SharePanel({
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
-          <p className="text-[10px] text-emerald-400">
-            ✓ {pick(
+          <p className="flex items-start gap-1 text-[10px] text-emerald-400">
+            <Check className="w-3 h-3 mt-px shrink-0" /> {pick(
               lang,
               "Draft saved. This preview link shows it to your client on any phone; its forms send nothing.",
               "Borrador guardado. Este enlace de vista previa se lo muestra a su cliente en cualquier teléfono; sus formularios no envían nada.",
@@ -250,6 +251,24 @@ export function SharePanel({
         </div>
       )}
     </section>
+  );
+}
+
+/** A one-off burst of sparks off a button's top and bottom edges, behind it: a publish went live. Remount to replay. */
+function Sparks() {
+  return (
+    <span aria-hidden className="pointer-events-none absolute inset-0 motion-reduce:hidden">
+      {Array.from({ length: 14 }, (_, i) => {
+        const up = i % 2 === 0;
+        const style = {
+          left: `${4 + i * 7}%`,
+          top: up ? "0%" : "100%",
+          "--dx": `${((i * 37) % 17) - 8}px`,
+          "--dy": `${(up ? -1 : 1) * (12 + ((i * 11) % 14))}px`,
+        } as CSSProperties;
+        return <span key={i} style={style} className={`absolute size-1.5 -ml-[3px] -mt-[3px] rounded-full animate-spark ${i % 3 ? "bg-emerald-300" : "bg-amber-300"}`} />;
+      })}
+    </span>
   );
 }
 
@@ -276,12 +295,18 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
   sampleNotice: string | null;
 }) {
   const [note, setNote] = useState("");
+  /** Bumped on each publish that went through, to replay the sparks. */
+  const [published, setPublished] = useState(0);
   const [how, setHow] = useState("");
   const [reason, setReason] = useState("");
   const { lang } = useOperatorLang();
   const { site, history, busy, held, error, domainCheck } = lifecycle;
   if (!site) {
-    return error ? <p className="text-[11px] text-red-400">{error}</p> : null;
+    return error ? <p className="text-[11px] text-red-400">{error}</p> : (
+      <p className="flex items-center gap-1.5 text-[11px] text-slate-400">
+        <Loader2 className="w-3 h-3 animate-spin" /> {pick(lang, "Loading publishing…", "Cargando la publicación…")}
+      </p>
+    );
   }
   const live = history?.published_revision_id ?? null;
   const pending = held?.blockers.includes("approval_required") ? held.revision : null;
@@ -312,11 +337,14 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
         <div className="space-y-1.5">
           <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder={pick(lang, "What changed? (optional)", "¿Qué cambió? (opcional)")}
             className="bg-slate-900 border-slate-700 text-white h-8 text-xs" />
-          <Button size="sm" disabled={!!busy} onClick={() => lifecycle.publish(note)}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white border-0" data-testid="button-publish">
+          <div className="relative">
+          {published > 0 && <Sparks key={published} />}
+          <Button size="sm" disabled={!!busy} onClick={async () => { if (await lifecycle.publish(note)) setPublished((n) => n + 1); }}
+            className="relative w-full bg-emerald-600 hover:bg-emerald-500 text-white border-0" data-testid="button-publish">
             {busy === "publish" ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Rocket className="w-3.5 h-3.5 mr-1.5" />}
             {pick(lang, "Publish the saved draft", "Publicar el borrador guardado")}
           </Button>
+          </div>
           <p className="text-[10px] text-slate-500">
             {pick(
               lang,
@@ -339,7 +367,7 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
                 placeholder={pick(lang, "How did the client approve? (WhatsApp 30 Oct, call…)", "¿Cómo aprobó el cliente? (WhatsApp 30 oct., llamada…)")}
                 className="bg-slate-900 border-slate-700 text-white h-8 text-xs" />
               <Button size="sm" disabled={!!busy || how.trim().length < APPROVAL_NOTE_MIN} onClick={() => lifecycle.approveAndPublish(pending.id, how)}
-                className={`${smallButton} w-full bg-amber-600 hover:bg-amber-500 text-white border-0`} data-testid="button-approve-publish">
+                className={`${smallButton} w-full rounded-[6px] bg-amber-600 hover:bg-amber-500 text-white border-0`} data-testid="button-approve-publish">
                 {busy === "approve" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
                 {pick(lang, "Record the client's approval and publish", "Registrar la aprobación del cliente y publicar")}
               </Button>
@@ -357,7 +385,7 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
               <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder={pick(lang, "Reason (required)", "Motivo (obligatorio)")}
                 className="bg-slate-900 border-slate-700 text-white h-8 text-xs" />
               <Button size="sm" variant="secondary" disabled={!!busy || reason.trim().length < OVERRIDE_REASON_MIN}
-                onClick={() => lifecycle.overrideAndPublish(pending.id, reason)} className={`${smallButton} w-full`} data-testid="button-override-publish">
+                onClick={() => lifecycle.overrideAndPublish(pending.id, reason)} className={`${smallButton} w-full rounded-[6px]`} data-testid="button-override-publish">
                 {busy === "override" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
                 {pick(lang, "Publish as admin override", "Publicar como excepción de administrador")}
               </Button>
@@ -428,7 +456,7 @@ export function PublishPanel({ lifecycle, previewLink, publicLink, templateNotic
                   : pick(lang, "The domain serves the site.", "El dominio ya muestra el sitio.")}
             </p>
           )}
-          <Button size="sm" variant="secondary" disabled={!!busy} className={smallButton} onClick={lifecycle.verifyDomain}>
+          <Button size="sm" variant="secondary" disabled={!!busy} className={`${smallButton} rounded-[6px]`} onClick={lifecycle.verifyDomain}>
             {busy === "domain" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />} {pick(lang, "Check domain", "Verificar dominio")}
           </Button>
         </div>

@@ -12,6 +12,8 @@ import {
   Eye,
 } from "lucide-react";
 import { Layout } from "@/components/layout";
+import { IconSwap } from "@/components/icon-swap";
+import { PRESS } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { getTemplate } from "@/templates";
 import { callFn } from "@/lib/plw";
@@ -212,14 +214,10 @@ export default function Demos() {
                       <button
                         type="button"
                         onClick={() => copyLink(row)}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-border hover:bg-foreground/5 transition-colors"
+                        className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-border hover:bg-foreground/5 ${PRESS}`}
                         data-testid={`button-copy-${row.id}`}
                       >
-                        {copiedId === row.id ? (
-                          <Check className="w-3.5 h-3.5 text-emerald-500" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5" />
-                        )}
+                        <IconSwap swapped={copiedId === row.id} from={<Copy className="w-3.5 h-3.5" />} to={<Check className="w-3.5 h-3.5 text-emerald-500" />} />
                         <span className="hidden sm:inline">
                           {copiedId === row.id ? pick(lang, "Copied", "Copiado") : pick(lang, "Copy", "Copiar")}
                         </span>

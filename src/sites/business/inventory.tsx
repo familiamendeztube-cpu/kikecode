@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, Check, ArrowRight, MessageCircle, Calendar, CalendarCheck, Gauge, Fuel, Cog, Compass, Car, ChevronLeft, ChevronRight, Banknote, Search, RotateCw } from "lucide-react";
+import { Phone, Check, ArrowRight, MessageCircle, Calendar, CalendarCheck, Gauge, Fuel, Cog, Compass, Car, ChevronLeft, ChevronRight, Banknote, Search } from "lucide-react";
 import type { BrandConfig, BrandPalette, Lang, TemplateInventory, InventoryVehicle } from "@/templates/types";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { whatsappLink, WhatsAppButton } from "@/sites/shared/whatsapp";
@@ -46,7 +46,6 @@ export function InventorySection({ inv, lang, p, brand }: {
     available: pick(lang, "Available", "Disponible"),
     finance: pick(lang, "Request financing", "Solicitar financiamiento"),
     visit: pick(lang, "Schedule a visit", "Agendar una visita"),
-    view360: pick(lang, "360° view", "Vista 360°"),
     realPhotos: pick(lang, "Real photos of this vehicle", "Fotos reales de este vehículo"),
     photoOf: pick(lang, "Photo", "Foto"),
     prev: pick(lang, "Previous photo", "Foto anterior"),
@@ -133,11 +132,6 @@ export function InventorySection({ inv, lang, p, brand }: {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                 <span className="absolute top-3 left-3 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-black/55 backdrop-blur ring-1 ring-white/15">{v.year ? `${v.year} · ` : ""}{bodyLabel(v.bodyStyle, lang)}</span>
                 <span className="absolute top-3 right-3 text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: p.accent, color: "#111827" }}>{(v.status?.[lang]) ?? L.available}</span>
-                {v.images.length > 1 && (
-                  <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-black/55 backdrop-blur ring-1 ring-white/15">
-                    <RotateCw className="w-3 h-3" /> {L.view360}
-                  </span>
-                )}
                 <div className="absolute bottom-3 left-3 right-3">
                   <div className="font-bold text-lg leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">{v.name}</div>
                 </div>
@@ -180,9 +174,6 @@ export function InventorySection({ inv, lang, p, brand }: {
                   <img src={selected.images[imgIndex]} alt={`${selected.name} — ${L.photoOf} ${imgIndex + 1}`} className="w-full h-full object-cover" />
                   {selected.images.length > 1 && (
                     <>
-                      <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-white px-2.5 py-1 rounded-full bg-black/55 backdrop-blur ring-1 ring-white/15">
-                        <RotateCw className="w-3.5 h-3.5" /> {L.view360}
-                      </span>
                       <span className="absolute top-3 right-3 text-[11px] font-bold text-white px-2.5 py-1 rounded-full bg-black/55 backdrop-blur ring-1 ring-white/15">{imgIndex + 1} / {selected.images.length}</span>
                       <button
                         type="button" onClick={() => stepImg(-1)} aria-label={L.prev}
@@ -197,7 +188,7 @@ export function InventorySection({ inv, lang, p, brand }: {
                   )}
                 </div>
                 {selected.images.length > 1 && (
-                  <div className="flex gap-2 p-3 overflow-x-auto">
+                  <div className="flex gap-2 p-3 overflow-x-auto [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-12px),transparent)]">
                     {selected.images.map((src, i) => (
                       <button
                         key={src}

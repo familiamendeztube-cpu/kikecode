@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, ImagePlus, Plus, Trash2 } from "lucide-react";
 import type { BusinessTemplate, Lang } from "@/templates/types";
 import type { EditPath } from "./edit-path";
 import { pick } from "@/lib/i18n";
@@ -171,7 +171,7 @@ export function SiteEditor(props: Props) {
         <details key={g.key} className="rounded-lg border border-slate-800 bg-slate-900/40 overflow-hidden group">
           <summary className="px-3 py-2.5 cursor-pointer select-none text-sm font-semibold text-white flex items-center justify-between hover:bg-slate-800/50">
             {humanize(g.key, uiLang)}
-            <span className="text-slate-500 text-xs group-open:rotate-90 transition-transform">▸</span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-open:rotate-90 transition-transform" />
           </summary>
           <div className="px-3 py-3 border-t border-slate-800 space-y-3">
             <Node value={g.value} path={g.path} parentKey={g.key} {...props} />
@@ -251,7 +251,7 @@ function Node({
     return (
       <div className="space-y-2">
         {value.map((item, i) => (
-          <div key={i} className="relative rounded-md border border-slate-800 bg-slate-900/40 p-2 pr-7">
+          <div key={i} className="relative rounded-md border border-slate-800 bg-slate-900/40 p-2 pr-7 [&_input]:rounded-[6px] [&_textarea]:rounded-[6px]">
             {!stringArray && (
               <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1.5">
                 {humanize(parentKey, lang)} #{i + 1}

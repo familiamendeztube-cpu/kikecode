@@ -29,7 +29,7 @@ export function ClientDomainSite({ hostname, fallback }: { hostname: string; fal
   const site = usePublishedSite({ domain: hostname });
   useBrandTitle(site?.status === "ok" ? site.template : null);
 
-  if (!site) return <div className="min-h-screen" />;
+  if (!site) return <div className="min-h-dvh" />;
   if (site.status === "ok") return <SiteRenderer template={site.template} />;
   if (site.status === "notfound" || !hasPlwConfig) return <>{fallback}</>;
   return <Unavailable />;

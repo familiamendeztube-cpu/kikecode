@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { SiteRenderer } from "@/sites/site-renderer";
 import {
   Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger,
@@ -58,7 +58,11 @@ export default function Customizer({
 }) {
   const { lang } = useOperatorLang();
   const [tpl, setTpl] = useState<BusinessTemplate>(original);
-  const [open, setOpen] = useState(startOpen);
+  // "Personalizar" links here with ?customize=1; "Ver en vivo" links here without it and
+  // shows the site alone, with no editor launcher over it.
+  const customizeLink = new URLSearchParams(window.location.search).get("customize") === "1";
+  const editing = startOpen || customizeLink || !!savedSite;
+  const [open, setOpen] = useState(startOpen || customizeLink);
   const [editLang, setEditLang] = useState<Lang>(original.lockedLang ?? original.defaultLang ?? "es");
   const [fields, setFields] = useState<BrandFields>(() => brandFields(original.brand));
 
@@ -86,6 +90,7 @@ export default function Customizer({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [photoNotice, setPhotoNotice] = useState<string | null>(null);
+  const [uploads, setUploads] = useState(0);
   // Photos the agent attached in the AI chat, staged until the next send. On
   // send they are placed on the site (hero + gallery) and passed to the AI.
   const [pendingImages, setPendingImages] = useState<string[]>([]);
@@ -104,15 +109,6 @@ export default function Customizer({
   useEffect(() => {
     setTpl(original);
   }, [original]);
-
-  // Honor ?customize=1 by opening the editor.
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("customize") !== "1") return;
-    setOpen(true);
-    url.searchParams.delete("customize");
-    window.history.replaceState({}, "", url.toString());
-  }, []);
 
   // AI "create a site" flow: once, after mount, send the user's description
   // through the proven /customize path so the copy is written in the correct
@@ -135,9 +131,18 @@ export default function Customizer({
   function setField(path: EditPath, value: unknown) {
     edit((cur) => setByPath(cur, path, value));
   }
+  /** Runs a photo upload while the drawer says "Uploading photos…" (compressing and storing take seconds). */
+  async function uploading<T>(work: () => Promise<T>): Promise<T> {
+    setUploads((n) => n + 1);
+    try {
+      return await work();
+    } finally {
+      setUploads((n) => n - 1);
+    }
+  }
   async function uploadField(path: EditPath, file: File) {
     if (!file.type.startsWith("image/")) return;
-    setField(path, await storeImage(await compressImage(file), siteId));
+    setField(path, await uploading(async () => storeImage(await compressImage(file), siteId)));
   }
   function addItem(path: EditPath) {
     edit((cur) => {
@@ -208,7 +213,7 @@ export default function Customizer({
 
   /** The same photos stored in PLW Storage: the URLs the site keeps. */
   async function storePhotos(files: File[]): Promise<string[]> {
-    return Promise.all((await takePhotos(files)).map((url) => storeImage(url, siteId)));
+    return uploading(async () => Promise.all((await takePhotos(files)).map((url) => storeImage(url, siteId))));
   }
 
   async function uploadHero(file: File) {
@@ -299,10 +304,10 @@ export default function Customizer({
       </EditProvider>
 
       {/* Floating launcher — sits below the marquee + top bar (top-20) so it never overlaps. */}
-      {!open && (
+      {editing && !open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed top-20 right-4 z-[60] flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white text-sm font-semibold shadow-2xl shadow-fuchsia-500/30 hover:scale-105 transition"
+          className="fixed top-20 right-4 z-[60] flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white text-sm font-semibold shadow-2xl shadow-fuchsia-500/30 hover:scale-105 active:scale-[0.97] transition"
           data-testid="button-open-customizer"
         >
           <Sparkles className="w-4 h-4" />
@@ -318,6 +323,9 @@ export default function Customizer({
               <Sparkles className="w-5 h-5 text-fuchsia-400" />
               {pick(lang, "Client Customizer", "Editor del cliente")}
             </SheetTitle>
+            <p role="status" className="text-[11px] text-fuchsia-200 flex items-center gap-1.5 empty:hidden">
+              {uploads > 0 && <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {pick(lang, "Uploading photos…", "Subiendo fotos…")}</>}
+            </p>
             <SheetDescription className="text-slate-400 text-xs">
               {pick(
                 lang,

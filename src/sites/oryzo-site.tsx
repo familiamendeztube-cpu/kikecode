@@ -35,7 +35,8 @@ const LABELS = {
 };
 
 const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#dc5000]";
-const PRESS = "transition-[color,background-color,border-color,transform] duration-150 ease-out active:scale-[0.97]";
+// Tailwind 4's scale-* sets the `scale` property, so that (not transform) is what transitions.
+const PRESS = "transition-[color,background-color,border-color,scale] duration-150 ease-out active:scale-[0.97]";
 
 /** A failed mug model (network, bad GLB) must not take the whole page down: R3F
  *  rethrows canvas errors to the parent tree, so this swaps in the PNG fallback. */
@@ -426,7 +427,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
   const beansImg = isStockGallery ? `${TEMPLATE_ASSETS}/barro-ceramica/barro_beans.jpg` : (customGallery[4] || strip2Img);
 
   return (
-    <div className="min-h-screen bg-[#100904] text-[#ffedd7] overflow-x-clip" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-dvh bg-[#100904] text-[#ffedd7] overflow-x-clip" style={{ fontFamily: "Inter, sans-serif" }}>
       
       {!prefersReducedMotion && webglAvailable && (
         <SceneBoundary onError={() => setWebglAvailable(false)}>
@@ -488,7 +489,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
         {/* No overflow-hidden here: it would make this section the sticky child's scroll container, so it never stuck. */}
         <section id="void" ref={voidRef} className="relative min-h-[150vh] bg-[#100904]">
           <AnimatedDivider reduced={prefersReducedMotion} />
-          <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+          <div className="sticky top-0 h-dvh w-full flex items-center justify-center overflow-hidden">
             {/* 10.5vw keeps the longest line ("QUE ES ETERNA" ≈ 7.9em + its 0.5em indent) inside 390–1440px screens. */}
             <div className="absolute inset-0 flex flex-col items-center justify-center z-0">
               <h2 className="text-[clamp(32px,10.5vw,240px)] font-medium leading-[0.8] uppercase text-[#382416] whitespace-nowrap">
@@ -508,7 +509,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
         </section>
 
         {/* 3. Warm Gradient Interlude */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#100904] via-[#1a0f07] to-[#100904]">
+        <section className="relative min-h-svh flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#100904] via-[#1a0f07] to-[#100904]">
           <AnimatedDivider reduced={prefersReducedMotion} />
           <h2 className="text-[clamp(100px,25vw,350px)] font-medium leading-[0.9] uppercase text-[#382416]/40 select-none">
             {template.brand.name}
@@ -517,7 +518,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
       </div>
 
       {/* 4. Texture Macro + Giant Sliding Word */}
-      <section ref={textureRef} className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section ref={textureRef} className="relative h-svh flex items-center justify-center overflow-hidden">
         <AnimatedDivider reduced={prefersReducedMotion} />
         <div className="absolute inset-0 z-0">
           <img src={textureImg} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80" />
@@ -534,7 +535,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
       {prefersReducedMotion ? (
         <section className="relative bg-[#100904] flex flex-col">
           <AnimatedDivider reduced={prefersReducedMotion} />
-          <div className="w-full min-h-screen flex flex-col items-center justify-center p-6 relative border-b border-dashed border-[#40372e]">
+          <div className="w-full min-h-svh flex flex-col items-center justify-center p-6 relative border-b border-dashed border-[#40372e]">
             <div className="w-full max-w-[600px] aspect-[4/5] relative">
               <img src={strip1Img} alt={template.brand.name} className="w-full h-full object-cover" />
               <div className="absolute bottom-6 left-6 px-4 py-2 bg-[#382416] rounded-full text-[10px] uppercase">
@@ -542,7 +543,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
               </div>
             </div>
           </div>
-          <div className="w-full min-h-screen flex flex-col items-center justify-center p-6 relative border-b border-dashed border-[#40372e]">
+          <div className="w-full min-h-svh flex flex-col items-center justify-center p-6 relative border-b border-dashed border-[#40372e]">
             <div className="w-full max-w-[600px] aspect-[4/5] relative">
               <img src={strip2Img} alt={template.brand.name} className="w-full h-full object-cover" />
               <div className="absolute bottom-6 left-6 px-4 py-2 bg-[#382416] rounded-full text-[10px] uppercase">
@@ -550,7 +551,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
               </div>
             </div>
           </div>
-          <div className="w-full min-h-screen flex items-center justify-center p-6 relative bg-[#dc5000]">
+          <div className="w-full min-h-svh flex items-center justify-center p-6 relative bg-[#dc5000]">
             <div className="w-full max-w-[600px] aspect-[4/5] relative flex flex-col items-center justify-center text-center p-12">
               <img src={strip3Img} alt="" className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-50" />
               <h2 className="relative z-10 text-[clamp(40px,8vw,100px)] font-medium leading-[0.9] uppercase text-[#ffedd7]">
@@ -565,7 +566,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
       ) : (
         <section ref={stripRef} className="relative h-[300vh] bg-[#100904]">
           <AnimatedDivider reduced={prefersReducedMotion} />
-          <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
+          <div className="sticky top-0 h-dvh w-full overflow-hidden flex items-center">
             {/* Percent, not vw: 100vw counts the scrollbar, so the last panel ended ~15px off-screen. */}
             <motion.div className="flex w-[300%] shrink-0 h-full" style={{ x: stripX }}>
               <div className="w-1/3 h-full flex flex-col items-center justify-center p-6 relative">
@@ -603,7 +604,7 @@ export default function OryzoSite({ template }: { template: BusinessTemplate }) 
       )}
 
       {/* 6. Closing / Contact Section */}
-      <footer id="order" className="relative min-h-screen bg-[#100904] flex flex-col justify-between overflow-hidden">
+      <footer id="order" className="relative min-h-svh bg-[#100904] flex flex-col justify-between overflow-hidden">
         <AnimatedDivider reduced={prefersReducedMotion} />
         <div className="absolute inset-0 z-0">
           <img src={beansImg} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover opacity-30" />

@@ -4,6 +4,7 @@ import { ChevronRight, Play, Pause, X, Instagram, Menu, MapPin, ArrowRight, Mess
 import * as Dialog from "@radix-ui/react-dialog";
 import type { BusinessTemplate } from "@/templates/types";
 import { TEMPLATE_ASSETS } from "@/lib/plw";
+import { IconSwap } from "@/components/icon-swap";
 import { useReturnFocus } from "@/sites/shared/return-focus";
 import { whatsappLink } from "@/sites/shared/whatsapp";
 import { FenixCatalog, useConsulta } from "./fenix-catalog";
@@ -41,7 +42,7 @@ function BackgroundVideo({ src, poster, reducedMotion, ariaLabel }: { src: strin
         className="fx-press absolute bottom-6 right-6 z-30 bg-black/60 hover:bg-black/90 text-white p-3 rounded-full backdrop-blur-sm border border-white/10"
         aria-label={playing ? `Pausar ${ariaLabel}` : `Reproducir ${ariaLabel}`}
       >
-        {playing ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+        <IconSwap swapped={playing} from={<Play className="w-5 h-5 fill-current" />} to={<Pause className="w-5 h-5 fill-current" />} />
       </button>
     </>
   );

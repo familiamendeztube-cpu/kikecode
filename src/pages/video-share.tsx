@@ -5,6 +5,7 @@ import { getClientVideo } from "@/lib/client-videos";
 import { getTemplate } from "@/templates";
 import NotFound from "@/pages/not-found";
 import { pick } from "@/lib/i18n";
+import { PRESS } from "@/components/ui/button";
 
 export default function VideoShare() {
   const [, params] = useRoute("/video/:id");
@@ -23,7 +24,7 @@ export default function VideoShare() {
   const logo = brand?.logo;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div className="min-h-dvh bg-slate-950 text-white flex flex-col">
       <header className="border-b border-white/10">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -39,7 +40,7 @@ export default function VideoShare() {
           <button
             type="button"
             onClick={() => setLang((l) => (l === "en" ? "es" : "en"))}
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest border border-white/20 rounded-full px-3 py-1.5 hover:bg-white/10 transition-colors"
+            className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest border border-white/20 rounded-full px-3 py-1.5 hover:bg-white/10 ${PRESS}`}
           >
             <Globe className="w-3.5 h-3.5" /> {lang === "en" ? "ES" : "EN"}
           </button>

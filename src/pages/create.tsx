@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight, Sparkles, Eye, Wand2, Loader2, ChevronLeft } from "lucide-react";
+import { ArrowRight, Eye, Wand2, Loader2, ChevronLeft, AlertCircle } from "lucide-react";
 import { TEMPLATES, getTemplate } from "@/templates";
 import { Layout } from "@/components/layout";
 import Customizer from "@/editor/customizer";
@@ -99,9 +99,6 @@ export default function CreateSite() {
   return (
     <Layout>
       <div className="mb-8">
-        <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest bg-primary/15 text-primary px-2.5 py-1 rounded-full mb-3">
-          <Sparkles className="w-3.5 h-3.5" /> {pick(lang, "New site", "Nuevo sitio")}
-        </div>
         <h1 className="font-display text-3xl sm:text-4xl tracking-tight mb-2">
           <span className="text-gradient">{pick(lang, "Create a new site", "Crear un sitio nuevo")}</span>
         </h1>
@@ -117,7 +114,7 @@ export default function CreateSite() {
       {/* AI create box */}
       <div className="rounded-2xl border border-primary/40 bg-primary/[0.06] backdrop-blur p-5 sm:p-6 mb-10 shadow-[0_0_40px_rgba(255,0,255,0.08)]">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-lg grid place-items-center bg-primary text-primary-foreground shadow-lg">
+          <div className="w-8 h-8 rounded-[4px] grid place-items-center bg-primary text-primary-foreground shadow-lg">
             <Wand2 className="w-4 h-4" />
           </div>
           <div className="font-display text-lg">{pick(lang, "Build a site with AI", "Crear un sitio con IA")}</div>
@@ -153,8 +150,8 @@ export default function CreateSite() {
           ))}
         </div>
         {error && (
-          <div className="text-sm text-red-400 mb-3" data-testid="text-generate-error">
-            ⚠️ {error}
+          <div className="flex items-start gap-1.5 text-sm text-red-400 mb-3" data-testid="text-generate-error">
+            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /> {error}
           </div>
         )}
         <div className="flex items-center gap-3">

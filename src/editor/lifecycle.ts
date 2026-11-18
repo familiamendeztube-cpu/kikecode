@@ -101,18 +101,20 @@ export function useSiteLifecycle(siteId: string | null) {
     refresh().catch((e) => setError(message(e, lang)));
   }, [refresh]);
 
-  /** One action at a time; a held publish shows its blockers instead of an error. */
-  async function run(name: string, action: () => Promise<void>) {
-    if (busy || !siteId) return;
+  /** One action at a time; a held publish shows its blockers instead of an error. True when it went through. */
+  async function run(name: string, action: () => Promise<void>): Promise<boolean> {
+    if (busy || !siteId) return false;
     setBusy(name);
     setError(null);
     try {
       await action();
       await refresh();
+      return true;
     } catch (e) {
       const body = (e as { body?: { blockers?: Blocker[]; revision?: { id: string; number: number }; can_override?: boolean } }).body;
       if (body?.blockers) setHeld({ blockers: body.blockers, revision: body.revision ?? null, canOverride: body.can_override === true });
       else setError(message(e, lang));
+      return false;
     } finally {
       setBusy(null);
     }

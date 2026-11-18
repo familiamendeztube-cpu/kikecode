@@ -3,6 +3,7 @@ import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Copy, Check, ExternalLink } from "lucide-react";
+import { IconSwap } from "@/components/icon-swap";
 import { CLIENT_VIDEOS, videoShareUrl } from "@/lib/client-videos";
 import { pick } from "@/lib/i18n";
 import { useOperatorLang } from "@/lib/operator-lang";
@@ -73,7 +74,7 @@ export default function Videos() {
                   onClick={() => copy(v.id)}
                   data-testid={`button-copy-video-${v.id}`}
                 >
-                  {copied === v.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  <IconSwap swapped={copied === v.id} from={<Copy className="w-4 h-4" />} to={<Check className="w-4 h-4" />} />
                   <span className="ml-1.5 hidden sm:inline">{copied === v.id ? pick(lang, "Copied", "Copiado") : pick(lang, "Copy", "Copiar")}</span>
                 </Button>
                 <Button asChild size="sm" variant="outline" className="h-9 px-3 shrink-0">
