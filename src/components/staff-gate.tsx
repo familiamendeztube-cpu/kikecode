@@ -1,21 +1,22 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Lock, Loader2 } from "lucide-react";
 import { callFn, hasPlwConfig, supabase } from "@/lib/plw";
 import { PRESS } from "@/components/ui/button";
 
 /*
-  The operator app is for PLW staff, signed in with their PLW account. Same flow
-  as PLW's /acceso: email + password, then the 6-digit code the
-  `email-login-code` function emails. A password-only session is held back
-  until that code upgrades it, so Kike Code is never a way around the code.
+  The operator app is for PLW staff, each signed in with their own 8-character
+  code (owner decision 2026-11-18: no email, no password). Admins hand codes out
+  on the Equipo page (/equipo). PLW's `kike-staff-codes` function checks a code
+  and returns a one-time token that becomes a normal Supabase session, so
+  kike-sites and kike-ai still know who is calling.
 */
 
 const STAFF_ROLES = ["super_admin", "admin", "supervisor", "agent"];
+export const ADMIN_ROLES = ["super_admin", "admin"];
 
-/** Mirrors needsEmailCode in PLW's AuthContext: reads the JWT's `amr` claim. */
-function needsEmailCode(session: Session | null): boolean {
-  if (!session?.access_token) return false;
+/** A session from the old email + password sign-in that never got its emailed code (JWT `amr`): not let in. */
+function passwordOnly(session: Session): boolean {
   try {
     const part = session.access_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     const amr: unknown = JSON.parse(atob(part))?.amr;
@@ -25,36 +26,43 @@ function needsEmailCode(session: Session | null): boolean {
   }
 }
 
-type GateState = "checking" | "signin" | "code" | "open" | "forbidden";
+/** "k7pm4q" → "K7PM-4Q": capitals, with the dash after four, the way codes are handed out. */
+function formatCode(input: string): string {
+  const chars = input.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+  return chars.length > 4 ? `${chars.slice(0, 4)}-${chars.slice(4)}` : chars;
+}
 
-const inputClass =
-  "w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 mb-3";
+type GateState = "checking" | "signin" | "open" | "forbidden";
+
+/** The signed-in staff member's role, for what only admins see (Equipo). */
+const StaffContext = createContext({ role: "" });
+export const useStaff = () => useContext(StaffContext);
+
 const buttonClass =
   `w-full rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-semibold py-3 flex items-center justify-center gap-2 ${PRESS}`;
-/** On the field the person got wrong: red, and a shake (so it is noticed). */
+/** On a wrong code: red, and a shake (so it is noticed). */
 const wrongClass = " border-red-500! motion-safe:animate-shake";
 
 export function StaffGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GateState>("checking");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
-  /** The error is a wrong password or code (not, say, a network failure). */
+  /** The error is a wrong code (not, say, a network failure). */
   const [wrong, setWrong] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const challenge = useRef<string | null>(null);
 
   async function evaluate(session: Session | null) {
     if (!session) return setState("signin");
-    if (needsEmailCode(session)) return setState("code");
+    // Signing out comes back here with no session.
+    if (passwordOnly(session)) return void supabase.auth.signOut();
     const { data, error } = await supabase.from("profiles").select("role, is_active").eq("id", session.user.id).maybeSingle();
     // This re-runs on every token refresh. A failed lookup (say, the network
     // waking from sleep) must not close an open gate: that unmounts the editor
     // and throws away unsaved edits.
     if (error) return setState((s) => (s === "open" ? s : "forbidden"));
     const staff = !!data && data.is_active !== false && STAFF_ROLES.includes(String(data.role));
+    setRole(staff ? String(data.role) : "");
     setState(staff ? "open" : "forbidden");
   }
 
@@ -68,65 +76,32 @@ export function StaffGate({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  async function sendCode() {
-    setError(null);
-    setWrong(false);
-    try {
-      const { challenge: issued } = await callFn<{ challenge: string }>("email-login-code", { action: "send", language: "es" });
-      challenge.current = issued;
-      setNotice("Le enviamos un código a su correo. / We emailed you a code.");
-    } catch {
-      setError("No se pudo enviar el código. Intente de nuevo en unos minutos. / Could not send the code.");
-    }
-  }
-
   async function signIn(e: FormEvent) {
     e.preventDefault();
     if (busy) return;
     setBusy(true);
     setError(null);
     setWrong(false);
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (signInError) {
-      setError("Correo o contraseña incorrectos. / Wrong email or password.");
-      setWrong(true);
-    } else {
-      setPassword("");
-      await sendCode();
-    }
-    setBusy(false);
-  }
-
-  async function verify(e: FormEvent) {
-    e.preventDefault();
-    if (busy || !challenge.current) return;
-    setBusy(true);
-    setError(null);
-    setWrong(false);
     try {
-      const { token_hash } = await callFn<{ token_hash: string }>("email-login-code", {
-        action: "verify", challenge: challenge.current, code: code.trim(),
-      });
-      challenge.current = null;
+      const { token_hash } = await callFn<{ token_hash: string }>("kike-staff-codes", { action: "sign_in", code });
       const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash, type: "magiclink" });
       if (verifyError) throw verifyError;
       setCode("");
-      setNotice(null);
-    } catch {
-      setError("Código incorrecto o vencido. / Wrong or expired code.");
-      setWrong(true);
+    } catch (err) {
+      const status = (err as { status?: number }).status;
+      if (status === 400 || status === 401) {
+        setError("Código incorrecto. / Wrong code.");
+        setWrong(true);
+      } else if (status === 429) {
+        setError("Demasiados intentos. Intente de nuevo más tarde. / Too many tries. Try again later.");
+      } else {
+        setError("No se pudo entrar. Intente de nuevo. / Could not sign in. Try again.");
+      }
     }
     setBusy(false);
   }
 
-  async function signOut() {
-    challenge.current = null;
-    setNotice(null);
-    setError(null);
-    await supabase.auth.signOut();
-  }
-
-  if (state === "open") return <>{children}</>;
+  if (state === "open") return <StaffContext.Provider value={{ role }}>{children}</StaffContext.Provider>;
 
   let body: ReactNode;
   if (!hasPlwConfig) {
@@ -141,62 +116,39 @@ export function StaffGate({ children }: { children: ReactNode }) {
     body = (
       <>
         <p className="text-sm text-slate-400 mb-6">
-          Esta cuenta no es del equipo PLW. / This account is not PLW staff.
+          Esta cuenta no es del equipo o está desactivada. / This account is not staff, or it is switched off.
         </p>
-        <button type="button" onClick={signOut} className={buttonClass}>Salir / Sign out</button>
+        <button type="button" onClick={() => void supabase.auth.signOut()} className={buttonClass}>Salir / Sign out</button>
       </>
-    );
-  } else if (state === "code") {
-    body = (
-      <form onSubmit={verify}>
-        <p className="text-sm text-slate-400 mb-6">
-          {notice ?? "Ingrese el código que le enviamos por correo. / Enter the code we emailed you."}
-        </p>
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          placeholder="000000"
-          aria-invalid={wrong}
-          className={`${inputClass} text-center tracking-[0.5em] text-lg font-semibold${wrong ? wrongClass : ""}`}
-        />
-        {error && <div className="text-sm text-red-400 mb-3">{error}</div>}
-        <button type="submit" disabled={busy || !challenge.current || code.trim().length < 6} className={buttonClass}>
-          {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-          Verificar / Verify
-        </button>
-        <div className="flex justify-between mt-4 text-xs">
-          <button type="button" disabled={busy} onClick={async () => { setBusy(true); await sendCode(); setBusy(false); }} className="text-sky-400 hover:text-sky-300 disabled:opacity-50">Enviar otro código / Resend</button>
-          <button type="button" onClick={signOut} className="text-slate-400 hover:text-slate-300">Salir / Sign out</button>
-        </div>
-      </form>
     );
   } else {
     body = (
       <form onSubmit={signIn}>
         <p className="text-sm text-slate-400 mb-6">
-          Entre con su cuenta de PLW. / Sign in with your PLW account.
+          Ingrese su código personal. / Enter your personal code.
         </p>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username"
-          placeholder="correo@professionallatinoworkers.com" className={inputClass} />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password"
-          placeholder="Contraseña / Password" aria-invalid={wrong} className={inputClass + (wrong ? wrongClass : "")} />
+        {/* Monospace on purpose: in a code every character has to be told apart. */}
+        <input
+          value={code}
+          onChange={(e) => setCode(formatCode(e.target.value))}
+          aria-label="Código / Code"
+          aria-invalid={wrong}
+          placeholder="XXXX-XXXX"
+          autoFocus
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          maxLength={9}
+          className={`w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 text-center font-mono text-xl tracking-[0.25em]${wrong ? wrongClass : ""}`}
+        />
         {error && <div className="text-sm text-red-400 mb-3">{error}</div>}
-        <button type="submit" disabled={busy || !email.trim() || !password} className={buttonClass}>
+        <button type="submit" disabled={busy || code.length < 9} className={buttonClass}>
           {busy && <Loader2 className="w-4 h-4 animate-spin" />}
           Entrar / Sign in
         </button>
-        {/* Same account as PLW, so the password is reset on PLW's sign-in page. */}
-        <a
-          href="https://professionallatinoworkers.com/acceso?modo=correo"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 block text-center text-sm text-slate-400 hover:text-slate-200"
-        >
-          ¿Olvidó su contraseña? / Forgot your password?
-        </a>
+        <p className="mt-4 text-sm text-slate-400">
+          ¿No tiene código o lo perdió? Pídaselo a un administrador. / No code, or lost it? Ask an admin.
+        </p>
       </form>
     );
   }

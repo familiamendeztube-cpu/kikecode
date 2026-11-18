@@ -1,14 +1,16 @@
 import { Link } from "wouter";
-import { Plus, LayoutGrid, Radio, LogOut } from "lucide-react";
+import { Plus, LayoutGrid, Radio, LogOut, Users } from "lucide-react";
 import { supabase } from "@/lib/plw";
 import { pick } from "@/lib/i18n";
 import { useOperatorLang } from "@/lib/operator-lang";
+import { ADMIN_ROLES, useStaff } from "@/components/staff-gate";
 
 const LINK =
   "inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-foreground/5";
 
 export function OperatorBar() {
   const { lang, setLang } = useOperatorLang();
+  const { role } = useStaff();
   return (
     <div className="w-full border-b border-border/50 bg-background/80 backdrop-blur">
       <div className="container mx-auto max-w-6xl px-4 h-10 flex items-center justify-end">
@@ -21,6 +23,12 @@ export function OperatorBar() {
             <Radio className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{pick(lang, "Live demos", "Demos en vivo")}</span>
           </Link>
+          {ADMIN_ROLES.includes(role) && (
+            <Link href="/equipo" className={LINK} data-testid="link-team">
+              <Users className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{pick(lang, "Team", "Equipo")}</span>
+            </Link>
+          )}
           <Link
             href="/create"
             className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest bg-fuchsia-600 hover:bg-fuchsia-500 text-white transition-colors px-2.5 py-1 rounded-md"

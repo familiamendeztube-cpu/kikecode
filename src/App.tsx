@@ -11,6 +11,7 @@ import SharePreview from "@/pages/share-preview";
 import Preview from "@/pages/preview";
 import Videos from "@/pages/videos";
 import Demos from "@/pages/demos";
+import Team from "@/pages/team";
 import VideoShare from "@/pages/video-share";
 import EditSite from "@/pages/edit-site";
 import DomainSite, { ClientDomainSite } from "@/pages/domain-site";
@@ -26,6 +27,7 @@ function OperatorRoutes() {
       <Route path="/sites/:id/edit" component={EditSite} />
       <Route path="/demos" component={Demos} />
       <Route path="/videos" component={Videos} />
+      <Route path="/equipo" component={Team} />
       <Route component={NotFound} />
     </Switch>
   );
