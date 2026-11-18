@@ -176,7 +176,7 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
     : DEFAULT_SHOWCASE_IMAGES;
 
   return (
-    <div className="min-h-screen bg-[#000000] text-[#ffffff] overflow-x-clip" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-dvh bg-[#000000] text-[#ffffff] overflow-x-clip" style={{ fontFamily: "Inter, sans-serif" }}>
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-[#e5e5e5]/10">
         <div className="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
@@ -235,11 +235,11 @@ export default function LeonardoSite({ template }: { template: BusinessTemplate 
       {/* 1. Hero — Sculptural 3D Dolly */}
       <section 
         ref={heroRef} 
-        className={`relative bg-[#000000] ${prefersReducedMotion ? "h-screen" : "h-[180vh]"}`}
+        className={`relative bg-[#000000] ${prefersReducedMotion ? "h-dvh" : "h-[180vh]"}`}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="sticky top-0 h-[100vh] w-full overflow-hidden flex items-center justify-center">
+        <div className="sticky top-0 h-dvh w-full overflow-hidden flex items-center justify-center">
           {/* Optional subtle hero backdrop */}
           <div className="absolute inset-0 opacity-10 pointer-events-none">
             <img 
@@ -745,7 +745,7 @@ function FeatureShowcase({ content, lang, showcaseImages, prefersReducedMotion }
 
   return (
     <section ref={ref} id="services" className="relative h-[350vh] bg-[#000000] z-20">
-      <div className="sticky top-0 h-[100vh] w-full overflow-hidden">
+      <div className="sticky top-0 h-dvh w-full overflow-hidden">
         <div className="absolute inset-0 bg-[#000000]" />
         
         {/* Background Images */}

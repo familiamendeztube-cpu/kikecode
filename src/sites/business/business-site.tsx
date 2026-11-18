@@ -31,7 +31,7 @@ export default function BusinessSite({ template }: { template: BusinessTemplate 
   return (
     // Anchored sections stop below the sticky header; selected text takes the brand's tint.
     <div
-      className="min-h-screen bg-white text-slate-900 antialiased [&_section[id]]:scroll-mt-16 selection:bg-[color-mix(in_oklab,var(--brand)_25%,white)] selection:text-slate-900"
+      className="min-h-dvh bg-white text-slate-900 antialiased [&_section[id]]:scroll-mt-16 selection:bg-[color-mix(in_oklab,var(--brand)_25%,white)] selection:text-slate-900"
       style={{ fontFamily: "'Inter', system-ui, sans-serif", ["--brand" as never]: site.p.primary }}
     >
       <AvailabilityBar {...site} />

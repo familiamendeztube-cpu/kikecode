@@ -8,7 +8,7 @@ export function StatusScreen({ title, detail, kind = "info" }: {
   kind?: "loading" | "info" | "error";
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6">
+    <div className="min-h-dvh flex items-center justify-center bg-slate-50 px-6">
       {kind === "loading" ? (
         <div className="flex items-center gap-3 text-slate-600">
           <Loader2 className="w-5 h-5 animate-spin" />

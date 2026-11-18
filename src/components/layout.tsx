@@ -7,7 +7,7 @@ import { useOperatorLang } from "@/lib/operator-lang";
 export function Layout({ children }: { children: ReactNode }) {
   const { lang } = useOperatorLang();
   return (
-    <div className="min-h-screen bg-background flex flex-col font-sans">
+    <div className="min-h-dvh bg-background flex flex-col font-sans">
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-6xl">
           <Link href="/" className="flex items-center gap-3 text-2xl font-display uppercase tracking-widest text-primary hover:text-primary/80 transition-colors">

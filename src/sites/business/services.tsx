@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ChevronDown, MapPinned } from "lucide-react";
 import { pick } from "@/lib/i18n";
 import { SiteImage, SectionHeader, Eyebrow, CARD_ROW, type SiteProps } from "./ui";
@@ -148,24 +147,21 @@ export function ServiceAreas({ template, brand, p, lang }: SiteProps) {
 
 /* FAQ */
 export function Faq({ p, t, lang }: SiteProps) {
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
   return (
     <section id="faq" className="py-20 sm:py-24">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <SectionHeader eyebrow={t.nav.faq} title={t.faq.title} accent={p.primary} eyebrowPath={["content", lang, "nav", "faq"]} titlePath={["content", lang, "faq", "title"]} />
         <div className="mt-10 divide-y divide-slate-200 border-y border-slate-200">
-          {t.faq.items.map((it, i) => {
-            const open = openFaq === i;
-            return (
-              <div key={it.q}>
-                <button onClick={() => setOpenFaq(open ? null : i)} aria-expanded={open} className="w-full flex items-center justify-between gap-4 py-5 text-left">
-                  <span className="font-semibold text-slate-900">{it.q}</span>
-                  <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`} />
-                </button>
-                {open && <p className="pb-5 text-slate-600 leading-relaxed">{it.a}</p>}
-              </div>
-            );
-          })}
+          {/* One `name` makes them a single accordion: opening one closes the open one. index.css animates the height. */}
+          {t.faq.items.map((it, i) => (
+            <details key={it.q} name="faq" open={i === 0} className="group">
+              <summary className="flex items-center justify-between gap-4 py-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                <span className="font-semibold text-slate-900">{it.q}</span>
+                <ChevronDown className="w-5 h-5 text-slate-500 transition-transform duration-200 shrink-0 group-open:rotate-180" />
+              </summary>
+              <p className="pb-5 text-slate-600 leading-relaxed">{it.a}</p>
+            </details>
+          ))}
         </div>
       </div>
     </section>

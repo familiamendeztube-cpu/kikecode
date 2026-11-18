@@ -1,5 +1,6 @@
 import { createContext, useContext, useRef, type ReactNode, type ElementType, type CSSProperties } from "react";
 import type { EditPath } from "./edit-path";
+import { PRESS } from "@/components/ui/button";
 
 type EditCtx = {
   editing: boolean;
@@ -84,7 +85,7 @@ export function ChangePhotoButton({
       <button
         type="button"
         onClick={() => ref.current?.click()}
-        className={`z-30 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-fuchsia-600/90 hover:bg-fuchsia-500 backdrop-blur text-white text-[11px] font-bold uppercase tracking-widest shadow-lg ${className ?? ""}`}
+        className={`z-30 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-fuchsia-600/90 hover:bg-fuchsia-500 backdrop-blur text-white text-[11px] font-bold uppercase tracking-widest shadow-lg ${PRESS} ${className ?? ""}`}
         data-testid={`inline-img-${path.join("-")}`}
       >
         Change photo

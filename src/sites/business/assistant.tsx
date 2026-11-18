@@ -7,6 +7,13 @@ import { PRESS, type SiteProps } from "./ui";
 import { buildGreeting } from "./data";
 import { bookingCopy, PREFERRED_TIMES } from "./booking-copy";
 
+type Step = "need" | "when" | "contact" | "done";
+/** A step change slides the new step in from the side it comes from (no slide under reduced motion). */
+const SLIDE_IN = {
+  right: "motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-right-8 duration-300 ease-out",
+  left: "motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-left-8 duration-300 ease-out",
+};
+
 /* The assistant greets in text only: the spoken greeting was removed (owner decision 2026-11-09).
    It is virtual, so it shows its initial, never a person's photo: the team portrait it once
    borrowed gave "Sofía" a man's face, a roof or a beetle. */
@@ -65,7 +72,10 @@ export function FloatingAssistant({
   const [need, setNeed] = useState("");
   // Starts as the round launcher: open, the panel would cover a quarter of every screen of the page.
   const [minimized, setMinimized] = useState(true);
-  const [step, setStep] = useState<"need" | "when" | "contact" | "done">("need");
+  const [step, setStepNow] = useState<Step>("need");
+  const [slideFrom, setSlideFrom] = useState<"left" | "right" | null>(null);
+  /** Forward steps slide in from the right; starting over slides back in from the left. */
+  const setStep = (next: Step) => { setSlideFrom(next === "need" ? "left" : "right"); setStepNow(next); };
   const [msgs, setMsgs] = useState<{ from: "bot" | "user"; text: string }[]>([]);
   const [draft, setDraft] = useState("");
   const [when, setWhen] = useState("");
@@ -205,6 +215,7 @@ export function FloatingAssistant({
 
         {/* input dock */}
         <div className="p-3 border-t border-slate-100 bg-white shrink-0 space-y-2">
+          <div key={step} className={`space-y-2 ${slideFrom ? SLIDE_IN[slideFrom] : ""}`}>
           {step === "need" && (
             <>
               {services.length > 0 && (
@@ -213,7 +224,7 @@ export function FloatingAssistant({
                     <button
                       key={s}
                       onClick={() => submitNeed(s)}
-                      className="text-xs font-semibold rounded-full border border-slate-200 px-3 py-1.5 hover:bg-slate-50 transition-colors"
+                      className={`text-xs font-semibold rounded-full border border-slate-200 px-3 py-1.5 hover:bg-slate-50 ${PRESS}`}
                       style={{ color: palette.primary }}
                     >
                       {s}
@@ -229,7 +240,7 @@ export function FloatingAssistant({
                   aria-label={L.needPh}
                   className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
                 />
-                <button type="submit" aria-label={L.send} className="shrink-0 w-10 grid place-items-center rounded-xl text-white" style={{ backgroundColor: palette.primary }}>
+                <button type="submit" aria-label={L.send} className={`shrink-0 w-10 grid place-items-center rounded-xl text-white ${PRESS}`} style={{ backgroundColor: palette.primary }}>
                   <Send className="w-4 h-4" />
                 </button>
               </form>
@@ -243,7 +254,7 @@ export function FloatingAssistant({
                   <button
                     key={option}
                     onClick={() => submitWhen(option)}
-                    className="inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                    className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 ${PRESS}`}
                     style={{ borderColor: `${palette.primary}40` }}
                   >
                     <Calendar className="w-4 h-4 shrink-0" style={{ color: palette.primary }} /> {option}
@@ -258,7 +269,7 @@ export function FloatingAssistant({
                   aria-label={B.whenPh}
                   className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
                 />
-                <button type="submit" aria-label={L.send} className="shrink-0 w-10 grid place-items-center rounded-xl text-white" style={{ backgroundColor: palette.primary }}>
+                <button type="submit" aria-label={L.send} className={`shrink-0 w-10 grid place-items-center rounded-xl text-white ${PRESS}`} style={{ backgroundColor: palette.primary }}>
                   <Send className="w-4 h-4" />
                 </button>
               </form>
@@ -276,7 +287,7 @@ export function FloatingAssistant({
                 disabled={lead.sending}
                 className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
               />
-              <button type="submit" disabled={lead.sending} aria-busy={lead.sending} aria-label={L.send} className="shrink-0 w-10 grid place-items-center rounded-xl text-white disabled:opacity-60 disabled:cursor-wait" style={{ backgroundColor: palette.primary }}>
+              <button type="submit" disabled={lead.sending} aria-busy={lead.sending} aria-label={L.send} className={`shrink-0 w-10 grid place-items-center rounded-xl text-white disabled:opacity-60 disabled:cursor-wait ${PRESS}`} style={{ backgroundColor: palette.primary }}>
                 <Send className="w-4 h-4" />
               </button>
             </form>
@@ -294,15 +305,16 @@ export function FloatingAssistant({
                 </div>
               )}
               <div className="grid grid-cols-2 gap-2">
-                <a href={phoneHref} className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white text-sm font-bold px-3 py-2.5 rounded-xl shadow-sm hover:opacity-90 transition-opacity">
+                <a href={phoneHref} className={`inline-flex items-center justify-center gap-2 bg-slate-900 text-white text-sm font-bold px-3 py-2.5 rounded-xl shadow-sm hover:opacity-90 ${PRESS}`}>
                   <Phone className="w-4 h-4" /> {L.callNow}
                 </a>
-                <button onClick={reset} className="inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-700 text-sm font-bold px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+                <button onClick={reset} className={`inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-700 text-sm font-bold px-3 py-2.5 rounded-xl hover:bg-slate-50 ${PRESS}`}>
                   {B.startOver}
                 </button>
               </div>
             </div>
           )}
+          </div>
 
           {lead.isPreview && <p className="text-[11px] text-amber-800 text-center leading-snug">{previewNotice(lang)}</p>}
           <div className="text-[11px] text-slate-500 text-center leading-snug">

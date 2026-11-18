@@ -174,7 +174,7 @@ export function FenixCatalog({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto py-12 md:py-16 px-4 md:px-8 min-h-screen">
+      <div className="max-w-7xl mx-auto py-12 md:py-16 px-4 md:px-8 min-h-dvh">
         {/* Filters & Search */}
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-10 md:items-center md:justify-between">
           <div className="relative w-full md:w-96 flex-shrink-0">
@@ -287,7 +287,7 @@ export function FenixCatalog({
             className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-6 animate-in fade-in-0 duration-200 ease-out"
           >
             {/* Modals stay centred, so the scale-in has no trigger origin. */}
-            <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] max-w-4xl w-full max-h-[90vh] overflow-y-auto grid grid-cols-1 md:grid-cols-2 rounded-md animate-in fade-in-0 motion-safe:zoom-in-95 duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]">
+            <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] max-w-4xl w-full max-h-[90dvh] overflow-y-auto grid grid-cols-1 md:grid-cols-2 rounded-md animate-in fade-in-0 motion-safe:zoom-in-95 duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]">
               <div className="relative bg-[var(--background-secondary)] aspect-[4/3] md:aspect-auto flex items-center justify-center p-8 border-b md:border-b-0 md:border-r border-[var(--border-subtle)]">
                 <button onClick={closeProductModal} aria-label="Cerrar detalles" className="fx-press absolute top-3 right-3 md:left-3 md:right-auto text-[var(--text-secondary)] hover:text-white z-10 p-2.5 bg-black/40 rounded-full">
                   <X className="w-6 h-6" />

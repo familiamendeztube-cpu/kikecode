@@ -50,12 +50,6 @@ export default function Templates() {
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <div className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest bg-black/50 backdrop-blur text-white px-2 py-1 rounded-full">
-                  {pick(lang, "Bilingual EN/ES", "Bilingüe EN/ES")}
-                </div>
-                <div className="absolute top-3 right-3 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest bg-white/15 backdrop-blur border border-white/25 text-white px-2 py-1 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> 24/7
-                </div>
                 <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
                   <div className="w-9 h-9 rounded-lg grid place-items-center text-white shadow-lg" style={{ backgroundColor: p.primary }}>
                     <Icon className="w-4.5 h-4.5" />

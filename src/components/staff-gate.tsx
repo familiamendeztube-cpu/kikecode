@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "rea
 import type { Session } from "@supabase/supabase-js";
 import { Lock, Loader2 } from "lucide-react";
 import { callFn, hasPlwConfig, supabase } from "@/lib/plw";
+import { PRESS } from "@/components/ui/button";
 
 /*
   The operator app is for PLW staff, signed in with their PLW account. Same flow
@@ -29,7 +30,9 @@ type GateState = "checking" | "signin" | "code" | "open" | "forbidden";
 const inputClass =
   "w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 mb-3";
 const buttonClass =
-  "w-full rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-semibold py-3 transition-colors flex items-center justify-center gap-2";
+  `w-full rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-semibold py-3 flex items-center justify-center gap-2 ${PRESS}`;
+/** On the field the person got wrong: red, and a shake (so it is noticed). */
+const wrongClass = " border-red-500! motion-safe:animate-shake";
 
 export function StaffGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GateState>("checking");
@@ -37,6 +40,8 @@ export function StaffGate({ children }: { children: ReactNode }) {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  /** The error is a wrong password or code (not, say, a network failure). */
+  const [wrong, setWrong] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const challenge = useRef<string | null>(null);
@@ -65,6 +70,7 @@ export function StaffGate({ children }: { children: ReactNode }) {
 
   async function sendCode() {
     setError(null);
+    setWrong(false);
     try {
       const { challenge: issued } = await callFn<{ challenge: string }>("email-login-code", { action: "send", language: "es" });
       challenge.current = issued;
@@ -79,9 +85,11 @@ export function StaffGate({ children }: { children: ReactNode }) {
     if (busy) return;
     setBusy(true);
     setError(null);
+    setWrong(false);
     const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (signInError) {
       setError("Correo o contraseña incorrectos. / Wrong email or password.");
+      setWrong(true);
     } else {
       setPassword("");
       await sendCode();
@@ -94,6 +102,7 @@ export function StaffGate({ children }: { children: ReactNode }) {
     if (busy || !challenge.current) return;
     setBusy(true);
     setError(null);
+    setWrong(false);
     try {
       const { token_hash } = await callFn<{ token_hash: string }>("email-login-code", {
         action: "verify", challenge: challenge.current, code: code.trim(),
@@ -105,6 +114,7 @@ export function StaffGate({ children }: { children: ReactNode }) {
       setNotice(null);
     } catch {
       setError("Código incorrecto o vencido. / Wrong or expired code.");
+      setWrong(true);
     }
     setBusy(false);
   }
@@ -149,7 +159,8 @@ export function StaffGate({ children }: { children: ReactNode }) {
           autoComplete="one-time-code"
           maxLength={6}
           placeholder="000000"
-          className={`${inputClass} text-center tracking-[0.5em] text-lg font-semibold`}
+          aria-invalid={wrong}
+          className={`${inputClass} text-center tracking-[0.5em] text-lg font-semibold${wrong ? wrongClass : ""}`}
         />
         {error && <div className="text-sm text-red-400 mb-3">{error}</div>}
         <button type="submit" disabled={busy || !challenge.current || code.trim().length < 6} className={buttonClass}>
@@ -157,7 +168,7 @@ export function StaffGate({ children }: { children: ReactNode }) {
           Verificar / Verify
         </button>
         <div className="flex justify-between mt-4 text-xs">
-          <button type="button" onClick={sendCode} className="text-sky-400 hover:text-sky-300">Enviar otro código / Resend</button>
+          <button type="button" disabled={busy} onClick={async () => { setBusy(true); await sendCode(); setBusy(false); }} className="text-sky-400 hover:text-sky-300 disabled:opacity-50">Enviar otro código / Resend</button>
           <button type="button" onClick={signOut} className="text-slate-400 hover:text-slate-300">Salir / Sign out</button>
         </div>
       </form>
@@ -171,7 +182,7 @@ export function StaffGate({ children }: { children: ReactNode }) {
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username"
           placeholder="correo@professionallatinoworkers.com" className={inputClass} />
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password"
-          placeholder="Contraseña / Password" className={inputClass} />
+          placeholder="Contraseña / Password" aria-invalid={wrong} className={inputClass + (wrong ? wrongClass : "")} />
         {error && <div className="text-sm text-red-400 mb-3">{error}</div>}
         <button type="submit" disabled={busy || !email.trim() || !password} className={buttonClass}>
           {busy && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -191,7 +202,7 @@ export function StaffGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="min-h-dvh bg-slate-950 flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl text-center">
         <div className="mx-auto w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center mb-5">
           <Lock className="w-6 h-6 text-slate-300" />

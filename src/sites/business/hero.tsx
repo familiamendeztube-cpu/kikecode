@@ -4,6 +4,7 @@ import { Phone, ShieldCheck, Star, Check, ArrowRight, Play, Pause, Menu, X } fro
 import type { Lang } from "@/templates/types";
 import { EditableText, ChangePhotoButton } from "@/editor/editable";
 import { pick } from "@/lib/i18n";
+import { IconSwap } from "@/components/icon-swap";
 import { SiteImage, GHOST_CTA, PRESS, type SiteProps } from "./ui";
 
 /* Shared play/pause state for a muted looping video. Respects prefers-reduced-motion:
@@ -136,7 +137,7 @@ export function SiteHeader({ template, brand, p, t, lang, setLang }: SiteProps &
                       </a>
                     ))}
                   </nav>
-                  <a href={brand.phoneHref} className={`mt-5 h-12 w-full inline-flex items-center justify-center gap-2 rounded-lg text-white font-bold shadow-sm hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primary }}>
+                  <a href={brand.phoneHref} className={`mt-5 h-12 w-full inline-flex items-center justify-center gap-2 rounded-sm text-white font-bold shadow-sm hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primary }}>
                     <Phone className="w-4 h-4" /> {brand.phone}
                   </a>
                 </div>
@@ -197,9 +198,9 @@ export function Hero({ template, brand, p, t, lang }: SiteProps) {
           type="button"
           onClick={toggleVideo}
           aria-label={videoPlaying ? pick(lang, "Pause video", "Pausar video") : pick(lang, "Play video", "Reproducir video")}
-          className="absolute top-4 right-4 z-20 inline-flex items-center justify-center w-11 h-11 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur border border-white/25 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+          className="absolute top-4 right-4 z-20 inline-flex items-center justify-center w-11 h-11 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur border border-white/25 transition-[background-color,scale] active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
         >
-          {videoPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 translate-x-[1px]" />}
+          <IconSwap swapped={videoPlaying} from={<Play className="w-5 h-5 translate-x-[1px]" />} to={<Pause className="w-5 h-5" />} />
         </button>
       )}
 
@@ -300,9 +301,9 @@ export function BrandFilm({ template, brand, p, lang }: SiteProps) {
           type="button"
           onClick={toggleVideo}
           aria-label={videoPlaying ? pick(lang, "Pause video", "Pausar video") : pick(lang, "Play video", "Reproducir video")}
-          className="absolute top-4 right-4 z-10 inline-flex items-center justify-center w-11 h-11 rounded-full bg-black/45 hover:bg-black/65 text-white backdrop-blur border border-white/25 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+          className="absolute top-4 right-4 z-10 inline-flex items-center justify-center w-11 h-11 rounded-full bg-black/45 hover:bg-black/65 text-white backdrop-blur border border-white/25 transition-[background-color,scale] active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
         >
-          {videoPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 translate-x-[1px]" />}
+          <IconSwap swapped={videoPlaying} from={<Play className="w-5 h-5 translate-x-[1px]" />} to={<Pause className="w-5 h-5" />} />
         </button>
         <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 lg:p-14">
           <div className="max-w-7xl mx-auto">
