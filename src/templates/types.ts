@@ -258,8 +258,11 @@ export type TourismDemo = {
   highlight: string;
   /** Confirmed description of the business, in the site's language(s). */
   description?: string;
-  /** Confirmed facts, e.g. { label: "Established", value: "2019" }. */
+  /** Confirmed facts, e.g. { label: "Established", value: "2019" }. PLW also
+   *  sends this field under the name `facts`; both are accepted. */
   details?: { label: string; value: string }[];
+  /** PLW's name for the confirmed-facts list (same shape as `details`). */
+  facts?: { label: string; value: string }[];
   /** Confirmed questions and answers the assistant may quote. */
   faqs?: { question: string; answer: string }[];
   /** Trusted HTTPS hero image (Kike media or an approved source). */

@@ -50,8 +50,8 @@ function tourismDemo(t: BusinessTemplate): SafeTourismDemo {
   const services = Array.isArray(d?.services) ? d.services.filter((s): s is string => typeof s === "string" && s.trim().length > 0) : [];
   const highlight = typeof d?.highlight === "string" ? d.highlight.trim() : "";
   const description = typeof d?.description === "string" ? d.description.trim() : "";
-  const details = Array.isArray(d?.details)
-    ? d.details
+  const details = Array.isArray(d?.details ?? d?.facts)
+    ? ((d?.details ?? d?.facts) as unknown[])
         .filter((x): x is { label: string; value: string } =>
           !!x && typeof x === "object" && typeof (x as { label?: unknown }).label === "string" && typeof (x as { value?: unknown }).value === "string")
         .map((x) => ({ label: x.label.trim(), value: x.value.trim() }))

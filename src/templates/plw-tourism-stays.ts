@@ -29,6 +29,7 @@ const flavor: TourismFlavor = {
 
 const plwTourismStays: BusinessTemplate = {
   slug: "plw-tourism-stays",
+  siteVariant: "tourism",
   industry: "Tourism · Lodging",
   industryEs: "Turismo · Alojamiento",
   websiteType: "Lodging Website",
