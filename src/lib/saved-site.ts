@@ -135,6 +135,20 @@ export type PublishedSite =
 /** A published site by id (share links) or a client's domain, or a draft by its preview token. */
 export type SiteQuery = { id: string } | { domain: string } | { preview: string };
 
+/**
+ * PLW tour-demo drafts live in PLW's own project and load from its public,
+ * read-only preview endpoint. They are named with a `plw-` token prefix so no
+ * other route ever touches that endpoint. The token after the prefix is what
+ * PLW expects in the query string.
+ */
+const PLW_PREVIEW_ENDPOINT = "https://meagbbmittuhdgwnhvxa.supabase.co/functions/v1/plw-tourism-preview";
+const PLW_TOKEN_PREFIX = "plw-";
+
+export function plwPreviewToken(query: SiteQuery): string | null {
+  if (!("preview" in query)) return null;
+  return query.preview.startsWith(PLW_TOKEN_PREFIX) ? query.preview.slice(PLW_TOKEN_PREFIX.length) : null;
+}
+
 function queryString(query: SiteQuery): string {
   if ("id" in query) return `id=${encodeURIComponent(query.id)}`;
   if ("domain" in query) return `domain=${encodeURIComponent(query.domain)}`;
@@ -146,6 +160,23 @@ function queryString(query: SiteQuery): string {
  * its forms show they are a preview and never create a lead.
  */
 export async function loadPublishedSite(query: SiteQuery): Promise<PublishedSite> {
+  // PLW tour-demo previews load from PLW's project (read-only, no credentials
+  // attached) and render exactly like a Kike preview: draft forms off, noindex.
+  const plwToken = plwPreviewToken(query);
+  if (plwToken !== null) {
+    try {
+      const res = await fetch(`${PLW_PREVIEW_ENDPOINT}?token=${encodeURIComponent(plwToken)}`);
+      if (res.status === 404) return { status: "notfound" };
+      if (res.status === 410) return { status: "disabled" };
+      if (!res.ok) return { status: "error", message: `Server returned ${res.status}` };
+      const saved = (await res.json()) as SavedSite;
+      const base = getTemplate(saved.slug);
+      if (!base) return { status: "error", message: `Template "${saved.slug}" no longer exists.` };
+      return { status: "ok", template: rebuildTemplate(base, saved, false) };
+    } catch (e) {
+      return { status: "error", message: e instanceof Error ? e.message : "Could not load the site." };
+    }
+  }
   if (!hasPlwConfig) return { status: "error", message: "VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are not set." };
   try {
     const res = await fetch(`${fnUrl("kike-sites")}?${queryString(query)}`);

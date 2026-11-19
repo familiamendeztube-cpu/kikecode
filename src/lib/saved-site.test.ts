@@ -45,6 +45,42 @@ describe("loading a site for visitors", () => {
     expect(site.status === "ok" && site.template.plwSiteId).toBeUndefined();
   });
 
+  it("loads plw- tour-demo drafts from PLW's public preview endpoint, no credentials", async () => {
+    const { loadPublishedSite } = await load();
+    const fetchMock = serve(200, { ...savedBarber(), slug: "plw-tourism-tours", preview: true, status: "draft" });
+    const site = await loadPublishedSite({ preview: `plw-${"b".repeat(24)} c` });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `https://meagbbmittuhdgwnhvxa.supabase.co/functions/v1/plw-tourism-preview?token=${encodeURIComponent("b".repeat(24) + " c")}`,
+    );
+    const call = fetchMock.mock.calls[0] as unknown[];
+    expect(call.length).toBe(1); // no RequestInit: no auth header, no credentials
+    expect(site.status).toBe("ok");
+    expect(site.status === "ok" && site.template.plwSiteId).toBeUndefined();
+  });
+
+  it("honors 404 and 410 from PLW's preview endpoint like any other", async () => {
+    const { loadPublishedSite } = await load();
+    serve(404);
+    expect(await loadPublishedSite({ preview: "plw-gone" })).toEqual({ status: "notfound" });
+    serve(410);
+    expect(await loadPublishedSite({ preview: "plw-retired" })).toEqual({ status: "disabled" });
+    serve(500);
+    const failed = await loadPublishedSite({ preview: "plw-broken" });
+    expect(failed.status).toBe("error");
+  });
+
+  it("keeps native tokens and other routes on the Kike endpoint", async () => {
+    const { loadPublishedSite, plwPreviewToken } = await load();
+    expect(plwPreviewToken({ preview: "plw-x" })).toBe("x");
+    expect(plwPreviewToken({ preview: "plwa" })).toBeNull();
+    expect(plwPreviewToken({ preview: "a".repeat(64) })).toBeNull();
+    expect(plwPreviewToken({ id: SITE })).toBeNull();
+    const fetchMock = serve(200, savedBarber());
+    await loadPublishedSite({ preview: "plwa" });
+    expect(fetchMock).toHaveBeenCalledWith(`https://plw.example.supabase.co/functions/v1/kike-sites?preview=plwa`);
+  });
+
   it("renders a published site with its id, so its forms reach PLW", async () => {
     const { loadPublishedSite } = await load();
     serve(200, savedBarber());
