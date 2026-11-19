@@ -1,4 +1,5 @@
 import { Switch, Route } from "wouter";
+import { StaffGate } from "@/components/staff-gate";
 import { OperatorBar } from "@/components/operator-bar";
 import { OperatorLangProvider } from "@/lib/operator-lang";
 import NotFound from "@/pages/not-found";
@@ -11,6 +12,7 @@ import Preview from "@/pages/preview";
 import SecretariaStandalone from "@/pages/secretaria-standalone";
 import Videos from "@/pages/videos";
 import Demos from "@/pages/demos";
+import Team from "@/pages/team";
 import VideoShare from "@/pages/video-share";
 import EditSite from "@/pages/edit-site";
 import DomainSite, { ClientDomainSite } from "@/pages/domain-site";
@@ -26,11 +28,17 @@ function OperatorRoutes() {
       <Route path="/sites/:id/edit" component={EditSite} />
       <Route path="/demos" component={Demos} />
       <Route path="/videos" component={Videos} />
+      <Route path="/equipo" component={Team} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
+/**
+ * Share, preview and video links are what clients open, so only the rest needs
+ * a staff sign-in. A client who trims their link (/preview, /share/…/x) gets a
+ * plain "not found", never the staff app or its sign-in.
+ */
 function OperatorApp() {
   return (
     <Switch>
@@ -38,11 +46,19 @@ function OperatorApp() {
       <Route path="/preview/:token" component={Preview} />
       <Route path="/preview/:token/secretaria" component={SecretariaStandalone} />
       <Route path="/video/:id" component={VideoShare} />
+      <Route path="/share" component={NotFound} />
+      <Route path="/share/*" component={NotFound} />
+      <Route path="/preview" component={NotFound} />
+      <Route path="/preview/*" component={NotFound} />
+      <Route path="/video" component={NotFound} />
+      <Route path="/video/*" component={NotFound} />
       <Route>
-        <OperatorLangProvider>
-          <OperatorBar />
-          <OperatorRoutes />
-        </OperatorLangProvider>
+        <StaffGate>
+          <OperatorLangProvider>
+            <OperatorBar />
+            <OperatorRoutes />
+          </OperatorLangProvider>
+        </StaffGate>
       </Route>
     </Switch>
   );
