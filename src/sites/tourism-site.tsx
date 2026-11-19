@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Menu, X, MapPin, Check, MessageCircle, Send, Info, HelpCircle, Volume2 } from "lucide-react";
+import { Menu, X, MapPin, MessageCircle, Send, Info, HelpCircle, Volume2, Sparkles } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import type { BusinessTemplate, Lang, TourismDemo } from "@/templates/types";
 import { pick } from "@/lib/i18n";
@@ -180,7 +180,7 @@ function answerFromBrief(q: string, demo: SafeTourismDemo, lang: Lang, brandName
     "Solo puedo responder con lo que el negocio ha confirmado. Anoté su pregunta — envíela por WhatsApp y una persona le responde.") };
 }
 
-function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDemo; brand: BusinessTemplate["brand"]; lang: Lang; previewToken?: string | null }) {
+function TourismChat({ demo, brand, lang, previewToken, topics }: { demo: SafeTourismDemo; brand: BusinessTemplate["brand"]; lang: Lang; previewToken?: string | null; topics: string }) {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
@@ -210,10 +210,10 @@ function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDem
     if (open && !greeted.current) {
       greeted.current = true;
       setMsgs([{ from: "bot", answerId: "welcome", text: pick(lang,
-        `Hello! I'm the ${brand.name} assistant. I can answer from the confirmed info on this page — ask me about the tours, the place, or how to reach us.`,
-        `¡Hola! Soy el asistente de ${brand.name}. Puedo responder con la información confirmada de esta página — pregúnteme por los tours, el lugar o cómo contactarnos.`) }]);
+        `Hello! I'm the ${brand.name} assistant. I can answer from the confirmed info on this page — ask me about what we offer or how to reach us.`,
+        `¡Hola! Soy el asistente de ${brand.name}. Puedo responder con la información confirmada de esta página — pregúnteme por ${topics}.`) }]);
     }
-  }, [open, lang, brand.name]);
+  }, [open, lang, brand.name, topics]);
 
   function send(text: string) {
     const v = text.trim();
@@ -360,12 +360,20 @@ export default function TourismSite({ template, previewToken }: { template: Busi
   const demo = tourismDemo(template);
   const phone = publicPhone(brand);
   const t = template.content[lang];
-  // The first approved image leads the hero; safe stock fills any gap.
+  const TypeIcon = brand.heroIcon;
+  // The business type's calls to action: WhatsApp with its own message when the
+  // draft has a confirmed phone, else the contact section.
+  const ctas = template.plwSite?.ctas ?? [{ label: t.hero.cta1, message: "" }];
+  const ctaHref = (message: string) => (phone ? waLink(brand.whatsapp || phone.href, message || undefined) : "#contact");
+  const external = phone ? { target: "_blank", rel: "noopener noreferrer" } : {};
+  // The first approved image leads the hero; then the draft's own hero image; then
+  // the template's stock photo (tourism only). The other types stay plain.
   const approved = demo.approvedImages;
-  const hero = approved[0]?.url ?? trustedHero(demo.heroImage) ?? media?.hero ?? HERO_STOCK_FALLBACK;
+  const stockHero = approved.length === 0 && !demo.heroImage ? media?.hero : undefined;
+  const hero = approved[0]?.url ?? (demo.heroImage ? trustedHero(demo.heroImage) : stockHero);
   const heroIsGenerated = approved[0]?.kind === "generated";
-  const isStockHero = approved.length === 0 && !demo.heroImage;
   const gallery = media?.gallery ?? [];
+  const place = brand.address || brand.city;
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -385,13 +393,23 @@ export default function TourismSite({ template, previewToken }: { template: Busi
       {/* Header */}
       <header className="fixed inset-x-0 top-0 z-50">
         <div className="absolute inset-0 bg-[#0A1F13]/80 backdrop-blur-md" />
+        {/* PLW samples only (they have a preview token): the client is looking at a demo, not their site. */}
+        {previewToken && (
+          <p className="relative bg-[#E8B04B] px-4 py-1.5 text-center text-[11px] sm:text-xs leading-snug text-[#0A1F13]">
+            <Sparkles className="inline w-3.5 h-3.5 -mt-0.5 mr-1.5" aria-hidden />
+            <strong>{pick(lang, "This is just a demo.", "Esto es solo una demostración.")}</strong>{" "}
+            {pick(lang,
+              "Your real site includes all this, more features and a premium custom design.",
+              "Su sitio real incluye todo esto, más funciones y un diseño premium a la medida.")}
+          </p>
+        )}
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-2 text-white font-semibold tracking-wide">
-            {brand.logo ? <img src={brand.logo} alt="" className="w-8 h-8 rounded-full object-cover" /> : <span className="w-8 h-8 rounded-full bg-[#E8B04B] grid place-items-center text-[#0A1F13] font-bold">P</span>}
+            {brand.logo ? <img src={brand.logo} alt="" className="w-8 h-8 rounded-full object-cover" /> : <span className="w-8 h-8 rounded-full bg-[#E8B04B] grid place-items-center text-[#0A1F13]"><TypeIcon className="w-4 h-4" aria-hidden /></span>}
             {brand.name}
           </a>
           <nav className="hidden md:flex items-center gap-6 text-sm text-white/85">
-            <a href="#services" className="hover:text-white transition-colors">{t.nav.services}</a>
+            {demo.services.length > 0 && <a href="#services" className="hover:text-white transition-colors">{t.nav.services}</a>}
             {demo.faqs.length > 0 && <a href="#faq" className="hover:text-white transition-colors">FAQ</a>}
             <a href="#contact" className="hover:text-white transition-colors">{t.nav.contact}</a>
             {phone && <a href={phone.href} className="rounded-full bg-[#E8B04B] text-[#0A1F13] px-4 py-1.5 font-bold hover:bg-[#f2c065] transition-colors">{phone.phone}</a>}
@@ -410,7 +428,7 @@ export default function TourismSite({ template, previewToken }: { template: Busi
             <Dialog.Title className="sr-only">{pick(lang, "Menu", "Menú")}</Dialog.Title>
             <Dialog.Close aria-label={pick(lang, "Close menu", "Cerrar menú")} className="absolute top-5 right-5 p-2 text-white"><X className="w-6 h-6" /></Dialog.Close>
             <nav className="flex flex-col gap-5 text-lg">
-              <a href="#services" onClick={() => setMenuOpen(false)}>{t.nav.services}</a>
+              {demo.services.length > 0 && <a href="#services" onClick={() => setMenuOpen(false)}>{t.nav.services}</a>}
               {demo.faqs.length > 0 && <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>}
               <a href="#contact" onClick={() => setMenuOpen(false)}>{t.nav.contact}</a>
               {phone && <a href={phone.href} onClick={() => setMenuOpen(false)}>{phone.phone}</a>}
@@ -424,17 +442,15 @@ export default function TourismSite({ template, previewToken }: { template: Busi
         <div className="absolute inset-0">
           {hero ? <img src={hero} alt={approved[0]?.alt || brand.name} className="w-full h-full object-cover" loading="eager" /> : <div className="w-full h-full bg-[#12301E]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#08150E] via-[#08150E]/55 to-[#08150E]/20" />
-          {(isStockHero || heroIsGenerated) && (
-            <div className="absolute bottom-3 right-3 rounded-full bg-black/40 text-white/80 text-[10px] px-2.5 py-1 backdrop-blur">
-              {heroIsGenerated
-                ? pick(lang, "AI-generated image · illustrative", "Imagen generada con IA · ilustrativa")
-                : pick(lang, "Illustrative photo", "Foto ilustrativa")}
+          {(stockHero || heroIsGenerated) && (
+            <div className="absolute top-32 right-3 rounded-full bg-black/40 text-white/80 text-[10px] px-2.5 py-1 backdrop-blur">
+              {heroIsGenerated ? pick(lang, "Illustration", "Ilustración") : pick(lang, "Illustrative photo", "Foto ilustrativa")}
             </div>
           )}
         </div>
         <div className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24 pt-32">
           <div className="tourism-reveal max-w-2xl text-white">
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#E8B04B] mb-4">{t.hero.eyebrow}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#E8B04B] mb-4">{t.hero.eyebrow}{brand.city && ` · ${brand.city}`}</p>
             <h1 className="tourism-display text-4xl sm:text-5xl lg:text-6xl leading-[1.08] tracking-tight">
               {brand.name}
               <span className="mt-2 block text-2xl sm:text-3xl lg:text-4xl font-normal italic text-white/90">{t.hero.title1} {t.hero.title2}</span>
@@ -444,39 +460,43 @@ export default function TourismSite({ template, previewToken }: { template: Busi
               <p className="mt-6 inline-block rounded-full border border-[#E8B04B]/40 bg-[#E8B04B]/15 text-[#F5E3BE] px-4 py-2 text-sm font-medium">{demo.highlight}</p>
             )}
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <a href="#contact" className="tourism-reveal inline-flex items-center justify-center gap-2 rounded-lg bg-[#E8B04B] hover:bg-[#f2c065] px-7 py-4 text-[#0A1F13] font-bold transition-colors">
-                <MessageCircle className="w-5 h-5" /> {t.hero.cta1}
+              <a href={ctaHref(ctas[0].message)} {...external} className="tourism-reveal inline-flex items-center justify-center gap-2 rounded-lg bg-[#E8B04B] hover:bg-[#f2c065] px-7 py-4 text-[#0A1F13] font-bold transition-colors">
+                <MessageCircle className="w-5 h-5" /> {ctas[0].label}
               </a>
-              <a href="#services" className="tourism-reveal inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/10 hover:bg-white/20 backdrop-blur px-7 py-4 text-white font-semibold transition-colors">
-                {t.hero.cta2}
-              </a>
+              {ctas[1] ? (
+                <a href={ctaHref(ctas[1].message)} {...external} className="tourism-reveal inline-flex items-center justify-center gap-2 rounded-lg border border-white/40 bg-white/10 hover:bg-white/20 backdrop-blur px-7 py-4 text-white font-semibold transition-colors">
+                  <MessageCircle className="w-5 h-5" /> {ctas[1].label}
+                </a>
+              ) : demo.services.length > 0 && (
+                <a href="#services" className="tourism-reveal inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/10 hover:bg-white/20 backdrop-blur px-7 py-4 text-white font-semibold transition-colors">
+                  {pick(lang, "See services", "Ver servicios")}
+                </a>
+              )}
             </div>
           </div>
         </div>
       </section>
 
       {/* Services */}
-      <section id="services" className="py-20 sm:py-28 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#1F5E3B] mb-3">{t.nav.services}</p>
-            <h2 className="tourism-display text-3xl sm:text-4xl tracking-tight">{t.services.title}</h2>
-            <p className="mt-4 text-[#3D4A40] leading-relaxed">{t.services.blurb}</p>
-          </div>
-          {demo.services.length > 0 ? (
+      {demo.services.length > 0 && (
+        <section id="services" className="py-20 sm:py-28 px-4 sm:px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="max-w-2xl">
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#1F5E3B] mb-3">{t.nav.services}</p>
+              <h2 className="tourism-display text-3xl sm:text-4xl tracking-tight">{t.services.title}</h2>
+              <p className="mt-4 text-[#3D4A40] leading-relaxed">{t.services.blurb}</p>
+            </div>
             <ul className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {demo.services.map((s, i) => (
                 <li key={`${s}-${i}`} className="tourism-reveal group rounded-xl border border-[#1F5E3B]/15 bg-white hover:border-[#1F5E3B]/40 hover:shadow-lg transition-all p-6">
-                  <Check className="w-5 h-5 text-[#1F5E3B] mb-3" />
+                  <TypeIcon className="w-5 h-5 text-[#1F5E3B] mb-3" aria-hidden />
                   <div className="font-semibold text-[#1C241E]">{s}</div>
                 </li>
               ))}
             </ul>
-          ) : (
-            <p className="mt-10 text-[#3D4A40]/70 italic">{pick(lang, "Services to be confirmed with the business.", "Servicios por confirmar con el negocio.")}</p>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Confirmed facts */}
       {demo.details.length > 0 && (
@@ -497,43 +517,46 @@ export default function TourismSite({ template, previewToken }: { template: Busi
         </section>
       )}
 
-      {/* Gallery */}
-      <section id="gallery" className="py-20 sm:py-28 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="tourism-display text-3xl sm:text-4xl tracking-tight">{t.nav.faq === "FAQ" ? "Gallery" : "Galería"}</h2>
-          <p className="mt-3 text-sm text-[#3D4A40]/70">{pick(lang, "Illustrative photos of Costa Rica.", "Fotos ilustrativas de Costa Rica.")}</p>
-          {approved.length > 1 && (
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {approved.slice(1, 4).map((img) => (
-                <figure key={img.url} className="tourism-reveal overflow-hidden rounded-xl">
-                  <img src={img.url} alt={img.alt || brand.name} className="w-full h-64 sm:h-80 object-cover hover:scale-[1.03] transition-transform duration-500" loading="lazy" />
-                  <figcaption className="pt-3 text-sm text-[#3D4A40] flex items-center justify-between gap-2">
-                    <span>{img.alt}</span>
-                    {img.kind === "generated" && <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[#1F5E3B]/70">{pick(lang, "AI · illustrative", "IA · ilustrativa")}</span>}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          )}
-          {approved.length === 0 && gallery.length > 0 && (
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {gallery.slice(0, 3).map((src, i) => (
-                <figure key={src} className="tourism-reveal overflow-hidden rounded-xl">
-                  <img src={src} alt={(template.galleryCaptions?.[lang]?.[i]) ?? brand.name} className="w-full h-64 sm:h-80 object-cover hover:scale-[1.03] transition-transform duration-500" loading="lazy" />
-                  <figcaption className="pt-3 text-sm text-[#3D4A40]">{template.galleryCaptions?.[lang]?.[i]}</figcaption>
-                </figure>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Gallery: every approved image (the first also leads the hero), else the template's stock photos, else nothing */}
+      {(approved.length > 0 || gallery.length > 0) && (
+        <section id="gallery" className="py-20 sm:py-28 px-4 sm:px-6">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="tourism-display text-3xl sm:text-4xl tracking-tight">{pick(lang, "Gallery", "Galería")}</h2>
+            {approved.length > 0 ? (
+              <div className={`mt-10 grid grid-cols-1 gap-4 ${approved.length === 3 ? "sm:grid-cols-3" : approved.length > 1 ? "sm:grid-cols-2" : ""}`}>
+                {approved.map((img) => (
+                  <figure key={img.url} className="tourism-reveal">
+                    <div className="overflow-hidden rounded-xl"><img src={img.url} alt={img.alt || brand.name} className="w-full h-64 sm:h-80 object-cover hover:scale-[1.03] transition-transform duration-500" loading="lazy" /></div>
+                    <figcaption className="pt-3 text-sm text-[#3D4A40] flex items-center justify-between gap-2">
+                      <span>{img.alt}</span>
+                      {img.kind === "generated" && <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[#1F5E3B]/70">{pick(lang, "Illustration", "Ilustración")}</span>}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            ) : (
+              <>
+                <p className="mt-3 text-sm text-[#3D4A40]/70">{pick(lang, "Illustrative photos of Costa Rica.", "Fotos ilustrativas de Costa Rica.")}</p>
+                <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {gallery.slice(0, 3).map((src, i) => (
+                    <figure key={src} className="tourism-reveal">
+                      <div className="overflow-hidden rounded-xl"><img src={src} alt={(template.galleryCaptions?.[lang]?.[i]) ?? brand.name} className="w-full h-64 sm:h-80 object-cover hover:scale-[1.03] transition-transform duration-500" loading="lazy" /></div>
+                      <figcaption className="pt-3 text-sm text-[#3D4A40]">{template.galleryCaptions?.[lang]?.[i]}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* FAQ */}
       {demo.faqs.length > 0 && (
         <section id="faq" className="py-20 sm:py-28 px-4 sm:px-6 bg-white">
           <div className="max-w-3xl mx-auto">
             <h2 className="tourism-display text-3xl sm:text-4xl tracking-tight flex items-center gap-3">
-              <HelpCircle className="w-6 h-6 text-[#1F5E3B]" /> {pick(lang, "Questions travelers ask", "Preguntas de viajeros")}
+              <HelpCircle className="w-6 h-6 text-[#1F5E3B]" /> {t.faq.title}
             </h2>
             <div className="mt-10 divide-y divide-[#1F5E3B]/10">
               {demo.faqs.map((f, i) => (
@@ -563,12 +586,14 @@ export default function TourismSite({ template, previewToken }: { template: Busi
           </div>
         </section>
       )}
-      <section className="py-16 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto flex items-center gap-3 text-[#3D4A40]">
-          <MapPin className="w-5 h-5 text-[#1F5E3B]" />
-          <span className="font-medium">{brand.address || brand.city}</span>
-        </div>
-      </section>
+      {place && (
+        <section className="py-16 px-4 sm:px-6">
+          <div className="max-w-6xl mx-auto flex items-center gap-3 text-[#3D4A40]">
+            <MapPin className="w-5 h-5 text-[#1F5E3B]" />
+            <span className="font-medium">{place}</span>
+          </div>
+        </section>
+      )}
 
       {/* Contact — actions only with a confirmed public phone */}
       <section id="contact" className="py-20 sm:py-28 px-4 sm:px-6 bg-[#0A1F13] text-white">
@@ -577,7 +602,7 @@ export default function TourismSite({ template, previewToken }: { template: Busi
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#E8B04B] mb-3">{t.nav.contact}</p>
             <h2 className="tourism-display text-3xl sm:text-4xl tracking-tight">{t.contact.title}</h2>
             <p className="mt-4 text-white/80 leading-relaxed">{t.contact.blurb}</p>
-            <div className="mt-6 flex items-center gap-2 text-white/70 text-sm"><MapPin className="w-4 h-4" /> {brand.address || brand.city}</div>
+            {place && <div className="mt-6 flex items-center gap-2 text-white/70 text-sm"><MapPin className="w-4 h-4" /> {place}</div>}
           </div>
           <div className="rounded-2xl bg-white/5 border border-white/10 p-6 sm:p-8">
             {phone ? (
@@ -585,7 +610,7 @@ export default function TourismSite({ template, previewToken }: { template: Busi
                 <a href={phone.href} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E8B04B] hover:bg-[#f2c065] px-6 py-4 text-[#0A1F13] font-bold transition-colors">
                   {pick(lang, "Call", "Llamar")} {phone.phone}
                 </a>
-                <a href={waLink(brand.whatsapp || phone.href, pick(lang, "Hello! I'd like to ask about a tour.", "¡Hola! Me gustaría consultar por un tour."))} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] hover:bg-[#3ce77f] px-6 py-4 text-[#0A1F13] font-bold transition-colors">
+                <a href={ctaHref(ctas[0].message)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] hover:bg-[#3ce77f] px-6 py-4 text-[#0A1F13] font-bold transition-colors">
                   <MessageCircle className="w-5 h-5" /> WhatsApp
                 </a>
                 <p className="text-xs text-white/60">{pick(lang, "We answer during the day. No online payment.", "Respondemos durante el día. Sin pago en línea.")}</p>
@@ -604,17 +629,17 @@ export default function TourismSite({ template, previewToken }: { template: Busi
       <footer className="py-10 px-4 sm:px-6 bg-[#050C08] text-white/60 text-sm">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row gap-3 justify-between">
           <span>© {new Date().getFullYear()} {brand.name}. {t.footer.rights}</span>
-          <span>{brand.address || brand.city}</span>
+          <span>{place}</span>
         </div>
       </footer>
 
       {/* Sticky mobile enquiry CTA — only with a confirmed public booking phone */}
       {phone && (
         <a href="#contact" className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#E8B04B] text-[#0A1F13] font-bold text-center py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
-          {pick(lang, "Ask about your dates", "Consulte por sus fechas")}
+          {t.contact.title}
         </a>
       )}
-      <TourismChat demo={demo} brand={brand} lang={lang} previewToken={previewToken} />
+      <TourismChat demo={demo} brand={brand} lang={lang} previewToken={previewToken} topics={template.plwSite?.chatTopics ?? pick(lang, "what we offer or how to reach us", "lo que ofrecemos o cómo contactarnos")} />
     </div>
   );
 }

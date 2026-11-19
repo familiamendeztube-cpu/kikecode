@@ -20,6 +20,7 @@ const SAVED_SLUGS = [
   "chales-garage", "cleaning", "concrete", "construction", "electrician", "events", "fencing", "flooring",
   "garage-doors", "glass", "handyman", "hvac", "hyperion-synthetic-turf", "landscaping", "los-primos-plumbing",
   "lumina-studio", "moving", "nails", "nicaraguan-restaurant", "painting", "pest-control", "photography",
+  "plw-auto", "plw-business", "plw-clinic", "plw-gym", "plw-real-estate", "plw-restaurant", "plw-shop",
   "plw-tourism-stays", "plw-tourism-tours", "pool-service", "pressure-washing", "restaurant", "roofing", "snuvalys-construccions", "suplidora-fenix", "tree-service", "welding",
 ];
 
@@ -43,9 +44,9 @@ describe("template registry", () => {
 */
 describe("Costa Rican templates", () => {
   const costaRican = TEMPLATES.filter((t) => t.defaultLang !== "en");
-  // The PLW tourism demos start with no public phone: the draft adds the
+  // The PLW samples start with no public phone: the draft adds the
   // client's confirmed number when it is saved.
-  const NO_PHONE_YET = ["plw-tourism-tours", "plw-tourism-stays"];
+  const NO_PHONE_YET = TEMPLATES.filter((t) => t.slug.startsWith("plw-")).map((t) => t.slug);
 
   it("open in Spanish, except the real US businesses", () => {
     expect(TEMPLATES.filter((t) => t.defaultLang === "en").map((t) => t.slug).sort())
