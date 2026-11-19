@@ -248,12 +248,22 @@ export type TemplateCategory = "food" | "auto" | "moving" | "beauty" | "emergenc
 
 /**
  * What a PLW tour-demo draft supplies on top of the brand (overrides.tourismDemo).
- * Both sides may be empty: the site then shows only neutral copy and imagery,
- * never an invented service list or highlight.
+ * services/highlight are required (may be empty); the rest are optional
+ * additions PLW captures with the client. The renderer ignores fields that do
+ * not match these shapes, and never shows anything else a draft may carry
+ * (research notes, source URLs): those stay in PLW.
  */
 export type TourismDemo = {
   services: string[];
   highlight: string;
+  /** Confirmed description of the business, in the site's language(s). */
+  description?: string;
+  /** Confirmed facts, e.g. { label: "Established", value: "2019" }. */
+  details?: { label: string; value: string }[];
+  /** Confirmed questions and answers the assistant may quote. */
+  faqs?: { question: string; answer: string }[];
+  /** Trusted HTTPS hero image (Kike media or an approved source). */
+  heroImage?: string;
 };
 
 export type BusinessTemplate = {
