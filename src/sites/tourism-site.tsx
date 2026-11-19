@@ -15,9 +15,9 @@ import { SecretariaCard } from "@/sites/shared/secretaria-card";
   Honesty rules this file enforces:
   - It shows only what the draft supplies (brand + overrides.tourismDemo) and
     neutral copy. No invented prices, reviews, amenities or hours.
-  - The homepage chat answers ONLY from the draft's confirmed FAQs, details
-    and services. Rates, hours and availability are always "unconfirmed"
-    unless a confirmed fact says otherwise — the chat never invents them and
+  - The homepage chat answers only the draft's confirmed FAQs (its suggested
+    questions). A typed question gets the note that answering anything comes
+    with the full service, not the demo — so it never invents an answer and
     never takes a booking.
   - Contact actions appear only when the draft has a confirmed public phone.
   - Gallery photos from the stock library carry an "illustrative" note until
@@ -116,70 +116,6 @@ type Msg = { from: "bot" | "user"; text: string; /** PLW's voice id for this rep
 /** PLW's click-to-hear endpoint: token + the grounded answer's id, nothing else. */
 const PLW_VOICE_ENDPOINT = "https://meagbbmittuhdgwnhvxa.supabase.co/functions/v1/plw-tourism-voice";
 
-function answerFromBrief(q: string, demo: SafeTourismDemo, lang: Lang, brandName: string): { text: string; answerId?: string } {
-  const text = q.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-  // 1. An exact (normalized) FAQ match wins.
-  const faqIdx = demo.faqs.findIndex((f) => norm(f.question) === text);
-  if (faqIdx >= 0) return { text: demo.faqs[faqIdx].answer, answerId: `faq:${faqIdx}` };
-
-  // 2. Word overlap over FAQ questions, then confirmed details.
-  const words = text.split(/\s+/).filter((w) => w.length > 2);
-  let best: { score: number; answer: string; idx: number } | null = null;
-  for (let idx = 0; idx < demo.faqs.length; idx++) {
-    const f = demo.faqs[idx];
-    const qWords = norm(f.question).split(/\s+/).filter((w) => w.length > 2);
-    const overlap = words.filter((w) => qWords.includes(w)).length;
-    if (overlap > 0 && (!best || overlap > best.score)) best = { score: overlap, answer: f.answer, idx };
-  }
-  if (best) return { text: best.answer, answerId: `faq:${best.idx}` };
-
-  for (const d of demo.details) {
-    const dWords = norm(d.label).split(/\s+/).filter((w) => w.length > 2);
-    if (words.some((w) => dWords.includes(w))) {
-      return { text: `${d.label}: ${d.value}`, answerId: "about" };
-      }
-  }
-
-  const matched = q.match(/\b(punto|encuentro|meeting|encuentro|ubicaci[oó]n|location|d[oó]nde|where|direcci[oó]n|address)\b/);
-  if (matched) {
-    const fact = demo.details.find((d) => d.label.includes("Punto de encuentro")) ?? demo.details[0];
-    if (fact) return { text: `${fact.label}: ${fact.value}`, answerId: "location" };
-  }
-
-  // 3. Confirmed services: name them; never invent availability for one.
-  if (demo.services.some((s) => words.some((w) => norm(s).includes(w)))) {
-    return {
-      text: pick(lang,
-        `We offer "${demo.services.find((s) => norm(s).includes(words.find((w) => norm(s).includes(w)) ?? ""))}" — ask us for current availability.`,
-        `Ofrecemos "${demo.services.find((s) => norm(s).includes(words.find((w) => norm(s).includes(w)) ?? ""))}" — consúltenos por disponibilidad actual.`),
-      answerId: "services",
-    };
-  }
-
-  // 4. Honest fallbacks: rates, hours and availability are unconfirmed unless a fact says otherwise.
-  if (/\b(precio|precios|costo|cuanto|cuánto|tarifa|rate|rates|price|prices)\b/.test(text)) {
-    return { text: pick(lang,
-      `I don't have confirmed rates yet. Write to us on WhatsApp and we'll answer with the current price for "${brandName}".`,
-      `Aún no tengo tarifas confirmadas. Escríbanos por WhatsApp y le respondemos con el precio actual de "${brandName}".`) };
-  }
-  if (/\b(horario|horarios|hora|abierto|open|hours|schedule)\b/.test(text)) {
-    return { text: pick(lang,
-      "I don't have confirmed opening hours yet — message us and we'll reply with them.",
-      "Aún no tengo horarios confirmados — escríbanos y le respondemos con ellos.") };
-  }
-  if (/\b(disponibilidad|disponible|availability|available|fecha|fechas|reserva|reservar|booking|book|slot)\b/.test(text)) {
-    return { text: pick(lang,
-      "I can't confirm availability from here. Write to us and we'll answer with real dates.",
-      "No puedo confirmar disponibilidad desde aquí. Escríbanos y le respondemos con fechas reales.") };
-  }
-
-  return { text: pick(lang,
-    "I can only answer with what the business confirmed. I've noted your question — send it on WhatsApp and a person will reply.",
-    "Solo puedo responder con lo que el negocio ha confirmado. Anoté su pregunta — envíela por WhatsApp y una persona le responde.") };
-}
-
 function TourismChat({ demo, brand, lang, previewToken, topics }: { demo: SafeTourismDemo; brand: BusinessTemplate["brand"]; lang: Lang; previewToken?: string | null; topics: string }) {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -215,12 +151,18 @@ function TourismChat({ demo, brand, lang, previewToken, topics }: { demo: SafeTo
     }
   }, [open, lang, brand.name, topics]);
 
+  /** A typed question: answering anything is a feature of the full service, not the demo (owner, 2026-11-19). */
   function send(text: string) {
     const v = text.trim();
     if (!v) return;
-    const a = answerFromBrief(v, demo, lang, brand.name);
-    setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: a.text, answerId: a.answerId }]);
+    setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: L.fullService }]);
     setDraft("");
+  }
+
+  /** A suggested question: the business's confirmed answer, which can also be heard. */
+  function askFaq(i: number) {
+    const f = demo.faqs[i];
+    setMsgs((m) => [...m, { from: "user", text: f.question }, { from: "bot", text: f.answer, answerId: `faq:${i}` }]);
   }
 
   // Click-to-hear: asks PLW to speak this grounded answer by id (never the
@@ -266,6 +208,7 @@ function TourismChat({ demo, brand, lang, previewToken, topics }: { demo: SafeTo
     loading: "Loading audio…",
     failed: "Audio unavailable — text remains.",
     retry: "Retry",
+    fullService: "This option comes with the full service, not with the demo. Once you sign up, the assistant answers your customers' questions with your business's information. Contact us to turn it on.",
   }, {
     ask: "Pregunte al asistente",
     ph: "Escriba su pregunta…",
@@ -275,6 +218,7 @@ function TourismChat({ demo, brand, lang, previewToken, topics }: { demo: SafeTo
     loading: "Cargando audio…",
     failed: "Audio no disponible — el texto permanece.",
     retry: "Reintentar",
+    fullService: "Esta opción viene incluida con el servicio completo, no en la demostración. Al contratarlo, el asistente responde las preguntas de sus clientes con la información de su negocio. Contáctenos para activarlo.",
   });
 
   return (
@@ -338,8 +282,8 @@ function TourismChat({ demo, brand, lang, previewToken, topics }: { demo: SafeTo
             <p className="px-4 pb-3 text-[11px] text-amber-800 bg-amber-50 text-center leading-snug">{L.preview}</p>
             {demo.faqs.length > 0 && (
               <div className="px-4 pb-4 flex flex-wrap gap-1.5 bg-amber-50">
-                {demo.faqs.slice(0, 3).map((f) => (
-                  <button key={f.question} onClick={() => send(f.question)} className="text-xs font-semibold rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[#1F5E3B] hover:bg-slate-50">
+                {demo.faqs.slice(0, 3).map((f, i) => (
+                  <button key={f.question} onClick={() => askFaq(i)} className="text-xs font-semibold rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[#1F5E3B] hover:bg-slate-50">
                     {f.question}
                   </button>
                 ))}
