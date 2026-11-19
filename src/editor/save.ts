@@ -32,6 +32,8 @@ export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemp
       projectSelector: tpl.projectSelector,
       inventory: tpl.inventory,
       heritage: tpl.heritage,
+      // PLW tour-demo data (services + highlight) for the tourism templates.
+      tourismDemo: tpl.tourismDemo,
       // Read by the edge function that writes the site's <head> (src/lib/site-meta.ts).
       lockedLang: tpl.lockedLang,
       defaultLang: tpl.defaultLang,

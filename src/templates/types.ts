@@ -246,6 +246,16 @@ export type TemplateFacts = {
 /** Broad industry group: picks the quote form's extra field and the industry band. */
 export type TemplateCategory = "food" | "auto" | "moving" | "beauty" | "emergency" | "events" | "trades";
 
+/**
+ * What a PLW tour-demo draft supplies on top of the brand (overrides.tourismDemo).
+ * Both sides may be empty: the site then shows only neutral copy and imagery,
+ * never an invented service list or highlight.
+ */
+export type TourismDemo = {
+  services: string[];
+  highlight: string;
+};
+
 export type BusinessTemplate = {
   slug: string;
   industry: string;
@@ -262,7 +272,9 @@ export type BusinessTemplate = {
    *  so Spanish unless set; only the real US businesses open in English. */
   defaultLang?: Lang;
   /** Custom full-page renderer instead of the shared BusinessSite (see sites/site-renderer.tsx). */
-  siteVariant?: "leonardo" | "oryzo" | "rym" | "fenix";
+  siteVariant?: "leonardo" | "oryzo" | "rym" | "fenix" | "tourism";
+  /** PLW tour-demo data (services + highlight). Empty arrays/strings allowed. */
+  tourismDemo?: TourismDemo;
   /** A real, named business: never show fabricated ratings, extra reviews or
    *  invented service-area lists for it. */
   realBusiness?: boolean;
