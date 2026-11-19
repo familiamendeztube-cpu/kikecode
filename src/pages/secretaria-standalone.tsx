@@ -45,7 +45,6 @@ export default function SecretariaStandalone() {
         <p className="text-sm text-[#3D4A40] text-center mb-6">{pick("es" as const, "", "")}</p>
         <SecretariaCard
           previewToken={token.slice(4)}
-          lang={site.template.lockedLang ?? site.template.defaultLang ?? "es"}
           businessName={name}
           businessType={type}
         />
