@@ -6,6 +6,8 @@ import { demoRequest, type DemoStatus } from "@/sites/shared/secretary-converse"
 
 /*
   Secretaria IA: the receptionist demo on PLW previews.
+  - Nothing plays on its own (owner decision 2026-11-19): every sound starts
+    from a click on one of the card's buttons, never on page load.
   - Samples ("Escuchar bienvenida" and the cards) are server-written clips from
     plw-tourism-voice by answerId, all played through ONE audio element, so a
     new clip, a live call or leaving the page always stops the previous one.
@@ -40,12 +42,11 @@ function useClipPlayer(token: string) {
     releaseAudio("secretaria");
   }, []);
 
-  /** `quiet`: the on-load greeting, which stays silent when the browser blocks autoplay. */
-  const play = useCallback(async (answerId: string, language: string, quiet = false) => {
+  const play = useCallback(async (answerId: string, language: string) => {
     stop();
     const p = ref.current;
     const abort = (p.abort = new AbortController());
-    if (!quiet) setClip({ id: answerId, phase: "loading" });
+    setClip({ id: answerId, phase: "loading" });
     try {
       const res = await fetch(VOICE_ENDPOINT, {
         method: "POST",
@@ -153,9 +154,6 @@ export function SecretariaCard({ previewToken, businessName, businessType, stand
   const live = useLiveSecretary(previewToken, stop);
   const inCall = live.phase === "starting" || live.phase === "listening" || live.phase === "speaking";
   const noneLeft = live.status?.remaining === 0;
-
-  // One-shot greeting on load; browsers that block autoplay wait for a click.
-  useEffect(() => { void play("secretary-welcome", "es", true); }, [play]);
 
   return (
     <div className="rounded-2xl border border-[#1F5E3B]/20 bg-white shadow-xl overflow-hidden">

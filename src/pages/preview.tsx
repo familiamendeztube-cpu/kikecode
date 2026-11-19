@@ -70,8 +70,8 @@ function ShareConversionAsk({ businessName }: { businessName: string }) {
         </h2>
         <p className="mt-1 text-white/60 text-sm">Like this design for your business?</p>
         <p className="mt-4 text-white/80 max-w-xl mx-auto">
-          Esto es una vista previa de su sitio web. Dígale a su diseñador si quiere
-          publicarlo o pedir cambios. <span className="text-white/50">This is a preview of your website — let your designer know if you'd like to publish it or request changes.</span>
+          Esto es una vista previa de su sitio web. Contáctenos para publicarlo o
+          hacerle cambios. <span className="text-white/50">This is a preview of your website — contact us to publish it or make changes.</span>
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <WhatsAppButton

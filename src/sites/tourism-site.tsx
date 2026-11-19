@@ -618,7 +618,7 @@ export default function TourismSite({ template, previewToken }: { template: Busi
             ) : (
               <div className="text-white/80 leading-relaxed">
                 <p className="font-semibold text-white">{pick(lang, "Contact details coming soon", "Datos de contacto próximamente")}</p>
-                <p className="mt-2 text-sm">{pick(lang, "This is a preview — the business's phone is not published yet. Ask your designer for the details.", "Esto es una vista previa — el teléfono del negocio aún no está publicado. Pida los datos a su diseñador.")}</p>
+                <p className="mt-2 text-sm">{pick(lang, "This is a preview — the business's phone is not published yet. Contact us to add it.", "Esto es una vista previa — el teléfono del negocio aún no está publicado. Contáctenos para agregarlo.")}</p>
               </div>
             )}
           </div>
