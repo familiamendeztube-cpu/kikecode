@@ -109,63 +109,73 @@ function publicPhone(brand: BusinessTemplate["brand"]): { phone: string; href: s
 /* Homepage chat: text Q&A from confirmed brief/FAQ only               */
 /* ------------------------------------------------------------------ */
 
-type Msg = { from: "bot" | "user"; text: string };
+type Msg = { from: "bot" | "user"; text: string; /** PLW's voice id for this reply, when the backend supports it. */ answerId?: string };
 
-/** PLW's click-to-hear endpoint: token + the answer's text, nothing else. */
+/** PLW's click-to-hear endpoint: token + the grounded answer's id, nothing else. */
 const PLW_VOICE_ENDPOINT = "https://meagbbmittuhdgwnhvxa.supabase.co/functions/v1/plw-tourism-voice";
 
-function answerFromBrief(q: string, demo: SafeTourismDemo, lang: Lang, brandName: string): string {
+function answerFromBrief(q: string, demo: SafeTourismDemo, lang: Lang, brandName: string): { text: string; answerId?: string } {
   const text = q.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   // 1. An exact (normalized) FAQ match wins.
-  const faq = demo.faqs.find((f) => norm(f.question) === text);
-  if (faq) return faq.answer;
+  const faqIdx = demo.faqs.findIndex((f) => norm(f.question) === text);
+  if (faqIdx >= 0) return { text: demo.faqs[faqIdx].answer, answerId: `faq:${faqIdx}` };
 
   // 2. Word overlap over FAQ questions, then confirmed details.
   const words = text.split(/\s+/).filter((w) => w.length > 2);
-  let best: { score: number; answer: string } | null = null;
-  for (const f of demo.faqs) {
+  let best: { score: number; answer: string; idx: number } | null = null;
+  for (let idx = 0; idx < demo.faqs.length; idx++) {
+    const f = demo.faqs[idx];
     const qWords = norm(f.question).split(/\s+/).filter((w) => w.length > 2);
     const overlap = words.filter((w) => qWords.includes(w)).length;
-    if (overlap > 0 && (!best || overlap > best.score)) best = { score: overlap, answer: f.answer };
+    if (overlap > 0 && (!best || overlap > best.score)) best = { score: overlap, answer: f.answer, idx };
   }
-  if (best) return best.answer;
+  if (best) return { text: best.answer, answerId: `faq:${best.idx}` };
 
   for (const d of demo.details) {
     const dWords = norm(d.label).split(/\s+/).filter((w) => w.length > 2);
     if (words.some((w) => dWords.includes(w))) {
-      return `${d.label}: ${d.value}`;
+      return { text: `${d.label}: ${d.value}`, answerId: "about" };
       }
+  }
+
+  const matched = q.match(/\b(punto|encuentro|meeting|encuentro|ubicaci[oó]n|location|d[oó]nde|where|direcci[oó]n|address)\b/);
+  if (matched) {
+    const fact = demo.details.find((d) => d.label.includes("Punto de encuentro")) ?? demo.details[0];
+    if (fact) return { text: `${fact.label}: ${fact.value}`, answerId: "location" };
   }
 
   // 3. Confirmed services: name them; never invent availability for one.
   if (demo.services.some((s) => words.some((w) => norm(s).includes(w)))) {
-    return pick(lang,
-      `We offer "${demo.services.find((s) => norm(s).includes(words.find((w) => norm(s).includes(w)) ?? ""))}" — ask us for current availability.`,
-      `Ofrecemos "${demo.services.find((s) => norm(s).includes(words.find((w) => norm(s).includes(w)) ?? ""))}" — consúltenos por disponibilidad actual.`);
+    return {
+      text: pick(lang,
+        `We offer "${demo.services.find((s) => norm(s).includes(words.find((w) => norm(s).includes(w)) ?? ""))}" — ask us for current availability.`,
+        `Ofrecemos "${demo.services.find((s) => norm(s).includes(words.find((w) => norm(s).includes(w)) ?? ""))}" — consúltenos por disponibilidad actual.`),
+      answerId: "services",
+    };
   }
 
   // 4. Honest fallbacks: rates, hours and availability are unconfirmed unless a fact says otherwise.
   if (/\b(precio|precios|costo|cuanto|cuánto|tarifa|rate|rates|price|prices)\b/.test(text)) {
-    return pick(lang,
+    return { text: pick(lang,
       `I don't have confirmed rates yet. Write to us on WhatsApp and we'll answer with the current price for "${brandName}".`,
-      `Aún no tengo tarifas confirmadas. Escríbanos por WhatsApp y le respondemos con el precio actual de "${brandName}".`);
+      `Aún no tengo tarifas confirmadas. Escríbanos por WhatsApp y le respondemos con el precio actual de "${brandName}".`) };
   }
   if (/\b(horario|horarios|hora|abierto|open|hours|schedule)\b/.test(text)) {
-    return pick(lang,
+    return { text: pick(lang,
       "I don't have confirmed opening hours yet — message us and we'll reply with them.",
-      "Aún no tengo horarios confirmados — escríbanos y le respondemos con ellos.");
+      "Aún no tengo horarios confirmados — escríbanos y le respondemos con ellos.") };
   }
   if (/\b(disponibilidad|disponible|availability|available|fecha|fechas|reserva|reservar|booking|book|slot)\b/.test(text)) {
-    return pick(lang,
+    return { text: pick(lang,
       "I can't confirm availability from here. Write to us and we'll answer with real dates.",
-      "No puedo confirmar disponibilidad desde aquí. Escríbanos y le respondemos con fechas reales.");
+      "No puedo confirmar disponibilidad desde aquí. Escríbanos y le respondemos con fechas reales.") };
   }
 
-  return pick(lang,
+  return { text: pick(lang,
     "I can only answer with what the business confirmed. I've noted your question — send it on WhatsApp and a person will reply.",
-    "Solo puedo responder con lo que el negocio ha confirmado. Anoté su pregunta — envíela por WhatsApp y una persona le responde.");
+    "Solo puedo responder con lo que el negocio ha confirmado. Anoté su pregunta — envíela por WhatsApp y una persona le responde.") };
 }
 
 function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDemo; brand: BusinessTemplate["brand"]; lang: Lang; previewToken?: string | null }) {
@@ -197,7 +207,7 @@ function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDem
   useEffect(() => {
     if (open && !greeted.current) {
       greeted.current = true;
-      setMsgs([{ from: "bot", text: pick(lang,
+      setMsgs([{ from: "bot", answerId: "welcome", text: pick(lang,
         `Hello! I'm the ${brand.name} assistant. I can answer from the confirmed info on this page — ask me about the tours, the place, or how to reach us.`,
         `¡Hola! Soy el asistente de ${brand.name}. Puedo responder con la información confirmada de esta página — pregúnteme por los tours, el lugar o cómo contactarnos.`) }]);
     }
@@ -206,14 +216,16 @@ function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDem
   function send(text: string) {
     const v = text.trim();
     if (!v) return;
-    setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: answerFromBrief(v, demo, lang, brand.name) }]);
+    const a = answerFromBrief(v, demo, lang, brand.name);
+    setMsgs((m) => [...m, { from: "user", text: v }, { from: "bot", text: a.text, answerId: a.answerId }]);
     setDraft("");
   }
 
-  // Click-to-hear: asks PLW to speak this answer (never the visitor's question).
-  // Click-to-play only — never autoplays — and text stays if audio fails or
-  // the token is unavailable.
-  async function hear(i: number, text: string) {
+  // Click-to-hear: asks PLW to speak this grounded answer by id (never the
+  // visitor's question, never arbitrary text). Click-to-play only — never
+  // autoplays — and text stays if audio fails or the token is unavailable.
+  async function hear(i: number, answerId: string | undefined) {
+    if (!answerId) return;
     if (voice[i] === "playing") { stopAudio(); setVoice((v) => ({ ...v, [i]: "idle" })); return; }
     if (!previewToken || voice[i] === "loading") return;
     stopAudio();
@@ -222,7 +234,7 @@ function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDem
       const res = await fetch(PLW_VOICE_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: previewToken, text, language: lang }),
+        body: JSON.stringify({ token: previewToken, answerId, language: lang }),
       });
       if (!res.ok) throw new Error(String(res.status));
       const blob = await res.blob();
@@ -291,9 +303,9 @@ function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDem
                     ? "max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm text-white bg-[#1F5E3B]"
                     : "max-w-[85%] rounded-2xl rounded-tl-md px-4 py-2.5 text-sm text-slate-700 bg-slate-50"}>
                     {m.text}
-                    {m.from === "bot" && canSpeak && voice[i] !== "error" && (
+                    {m.from === "bot" && canSpeak && m.answerId && voice[i] !== "error" && (
                       <button
-                        onClick={() => void hear(i, m.text)}
+                        onClick={() => void hear(i, m.answerId)}
                         disabled={voice[i] === "loading"}
                         className="ml-2 inline-flex text-slate-400 hover:text-slate-600 align-middle disabled:opacity-50"
                         aria-label={voice[i] === "playing" ? L.stop : L.listen}
@@ -304,8 +316,8 @@ function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDem
                           : <Volume2 className="w-3.5 h-3.5" />}
                       </button>
                     )}
-                    {m.from === "bot" && voice[i] === "error" && (
-                      <button onClick={() => void hear(i, m.text)} className="ml-2 inline-flex text-amber-700 hover:text-amber-900 align-middle text-[11px] underline" aria-label={L.retry}>
+                    {m.from === "bot" && canSpeak && m.answerId && voice[i] === "error" && (
+                      <button onClick={() => void hear(i, m.answerId)} className="ml-2 inline-flex text-amber-700 hover:text-amber-900 align-middle text-[11px] underline" aria-label={L.retry}>
                         {L.retry}
                       </button>
                     )}
