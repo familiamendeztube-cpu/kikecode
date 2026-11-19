@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
 import { MessageCircle, Check, Pencil, Eye } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import { StatusScreen } from "@/components/status-screen";
 import { SiteRenderer } from "@/sites/site-renderer";
 import { waLink, WhatsAppButton } from "@/sites/shared/whatsapp";
-import { usePublishedSite } from "@/lib/saved-site";
+import { usePublishedSite, plwPreviewToken } from "@/lib/saved-site";
+import { PRESS } from "@/sites/business/ui";
+import { Sparks } from "@/sites/shared/sparks";
 
 /**
  * A site's current draft, for the client to review (/preview/:token). The
@@ -26,14 +28,18 @@ export default function Preview() {
   if (site.status === "error") {
     return <StatusScreen kind="error" title="No se pudo cargar la vista previa / Could not load this preview" detail={site.message} />;
   }
+  // PLW samples are demos, not unpublished sites: they carry their own demo notice in the header.
+  const plwToken = plwPreviewToken({ preview: token });
   return (
     <>
-      <div className="sticky top-0 z-[70] flex items-center justify-center gap-2 bg-amber-400 px-4 py-1.5 text-center text-xs font-semibold text-slate-900">
-        <Eye className="h-3.5 w-3.5 shrink-0" />
-        Vista previa: este sitio todavía no está publicado. · Preview: this site is not published yet.
-      </div>
-      <SiteRenderer template={site.template} />
-      <ShareConversionAsk businessName={site.template.brand.name} />
+      {plwToken === null && (
+        <div className="sticky top-0 z-[70] flex items-center justify-center gap-2 bg-amber-400 px-4 py-1.5 text-center text-xs font-semibold text-slate-900">
+          <Eye className="h-3.5 w-3.5 shrink-0" />
+          Vista previa: este sitio todavía no está publicado. · Preview: this site is not published yet.
+        </div>
+      )}
+      <SiteRenderer template={site.template} previewToken={plwToken} />
+      <ShareConversionAsk businessName={site.template.brand.name} plw={plwToken !== null} />
     </>
   );
 }
@@ -56,37 +62,44 @@ function useNoIndex() {
    business owner who received the link. Uses wa.me without a number so WhatsApp
    opens the contact picker (the owner replies to whoever sent them the link) —
    no fabricated agency phone. Sits below the site so it never disturbs it. */
-function ShareConversionAsk({ businessName }: { businessName: string }) {
+function ShareConversionAsk({ businessName, plw }: { businessName: string; plw: boolean }) {
   const wa = (text: string) => waLink("", text);
+  const [burst, setBurst] = useState(0);
+  const ghost = `inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white ${PRESS}`;
   return (
-    <section className="bg-slate-950 text-white pb-28 lg:pb-16 pt-16">
+    // PLW demos: the demo site's own colors and headline font, so the page reads as one design.
+    <section className={`text-white pb-28 lg:pb-16 pt-16 ${plw ? "bg-[#050C08] border-t border-white/10" : "bg-slate-950"}`}>
       <div className="max-w-3xl mx-auto px-6 text-center">
-        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+        <h2 className={`text-2xl sm:text-3xl tracking-tight ${plw ? "font-editorial font-medium sm:text-4xl" : "font-extrabold"}`}>
           ¿Le gusta este diseño para su negocio?
         </h2>
         <p className="mt-1 text-white/60 text-sm">Like this design for your business?</p>
         <p className="mt-4 text-white/80 max-w-xl mx-auto">
-          Esto es una vista previa de su sitio web. Dígale a su diseñador si quiere
-          publicarlo o pedir cambios. <span className="text-white/50">This is a preview of your website — let your designer know if you'd like to publish it or request changes.</span>
+          Esto es una vista previa de su sitio web. Contáctenos para publicarlo o
+          hacerle cambios. <span className="text-white/50">This is a preview of your website — contact us to publish it or make changes.</span>
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-          <WhatsAppButton
-            href={wa(`¡Hola! Me gustó el sitio web de "${businessName}" que me envió. Sí lo quiero. 🎉`)}
-            className="inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-lg text-white shadow-xl transition-transform hover:translate-y-[-2px]"
-          >
-            <Check className="w-5 h-5" /> Sí, quiero este sitio
-          </WhatsAppButton>
+          {/* The click bubbles up here to throw the sparks (WhatsAppButton takes no onClick). */}
+          <span className="relative inline-flex flex-col" onClick={() => setBurst((b) => b + 1)}>
+            {burst > 0 && <Sparks key={burst} />}
+            <WhatsAppButton
+              href={wa(`¡Hola! Me gustó el sitio web de "${businessName}" que me envió. Sí lo quiero. 🎉`)}
+              className={`inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-full text-white shadow-xl ${PRESS}`}
+            >
+              <Check className="w-5 h-5" /> Sí, quiero este sitio
+            </WhatsAppButton>
+          </span>
           <a
             href={wa(`¡Hola! Vi el sitio web de "${businessName}". Me gustaría pedir algunos cambios:`)}
             target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/25 text-white transition-colors"
+            className={ghost}
           >
             <Pencil className="w-5 h-5" /> Pedir cambios
           </a>
           <a
             href={wa(`¡Hola! Tengo una pregunta sobre el sitio web de "${businessName}".`)}
             target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/25 text-white transition-colors"
+            className={ghost}
           >
             <MessageCircle className="w-5 h-5" /> Hablar por WhatsApp
           </a>

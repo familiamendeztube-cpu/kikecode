@@ -9,6 +9,7 @@ import CreateSite from "@/pages/create";
 import TemplatePreview from "@/pages/template-preview";
 import SharePreview from "@/pages/share-preview";
 import Preview from "@/pages/preview";
+import SecretariaStandalone from "@/pages/secretaria-standalone";
 import Videos from "@/pages/videos";
 import Demos from "@/pages/demos";
 import Team from "@/pages/team";
@@ -33,13 +34,24 @@ function OperatorRoutes() {
   );
 }
 
-/** Share, preview and video links are what clients open, so only the rest needs a staff sign-in. */
+/**
+ * Share, preview and video links are what clients open, so only the rest needs
+ * a staff sign-in. A client who trims their link (/preview, /share/…/x) gets a
+ * plain "not found", never the staff app or its sign-in.
+ */
 function OperatorApp() {
   return (
     <Switch>
       <Route path="/share/:id" component={SharePreview} />
       <Route path="/preview/:token" component={Preview} />
+      <Route path="/preview/:token/secretaria" component={SecretariaStandalone} />
       <Route path="/video/:id" component={VideoShare} />
+      <Route path="/share" component={NotFound} />
+      <Route path="/share/*" component={NotFound} />
+      <Route path="/preview" component={NotFound} />
+      <Route path="/preview/*" component={NotFound} />
+      <Route path="/video" component={NotFound} />
+      <Route path="/video/*" component={NotFound} />
       <Route>
         <StaffGate>
           <OperatorLangProvider>

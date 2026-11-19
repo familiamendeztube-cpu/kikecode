@@ -246,6 +246,38 @@ export type TemplateFacts = {
 /** Broad industry group: picks the quote form's extra field and the industry band. */
 export type TemplateCategory = "food" | "auto" | "moving" | "beauty" | "emergency" | "events" | "trades";
 
+/**
+ * What a PLW tour-demo draft supplies on top of the brand (overrides.tourismDemo).
+ * services/highlight are required (may be empty); the rest are optional
+ * additions PLW captures with the client. The renderer ignores fields that do
+ * not match these shapes, and never shows anything else a draft may carry
+ * (research notes, source URLs): those stay in PLW.
+ */
+export type TourismDemo = {
+  services: string[];
+  highlight: string;
+  /** Confirmed description of the business, in the site's language(s). */
+  description?: string;
+  /** Confirmed facts, e.g. { label: "Established", value: "2019" }. PLW also
+   *  sends this field under the name `facts`; both are accepted. */
+  details?: { label: string; value: string }[];
+  /** PLW's name for the confirmed-facts list (same shape as `details`). */
+  facts?: { label: string; value: string }[];
+  /** Confirmed questions and answers the assistant may quote. */
+  faqs?: { question: string; answer: string }[];
+  /** Trusted HTTPS hero image (Kike media or an approved source). */
+  heroImage?: string;
+  /**
+   * Up to 4 approved images PLW selected for this draft: AI-generated
+   * ("generated", labeled as such on the site) or the business's own
+   * ("business"). Only the approved URLs render — never the candidate pool
+   * or anything about how they were produced.
+   */
+  approvedImages?: { url: string; alt: string; kind: "generated" | "business" }[];
+  /** Optional Secretaria IA presentation overrides; sanitized before display. */
+  secretary?: { businessType?: string; businessName?: string };
+};
+
 export type BusinessTemplate = {
   slug: string;
   industry: string;
@@ -262,7 +294,16 @@ export type BusinessTemplate = {
    *  so Spanish unless set; only the real US businesses open in English. */
   defaultLang?: Lang;
   /** Custom full-page renderer instead of the shared BusinessSite (see sites/site-renderer.tsx). */
-  siteVariant?: "leonardo" | "oryzo" | "rym" | "fenix";
+  siteVariant?: "leonardo" | "oryzo" | "rym" | "fenix" | "tourism";
+  /** PLW tour-demo data (services + highlight). Empty arrays/strings allowed. */
+  tourismDemo?: TourismDemo;
+  /** PLW samples (siteVariant "tourism"): what this business type asks visitors to do. */
+  plwSite?: {
+    /** Main call to action first; each opens WhatsApp with its message when the draft has a phone. */
+    ctas: { label: string; message: string }[];
+    /** What the chat says it can answer about ("el menú, las reservaciones o cómo contactarnos"). */
+    chatTopics: string;
+  };
   /** A real, named business: never show fabricated ratings, extra reviews or
    *  invented service-area lists for it. */
   realBusiness?: boolean;

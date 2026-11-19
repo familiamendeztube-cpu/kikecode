@@ -20,7 +20,8 @@ const SAVED_SLUGS = [
   "chales-garage", "cleaning", "concrete", "construction", "electrician", "events", "fencing", "flooring",
   "garage-doors", "glass", "handyman", "hvac", "hyperion-synthetic-turf", "landscaping", "los-primos-plumbing",
   "lumina-studio", "moving", "nails", "nicaraguan-restaurant", "painting", "pest-control", "photography",
-  "pool-service", "pressure-washing", "restaurant", "roofing", "snuvalys-construccions", "suplidora-fenix", "tree-service", "welding",
+  "plw-auto", "plw-business", "plw-clinic", "plw-gym", "plw-real-estate", "plw-restaurant", "plw-shop",
+  "plw-tourism-stays", "plw-tourism-tours", "pool-service", "pressure-washing", "restaurant", "roofing", "snuvalys-construccions", "suplidora-fenix", "tree-service", "welding",
 ];
 
 describe("template registry", () => {
@@ -43,6 +44,9 @@ describe("template registry", () => {
 */
 describe("Costa Rican templates", () => {
   const costaRican = TEMPLATES.filter((t) => t.defaultLang !== "en");
+  // The PLW samples start with no public phone: the draft adds the
+  // client's confirmed number when it is saved.
+  const NO_PHONE_YET = TEMPLATES.filter((t) => t.slug.startsWith("plw-")).map((t) => t.slug);
 
   it("open in Spanish, except the real US businesses", () => {
     expect(TEMPLATES.filter((t) => t.defaultLang === "en").map((t) => t.slug).sort())
@@ -50,8 +54,13 @@ describe("Costa Rican templates", () => {
   });
 
   it.each(costaRican.map((t) => [t.slug, t] as const))("%s has a Costa Rican phone, address and prices", (_slug, t) => {
-    expect(t.brand.phone).toMatch(/^\+506 \d{4}-\d{4}$/);
-    expect(t.brand.phoneHref).toBe(`tel:+506${t.brand.phone.slice(5).replace("-", "")}`);
+    if (NO_PHONE_YET.includes(t.slug)) {
+      expect(t.brand.phone).toBe("");
+      expect(t.brand.phoneHref).toBe("");
+    } else {
+      expect(t.brand.phone).toMatch(/^\+506 \d{4}-\d{4}$/);
+      expect(t.brand.phoneHref).toBe(`tel:+506${t.brand.phone.slice(5).replace("-", "")}`);
+    }
     // No US ZIP code or state abbreviation ("Miami, FL 33135").
     expect(`${t.brand.address} | ${t.brand.city}`).not.toMatch(/\b\d{5}\b|, [A-Z]{2}\b/);
     const text = JSON.stringify(t);
