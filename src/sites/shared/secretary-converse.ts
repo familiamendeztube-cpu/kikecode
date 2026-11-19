@@ -29,9 +29,13 @@ export function micProblem(err: unknown): MicProblem {
   return "other";
 }
 
-export type ConverseResult = { transcript: string; reply: string; answerId: string; language: "es" | "en" | "zh" };
+export type ConverseResult =
+  | { kind: "audio"; audio: Blob }
+  | { kind: "error"; message: string };
 
-/** One turn: token + (audio file | typed text) + language. Never cookies or keys. */
+/** One turn: token + (audio file | typed text) + language.
+ *  Live PLW v102 contract: success is the reply itself as `audio/mpeg` (no
+ *  JSON, no transcript metadata); failure is JSON `{error}` in Spanish. */
 export async function converse(token: string, language: "es" | "en" | "auto", turn: { audio?: Blob; mime?: string; text?: string }): Promise<ConverseResult> {
   const form = new FormData();
   form.append("token", token);
@@ -44,15 +48,18 @@ export async function converse(token: string, language: "es" | "en" | "auto", tu
     throw new Error("empty turn");
   }
   const res = await fetch(CONVERSE_ENDPOINT, { method: "POST", body: form });
-  if (!res.ok) throw new Error(String(res.status));
-  const data = (await res.json()) as Partial<ConverseResult>;
-  if (typeof data.transcript !== "string" || typeof data.reply !== "string" || typeof data.answerId !== "string" || !data.answerId) {
-    throw new Error("bad response");
+  const type = res.headers.get("content-type") ?? "";
+  if (type.includes("audio")) {
+    const blob = await res.blob();
+    if (!blob.size) return { kind: "error", message: "" };
+    return { kind: "audio", audio: blob };
   }
-  return {
-    transcript: data.transcript,
-    reply: data.reply,
-    answerId: data.answerId,
-    language: data.language === "en" || data.language === "zh" ? data.language : "es",
-  };
+  // Error shape: { "error": "…" } (Spanish, user-visible as-is).
+  try {
+    const data = (await res.json()) as { error?: unknown };
+    const msg = typeof data.error === "string" ? data.error : "";
+    return { kind: "error", message: msg };
+  } catch {
+    return { kind: "error", message: "" };
+  }
 }

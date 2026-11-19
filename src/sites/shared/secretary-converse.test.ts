@@ -40,43 +40,45 @@ describe("micProblem", () => {
 });
 
 describe("converse", () => {
-  it("sends multipart with token+text and normalizes the reply", async () => {
-    const fetchMock = vi.fn((_input: unknown) => new Response(
-      JSON.stringify({ transcript: "hola", reply: "¡Hola!", answerId: "secretary-welcome", language: "es" }),
-      { status: 200 },
-    ));
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("treats an audio/mpeg success as the reply audio itself", async () => {
+    const mp3 = new Blob(["ID3fakemp3"], { type: "audio/mpeg" });
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(mp3, { status: 200, headers: { "Content-Type": "audio/mpeg" } })));
+    const out = await converse("tok", "es", { text: "hola" });
+    expect(out.kind).toBe("audio");
+    if (out.kind === "audio") expect(out.audio.type).toBe("audio/mpeg");
+  });
+
+  it("surfaces the server's Spanish error message as-is", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(
+      JSON.stringify({ error: "El reconocimiento de voz no está disponible." }),
+      { status: 502, headers: { "Content-Type": "application/json" } },
+    )));
+    const out = await converse("tok", "es", { text: "hola" });
+    expect(out.kind).toBe("error");
+    if (out.kind === "error") expect(out.message).toContain("reconocimiento de voz");
+  });
+
+  it("handles a non-JSON error body gracefully", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("gateway timeout", { status: 504 })));
+    const out = await converse("tok", "es", { text: "hola" });
+    expect(out.kind).toBe("error");
+    if (out.kind === "error") expect(out.message).toBe("");
+  });
+
+  it("sends multipart with token+text and a container-correct audio filename", async () => {
+    const fetchMock = vi.fn((_input: unknown) => new Response(new Blob(["a"], { type: "audio/mpeg" }), { status: 200, headers: { "Content-Type": "audio/mpeg" } }));
     vi.stubGlobal("fetch", fetchMock);
-    const out = await converse("tok-123", "es", { text: "hola<a>" });
+    await converse("tok-123", "es", { text: "hola<a>" });
     const call = fetchMock.mock.calls[0] as unknown as [unknown, RequestInit];
     expect(call[0]).toBe(CONVERSE_ENDPOINT);
     const form = (call[1]?.body ?? new FormData()) as FormData;
     expect(form.get("token")).toBe("tok-123");
-    expect(form.get("language")).toBe("es");
     expect(form.get("text")).toBe("holaa");
-    expect(out.answerId).toBe("secretary-welcome");
-    expect(out.language).toBe("es");
-  });
 
-  it("appends the audio blob with a container-correct filename", async () => {
-    const fetchMock = vi.fn((_input: unknown) => new Response(
-      JSON.stringify({ transcript: "t", reply: "r", answerId: "secretary-orders", language: "en" }),
-      { status: 200 },
-    ));
-    vi.stubGlobal("fetch", fetchMock);
     await converse("tok", "auto", { audio: new Blob(["x"], { type: "audio/webm" }), mime: "audio/webm;codecs=opus" });
-    const call2 = fetchMock.mock.calls[0] as unknown as [unknown, RequestInit];
-    const form = (call2[1]?.body ?? new FormData()) as FormData;
-    const file = form.get("audio") as File;
-    expect(file.name).toBe("turn.webm");
-  });
-
-  it("coerces an unexpected language to es and rejects a malformed reply", async () => {
-    const fetchMock = vi.fn((_input: unknown) => new Response(
-      JSON.stringify({ transcript: "t", reply: "r", answerId: "a", language: "de" }),
-      { status: 200 },
-    ));
-    vi.stubGlobal("fetch", fetchMock);
-    const ok = await converse("tok", "auto", { text: "hi" });
-    expect(ok.language).toBe("es");
+    const form2 = (fetchMock.mock.calls[1] as unknown as [unknown, RequestInit])[1]?.body as FormData;
+    expect((form2.get("audio") as File).name).toBe("turn.webm");
   });
 });

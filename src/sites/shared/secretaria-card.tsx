@@ -62,7 +62,6 @@ export type TurnPhase = "idle" | "requesting" | "recording" | "sending" | "think
 export function useVoiceTurn(previewToken: string, lang: Lang, stopSharedAudio: () => void) {
   const [phase, setPhase] = useState<TurnPhase>("idle");
   const [turnError, setTurnError] = useState<string | null>(null);
-  const [last, setLast] = useState<{ you: string; reply: string } | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [muted, setMuted] = useState(false);
 
@@ -127,7 +126,6 @@ export function useVoiceTurn(previewToken: string, lang: Lang, stopSharedAudio: 
 
   async function startTurn() {
     setTurnError(null);
-    setLast(null);
     setElapsed(0);
     cancelledRef.current = false;
     stopSharedAudio();
@@ -195,22 +193,32 @@ export function useVoiceTurn(previewToken: string, lang: Lang, stopSharedAudio: 
     tickRef.current = window.setInterval(() => setElapsed((s) => Math.min(s + 250, MAX_TURN_MS)), 250);
   }
 
+  const [lastUrl, setLastUrl] = useState<string | null>(null);
+
   async function sendTurn(turn: { audio?: Blob; mime?: string; text?: string }) {
     setPhase("thinking");
     setTurnError(null);
     try {
       const out = await converse(previewToken, languageRef.current, turn);
       if (cancelledRef.current) return;
-      setLast({ you: out.transcript, reply: out.reply });
+      if (out.kind === "error") {
+        // Live PLW sends a Spanish, user-visible message — show it as-is.
+        setTurnError(out.message || pick(lang, "No se pudo completar la conversación. Intente de nuevo o escriba su pregunta.", "The conversation couldn't be completed. Try again or type your question."));
+        setPhase("error");
+        return;
+      }
       setPhase("speaking");
       claimAudio("secretaria-turn", stopSharedAudio);
-      const audio = await playReply(previewToken, out.answerId, out.language, muted);
-      if (audio) {
-        audio.onended = () => { if (!cancelledRef.current) setPhase("idle"); };
-        audio.onerror = () => { if (!cancelledRef.current) setPhase("done"); };
-      } else if (!cancelledRef.current) {
-        setPhase("done");
+      const url = URL.createObjectURL(out.audio);
+      setLastUrl(url);
+      const audio = new Audio(url);
+      audio.onended = () => { if (!cancelledRef.current) setPhase("done"); };
+      audio.onerror = () => { if (!cancelledRef.current) setPhase("done"); };
+      if (muted) {
+        setPhase("done"); // reply arrived but the visitor asked for silence
+        return;
       }
+      await audio.play();
     } catch {
       if (!cancelledRef.current) {
         setTurnError(pick(lang, "No se pudo completar la conversación. Intente de nuevo o escriba su pregunta.", "The conversation couldn't be completed. Try again or type your question."));
@@ -226,38 +234,22 @@ export function useVoiceTurn(previewToken: string, lang: Lang, stopSharedAudio: 
     await sendTurn({ text: v });
   }
 
-  function replayLast(): Promise<void> {
-    return sendTurn(last ? { text: last.you } : { text: "" });
+  function replayLast() {
+    if (!lastUrl) return;
+    stopSharedAudio();
+    claimAudio("secretaria-turn", stopSharedAudio);
+    const audio = new Audio(lastUrl);
+    audio.onended = () => setPhase("done");
+    audio.onerror = () => setPhase("done");
+    setPhase("speaking");
+    if (!muted) void audio.play().catch(() => setPhase("done"));
   }
 
   return {
-    phase, turnError, last, elapsed, muted, hasPendingAudio,
+    phase, turnError, elapsed, muted, hasPendingAudio, lastUrl,
     setMuted, startTurn, stopTurn, finishAndSend, sendTyped, replayLast, resetTurn,
     setLanguage: (l: "es" | "en" | "auto") => { languageRef.current = l; },
   };
-}
-
-/** Speaks exactly the reply PLW grounded, through the same voice endpoint. */
-async function playReply(token: string, answerId: string, language: "es" | "en" | "zh", muted: boolean): Promise<HTMLAudioElement | null> {
-  if (muted) return null;
-  try {
-    const res = await fetch("https://meagbbmittuhdgwnhvxa.supabase.co/functions/v1/plw-tourism-voice", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, answerId, language }),
-    });
-    if (!res.ok) return null;
-    const blob = await res.blob();
-    if (!blob.type.includes("audio")) return null;
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    audio.onended = () => URL.revokeObjectURL(url);
-    audio.onerror = () => URL.revokeObjectURL(url);
-    await audio.play();
-    return audio;
-  } catch {
-    return null;
-  }
 }
 
 export function SecretariaCard({ previewToken, lang, businessName, businessType, standaloneLink }: {
@@ -363,8 +355,6 @@ export function SecretariaCard({ previewToken, lang, businessName, businessType,
     send: "Enviar",
     maxReached: "Máximo alcanzado — puede enviar lo grabado",
     thinking: "Pensando…",
-    you: "Usted dijo:",
-    secretary: "La secretaria responde:",
     mute: "Silenciar respuesta",
     unmute: "Activar sonido",
     replayLast: "Repetir respuesta",
@@ -390,8 +380,6 @@ export function SecretariaCard({ previewToken, lang, businessName, businessType,
     send: "Enviar",
     maxReached: "Máximo alcanzado — puede enviar lo grabado",
     thinking: "Pensando…",
-    you: "Usted dijo:",
-    secretary: "La secretaria responde:",
     mute: "Silenciar respuesta",
     unmute: "Activar sonido",
     replayLast: "Repetir respuesta",
@@ -486,18 +474,14 @@ export function SecretariaCard({ previewToken, lang, businessName, businessType,
               </button>
             )}
             {turn.turnError && <p className="text-xs text-amber-800 bg-amber-50 rounded-lg px-3 py-2" role="alert">{turn.turnError}</p>}
-            {turn.last && (
-              <div className="text-xs space-y-1.5" aria-live="polite">
-                <p className="text-[#3D4A40]"><span className="font-semibold">{L.you}</span> {turn.last.you}</p>
-                <p className="text-[#1C241E]"><span className="font-semibold">{L.secretary}</span> {turn.last.reply}</p>
-                <div className="flex gap-3 pt-1">
-                  <button onClick={() => void turn.replayLast()} className="inline-flex items-center gap-1 text-[#1F5E3B] hover:text-[#287549] font-semibold underline underline-offset-2">
-                    <RotateCw className="w-3 h-3" /> {L.replayLast}
-                  </button>
-                  <button onClick={() => turn.setMuted(!turn.muted)} aria-pressed={turn.muted} className="inline-flex items-center gap-1 text-[#1F5E3B] hover:text-[#287549] font-semibold underline underline-offset-2">
-                    {turn.muted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />} {turn.muted ? L.unmute : L.mute}
-                  </button>
-                </div>
+            {turn.lastUrl && (
+              <div className="flex gap-3 pt-1">
+                <button onClick={() => turn.replayLast()} className="inline-flex items-center gap-1 text-[#1F5E3B] hover:text-[#287549] font-semibold underline underline-offset-2 text-xs">
+                  <RotateCw className="w-3 h-3" /> {L.replayLast}
+                </button>
+                <button onClick={() => turn.setMuted(!turn.muted)} aria-pressed={turn.muted} className="inline-flex items-center gap-1 text-[#1F5E3B] hover:text-[#287549] font-semibold underline underline-offset-2 text-xs">
+                  {turn.muted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />} {turn.muted ? L.unmute : L.mute}
+                </button>
               </div>
             )}
             <form onSubmit={(e) => { e.preventDefault(); const input = (e.currentTarget.elements.namedItem("typed") as HTMLInputElement); void turn.sendTyped(input.value); input.value = ""; }} className="flex gap-2 pt-1">
