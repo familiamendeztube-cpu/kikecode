@@ -267,6 +267,13 @@ export type TourismDemo = {
   faqs?: { question: string; answer: string }[];
   /** Trusted HTTPS hero image (Kike media or an approved source). */
   heroImage?: string;
+  /**
+   * Up to 4 approved images PLW selected for this draft: AI-generated
+   * ("generated", labeled as such on the site) or the business's own
+   * ("business"). Only the approved URLs render — never the candidate pool
+   * or anything about how they were produced.
+   */
+  approvedImages?: { url: string; alt: string; kind: "generated" | "business" }[];
 };
 
 export type BusinessTemplate = {

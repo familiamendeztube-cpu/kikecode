@@ -5,7 +5,7 @@ import NotFound from "@/pages/not-found";
 import { StatusScreen } from "@/components/status-screen";
 import { SiteRenderer } from "@/sites/site-renderer";
 import { waLink, WhatsAppButton } from "@/sites/shared/whatsapp";
-import { usePublishedSite } from "@/lib/saved-site";
+import { usePublishedSite, plwPreviewToken } from "@/lib/saved-site";
 
 /**
  * A site's current draft, for the client to review (/preview/:token). The
@@ -32,7 +32,7 @@ export default function Preview() {
         <Eye className="h-3.5 w-3.5 shrink-0" />
         Vista previa: este sitio todavía no está publicado. · Preview: this site is not published yet.
       </div>
-      <SiteRenderer template={site.template} />
+      <SiteRenderer template={site.template} previewToken={plwPreviewToken({ preview: token })} />
       <ShareConversionAsk businessName={site.template.brand.name} />
     </>
   );

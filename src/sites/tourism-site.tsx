@@ -19,12 +19,32 @@ import { useReturnFocus } from "@/sites/shared/return-focus";
     never takes a booking.
   - Contact actions appear only when the draft has a confirmed public phone.
   - Gallery photos from the stock library carry an "illustrative" note until
-    the business's own photos replace them.
-  - No lead forms, no sends, no voice: text Q&A only (the app has no voice
-    provider; a click-to-hear would need one).
+    the business's own photos replace them. AI-generated approved images are
+    labeled "Imagen generada con IA · ilustrativa". Candidates and input
+    sources are never shown — only the images PLW approved.
+  - Voice: click-to-play on an answer calls PLW's plw-tourism-voice with the
+    preview token and that answer's text (never the visitor's question, never
+    any credential). It is a mute button, not autoplay, and text stays as the
+    ground truth if the audio fails or is unavailable.
 */
 
 const HERO_STOCK_FALLBACK = "https://images.pexels.com/photos/11181983/pexels-photo-11181983.jpeg?auto=compress&cs=tinysrgb&w=1920";
+
+/** The only origin approved AI images may come from (PLW's public storage). */
+const PLW_IMAGES_ORIGIN = "meagbbmittuhdgwnhvxa.supabase.co";
+const PLW_IMAGES_PATH = "/storage/v1/object/public/plw-site-images/";
+
+/** An approved AI image URL: HTTPS on PLW's public plw-site-images bucket, else null. */
+export function approvedImageUrl(src: string | undefined): string | null {
+  if (!src) return null;
+  try {
+    const u = new URL(src);
+    if (u.protocol !== "https:" || u.host !== PLW_IMAGES_ORIGIN) return null;
+    return u.pathname.startsWith(PLW_IMAGES_PATH) ? src : null;
+  } catch {
+    return null;
+  }
+}
 
 /** Trusted HTTPS image sources: Kike/PLW media or the verified Pexels stock. */
 function trustedHero(src: string | undefined): string {
@@ -43,7 +63,7 @@ function trustedHero(src: string | undefined): string {
 }
 
 /** The tourism data a saved draft carries, read safely; unknown fields are ignored. */
-export type SafeTourismDemo = TourismDemo & { details: { label: string; value: string }[]; faqs: { question: string; answer: string }[] };
+export type SafeTourismDemo = TourismDemo & { details: { label: string; value: string }[]; faqs: { question: string; answer: string }[]; approvedImages: { url: string; alt: string; kind: "generated" | "business" }[] };
 
 function tourismDemo(t: BusinessTemplate): SafeTourismDemo {
   const d = t.tourismDemo;
@@ -65,7 +85,18 @@ function tourismDemo(t: BusinessTemplate): SafeTourismDemo {
         .filter((x) => x.question && x.answer)
     : [];
   const heroImage = typeof d?.heroImage === "string" && d.heroImage.trim() ? d.heroImage.trim() : undefined;
-  return { services, highlight, description, details, faqs, heroImage };
+  // Only PLW-approved images from PLW's public bucket; max 4; unknown kinds are
+  // treated as generated (labeled), never as business-own.
+  const approvedImages = Array.isArray(d?.approvedImages)
+    ? d.approvedImages.slice(0, 4)
+        .map((x) => ({
+          url: approvedImageUrl(x?.url),
+          alt: typeof x?.alt === "string" ? x.alt.trim() : "",
+          kind: x?.kind === "business" ? "business" : "generated",
+        }))
+        .filter((x): x is { url: string; alt: string; kind: "generated" | "business" } => x.url !== null)
+    : [];
+  return { services, highlight, description, details, faqs, heroImage, approvedImages };
 }
 
 /** A phone only when the draft confirmed a public one (blank means none). */
@@ -79,6 +110,9 @@ function publicPhone(brand: BusinessTemplate["brand"]): { phone: string; href: s
 /* ------------------------------------------------------------------ */
 
 type Msg = { from: "bot" | "user"; text: string };
+
+/** PLW's click-to-hear endpoint: token + the answer's text, nothing else. */
+const PLW_VOICE_ENDPOINT = "https://meagbbmittuhdgwnhvxa.supabase.co/functions/v1/plw-tourism-voice";
 
 function answerFromBrief(q: string, demo: SafeTourismDemo, lang: Lang, brandName: string): string {
   const text = q.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -134,12 +168,26 @@ function answerFromBrief(q: string, demo: SafeTourismDemo, lang: Lang, brandName
     "Solo puedo responder con lo que el negocio ha confirmado. Anoté su pregunta — envíela por WhatsApp y una persona le responde.");
 }
 
-function TourismChat({ demo, brand, lang }: { demo: SafeTourismDemo; brand: BusinessTemplate["brand"]; lang: Lang }) {
+function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDemo; brand: BusinessTemplate["brand"]; lang: Lang; previewToken?: string | null }) {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
-  const [speaking, setSpeaking] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  // Click-to-hear state per bot message: idle | loading | playing | error.
+  const [voice, setVoice] = useState<Record<number, "idle" | "loading" | "playing" | "error">>({});
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const urlRef = useRef<string | null>(null);
+
+  const stopAudio = () => {
+    audioRef.current?.pause();
+    audioRef.current = null;
+    if (urlRef.current) {
+      URL.revokeObjectURL(urlRef.current);
+      urlRef.current = null;
+    }
+  };
+  // Stop and revoke on unmount; a new reply/playback stops the old one.
+  useEffect(() => stopAudio, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -162,34 +210,56 @@ function TourismChat({ demo, brand, lang }: { demo: SafeTourismDemo; brand: Busi
     setDraft("");
   }
 
-  // Click-to-hear: browser voices only, no provider, click-to-play (never auto).
-  function speak(i: number, text: string) {
-    if (speaking === i) {
-      window.speechSynthesis?.cancel();
-      setSpeaking(null);
-      return;
+  // Click-to-hear: asks PLW to speak this answer (never the visitor's question).
+  // Click-to-play only — never autoplays — and text stays if audio fails or
+  // the token is unavailable.
+  async function hear(i: number, text: string) {
+    if (voice[i] === "playing") { stopAudio(); setVoice((v) => ({ ...v, [i]: "idle" })); return; }
+    if (!previewToken || voice[i] === "loading") return;
+    stopAudio();
+    setVoice((v) => ({ ...v, [i]: "loading" }));
+    try {
+      const res = await fetch(PLW_VOICE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: previewToken, text, language: lang }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      const blob = await res.blob();
+      if (!blob.type.includes("audio")) throw new Error("not audio");
+      const url = URL.createObjectURL(blob);
+      urlRef.current = url;
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => { setVoice((s) => ({ ...s, [i]: "idle" })); };
+      audio.onerror = () => { stopAudio(); setVoice((s) => ({ ...s, [i]: "error" })); };
+      await audio.play();
+      setVoice((v) => ({ ...v, [i]: "playing" }));
+    } catch {
+      stopAudio();
+      setVoice((v) => ({ ...v, [i]: "error" }));
     }
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang === "es" ? "es-CR" : "en-US";
-    u.onend = () => setSpeaking(null);
-    u.onerror = () => setSpeaking(null);
-    window.speechSynthesis.speak(u);
-    setSpeaking(i);
   }
-  const canSpeak = typeof window !== "undefined" && "speechSynthesis" in window;
+  const canSpeak = previewToken !== null;
 
   const L = pick(lang, {
     ask: "Ask the assistant",
     ph: "Type your question…",
     preview: "Preview: text answers only, from the business's confirmed info.",
-    listen: "Listen",
+    listen: "Hear this answer",
+    stop: "Stop",
+    loading: "Loading audio…",
+    failed: "Audio unavailable — text remains.",
+    retry: "Retry",
   }, {
     ask: "Pregunte al asistente",
     ph: "Escriba su pregunta…",
     preview: "Vista previa: respuestas de texto, con la información confirmada del negocio.",
-    listen: "Escuchar",
+    listen: "Escuchar esta respuesta",
+    stop: "Detener",
+    loading: "Cargando audio…",
+    failed: "Audio no disponible — el texto permanece.",
+    retry: "Reintentar",
   });
 
   return (
@@ -221,9 +291,22 @@ function TourismChat({ demo, brand, lang }: { demo: SafeTourismDemo; brand: Busi
                     ? "max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm text-white bg-[#1F5E3B]"
                     : "max-w-[85%] rounded-2xl rounded-tl-md px-4 py-2.5 text-sm text-slate-700 bg-slate-50"}>
                     {m.text}
-                    {m.from === "bot" && canSpeak && (
-                      <button onClick={() => speak(i, m.text)} className="ml-2 inline-flex text-slate-400 hover:text-slate-600 align-middle" aria-label={L.listen}>
-                        <Volume2 className="w-3.5 h-3.5" />
+                    {m.from === "bot" && canSpeak && voice[i] !== "error" && (
+                      <button
+                        onClick={() => void hear(i, m.text)}
+                        disabled={voice[i] === "loading"}
+                        className="ml-2 inline-flex text-slate-400 hover:text-slate-600 align-middle disabled:opacity-50"
+                        aria-label={voice[i] === "playing" ? L.stop : L.listen}
+                        aria-busy={voice[i] === "loading"}
+                      >
+                        {voice[i] === "loading"
+                          ? <span className="inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" aria-label={L.loading} />
+                          : <Volume2 className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
+                    {m.from === "bot" && voice[i] === "error" && (
+                      <button onClick={() => void hear(i, m.text)} className="ml-2 inline-flex text-amber-700 hover:text-amber-900 align-middle text-[11px] underline" aria-label={L.retry}>
+                        {L.retry}
                       </button>
                     )}
                   </div>
@@ -254,7 +337,7 @@ function TourismChat({ demo, brand, lang }: { demo: SafeTourismDemo; brand: Busi
   );
 }
 
-export default function TourismSite({ template }: { template: BusinessTemplate }) {
+export default function TourismSite({ template, previewToken }: { template: BusinessTemplate; previewToken?: string | null }) {
   const lang: Lang = template.lockedLang ?? template.defaultLang ?? "es";
   const [menuOpen, setMenuOpen] = useState(false);
   const menuFocus = useReturnFocus();
@@ -262,9 +345,12 @@ export default function TourismSite({ template }: { template: BusinessTemplate }
   const demo = tourismDemo(template);
   const phone = publicPhone(brand);
   const t = template.content[lang];
-  const hero = trustedHero(demo.heroImage) ?? media?.hero ?? HERO_STOCK_FALLBACK;
+  // The first approved image leads the hero; safe stock fills any gap.
+  const approved = demo.approvedImages;
+  const hero = approved[0]?.url ?? trustedHero(demo.heroImage) ?? media?.hero ?? HERO_STOCK_FALLBACK;
+  const heroIsGenerated = approved[0]?.kind === "generated";
+  const isStockHero = approved.length === 0 && !demo.heroImage;
   const gallery = media?.gallery ?? [];
-  const isStockHero = !demo.heroImage;
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -321,11 +407,13 @@ export default function TourismSite({ template }: { template: BusinessTemplate }
       {/* Hero */}
       <section id="top" className="relative min-h-[92svh] flex items-end overflow-hidden">
         <div className="absolute inset-0">
-          {hero ? <img src={hero} alt="" className="w-full h-full object-cover" loading="eager" /> : <div className="w-full h-full bg-[#12301E]" />}
+          {hero ? <img src={hero} alt={approved[0]?.alt || brand.name} className="w-full h-full object-cover" loading="eager" /> : <div className="w-full h-full bg-[#12301E]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#08150E] via-[#08150E]/55 to-[#08150E]/20" />
-          {isStockHero && (
+          {(isStockHero || heroIsGenerated) && (
             <div className="absolute bottom-3 right-3 rounded-full bg-black/40 text-white/80 text-[10px] px-2.5 py-1 backdrop-blur">
-              {pick(lang, "Illustrative photo", "Foto ilustrativa")}
+              {heroIsGenerated
+                ? pick(lang, "AI-generated image · illustrative", "Imagen generada con IA · ilustrativa")
+                : pick(lang, "Illustrative photo", "Foto ilustrativa")}
             </div>
           )}
         </div>
@@ -399,14 +487,29 @@ export default function TourismSite({ template }: { template: BusinessTemplate }
         <div className="max-w-6xl mx-auto">
           <h2 className="tourism-display text-3xl sm:text-4xl tracking-tight">{t.nav.faq === "FAQ" ? "Gallery" : "Galería"}</h2>
           <p className="mt-3 text-sm text-[#3D4A40]/70">{pick(lang, "Illustrative photos of Costa Rica.", "Fotos ilustrativas de Costa Rica.")}</p>
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {gallery.slice(0, 3).map((src, i) => (
-              <figure key={src} className="tourism-reveal overflow-hidden rounded-xl">
-                <img src={src} alt={(template.galleryCaptions?.[lang]?.[i]) ?? brand.name} className="w-full h-64 sm:h-80 object-cover hover:scale-[1.03] transition-transform duration-500" loading="lazy" />
-                <figcaption className="pt-3 text-sm text-[#3D4A40]">{template.galleryCaptions?.[lang]?.[i]}</figcaption>
-              </figure>
-            ))}
-          </div>
+          {approved.length > 1 && (
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {approved.slice(1, 4).map((img) => (
+                <figure key={img.url} className="tourism-reveal overflow-hidden rounded-xl">
+                  <img src={img.url} alt={img.alt || brand.name} className="w-full h-64 sm:h-80 object-cover hover:scale-[1.03] transition-transform duration-500" loading="lazy" />
+                  <figcaption className="pt-3 text-sm text-[#3D4A40] flex items-center justify-between gap-2">
+                    <span>{img.alt}</span>
+                    {img.kind === "generated" && <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[#1F5E3B]/70">{pick(lang, "AI · illustrative", "IA · ilustrativa")}</span>}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          )}
+          {approved.length === 0 && gallery.length > 0 && (
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {gallery.slice(0, 3).map((src, i) => (
+                <figure key={src} className="tourism-reveal overflow-hidden rounded-xl">
+                  <img src={src} alt={(template.galleryCaptions?.[lang]?.[i]) ?? brand.name} className="w-full h-64 sm:h-80 object-cover hover:scale-[1.03] transition-transform duration-500" loading="lazy" />
+                  <figcaption className="pt-3 text-sm text-[#3D4A40]">{template.galleryCaptions?.[lang]?.[i]}</figcaption>
+                </figure>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -484,7 +587,7 @@ export default function TourismSite({ template }: { template: BusinessTemplate }
           {pick(lang, "Ask about your dates", "Consulte por sus fechas")}
         </a>
       )}
-      <TourismChat demo={demo} brand={brand} lang={lang} />
+      <TourismChat demo={demo} brand={brand} lang={lang} previewToken={previewToken} />
     </div>
   );
 }
