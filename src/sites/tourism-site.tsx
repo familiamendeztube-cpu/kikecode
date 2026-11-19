@@ -556,7 +556,6 @@ export default function TourismSite({ template, previewToken }: { template: Busi
           <div className="max-w-lg mx-auto">
             <SecretariaCard
               previewToken={previewToken}
-              lang={lang}
               businessName={brand.name}
               businessType={template.category ?? ""}
               standaloneLink={`${window.location.pathname}/secretaria`}
