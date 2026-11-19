@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
 import { MessageCircle, Check, Pencil, Eye } from "lucide-react";
 import NotFound from "@/pages/not-found";
@@ -6,6 +6,8 @@ import { StatusScreen } from "@/components/status-screen";
 import { SiteRenderer } from "@/sites/site-renderer";
 import { waLink, WhatsAppButton } from "@/sites/shared/whatsapp";
 import { usePublishedSite, plwPreviewToken } from "@/lib/saved-site";
+import { PRESS } from "@/sites/business/ui";
+import { Sparks } from "@/sites/shared/sparks";
 
 /**
  * A site's current draft, for the client to review (/preview/:token). The
@@ -37,7 +39,7 @@ export default function Preview() {
         </div>
       )}
       <SiteRenderer template={site.template} previewToken={plwToken} />
-      <ShareConversionAsk businessName={site.template.brand.name} />
+      <ShareConversionAsk businessName={site.template.brand.name} plw={plwToken !== null} />
     </>
   );
 }
@@ -60,12 +62,15 @@ function useNoIndex() {
    business owner who received the link. Uses wa.me without a number so WhatsApp
    opens the contact picker (the owner replies to whoever sent them the link) —
    no fabricated agency phone. Sits below the site so it never disturbs it. */
-function ShareConversionAsk({ businessName }: { businessName: string }) {
+function ShareConversionAsk({ businessName, plw }: { businessName: string; plw: boolean }) {
   const wa = (text: string) => waLink("", text);
+  const [burst, setBurst] = useState(0);
+  const ghost = `inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white ${PRESS}`;
   return (
-    <section className="bg-slate-950 text-white pb-28 lg:pb-16 pt-16">
+    // PLW demos: the demo site's own colors and headline font, so the page reads as one design.
+    <section className={`text-white pb-28 lg:pb-16 pt-16 ${plw ? "bg-[#050C08] border-t border-white/10" : "bg-slate-950"}`}>
       <div className="max-w-3xl mx-auto px-6 text-center">
-        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+        <h2 className={`text-2xl sm:text-3xl tracking-tight ${plw ? "font-editorial font-medium sm:text-4xl" : "font-extrabold"}`}>
           ¿Le gusta este diseño para su negocio?
         </h2>
         <p className="mt-1 text-white/60 text-sm">Like this design for your business?</p>
@@ -74,23 +79,27 @@ function ShareConversionAsk({ businessName }: { businessName: string }) {
           hacerle cambios. <span className="text-white/50">This is a preview of your website — contact us to publish it or make changes.</span>
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-          <WhatsAppButton
-            href={wa(`¡Hola! Me gustó el sitio web de "${businessName}" que me envió. Sí lo quiero. 🎉`)}
-            className="inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-lg text-white shadow-xl transition-transform hover:translate-y-[-2px]"
-          >
-            <Check className="w-5 h-5" /> Sí, quiero este sitio
-          </WhatsAppButton>
+          {/* The click bubbles up here to throw the sparks (WhatsAppButton takes no onClick). */}
+          <span className="relative inline-flex flex-col" onClick={() => setBurst((b) => b + 1)}>
+            {burst > 0 && <Sparks key={burst} />}
+            <WhatsAppButton
+              href={wa(`¡Hola! Me gustó el sitio web de "${businessName}" que me envió. Sí lo quiero. 🎉`)}
+              className={`inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-full text-white shadow-xl ${PRESS}`}
+            >
+              <Check className="w-5 h-5" /> Sí, quiero este sitio
+            </WhatsAppButton>
+          </span>
           <a
             href={wa(`¡Hola! Vi el sitio web de "${businessName}". Me gustaría pedir algunos cambios:`)}
             target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/25 text-white transition-colors"
+            className={ghost}
           >
             <Pencil className="w-5 h-5" /> Pedir cambios
           </a>
           <a
             href={wa(`¡Hola! Tengo una pregunta sobre el sitio web de "${businessName}".`)}
             target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/25 text-white transition-colors"
+            className={ghost}
           >
             <MessageCircle className="w-5 h-5" /> Hablar por WhatsApp
           </a>
