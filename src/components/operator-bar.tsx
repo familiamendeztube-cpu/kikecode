@@ -1,6 +1,5 @@
 import { Link } from "wouter";
-import { Plus, LayoutGrid, Radio, LogOut } from "lucide-react";
-import { supabase } from "@/lib/plw";
+import { Plus, LayoutGrid, Radio } from "lucide-react";
 import { pick } from "@/lib/i18n";
 import { useOperatorLang } from "@/lib/operator-lang";
 
@@ -37,10 +36,6 @@ export function OperatorBar() {
             data-testid="button-operator-lang"
           >
             {lang === "es" ? "EN" : "ES"}
-          </button>
-          <button type="button" onClick={() => void supabase.auth.signOut()} className={LINK} data-testid="button-sign-out">
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{pick(lang, "Sign out", "Salir")}</span>
           </button>
         </div>
       </div>
