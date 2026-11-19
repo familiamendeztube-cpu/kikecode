@@ -97,7 +97,7 @@ export function tourismContent(flavor: TourismFlavor) {
       why: { title: "Why travel with us", items: neutral.why.en },
       process: { title: "How it works", items: neutral.process.en },
       testimonials: { title: "Reviews", items: [] },
-      faq: { title: "Frequently asked questions", items: neutral.faq.en },
+      faq: { title: "Questions travelers ask", items: neutral.faq.en },
       contact: {
         title: "Ask about your dates",
         blurb: neutral.contactBlurb.en,
@@ -130,7 +130,7 @@ export function tourismContent(flavor: TourismFlavor) {
       why: { title: "Por qué viajar con nosotros", items: neutral.why.es },
       process: { title: "Cómo funciona", items: neutral.process.es },
       testimonials: { title: "Reseñas", items: [] },
-      faq: { title: "Preguntas frecuentes", items: neutral.faq.es },
+      faq: { title: "Preguntas de viajeros", items: neutral.faq.es },
       contact: {
         title: "Consulte por sus fechas",
         blurb: neutral.contactBlurb.es,

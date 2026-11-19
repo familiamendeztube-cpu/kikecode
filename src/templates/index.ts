@@ -38,6 +38,7 @@ import suplidoraFenix from "./suplidora-fenix";
 import snuvalysConstruccions from "./snuvalys-construccions";
 import plwTourismTours from "./plw-tourism-tours";
 import plwTourismStays from "./plw-tourism-stays";
+import { PLW_BUSINESS_TEMPLATES } from "./plw-business";
 import type { BusinessTemplate } from "./types";
 
 export const TEMPLATES: BusinessTemplate[] = [
@@ -53,7 +54,7 @@ export const TEMPLATES: BusinessTemplate[] = [
   concrete, pressureWashing, garageDoors, welding,
   catering, barber, nails, photography, autoDetailing, glass,
   luminaStudio, barroCeramica, autoServicioRym, suplidoraFenix,
-  plwTourismTours, plwTourismStays,
+  plwTourismTours, plwTourismStays, ...PLW_BUSINESS_TEMPLATES,
 ];
 
 const BY_SLUG: Record<string, BusinessTemplate> = Object.fromEntries(

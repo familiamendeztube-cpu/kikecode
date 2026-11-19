@@ -297,6 +297,13 @@ export type BusinessTemplate = {
   siteVariant?: "leonardo" | "oryzo" | "rym" | "fenix" | "tourism";
   /** PLW tour-demo data (services + highlight). Empty arrays/strings allowed. */
   tourismDemo?: TourismDemo;
+  /** PLW samples (siteVariant "tourism"): what this business type asks visitors to do. */
+  plwSite?: {
+    /** Main call to action first; each opens WhatsApp with its message when the draft has a phone. */
+    ctas: { label: string; message: string }[];
+    /** What the chat says it can answer about ("el menú, las reservaciones o cómo contactarnos"). */
+    chatTopics: string;
+  };
   /** A real, named business: never show fabricated ratings, extra reviews or
    *  invented service-area lists for it. */
   realBusiness?: boolean;

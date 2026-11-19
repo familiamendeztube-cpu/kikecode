@@ -26,13 +26,17 @@ export default function Preview() {
   if (site.status === "error") {
     return <StatusScreen kind="error" title="No se pudo cargar la vista previa / Could not load this preview" detail={site.message} />;
   }
+  // PLW samples are demos, not unpublished sites: they carry their own demo notice in the header.
+  const plwToken = plwPreviewToken({ preview: token });
   return (
     <>
-      <div className="sticky top-0 z-[70] flex items-center justify-center gap-2 bg-amber-400 px-4 py-1.5 text-center text-xs font-semibold text-slate-900">
-        <Eye className="h-3.5 w-3.5 shrink-0" />
-        Vista previa: este sitio todavía no está publicado. · Preview: this site is not published yet.
-      </div>
-      <SiteRenderer template={site.template} previewToken={plwPreviewToken({ preview: token })} />
+      {plwToken === null && (
+        <div className="sticky top-0 z-[70] flex items-center justify-center gap-2 bg-amber-400 px-4 py-1.5 text-center text-xs font-semibold text-slate-900">
+          <Eye className="h-3.5 w-3.5 shrink-0" />
+          Vista previa: este sitio todavía no está publicado. · Preview: this site is not published yet.
+        </div>
+      )}
+      <SiteRenderer template={site.template} previewToken={plwToken} />
       <ShareConversionAsk businessName={site.template.brand.name} />
     </>
   );

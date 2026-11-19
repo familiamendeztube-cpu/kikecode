@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getTemplate } from "@/templates";
+import { PLW_GENERIC_SLUG } from "@/templates/plw-business";
 import type { BusinessTemplate } from "@/templates/types";
 import { fnUrl, hasPlwConfig, TEMPLATE_ASSETS } from "@/lib/plw";
 
@@ -170,8 +171,10 @@ export async function loadPublishedSite(query: SiteQuery): Promise<PublishedSite
       if (res.status === 410) return { status: "disabled" };
       if (!res.ok) return { status: "error", message: `Server returned ${res.status}` };
       const saved = (await res.json()) as SavedSite;
-      const base = getTemplate(saved.slug);
-      if (!base) return { status: "error", message: `Template "${saved.slug}" no longer exists.` };
+      // Only PLW samples may render a PLW draft (never a Kike template full of
+      // sample data); a slug Kike doesn't know yet gets the generic one.
+      const known = typeof saved.slug === "string" && saved.slug.startsWith("plw-") ? getTemplate(saved.slug) : null;
+      const base = known ?? getTemplate(PLW_GENERIC_SLUG)!;
       return { status: "ok", template: rebuildTemplate(base, saved, false) };
     } catch (e) {
       return { status: "error", message: e instanceof Error ? e.message : "Could not load the site." };

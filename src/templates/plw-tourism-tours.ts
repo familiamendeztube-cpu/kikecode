@@ -44,6 +44,10 @@ const plwTourismTours: BusinessTemplate = {
   serviceIcons: TOURISM_ICONS.services,
   whyIcons: TOURISM_ICONS.why,
   realBusiness: true,
+  plwSite: {
+    ctas: [{ label: "Consultar por WhatsApp", message: "¡Hola! Me gustaría consultar por un tour." }],
+    chatTopics: "los tours, el lugar o cómo contactarnos",
+  },
   // Starts empty: the draft supplies services/highlight (overrides.tourismDemo).
   tourismDemo: { services: [], highlight: "" },
   content: tourismContent(flavor),
