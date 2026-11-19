@@ -5,6 +5,8 @@ import type { BusinessTemplate, Lang, TourismDemo } from "@/templates/types";
 import { pick } from "@/lib/i18n";
 import { waLink } from "@/sites/shared/whatsapp";
 import { useReturnFocus } from "@/sites/shared/return-focus";
+import { claimAudio, releaseAudio } from "@/sites/shared/site-audio";
+import { SecretariaCard } from "@/sites/shared/secretaria-card";
 
 /*
   The PLW tourism demo site: premium editorial Costa Rica travel direction.
@@ -243,8 +245,9 @@ function TourismChat({ demo, brand, lang, previewToken }: { demo: SafeTourismDem
       urlRef.current = url;
       const audio = new Audio(url);
       audioRef.current = audio;
-      audio.onended = () => { setVoice((s) => ({ ...s, [i]: "idle" })); };
-      audio.onerror = () => { stopAudio(); setVoice((s) => ({ ...s, [i]: "error" })); };
+      audio.onended = () => { setVoice((s) => ({ ...s, [i]: "idle" })); releaseAudio("faq"); };
+      audio.onerror = () => { stopAudio(); setVoice((s) => ({ ...s, [i]: "error" })); releaseAudio("faq"); };
+      claimAudio("faq", stopAudio);
       await audio.play();
       setVoice((v) => ({ ...v, [i]: "playing" }));
     } catch {
@@ -548,6 +551,19 @@ export default function TourismSite({ template, previewToken }: { template: Busi
       )}
 
       {/* Location */}
+      {previewToken && (
+        <section id="secretaria" className="py-16 px-4 sm:px-6">
+          <div className="max-w-lg mx-auto">
+            <SecretariaCard
+              previewToken={previewToken}
+              lang={lang}
+              businessName={brand.name}
+              businessType={template.category ?? ""}
+              standaloneLink={`${window.location.pathname}/secretaria`}
+            />
+          </div>
+        </section>
+      )}
       <section className="py-16 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto flex items-center gap-3 text-[#3D4A40]">
           <MapPin className="w-5 h-5 text-[#1F5E3B]" />

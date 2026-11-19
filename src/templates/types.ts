@@ -274,6 +274,8 @@ export type TourismDemo = {
    * or anything about how they were produced.
    */
   approvedImages?: { url: string; alt: string; kind: "generated" | "business" }[];
+  /** Optional Secretaria IA presentation overrides; sanitized before display. */
+  secretary?: { businessType?: string; businessName?: string };
 };
 
 export type BusinessTemplate = {

@@ -8,6 +8,7 @@ import CreateSite from "@/pages/create";
 import TemplatePreview from "@/pages/template-preview";
 import SharePreview from "@/pages/share-preview";
 import Preview from "@/pages/preview";
+import SecretariaStandalone from "@/pages/secretaria-standalone";
 import Videos from "@/pages/videos";
 import Demos from "@/pages/demos";
 import VideoShare from "@/pages/video-share";
@@ -35,6 +36,7 @@ function OperatorApp() {
     <Switch>
       <Route path="/share/:id" component={SharePreview} />
       <Route path="/preview/:token" component={Preview} />
+      <Route path="/preview/:token/secretaria" component={SecretariaStandalone} />
       <Route path="/video/:id" component={VideoShare} />
       <Route>
         <OperatorLangProvider>
