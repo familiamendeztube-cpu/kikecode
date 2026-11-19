@@ -1,4 +1,5 @@
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
+import { Sparks } from "@/sites/shared/sparks";
 import {
   Send, Upload, X, Loader2, RotateCcw, Image as ImageIcon, ChevronRight,
   Share2, Copy, Check, ExternalLink, Paperclip, Rocket, Globe,
@@ -251,24 +252,6 @@ export function SharePanel({
         </div>
       )}
     </section>
-  );
-}
-
-/** A one-off burst of sparks off a button's top and bottom edges, behind it: a publish went live. Remount to replay. */
-function Sparks() {
-  return (
-    <span aria-hidden className="pointer-events-none absolute inset-0 motion-reduce:hidden">
-      {Array.from({ length: 14 }, (_, i) => {
-        const up = i % 2 === 0;
-        const style = {
-          left: `${4 + i * 7}%`,
-          top: up ? "0%" : "100%",
-          "--dx": `${((i * 37) % 17) - 8}px`,
-          "--dy": `${(up ? -1 : 1) * (12 + ((i * 11) % 14))}px`,
-        } as CSSProperties;
-        return <span key={i} style={style} className={`absolute size-1.5 -ml-[3px] -mt-[3px] rounded-full animate-spark ${i % 3 ? "bg-emerald-300" : "bg-amber-300"}`} />;
-      })}
-    </span>
   );
 }
 

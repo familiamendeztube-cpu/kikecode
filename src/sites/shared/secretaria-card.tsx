@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Headphones, Languages, Loader2, Mic, Moon, Phone, PhoneOff, ShoppingCart, Volume2, VolumeX } from "lucide-react";
+import { Bot, Headphones, Languages, Loader2, Mic, Moon, Phone, PhoneOff, ShoppingCart, Square, Volume2 } from "lucide-react";
 import type { Conversation as LiveCall } from "@elevenlabs/client";
 import { claimAudio, releaseAudio } from "@/sites/shared/site-audio";
 import { demoRequest, type DemoStatus } from "@/sites/shared/secretary-converse";
+import { IconSwap } from "@/components/icon-swap";
+import { PRESS } from "@/sites/business/ui";
+import { Sparks } from "@/sites/shared/sparks";
 
 /*
   Secretaria IA: the receptionist demo on PLW previews.
@@ -144,6 +147,49 @@ function useLiveSecretary(token: string, stopClips: () => void) {
   return { phase, status, error, usedUp, start, end: () => void convRef.current?.endSession() };
 }
 
+type ClipState = "loading" | "playing" | null;
+
+/** One sample-clip button. It shows its own clip's state, and stops it while loading or playing. */
+function ClipButton({ state, onClick, disabled, icon: Icon, label, detail, stacked }: {
+  state: ClipState;
+  onClick: () => void;
+  disabled: boolean;
+  icon: typeof Bot;
+  label: string;
+  detail?: string;
+  /** Icon above the text from `sm` up (the three sample cards). */
+  stacked?: boolean;
+}) {
+  const active = state !== null;
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      aria-pressed={active}
+      className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left disabled:cursor-not-allowed disabled:opacity-50 ${PRESS} ${stacked ? "sm:flex-col sm:items-start sm:gap-2" : ""} ${
+        active ? "border-[#1F5E3B] bg-[#1F5E3B] text-white" : "border-[#1F5E3B]/15 bg-white text-[#1C241E] hover:border-[#1F5E3B]/40"
+      }`}
+    >
+      <span className={`grid size-9 shrink-0 place-items-center rounded-full ${active ? "bg-white/15" : "bg-[#1F5E3B]/10 text-[#1F5E3B]"}`}>
+        <IconSwap
+          swapped={state === "playing"}
+          from={state === "loading" ? <Loader2 className="size-4 animate-spin" /> : <Icon className="size-4" />}
+          to={<Square className="size-3.5 fill-current" />}
+        />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-semibold leading-tight">{state === "playing" ? "Detener" : state === "loading" ? "Cargando audio…" : label}</span>
+        {detail && <span className="mt-0.5 block truncate text-xs opacity-70">{detail}</span>}
+      </span>
+    </button>
+  );
+}
+
+/*
+  Layout: one card with nested panels. The radii follow outer − padding = inner
+  (this app's scale: 3xl 32px, 2xl 24px, lg 16px): card 3xl + p-2 → panels 2xl,
+  panel 2xl + p-2 → buttons lg.
+*/
 export function SecretariaCard({ previewToken, businessName, businessType, standaloneLink }: {
   previewToken: string;
   businessName: string;
@@ -152,124 +198,128 @@ export function SecretariaCard({ previewToken, businessName, businessType, stand
 }) {
   const { clip, play, stop } = useClipPlayer(previewToken);
   const live = useLiveSecretary(previewToken, stop);
+  const [burst, setBurst] = useState(0);
   const inCall = live.phase === "starting" || live.phase === "listening" || live.phase === "speaking";
+  const connected = live.phase === "listening" || live.phase === "speaking";
   const noneLeft = live.status?.remaining === 0;
+  const stateOf = (id: string): ClipState => (clip?.id === id ? clip.phase : null);
+  const toggle = (id: string, language: string) => (clip?.id === id ? stop() : void play(id, language));
 
   return (
-    <div className="rounded-2xl border border-[#1F5E3B]/20 bg-white shadow-xl overflow-hidden">
-      <div className="flex items-start gap-4 p-6">
-        <div className="relative w-14 h-14 rounded-full bg-[#0A1F13] grid place-items-center shrink-0">
-          <Bot className="w-7 h-7 text-[#E8B04B]" aria-hidden />
-          {(clip?.phase === "playing" || live.phase === "speaking") && (
-            <span className="absolute -bottom-1 -right-1 flex items-end gap-0.5 h-4" aria-hidden>
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="w-1 rounded-full bg-[#1F5E3B] animate-pulse" style={{ height: `${8 + (i % 2) * 6}px` }} />
-              ))}
-            </span>
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-bold text-lg text-[#1C241E]">Secretaria IA</h3>
-            <span className="text-[10px] font-bold uppercase tracking-wide rounded-full bg-[#E8B04B]/20 text-[#8a6a1f] px-2 py-0.5">Demo</span>
+    <div className="rounded-3xl border border-[#1F5E3B]/15 bg-white p-2 text-left shadow-[0_30px_80px_-32px_rgba(10,31,19,0.45)]">
+      {/* Who she is, and how many conversations this link has left */}
+      <div className="rounded-2xl bg-[#0A1F13] p-5 text-white">
+        <div className="flex items-center gap-4">
+          <div className="relative grid size-14 shrink-0 place-items-center rounded-full bg-white/10 ring-1 ring-white/15">
+            {live.phase === "speaking" && <span aria-hidden className="absolute inset-0 animate-ping rounded-full ring-2 ring-[#E8B04B]/60 motion-reduce:hidden" />}
+            <Bot className="size-7 text-[#E8B04B]" aria-hidden />
           </div>
-          <p className="text-sm text-[#3D4A40]">Recepcionista simulada · demostración · {businessName}</p>
-          <p className="text-xs text-[#3D4A40]/70 mt-1">Simulación. No llama, no reserva, no envía nada.</p>
+          <div className="min-w-0">
+            <h3 className="text-lg font-bold leading-tight">Secretaria IA</h3>
+            <p className="truncate text-sm text-white/70">Recepcionista con IA · {businessName}</p>
+          </div>
         </div>
+        {live.status ? (
+          <div className="mt-5 border-t border-white/10 pt-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold">
+                Le quedan {live.status.remaining} de {live.status.limits.conversations} conversaciones.
+              </p>
+              <span className="flex shrink-0 gap-1.5" aria-hidden>
+                {Array.from({ length: Math.min(live.status.limits.conversations, 10) }, (_, i) => (
+                  <span key={i} className={`size-2 rounded-full transition-colors duration-300 ${i < live.status!.remaining ? "bg-[#E8B04B]" : "bg-white/20"}`} />
+                ))}
+              </span>
+            </div>
+            <p className="mt-1.5 text-xs leading-snug text-white/60">{live.status.notice}</p>
+          </div>
+        ) : (
+          // Loading state while `status` answers: the label's shape, not a jump.
+          <div className="mt-5 space-y-2 border-t border-white/10 pt-4" aria-hidden>
+            <div className="h-4 w-2/3 animate-pulse rounded-full bg-white/10" />
+            <div className="h-3 w-full animate-pulse rounded-full bg-white/5" />
+          </div>
+        )}
       </div>
 
-      <div className="px-6 pb-6 space-y-3">
-        {live.status && (
-          <div className="rounded-xl bg-[#1F5E3B]/5 px-4 py-3 text-xs text-[#3D4A40] leading-snug">
-            <p>{live.status.notice}</p>
-            <p className="mt-1 font-bold text-[#1C241E]">
-              Le quedan {live.status.remaining} de {live.status.limits.conversations} conversaciones.
+      {/* The main feature: a live conversation */}
+      <div className="mt-2 rounded-2xl bg-[#FAF7F0] p-2">
+        {connected ? (
+          <div className="flex flex-col items-center gap-4 rounded-lg bg-white px-4 py-5">
+            <div className="flex h-8 items-end gap-1" aria-hidden>
+              {[14, 26, 18, 30, 16].map((h, i) => (
+                <span
+                  key={i}
+                  className={`w-1.5 rounded-full bg-[#1F5E3B] transition-[height] duration-300 ${live.phase === "speaking" ? "animate-pulse" : ""}`}
+                  style={{ height: live.phase === "speaking" ? h : 6, animationDelay: `${i * 120}ms` }}
+                />
+              ))}
+            </div>
+            <p role="status" className="text-sm font-semibold text-[#1F5E3B]">
+              {live.phase === "speaking" ? "La secretaria está hablando" : "La secretaria está escuchando"}
             </p>
-          </div>
-        )}
-
-        <div className="rounded-xl border border-[#1F5E3B]/25 bg-[#FAF7F0] p-4 space-y-3">
-          {live.phase === "listening" || live.phase === "speaking" ? (
-            <>
-              <div className="flex items-center justify-center gap-3 py-2 text-sm font-semibold text-[#1F5E3B]" role="status">
-                <span className="relative flex h-3 w-3" aria-hidden>
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-[#1F5E3B] opacity-60 animate-ping" />
-                  <span className="relative inline-flex h-3 w-3 rounded-full bg-[#1F5E3B]" />
-                </span>
-                {live.phase === "speaking" ? "La secretaria está hablando" : "La secretaria está escuchando"}
-              </div>
-              <button onClick={live.end} className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A1F13] hover:bg-[#12301E] px-5 py-3.5 text-white font-bold transition-colors">
-                <PhoneOff className="w-5 h-5" /> Terminar
-              </button>
-            </>
-          ) : live.phase === "starting" ? (
-            <div className="w-full inline-flex items-center justify-center gap-2 py-3.5 text-sm text-[#3D4A40]" aria-busy>
-              <Loader2 className="w-4 h-4 animate-spin" /> Conectando con la secretaria…
-            </div>
-          ) : (
-            <button
-              onClick={() => void live.start()}
-              disabled={noneLeft}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A1F13] hover:bg-[#12301E] px-5 py-3.5 text-white font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#0A1F13]"
-            >
-              <Mic className="w-5 h-5" /> Hablar con la secretaria
+            <button onClick={live.end} className={`flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#0A1F13] font-bold text-white hover:bg-[#12301E] ${PRESS}`}>
+              <PhoneOff className="size-5" /> Terminar
             </button>
-          )}
-          {live.error && <p className="text-xs text-amber-800 bg-amber-50 rounded-lg px-3 py-2" role="alert">{live.error}</p>}
-          {live.status && (live.phase === "ended" || noneLeft) && (
-            <div className="rounded-lg border border-[#1F5E3B]/20 bg-white p-4 space-y-3">
-              <p className="text-sm text-[#1C241E] leading-snug">{live.usedUp ?? live.status.closing}</p>
-              <a href={PLW_TEL} className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F5E3B] hover:bg-[#287549] px-5 py-3 text-white font-bold transition-colors">
-                <Phone className="w-4 h-4" /> Llamar a PLW
-              </a>
-            </div>
-          )}
-        </div>
-
-        {!clip && (
+          </div>
+        ) : live.phase === "starting" ? (
+          <div className="flex h-16 items-center justify-center gap-2 text-sm font-medium text-[#3D4A40]" aria-busy>
+            <Loader2 className="size-4 animate-spin" /> Conectando con la secretaria…
+          </div>
+        ) : (
           <button
-            onClick={() => void play("secretary-welcome", "es")}
-            disabled={inCall}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F5E3B] hover:bg-[#287549] px-5 py-3.5 text-white font-bold transition-colors disabled:opacity-50"
+            onClick={() => { setBurst((b) => b + 1); void live.start(); }}
+            disabled={noneLeft}
+            className={`relative flex h-16 w-full items-center justify-center gap-2.5 rounded-lg bg-[#E8B04B] text-lg font-bold text-[#0A1F13] shadow-[0_14px_32px_-14px_rgba(232,176,75,0.9)] hover:bg-[#F2C065] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none ${PRESS}`}
           >
-            <Volume2 className="w-5 h-5" /> Escuchar bienvenida
+            {burst > 0 && <Sparks key={burst} colors={["bg-[#E8B04B]", "bg-[#1F5E3B]"]} />}
+            <Mic className="size-5" /> Hablar con la secretaria
           </button>
         )}
-        {clip?.phase === "loading" && (
-          <div className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F5E3B]/70 px-5 py-3.5 text-white font-bold" aria-busy>
-            <Loader2 className="w-5 h-5 animate-spin" /> Cargando audio…
+        {live.error && (
+          <p role="alert" className="mt-2 rounded-lg bg-amber-50 px-3 py-2.5 text-sm text-amber-900 animate-in fade-in slide-in-from-top-1 motion-reduce:animate-none">
+            {live.error}
+          </p>
+        )}
+        {live.status && (live.phase === "ended" || noneLeft) && (
+          <div className="mt-2 rounded-lg bg-white p-4 animate-in fade-in slide-in-from-bottom-1 motion-reduce:animate-none">
+            <p className="text-sm leading-relaxed text-[#1C241E]">{live.usedUp ?? live.status.closing}</p>
+            <a href={PLW_TEL} className={`mt-3 flex h-12 items-center justify-center gap-2 rounded-full bg-[#1F5E3B] font-bold text-white hover:bg-[#287549] ${PRESS}`}>
+              <Phone className="size-4" /> Llamar a PLW
+            </a>
           </div>
         )}
-        {clip?.phase === "playing" && (
-          <button onClick={stop} className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A1F13] hover:bg-[#12301E] px-5 py-3.5 text-white font-bold transition-colors">
-            <VolumeX className="w-5 h-5" /> Detener
-          </button>
-        )}
+      </div>
 
-        <div className="rounded-xl border border-[#1F5E3B]/15 p-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#1F5E3B] mb-3">Escuche una demostración</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {DEMOS.map((d) => (
-              <button
-                key={d.answerId}
-                onClick={() => void play(d.answerId, d.language)}
-                disabled={inCall}
-                className="text-left rounded-lg border border-[#1F5E3B]/20 hover:border-[#1F5E3B]/50 hover:bg-[#1F5E3B]/5 p-3 transition-colors disabled:opacity-50"
-              >
-                <d.icon className="w-4 h-4 text-[#1F5E3B] mb-1.5" aria-hidden />
-                <div className="text-sm font-semibold text-[#1C241E] leading-tight">{d.label}</div>
-                <div className="text-[11px] text-[#3D4A40]/80 mt-0.5">{d.detail || businessType}</div>
-              </button>
-            ))}
-          </div>
-          {standaloneLink && (
-            <div className="flex mt-3">
-              <a href={standaloneLink} className="ml-auto inline-flex items-center gap-1.5 text-xs font-bold text-[#1F5E3B] hover:text-[#287549]">
-                <Headphones className="w-3.5 h-3.5" aria-hidden /> Presentación completa
-              </a>
-            </div>
-          )}
+      {/* Samples: one clip at a time, each button shows its own state */}
+      <div className="mt-2 rounded-2xl border border-[#1F5E3B]/12 p-2">
+        <p className="px-2 pb-3 pt-2 text-xs font-bold uppercase tracking-[0.2em] text-[#1F5E3B]">Escuche una demostración</p>
+        <ClipButton
+          state={stateOf("secretary-welcome")}
+          onClick={() => toggle("secretary-welcome", "es")}
+          disabled={inCall}
+          icon={Volume2}
+          label="Escuchar bienvenida"
+        />
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {DEMOS.map((d) => (
+            <ClipButton
+              key={d.answerId}
+              stacked
+              state={stateOf(d.answerId)}
+              onClick={() => toggle(d.answerId, d.language)}
+              disabled={inCall}
+              icon={d.icon}
+              label={d.label}
+              detail={d.detail || businessType}
+            />
+          ))}
         </div>
+        {standaloneLink && (
+          <a href={standaloneLink} className={`mt-2 flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold text-[#1F5E3B] hover:bg-[#1F5E3B]/5 ${PRESS}`}>
+            <Headphones className="size-4" aria-hidden /> Presentación completa
+          </a>
+        )}
       </div>
     </div>
   );
