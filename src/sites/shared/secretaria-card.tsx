@@ -23,6 +23,12 @@ const PLW_TEL = "tel:+50640106198";
 const MIC_BLOCKED = "No se pudo usar el micrófono. Permita el micrófono en su navegador (ícono del candado en la barra de direcciones) y vuelva a intentar.";
 const INTERRUPTED = "La conversación se interrumpió. Intente de nuevo.";
 
+/** The languages Secretaria IA speaks, as every page that offers her says it. */
+export const SECRETARIA_LANGUAGES = {
+  en: "Speaks Spanish, English, Mandarin, French, German, etc.",
+  es: "Habla español, inglés, mandarín, francés, alemán, etc.",
+};
+
 const DEMOS = [
   { answerId: "secretary-orders", language: "es", icon: ShoppingCart, label: "Reservas / Pedidos", detail: "" },
   { answerId: "secretary-after-hours", language: "es", icon: Moon, label: "Fuera de horario", detail: "24/7" },

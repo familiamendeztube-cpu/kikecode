@@ -10,7 +10,7 @@ import { pick } from "@/lib/i18n";
 import { PLW_WHATSAPP, waLink } from "@/sites/shared/whatsapp";
 import { useReturnFocus } from "@/sites/shared/return-focus";
 import { claimAudio, releaseAudio } from "@/sites/shared/site-audio";
-import { SecretariaCard } from "@/sites/shared/secretaria-card";
+import { SECRETARIA_LANGUAGES, SecretariaCard } from "@/sites/shared/secretaria-card";
 import { Sparks } from "@/sites/shared/sparks";
 import { FadeInView } from "@/sites/shared/fade-in-view";
 import { IconSwap } from "@/components/icon-swap";
@@ -620,8 +620,8 @@ export default function TourismSite({ template, previewToken }: { template: Busi
     { href: "#contact", label: t.nav.contact },
   ].filter((n): n is { href: string; label: string } => !!n);
   const secretaryPoints = pick(lang,
-    ["Answers with your business's information", "Speaks Spanish, English and Chinese", "Takes appointment and order requests, after hours too"],
-    ["Responde con la información de su negocio", "Habla español, inglés y chino", "Toma solicitudes de cita y pedidos, también fuera de horario"]);
+    ["Answers with your business's information", SECRETARIA_LANGUAGES.en, "Takes appointment and order requests, after hours too"],
+    ["Responde con la información de su negocio", SECRETARIA_LANGUAGES.es, "Toma solicitudes de cita y pedidos, también fuera de horario"]);
 
   useEffect(() => {
     document.documentElement.lang = lang;

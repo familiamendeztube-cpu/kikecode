@@ -20,6 +20,10 @@ export default function Preview() {
   const site = usePublishedSite({ preview: token });
   useNoIndex();
 
+  // One-click "clone this site" tools drive an automated browser; a person's never is.
+  if (isAutomatedBrowser()) {
+    return <StatusScreen title="Esta vista previa se abre en un navegador normal" detail="This preview opens in a regular browser, not an automated one." />;
+  }
   if (!token || site?.status === "notfound") return <NotFound />;
   if (site?.status === "disabled") {
     return <StatusScreen title="Esta vista previa ya no está disponible" detail="This preview is no longer available." />;
@@ -33,7 +37,8 @@ export default function Preview() {
   return (
     <>
       {plwToken === null && (
-        <div className="sticky top-0 z-[70] flex items-center justify-center gap-2 bg-amber-400 px-4 py-1.5 text-center text-xs font-semibold text-slate-900">
+        // data-preview-banner: a site with a fixed header (Tamarindo) measures it to sit below.
+        <div data-preview-banner className="sticky top-0 z-[70] flex items-center justify-center gap-2 bg-amber-400 px-4 py-1.5 text-center text-xs font-semibold text-slate-900">
           <Eye className="h-3.5 w-3.5 shrink-0" />
           Vista previa: este sitio todavía no está publicado. · Preview: this site is not published yet.
         </div>
@@ -43,6 +48,14 @@ export default function Preview() {
       <ShareConversionAsk businessName={site.template.brand.name} plw={plwToken !== null} />
     </>
   );
+}
+
+/**
+ * Headless Chrome, Playwright, Puppeteer and Selenium set navigator.webdriver.
+ * A deterrent, not a lock: a screenshot of the preview still works.
+ */
+function isAutomatedBrowser(): boolean {
+  return navigator.webdriver === true || /HeadlessChrome/.test(navigator.userAgent);
 }
 
 /**

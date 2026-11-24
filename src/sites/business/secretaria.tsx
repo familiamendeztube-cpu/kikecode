@@ -1,6 +1,6 @@
 import { Bot, Check, Link2, MessageCircle, Phone } from "lucide-react";
 import { pick } from "@/lib/i18n";
-import { SecretariaCard } from "@/sites/shared/secretaria-card";
+import { SECRETARIA_LANGUAGES, SecretariaCard } from "@/sites/shared/secretaria-card";
 import { secretaryToken } from "@/sites/shared/secretary-converse";
 import { whatsappLink, WhatsAppButton } from "@/sites/shared/whatsapp";
 import { Eyebrow, PRESS, type SiteProps } from "./ui";
@@ -17,12 +17,12 @@ export function SecretariaSection({ template, brand, p, lang, draftToken }: Site
   const features = published
     ? [
       pick(lang, "Answers any time, with the business's own information", "Le atiende a cualquier hora, con la información del negocio"),
-      pick(lang, "Speaks Spanish, English and Chinese", "Habla español, inglés y chino"),
+      SECRETARIA_LANGUAGES[lang],
       pick(lang, "Takes your appointment or order request; the team confirms it", "Recibe su solicitud de cita o pedido; el equipo se la confirma"),
     ]
     : [
       pick(lang, "Answers with your business's information", "Responde con la información de su negocio"),
-      pick(lang, "Speaks Spanish, English and Chinese", "Habla español, inglés y chino"),
+      SECRETARIA_LANGUAGES[lang],
       pick(lang, "Takes appointment and order requests, after hours too", "Toma solicitudes de cita y pedidos, también fuera de horario"),
     ];
 

@@ -37,8 +37,8 @@ export function useLeadForm(siteId: string | undefined, lang: Lang) {
 }
 
 const PREVIEW_NOTICE: Record<Lang, string> = {
-  en: "Preview: this form is not active yet, so messages are not sent.",
-  es: "Vista previa: este formulario aún no está activo y los mensajes no se envían.",
+  en: "Preview: this form is not active yet, so messages are not sent. This feature comes with our full version.",
+  es: "Vista previa: este formulario aún no está activo y los mensajes no se envían. Esta función viene con nuestra versión completa.",
 };
 
 const PREVIEW_RESULT: Record<Lang, string> = {

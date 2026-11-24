@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { ArrowLeft, Bot, CalendarCheck, Languages, MessageCircle, MessageSquareText, Phone } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import { StatusScreen } from "@/components/status-screen";
-import { SecretariaCard } from "@/sites/shared/secretaria-card";
+import { SECRETARIA_LANGUAGES, SecretariaCard } from "@/sites/shared/secretaria-card";
 import { secretaryToken } from "@/sites/shared/secretary-converse";
 import { PLW_WHATSAPP, waLink, WhatsAppButton } from "@/sites/shared/whatsapp";
 import { PRESS } from "@/sites/business/ui";
@@ -21,7 +21,7 @@ function secretaryNames(template: BusinessTemplate): { name: string; type: strin
 /** What the full Secretaria IA does: PLW's product, as the live demo agent shows it. */
 const FEATURES = [
   { icon: MessageSquareText, title: "Responde con la información de su negocio", blurb: "Servicios, ubicación y preguntas frecuentes, sin inventar nada." },
-  { icon: Languages, title: "Habla español, inglés y chino", blurb: "Atiende a cada cliente en su idioma." },
+  { icon: Languages, title: SECRETARIA_LANGUAGES.es, blurb: "Atiende a cada cliente en su idioma." },
   { icon: CalendarCheck, title: "Toma solicitudes de cita y pedidos", blurb: "También fuera de horario; usted confirma después." },
 ];
 
