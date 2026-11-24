@@ -2,6 +2,9 @@ import type { CSSProperties, ReactNode } from "react";
 import { waDigits } from "@/lib/cr";
 import type { BrandConfig } from "@/templates/types";
 
+/** PLW's own sales WhatsApp (+506 4010 6198, as on PLW's site): where a preview's "Contáctenos" goes. */
+export const PLW_WHATSAPP = "50640106198";
+
 /** wa.me link; without a number WhatsApp opens the contact picker. A Costa Rican number gets its 506. */
 export function waLink(digits: string, text?: string): string {
   const query = text ? `?text=${encodeURIComponent(text)}` : "";

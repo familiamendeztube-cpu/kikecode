@@ -4,7 +4,7 @@ import { MessageCircle, Check, Pencil, Eye } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import { StatusScreen } from "@/components/status-screen";
 import { SiteRenderer } from "@/sites/site-renderer";
-import { waLink, WhatsAppButton } from "@/sites/shared/whatsapp";
+import { PLW_WHATSAPP, waLink, WhatsAppButton } from "@/sites/shared/whatsapp";
 import { usePublishedSite, plwPreviewToken } from "@/lib/saved-site";
 import { PRESS } from "@/sites/business/ui";
 import { Sparks } from "@/sites/shared/sparks";
@@ -58,12 +58,11 @@ function useNoIndex() {
   }, []);
 }
 
-/* Client-facing conversion ask shown only on previews. Addresses the
-   business owner who received the link. Uses wa.me without a number so WhatsApp
-   opens the contact picker (the owner replies to whoever sent them the link) —
-   no fabricated agency phone. Sits below the site so it never disturbs it. */
+/* Client-facing conversion ask shown only on previews. Addresses the business
+   owner who received the link: every button opens a chat with PLW's WhatsApp
+   (owner decision 2026-11-24). Sits below the site so it never disturbs it. */
 function ShareConversionAsk({ businessName, plw }: { businessName: string; plw: boolean }) {
-  const wa = (text: string) => waLink("", text);
+  const wa = (text: string) => waLink(PLW_WHATSAPP, text);
   const [burst, setBurst] = useState(0);
   const ghost = `inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white ${PRESS}`;
   return (

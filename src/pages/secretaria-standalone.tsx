@@ -1,9 +1,10 @@
 import { useRoute } from "wouter";
 import { useEffect } from "react";
-import { ArrowLeft, Bot, CalendarCheck, Languages, MessageSquareText, Phone } from "lucide-react";
+import { ArrowLeft, Bot, CalendarCheck, Languages, MessageCircle, MessageSquareText, Phone } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import { StatusScreen } from "@/components/status-screen";
 import { SecretariaCard } from "@/sites/shared/secretaria-card";
+import { PLW_WHATSAPP, waLink, WhatsAppButton } from "@/sites/shared/whatsapp";
 import { PRESS } from "@/sites/business/ui";
 import { usePublishedSite } from "@/lib/saved-site";
 import type { BusinessTemplate } from "@/templates/types";
@@ -84,9 +85,17 @@ export default function SecretariaStandalone() {
           <div className="mt-8 rounded-2xl border border-[#1F5E3B]/15 bg-white p-5">
             <p className="font-semibold">¿Quiere una secretaria así para su negocio?</p>
             <p className="mt-1 text-sm text-[#3D4A40]">Contáctenos en Professional Latino Workers.</p>
-            <a href="tel:+50640106198" className={`mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-[#1F5E3B] px-5 font-semibold text-white hover:bg-[#287549] ${PRESS}`}>
-              <Phone className="size-4" /> 4010-6198
-            </a>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <WhatsAppButton
+                href={waLink(PLW_WHATSAPP, `¡Hola! Probé la Secretaria IA de "${name}" y quisiera más información.`)}
+                className={`inline-flex h-11 items-center gap-2 rounded-full px-5 font-semibold text-white ${PRESS}`}
+              >
+                <MessageCircle className="size-4" /> WhatsApp
+              </WhatsAppButton>
+              <a href="tel:+50640106198" className={`inline-flex h-11 items-center gap-2 rounded-full bg-[#1F5E3B] px-5 font-semibold text-white hover:bg-[#287549] ${PRESS}`}>
+                <Phone className="size-4" /> 4010-6198
+              </a>
+            </div>
           </div>
         </aside>
       </main>
