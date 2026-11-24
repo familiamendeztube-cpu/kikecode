@@ -4,6 +4,7 @@ import { ArrowLeft, Bot, CalendarCheck, Languages, MessageCircle, MessageSquareT
 import NotFound from "@/pages/not-found";
 import { StatusScreen } from "@/components/status-screen";
 import { SecretariaCard } from "@/sites/shared/secretaria-card";
+import { secretaryToken } from "@/sites/shared/secretary-converse";
 import { PLW_WHATSAPP, waLink, WhatsAppButton } from "@/sites/shared/whatsapp";
 import { PRESS } from "@/sites/business/ui";
 import { usePublishedSite } from "@/lib/saved-site";
@@ -24,11 +25,10 @@ const FEATURES = [
   { icon: CalendarCheck, title: "Toma solicitudes de cita y pedidos", blurb: "También fuera de horario; usted confirma después." },
 ];
 
-/** The standalone Secretaria IA presentation, same token family as a draft preview. */
+/** The standalone Secretaria IA presentation for a preview link: a PLW sample's or a Kike draft's. */
 export default function SecretariaStandalone() {
   const [, params] = useRoute("/preview/:token/secretaria");
   const token = params?.token ?? "";
-  const isPlw = token.startsWith("plw-");
   const site = usePublishedSite({ preview: token });
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function SecretariaStandalone() {
     return () => robots.remove();
   }, []);
 
-  if (!isPlw || !token) return <NotFound />;
+  if (!token) return <NotFound />;
   if (site?.status === "notfound") return <NotFound />;
   if (site?.status === "disabled") {
     return <StatusScreen title="Esta presentación ya no está disponible" detail="This presentation is no longer available." />;
@@ -65,7 +65,7 @@ export default function SecretariaStandalone() {
       </header>
 
       <main className="relative mx-auto -mt-24 grid max-w-5xl [&>*]:min-w-0 items-start gap-10 px-4 pb-20 sm:-mt-28 sm:px-6 lg:grid-cols-[1.15fr_1fr]">
-        <SecretariaCard previewToken={token.slice(4)} businessName={name} businessType={type} />
+        <SecretariaCard previewToken={secretaryToken(token)} businessName={name} businessType={type} />
 
         <aside className="lg:pt-32">
           <h2 className="font-editorial text-2xl tracking-tight sm:text-3xl">Lo que hace su secretaria</h2>
