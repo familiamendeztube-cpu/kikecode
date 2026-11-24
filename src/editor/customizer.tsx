@@ -13,7 +13,7 @@ import { EditProvider } from "./editable";
 import { blankLike, getByPath, setByPath, type EditPath } from "./edit-path";
 import { compressImage, storeImage, validatePhotos, MAX_GALLERY_PHOTOS } from "./images";
 import { crPhone } from "@/lib/cr";
-import { brandFields, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
+import { brandFields, saveErrorFields, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
 import { applyAiEdit, askAi, type ChatMsg } from "./ai";
 import { useSiteLifecycle } from "./lifecycle";
 import { AiChatLog, AiComposer, ClientInfoPanel, ContentCheckPanel, PhotosPanel, PublishPanel, SharePanel, type ShareState } from "./panels";
@@ -74,6 +74,8 @@ export default function Customizer({
   const [share, setShare] = useState<ShareState>(null);
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+  // Fields the last save rejected, flagged red until the next save.
+  const [invalidFields, setInvalidFields] = useState<string[]>([]);
   const lifecycle = useSiteLifecycle(siteId);
   const savedVersion = lifecycle.site?.template_version ?? null;
   const currentVersion = templateVersion(original.slug);
@@ -180,6 +182,7 @@ export default function Customizer({
     if (sharing) return;
     setSharing(true);
     setShareError(null);
+    setInvalidFields([]);
     try {
       const saved = await saveSite({ siteId, slug: original.slug, fields, tpl, clientId, customDomain });
       // A new id reloads the lifecycle by itself; the same id needs a refresh.
@@ -188,6 +191,12 @@ export default function Customizer({
       setShare({ url: saved.url, copied: false });
     } catch (e) {
       setShareError(saveErrorMessage(e));
+      // Take the operator to the first rejected field that has an input in the drawer.
+      const bad = saveErrorFields(e);
+      setInvalidFields(bad);
+      const target = bad.map((name) => document.getElementById(`edit-${name}`)).find(Boolean);
+      target?.scrollIntoView({ block: "center" });
+      target?.focus({ preventScroll: true });
     } finally {
       setSharing(false);
     }
@@ -336,7 +345,7 @@ export default function Customizer({
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
-            <ClientInfoPanel fields={fields} onChange={setFields} onApply={applyBrandFields} />
+            <ClientInfoPanel fields={fields} invalid={invalidFields} onChange={setFields} onApply={applyBrandFields} />
 
             {/* Universal editor — every word and image */}
             <section className="space-y-3">
@@ -376,6 +385,7 @@ export default function Customizer({
               saved={!!siteId}
               saving={sharing}
               error={shareError}
+              invalid={invalidFields}
               share={share}
               onSave={shareWithClient}
               onCopy={copyShareUrl}

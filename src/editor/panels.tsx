@@ -24,42 +24,37 @@ import { useOperatorLang } from "@/lib/operator-lang";
 
 const sectionTitle = "text-xs uppercase tracking-wider text-slate-400 font-semibold";
 
-export function ClientInfoPanel({ fields, onChange, onApply }: {
+/** An input a failed save can name (save.ts `saveErrorFields`): the drawer focuses `edit-<name>` and it turns red. */
+const saveField = (name: string, invalid: string[]) => ({ id: `edit-${name}`, "aria-invalid": invalid.includes(name) || undefined });
+const invalidBorder = "aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-red-500";
+
+export function ClientInfoPanel({ fields, invalid, onChange, onApply }: {
   fields: BrandFields;
+  /** Fields the last save rejected ("brand.email", ...). */
+  invalid: string[];
   onChange: (fields: BrandFields) => void;
   onApply: () => void;
 }) {
   const { lang } = useOperatorLang();
-  const field = (key: keyof BrandFields) => (
-    <Input value={fields[key]} onChange={(e) => onChange({ ...fields, [key]: e.target.value })} onBlur={onApply}
-      className="bg-slate-900 border-slate-700 text-white" data-testid={`input-${key}`} />
+  const field = (key: keyof BrandFields, label: string) => (
+    <div>
+      <Label htmlFor={`edit-brand.${key}`} className="text-xs text-slate-300">{label}</Label>
+      <Input value={fields[key]} onChange={(e) => onChange({ ...fields, [key]: e.target.value })} onBlur={onApply}
+        {...saveField(`brand.${key}`, invalid)}
+        className={`bg-slate-900 border-slate-700 text-white ${invalidBorder}`} data-testid={`input-${key}`} />
+    </div>
   );
   return (
     <section className="space-y-3">
       <h3 className={sectionTitle}>{pick(lang, "Client info", "Datos del cliente")}</h3>
       <div className="space-y-2">
-        <div>
-          <Label className="text-xs text-slate-300">{pick(lang, "Business name", "Nombre del negocio")}</Label>
-          {field("name")}
-        </div>
+        {field("name", pick(lang, "Business name", "Nombre del negocio"))}
         <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-xs text-slate-300">{pick(lang, "Phone", "Teléfono")}</Label>
-            {field("phone")}
-          </div>
-          <div>
-            <Label className="text-xs text-slate-300">{pick(lang, "City", "Ciudad")}</Label>
-            {field("city")}
-          </div>
+          {field("phone", pick(lang, "Phone", "Teléfono"))}
+          {field("city", pick(lang, "City", "Ciudad"))}
         </div>
-        <div>
-          <Label className="text-xs text-slate-300">{pick(lang, "Address", "Dirección")}</Label>
-          {field("address")}
-        </div>
-        <div>
-          <Label className="text-xs text-slate-300">{pick(lang, "Email", "Correo electrónico")}</Label>
-          {field("email")}
-        </div>
+        {field("address", pick(lang, "Address", "Dirección"))}
+        {field("email", pick(lang, "Email", "Correo electrónico"))}
         <Button size="sm" variant="secondary" className="w-full" onClick={onApply} data-testid="button-apply">
           <ChevronRight className="w-3.5 h-3.5 mr-1" /> {pick(lang, "Apply to preview", "Aplicar a la vista previa")}
         </Button>
@@ -154,8 +149,10 @@ export function ContentCheckPanel({ applies, confirmed, onConfirmed }: {
 export type ShareState = { url: string; copied: boolean } | null;
 
 export function SharePanel({
-  clients, clientId, onClientId, customDomain, onCustomDomain, saved, saving, error, share, onSave, onCopy,
+  clients, clientId, onClientId, customDomain, onCustomDomain, saved, saving, error, invalid, share, onSave, onCopy,
 }: {
+  /** Fields the last save rejected ("custom_domain", "client_id", ...). */
+  invalid: string[];
   clients: { id: string; business_name: string }[];
   clientId: string;
   onClientId: (id: string) => void;
@@ -184,11 +181,12 @@ export function SharePanel({
       </p>
       <div className="space-y-2">
         <div>
-          <Label className="text-xs text-slate-300">{pick(lang, "PLW client (optional)", "Cliente PLW (opcional)")}</Label>
+          <Label htmlFor="edit-client_id" className="text-xs text-slate-300">{pick(lang, "PLW client (optional)", "Cliente PLW (opcional)")}</Label>
           <select
             value={clientId}
             onChange={(e) => onClientId(e.target.value)}
-            className="w-full h-9 rounded-md bg-slate-900 border border-slate-700 text-white text-sm px-2"
+            {...saveField("client_id", invalid)}
+            className={`w-full h-9 rounded-md bg-slate-900 border border-slate-700 text-white text-sm px-2 ${invalidBorder}`}
             data-testid="select-plw-client"
           >
             <option value="">{pick(lang, "Demo — no client", "Demo — sin cliente")}</option>
@@ -203,12 +201,13 @@ export function SharePanel({
           </p>
         </div>
         <div>
-          <Label className="text-xs text-slate-300">{pick(lang, "Client domain (optional)", "Dominio del cliente (opcional)")}</Label>
+          <Label htmlFor="edit-custom_domain" className="text-xs text-slate-300">{pick(lang, "Client domain (optional)", "Dominio del cliente (opcional)")}</Label>
           <Input
             value={customDomain}
             onChange={(e) => onCustomDomain(e.target.value)}
             placeholder="negocio.com"
-            className="bg-slate-900 border-slate-700 text-white"
+            {...saveField("custom_domain", invalid)}
+            className={`bg-slate-900 border-slate-700 text-white ${invalidBorder}`}
             data-testid="input-custom-domain"
           />
         </div>

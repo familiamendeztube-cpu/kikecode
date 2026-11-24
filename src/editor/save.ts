@@ -45,7 +45,8 @@ export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemp
     slug,
     template_version: templateVersion(slug),
     // Apply any pending form-field edits before saving; the phone in Costa Rican format.
-    brand: { ...fields, ...crPhone(fields.phone) },
+    // Trimmed: kike-sites rejects an email with a pasted space before or after it.
+    brand: { ...fields, email: fields.email.trim(), ...crPhone(fields.phone) },
     content: tpl.content,
     photos: uploadedPhotos(tpl.media),
     overrides,
@@ -86,6 +87,19 @@ export function saveErrorMessage(e: unknown): string {
             : code === "domain_requires_client" ? "Asigne un cliente PLW antes de agregar un dominio. / Link a PLW client before adding a domain."
               : code === "conflict" ? "Alguien cambió este sitio al mismo tiempo. Recargue e intente de nuevo. / Someone changed this site at the same time. Reload and try again."
                 : code || "Could not save the site.";
+}
+
+/**
+ * The fields a failed save points at, named as kike-sites names them
+ * ("brand.email", "custom_domain", "client_id", ...): the drawer flags their
+ * inputs (id `edit-<name>`) and takes the operator to the first one.
+ */
+export function saveErrorFields(e: unknown): string[] {
+  const code = e instanceof Error ? e.message : "";
+  if (code === "domain_taken") return ["custom_domain"];
+  if (code === "domain_requires_client") return ["client_id"];
+  // phoneHref is built from the phone the operator typed, so the phone is what to fix.
+  return ((e as { fields?: string[] }).fields ?? []).map((f) => (f === "brand.phoneHref" ? "brand.phone" : f));
 }
 
 /**
