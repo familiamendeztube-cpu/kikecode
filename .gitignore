@@ -53,3 +53,6 @@ package-lock.json
 
 # Browser logs from Claude's Playwright tool.
 .playwright-mcp/
+
+# The design checker's local session cache (machine paths); its config.json is shared.
+.impeccable/hook.cache.json

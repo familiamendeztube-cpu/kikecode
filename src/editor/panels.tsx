@@ -148,7 +148,7 @@ export function ContentCheckPanel({ applies, confirmed, onConfirmed }: {
 
 /** Whether the site has the Secretaria IA section (shared business site only). */
 export function SecretariaPanel({ applies, on, onChange }: {
-  /** False for the hand-built sites, which have no Secretaria section. */
+  /** False for the hand-built sites without a Secretaria section (hasSecretariaSection). */
   applies: boolean;
   on: boolean;
   onChange: (on: boolean) => void;

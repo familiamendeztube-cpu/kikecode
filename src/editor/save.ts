@@ -1,3 +1,4 @@
+import { contentWithTourServices } from "@/templates/tour-services";
 import { crPhone } from "@/lib/cr";
 import { callFn } from "@/lib/plw";
 import { previewUrl, uploadedPhotos, type SiteStatus } from "@/lib/saved-site";
@@ -36,6 +37,9 @@ export function siteOverrides(tpl: BusinessTemplate): Record<string, unknown> {
       heritage: tpl.heritage,
       // PLW tour-demo data (services + highlight) for the tourism templates.
       tourismDemo: tpl.tourismDemo,
+      // A tour operator's tours and how its quote builder prices them (siteVariant "tamarindo").
+      tours: tpl.tours,
+      tourPricing: tpl.tourPricing,
       // Read by the edge function that writes the site's <head> (src/lib/site-meta.ts).
       lockedLang: tpl.lockedLang,
       defaultLang: tpl.defaultLang,
@@ -56,7 +60,8 @@ export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemp
     // Apply any pending form-field edits before saving; the phone in Costa Rican format.
     // Trimmed: kike-sites rejects an email with a pasted space before or after it.
     brand: { ...fields, email: fields.email.trim(), ...crPhone(fields.phone) },
-    content: tpl.content,
+    // PLW's Secretaria IA reads the services list: a tour operator's is rebuilt from its tours.
+    content: contentWithTourServices(tpl),
     photos: uploadedPhotos(tpl.media),
     overrides,
   };

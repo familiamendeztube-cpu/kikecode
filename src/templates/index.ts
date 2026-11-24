@@ -36,6 +36,7 @@ import barroCeramica from "./barro-ceramica";
 import autoServicioRym from "./auto-servicio-rym";
 import suplidoraFenix from "./suplidora-fenix";
 import snuvalysConstruccions from "./snuvalys-construccions";
+import tamarindoToursDiscovery from "./tamarindo-tours-discovery";
 import plwTourismTours from "./plw-tourism-tours";
 import plwTourismStays from "./plw-tourism-stays";
 import { PLW_BUSINESS_TEMPLATES } from "./plw-business";
@@ -53,7 +54,7 @@ export const TEMPLATES: BusinessTemplate[] = [
   poolService, pestControl, treeService, fencing,
   concrete, pressureWashing, garageDoors, welding,
   catering, barber, nails, photography, autoDetailing, glass,
-  luminaStudio, barroCeramica, autoServicioRym, suplidoraFenix,
+  luminaStudio, barroCeramica, autoServicioRym, suplidoraFenix, tamarindoToursDiscovery,
   plwTourismTours, plwTourismStays, ...PLW_BUSINESS_TEMPLATES,
 ];
 

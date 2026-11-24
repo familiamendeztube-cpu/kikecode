@@ -232,6 +232,29 @@ export type TemplateInventory = {
   vehicles: InventoryVehicle[];
 };
 
+/** A private tour on a tour operator's site (siteVariant "tamarindo"). */
+export type TourOffer = {
+  title: LocalizedText;
+  blurb: LocalizedText;
+  /** Starting price for the whole boat, in US dollars, as the business charges. */
+  priceUsd: number;
+  /** Most guests the boat takes on this tour; omit when the business hasn't said. */
+  guests?: number;
+  image: string;
+  includes: { en: string[]; es: string[] };
+};
+
+/** How a tour operator prices a private trip (siteVariant "tamarindo"): by its
+ *  length, for the whole boat. A tour offers the lengths priced at or above its
+ *  own starting price. */
+export type TourPricing = {
+  durations: { name: LocalizedText; hours: number; priceUsd: number; lunch?: boolean }[];
+  /** Paid ahead to hold the date; it counts toward the total. */
+  depositUsd: number;
+  /** Added to the balance when it is paid by card, in percent. */
+  cardSurchargePct: number;
+};
+
 /** Stats, service areas, certifications and guarantee on the business site.
  *  Templates without them get generic, honest defaults. */
 export type TemplateFacts = {
@@ -294,7 +317,11 @@ export type BusinessTemplate = {
    *  so Spanish unless set; only the real US businesses open in English. */
   defaultLang?: Lang;
   /** Custom full-page renderer instead of the shared BusinessSite (see sites/site-renderer.tsx). */
-  siteVariant?: "leonardo" | "oryzo" | "rym" | "fenix" | "tourism";
+  siteVariant?: "leonardo" | "oryzo" | "rym" | "fenix" | "tourism" | "tamarindo";
+  /** The tours a tour operator's site lists (siteVariant "tamarindo"). */
+  tours?: TourOffer[];
+  /** What its quote builder prices them with (siteVariant "tamarindo"). */
+  tourPricing?: TourPricing;
   /** PLW tour-demo data (services + highlight). Empty arrays/strings allowed. */
   tourismDemo?: TourismDemo;
   /** PLW samples (siteVariant "tourism"): what this business type asks visitors to do. */

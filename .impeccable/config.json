@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-24T21:09:00.102Z",
+        "reason": "Claude: Inter is the app-wide body font loaded in index.html and used by every Kike site (business-site.tsx, tourism-site.tsx); the display face carries each site's character"
+      }
+    ]
+  }
+}

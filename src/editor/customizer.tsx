@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
-import { SiteRenderer } from "@/sites/site-renderer";
+import { hasSecretariaSection, SiteRenderer } from "@/sites/site-renderer";
 import {
   Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger,
 } from "@/components/ui/sheet";
@@ -379,7 +379,7 @@ export default function Customizer({
             <PhotosPanel photoCount={photoCountRef.current} notice={photoNotice} onHero={uploadHero} onGallery={uploadGallery} />
 
             <SecretariaPanel
-              applies={!tpl.siteVariant}
+              applies={hasSecretariaSection(tpl)}
               on={!!tpl.secretaria}
               onChange={(on) => edit((cur) => ({ ...cur, secretaria: on }))}
             />
@@ -401,7 +401,7 @@ export default function Customizer({
               error={shareError}
               invalid={invalidFields}
               share={share}
-              secretaria={!!tpl.secretaria && !tpl.siteVariant}
+              secretaria={!!tpl.secretaria && hasSecretariaSection(tpl)}
               onSave={shareWithClient}
               onCopy={copyShareUrl}
             />

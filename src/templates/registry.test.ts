@@ -21,7 +21,8 @@ const SAVED_SLUGS = [
   "garage-doors", "glass", "handyman", "hvac", "hyperion-synthetic-turf", "landscaping", "los-primos-plumbing",
   "lumina-studio", "moving", "nails", "nicaraguan-restaurant", "painting", "pest-control", "photography",
   "plw-auto", "plw-business", "plw-clinic", "plw-gym", "plw-real-estate", "plw-restaurant", "plw-shop",
-  "plw-tourism-stays", "plw-tourism-tours", "pool-service", "pressure-washing", "restaurant", "roofing", "snuvalys-construccions", "suplidora-fenix", "tree-service", "welding",
+  "plw-tourism-stays", "plw-tourism-tours", "pool-service", "pressure-washing", "restaurant", "roofing", "snuvalys-construccions", "suplidora-fenix",
+  "tamarindo-tours-discovery", "tree-service", "welding",
 ];
 
 describe("template registry", () => {
@@ -42,14 +43,21 @@ describe("template registry", () => {
   Every client is Costa Rican. Only the real US businesses (defaultLang "en")
   keep their own US data, as the owner decided on 2026-11-09.
 */
+/*
+  Costa Rican businesses that sell to foreign tourists open in English and
+  price in US dollars ("US$600"), as they charge (owner decision 2026-11-24).
+  Their phone and address are still Costa Rican.
+*/
+const FOR_TOURISTS = ["tamarindo-tours-discovery"];
+
 describe("Costa Rican templates", () => {
-  const costaRican = TEMPLATES.filter((t) => t.defaultLang !== "en");
+  const costaRican = TEMPLATES.filter((t) => t.defaultLang !== "en" || FOR_TOURISTS.includes(t.slug));
   // The PLW samples start with no public phone: the draft adds the
   // client's confirmed number when it is saved.
   const NO_PHONE_YET = TEMPLATES.filter((t) => t.slug.startsWith("plw-")).map((t) => t.slug);
 
   it("open in Spanish, except the real US businesses", () => {
-    expect(TEMPLATES.filter((t) => t.defaultLang === "en").map((t) => t.slug).sort())
+    expect(TEMPLATES.filter((t) => t.defaultLang === "en" && !FOR_TOURISTS.includes(t.slug)).map((t) => t.slug).sort())
       .toEqual(["hyperion-synthetic-turf", "los-primos-plumbing", "nicaraguan-restaurant"]);
   });
 
@@ -63,7 +71,8 @@ describe("Costa Rican templates", () => {
     }
     // No US ZIP code or state abbreviation ("Miami, FL 33135").
     expect(`${t.brand.address} | ${t.brand.city}`).not.toMatch(/\b\d{5}\b|, [A-Z]{2}\b/);
-    const text = JSON.stringify(t);
+    // A tourist business's "US$600" is its real price; a bare "$600" still fails.
+    const text = JSON.stringify(t).replace(FOR_TOURISTS.includes(t.slug) ? /US\$[\d,.]+/g : /(?!)/g, "");
     // Colones, not dollars; metric units; no US sample numbers.
     expect(text).not.toMatch(/\$ ?\d|DollarSign|\(555\)|555-01|\d ?(miles?|mi)\b|°F|\bsq\.? ?ft\b|square f(ee|oo)t/i);
   });
