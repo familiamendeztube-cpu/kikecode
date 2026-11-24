@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Eye } from "lucide-react";
+import { ArrowRight, Bot, Eye } from "lucide-react";
 import { TEMPLATES } from "@/templates";
 import { Layout } from "@/components/layout";
 import { pick } from "@/lib/i18n";
@@ -7,6 +8,9 @@ import { useOperatorLang } from "@/lib/operator-lang";
 
 export default function Templates() {
   const { lang } = useOperatorLang();
+  // "Con Secretaria IA": the templates whose sites can carry the Secretaria section, opened with it on.
+  const [category, setCategory] = useState<"all" | "secretaria">("all");
+  const withSecretaria = category === "secretaria";
   return (
     <Layout>
       <div className="mb-8">
@@ -31,11 +35,44 @@ export default function Templates() {
         </p>
       </div>
 
+      <div role="tablist" className="mb-6 inline-flex rounded-xl border border-border/60 bg-card/40 p-1 text-sm font-semibold">
+        {([
+          ["all", pick(lang, "All templates", "Todas las plantillas")],
+          ["secretaria", pick(lang, "With AI Secretary", "Con Secretaria IA")],
+        ] as const).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={category === key}
+            onClick={() => setCategory(key)}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 transition-colors ${category === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            data-testid={`tab-${key}`}
+          >
+            {key === "secretaria" && <Bot className="w-4 h-4" />} {label}
+          </button>
+        ))}
+      </div>
+      {withSecretaria && (
+        <p className="mb-6 -mt-2 max-w-2xl text-sm text-muted-foreground">
+          {pick(
+            lang,
+            "These sites come with the AI Secretary section: on the preview link your client talks to her (3 conversations per link), and once published it invites visitors to call. You can turn it off in the editor.",
+            "Estos sitios vienen con la sección de la Secretaria IA: en el enlace de vista previa su cliente habla con ella (3 conversaciones por enlace) y, ya publicado, invita a llamar. Puede quitarla en el editor.",
+          )}
+        </p>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Costa Rican templates first; the real US businesses (kept as they are) last. */}
-        {[...TEMPLATES].sort((a, b) => Number(a.defaultLang === "en") - Number(b.defaultLang === "en")).map((t) => {
+        {[...TEMPLATES]
+          // The Secretaria section lives in the shared site, for Costa Rican clients.
+          .filter((t) => !withSecretaria || (!t.siteVariant && t.defaultLang !== "en"))
+          .sort((a, b) => Number(a.defaultLang === "en") - Number(b.defaultLang === "en")).map((t) => {
           const Icon = t.brand.heroIcon;
           const p = t.brand.palette;
+          const href = `/templates/${t.slug}/preview${withSecretaria ? "?secretaria=1" : ""}`;
+          const customizeHref = `/templates/${t.slug}/preview?customize=1${withSecretaria ? "&secretaria=1" : ""}`;
           return (
             <div
               key={t.slug}
@@ -59,7 +96,7 @@ export default function Templates() {
               </div>
 
               <a
-                href={`/templates/${t.slug}/preview`}
+                href={href}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute inset-0 z-10"
@@ -76,12 +113,12 @@ export default function Templates() {
 
                 <div className="mt-auto grid grid-cols-2 gap-2 relative z-20">
                   <Button asChild size="sm" className="w-full font-bold bg-primary hover:bg-primary/90">
-                    <a href={`/templates/${t.slug}/preview`} target="_blank" rel="noopener noreferrer">
+                    <a href={href} target="_blank" rel="noopener noreferrer">
                       <Eye className="w-3.5 h-3.5 mr-1.5" /> {pick(lang, "View Live", "Ver en vivo")}
                     </a>
                   </Button>
                   <Button asChild size="sm" variant="outline" className="w-full font-medium">
-                    <a href={`/templates/${t.slug}/preview?customize=1`} target="_blank" rel="noopener noreferrer">
+                    <a href={customizeHref} target="_blank" rel="noopener noreferrer">
                       {pick(lang, "Customize", "Personalizar")} <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                     </a>
                   </Button>

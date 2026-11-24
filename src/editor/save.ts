@@ -41,6 +41,8 @@ export function siteOverrides(tpl: BusinessTemplate): Record<string, unknown> {
       defaultLang: tpl.defaultLang,
       // Staff's confirmation that reviews and claims are true (else they show as samples).
       contentConfirmed: tpl.contentConfirmed,
+      // Whether the site shows the Secretaria IA section.
+      secretaria: tpl.secretaria,
     }),
   );
 }

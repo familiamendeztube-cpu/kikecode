@@ -16,7 +16,7 @@ import { crPhone } from "@/lib/cr";
 import { brandFields, saveErrorFields, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
 import { applyAiEdits, askAi, type ChatMsg } from "./ai";
 import { useSiteLifecycle } from "./lifecycle";
-import { AiChatLog, AiComposer, ClientInfoPanel, ContentCheckPanel, PhotosPanel, PublishPanel, SharePanel, type ShareState } from "./panels";
+import { AiChatLog, AiComposer, ClientInfoPanel, ContentCheckPanel, PhotosPanel, PublishPanel, SecretariaPanel, SharePanel, type ShareState } from "./panels";
 import { isSampleContent } from "@/sites/business/ui";
 import { pick } from "@/lib/i18n";
 import { useOperatorLang } from "@/lib/operator-lang";
@@ -378,6 +378,12 @@ export default function Customizer({
 
             <PhotosPanel photoCount={photoCountRef.current} notice={photoNotice} onHero={uploadHero} onGallery={uploadGallery} />
 
+            <SecretariaPanel
+              applies={!tpl.siteVariant}
+              on={!!tpl.secretaria}
+              onChange={(on) => edit((cur) => ({ ...cur, secretaria: on }))}
+            />
+
             <ContentCheckPanel
               applies={!tpl.realBusiness}
               confirmed={!!tpl.contentConfirmed}
@@ -395,6 +401,7 @@ export default function Customizer({
               error={shareError}
               invalid={invalidFields}
               share={share}
+              secretaria={!!tpl.secretaria && !tpl.siteVariant}
               onSave={shareWithClient}
               onCopy={copyShareUrl}
             />

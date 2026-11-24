@@ -8,11 +8,13 @@ import { VideoGallery, InAction, Transformation, Gallery, ClientTrust, Heritage 
 import { InventorySection, FinancingBand, FloatingWhatsApp } from "./inventory";
 import { Services, MeetTheCrew, Why, Process, ServiceAreas, Faq } from "./services";
 import { ProjectSelector, FoodBand, EmergencyBand, Contact, ClosingCta, Footer, MobileActionBar } from "./contact";
+import { SecretariaSection } from "./secretaria";
 
 /** The shared site for every template without its own `siteVariant`. Each
  *  section takes the same props and renders nothing when the template has no
- *  data for it, so the page is just the section order. */
-export default function BusinessSite({ template }: { template: BusinessTemplate }) {
+ *  data for it, so the page is just the section order. `draftToken`: the
+ *  preview link's token, on a draft's preview page only (the Secretaria demo). */
+export default function BusinessSite({ template, draftToken }: { template: BusinessTemplate; draftToken?: string | null }) {
   // Costa Rican sites open in Spanish; only a template set to English opens in English.
   const startLang: Lang = template.lockedLang ?? template.defaultLang ?? "es";
   const [lang, setLang] = useState<Lang>(startLang);
@@ -55,6 +57,7 @@ export default function BusinessSite({ template }: { template: BusinessTemplate 
       <MeetTheCrew {...site} />
       <Why {...site} />
       <Process {...site} />
+      <SecretariaSection {...site} draftToken={draftToken} />
       <ServiceAreas {...site} />
       <Testimonials {...site} />
       <Certifications {...site} />

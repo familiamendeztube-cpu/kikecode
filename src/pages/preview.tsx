@@ -8,9 +8,6 @@ import { PLW_WHATSAPP, waLink, WhatsAppButton } from "@/sites/shared/whatsapp";
 import { usePublishedSite, plwPreviewToken } from "@/lib/saved-site";
 import { PRESS } from "@/sites/business/ui";
 import { Sparks } from "@/sites/shared/sparks";
-import { SecretariaCard } from "@/sites/shared/secretaria-card";
-import { secretaryToken } from "@/sites/shared/secretary-converse";
-import type { BusinessTemplate } from "@/templates/types";
 
 /**
  * A site's current draft, for the client to review (/preview/:token). The
@@ -41,38 +38,10 @@ export default function Preview() {
           Vista previa: este sitio todavía no está publicado. · Preview: this site is not published yet.
         </div>
       )}
-      <SiteRenderer template={site.template} previewToken={plwToken} />
-      {/* A PLW sample's page already has its Secretaria; a Kike draft gets it here. */}
-      {plwToken === null && <SecretariaDemo token={token} template={site.template} />}
+      {/* A PLW sample's page has its own Secretaria; a Kike draft's shows it when the site has it on. */}
+      <SiteRenderer template={site.template} previewToken={plwToken} draftToken={plwToken === null ? token : null} />
       <ShareConversionAsk businessName={site.template.brand.name} plw={plwToken !== null} />
     </>
-  );
-}
-
-/** The Secretaria IA demo under a Kike draft: the same card and limits as a PLW sample's. */
-function SecretariaDemo({ token, template }: { token: string; template: BusinessTemplate }) {
-  const name = template.brand.name;
-  return (
-    <section className="bg-slate-900 text-white py-16 border-t border-white/10">
-      <div className="mx-auto grid max-w-5xl items-center gap-10 px-6 lg:grid-cols-2">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">Secretaria IA</p>
-          <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight">Escuche cómo se atendería {name}</h2>
-          <p className="mt-4 text-white/80">
-            Una secretaria con IA que contesta a sus clientes con la información de su negocio, de día o de noche.
-            Toque «Hablar con la secretaria», dé permiso para el micrófono y pregúntele, por ejemplo,
-            «¿Cómo atendería a un cliente que llama cuando ya cerramos?». También puede escribirle.
-          </p>
-          <p className="mt-2 text-sm text-white/50">An AI secretary that answers your customers with your business's information. Tap the button and ask her anything.</p>
-        </div>
-        <SecretariaCard
-          previewToken={secretaryToken(token)}
-          businessName={name}
-          businessType={template.category ?? ""}
-          standaloneLink={`/preview/${token}/secretaria`}
-        />
-      </div>
-    </section>
   );
 }
 

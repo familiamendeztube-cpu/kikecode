@@ -146,14 +146,43 @@ export function ContentCheckPanel({ applies, confirmed, onConfirmed }: {
   );
 }
 
+/** Whether the site has the Secretaria IA section (shared business site only). */
+export function SecretariaPanel({ applies, on, onChange }: {
+  /** False for the hand-built sites, which have no Secretaria section. */
+  applies: boolean;
+  on: boolean;
+  onChange: (on: boolean) => void;
+}) {
+  const { lang } = useOperatorLang();
+  if (!applies) return null;
+  return (
+    <section className="space-y-1.5 rounded-lg border border-emerald-700/40 bg-emerald-950/20 p-3">
+      <h3 className="text-xs uppercase tracking-wider text-emerald-300 font-semibold">{pick(lang, "AI Secretary", "Secretaria IA")}</h3>
+      <label className="flex items-start gap-2 text-[11px] text-slate-200">
+        <input type="checkbox" checked={on} onChange={(e) => onChange(e.target.checked)} className="mt-0.5" data-testid="checkbox-secretaria" />
+        {pick(lang, "Include the AI Secretary on the site", "Incluir la Secretaria IA en el sitio")}
+      </label>
+      <p className="text-[11px] text-slate-400">
+        {pick(
+          lang,
+          "On the preview link your client talks to her (3 conversations per link). Once published, the section invites visitors to call: keep it on only if the client has the AI Secretary.",
+          "En el enlace de vista previa su cliente habla con ella (3 conversaciones por enlace). Ya publicado, la sección invita a llamar: déjela solo si el cliente contrató la Secretaria IA.",
+        )}
+      </p>
+    </section>
+  );
+}
+
 /** The saved draft's preview link, and which copy button just copied ("both": site + Secretaria). */
 export type ShareState = { url: string; copied: "site" | "both" | null } | null;
 
 export function SharePanel({
-  clients, clientId, onClientId, customDomain, onCustomDomain, saved, saving, error, invalid, share, onSave, onCopy,
+  clients, clientId, onClientId, customDomain, onCustomDomain, saved, saving, error, invalid, share, secretaria, onSave, onCopy,
 }: {
   /** Fields the last save rejected ("custom_domain", "client_id", ...). */
   invalid: string[];
+  /** The site has the Secretaria IA: offer both links to send. */
+  secretaria: boolean;
   clients: { id: string; business_name: string }[];
   clientId: string;
   onClientId: (id: string) => void;
@@ -242,16 +271,23 @@ export function SharePanel({
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
-          <Button size="sm" variant="secondary" onClick={() => onCopy("both")}
-            className="w-full h-8 text-[11px]" data-testid="button-copy-both">
-            <IconSwap swapped={share.copied === "both"} from={<Copy className="w-3.5 h-3.5" />} to={<Check className="w-3.5 h-3.5" />} />
-            <span className="ml-1.5">{pick(lang, "Copy both links (site + AI Secretary)", "Copiar ambos enlaces (sitio + Secretaria IA)")}</span>
-          </Button>
+          {secretaria && (
+            <Button size="sm" variant="secondary" onClick={() => onCopy("both")}
+              className="w-full h-8 text-[11px]" data-testid="button-copy-both">
+              <IconSwap swapped={share.copied === "both"} from={<Copy className="w-3.5 h-3.5" />} to={<Check className="w-3.5 h-3.5" />} />
+              <span className="ml-1.5">{pick(lang, "Copy both links (site + AI Secretary)", "Copiar ambos enlaces (sitio + Secretaria IA)")}</span>
+            </Button>
+          )}
           <p className="flex items-start gap-1 text-[10px] text-emerald-400">
             <Check className="w-3 h-3 mt-px shrink-0" /> {pick(
               lang,
-              "Draft saved. This preview link shows it to your client on any phone; its forms send nothing. The second link lets them talk to the AI Secretary (3 conversations per link).",
-              "Borrador guardado. Este enlace de vista previa se lo muestra a su cliente en cualquier teléfono; sus formularios no envían nada. El segundo enlace le permite hablar con la Secretaria IA (3 conversaciones por enlace).",
+              "Draft saved. This preview link shows it to your client on any phone; its forms send nothing.",
+              "Borrador guardado. Este enlace de vista previa se lo muestra a su cliente en cualquier teléfono; sus formularios no envían nada.",
+            )}
+            {secretaria && pick(
+              lang,
+              " The second link lets them talk to the AI Secretary (3 conversations per link).",
+              " El segundo enlace le permite hablar con la Secretaria IA (3 conversaciones por enlace).",
             )}
           </p>
         </div>

@@ -312,6 +312,10 @@ export type BusinessTemplate = {
    *  generic template's reviews and claims carry a visible "Sample" tag. Saved
    *  with the site, so it is part of every version. */
   contentConfirmed?: boolean;
+  /** The site has the Secretaria IA section (shared business site only): the
+   *  live demo on its preview link, an invitation to call once published.
+   *  Turned on from the gallery's "Con Secretaria IA" or the editor; saved with the site. */
+  secretaria?: boolean;
   /** Defaults to "trades". */
   category?: TemplateCategory;
   facts?: TemplateFacts;
