@@ -10,6 +10,7 @@ import {
   Power,
   Pencil,
   Eye,
+  FolderOpen,
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { IconSwap } from "@/components/icon-swap";
@@ -37,13 +38,17 @@ type SiteRow = {
   /** The latest publish: a republish restarts it. */
   published_at: string | null;
   created_at: string;
+  /** The signed-in staff member created this site or saved a change to it. */
+  mine?: boolean;
 };
 
 const DAY_MS = 86_400_000;
 
-export default function Demos() {
+/** Every site the staff member may see, or with `mine` ("Mis sitios") only the ones they created or edited. */
+export default function Demos({ mine = false }: { mine?: boolean }) {
   const { lang } = useOperatorLang();
-  const [rows, setRows] = useState<SiteRow[] | null>(null);
+  const [allRows, setRows] = useState<SiteRow[] | null>(null);
+  const rows = useMemo(() => (mine ? allRows?.filter((r) => r.mine) ?? null : allRows), [allRows, mine]);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -98,15 +103,21 @@ export default function Demos() {
         <div className="flex items-end justify-between flex-wrap gap-3 mb-6">
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight flex items-center gap-2">
-              <Radio className="w-6 h-6 text-emerald-500" />
-              {pick(lang, "Live Demos", "Demos en vivo")}
+              {mine ? <FolderOpen className="w-6 h-6 text-fuchsia-500" /> : <Radio className="w-6 h-6 text-emerald-500" />}
+              {mine ? pick(lang, "My sites", "Mis sitios") : pick(lang, "Live Demos", "Demos en vivo")}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {pick(
-                lang,
-                "Saved sites and demos. A draft can only be seen through its preview link; suspend a published site and it stops showing within a minute.",
-                "Sitios y demos guardados. Un borrador solo se ve con su enlace de vista previa; suspenda un sitio publicado y deja de verse en un minuto.",
-              )}
+              {mine
+                ? pick(
+                  lang,
+                  "The sites you created or edited. Open one to keep editing, see its preview or copy its link.",
+                  "Los sitios que usted creó o editó. Abra uno para seguir editándolo, ver su vista previa o copiar su enlace.",
+                )
+                : pick(
+                  lang,
+                  "Saved sites and demos. A draft can only be seen through its preview link; suspend a published site and it stops showing within a minute.",
+                  "Sitios y demos guardados. Un borrador solo se ve con su enlace de vista previa; suspenda un sitio publicado y deja de verse en un minuto.",
+                )}
             </p>
           </div>
           {rows && (
@@ -130,7 +141,9 @@ export default function Demos() {
 
         {rows && rows.length === 0 && (
           <div className="text-center text-muted-foreground py-16">
-            {pick(lang, "No demos created yet.", "No hay demos todavía.")}
+            {mine
+              ? pick(lang, "You have not created or saved a site yet. Pick a template to start one.", "Todavía no ha creado ni guardado ningún sitio. Elija una plantilla para empezar.")
+              : pick(lang, "No demos created yet.", "No hay demos todavía.")}
           </div>
         )}
 

@@ -14,7 +14,7 @@ import { blankLike, getByPath, setByPath, type EditPath } from "./edit-path";
 import { compressImage, storeImage, validatePhotos, MAX_GALLERY_PHOTOS } from "./images";
 import { crPhone } from "@/lib/cr";
 import { brandFields, saveErrorFields, saveErrorMessage, saveSite, type BrandFields, type SavedSiteRef } from "./save";
-import { applyAiEdit, askAi, type ChatMsg } from "./ai";
+import { applyAiEdits, askAi, type ChatMsg } from "./ai";
 import { useSiteLifecycle } from "./lifecycle";
 import { AiChatLog, AiComposer, ClientInfoPanel, ContentCheckPanel, PhotosPanel, PublishPanel, SharePanel, type ShareState } from "./panels";
 import { isSampleContent } from "@/sites/business/ui";
@@ -288,16 +288,23 @@ export default function Customizer({
 
     try {
       const data = await askAi(tpl, chat, msg, photoCountRef.current, imgs);
-      setTpl((cur) => applyAiEdit(cur, data));
-      const brand = data.brand;
-      if (brand) {
-        setFields((f) => {
-          const next = { ...f };
-          for (const key of Object.keys(f) as (keyof BrandFields)[]) if (brand[key]) next[key] = brand[key]!;
-          return next;
-        });
-      }
-      setChat([...nextChat, { role: "assistant", content: data.reply }]);
+      // Applied to the latest draft (the operator may have edited meanwhile); the
+      // skipped count and the client-info fields come from the site the AI saw.
+      setTpl((cur) => applyAiEdits(cur, data.edits).tpl);
+      const seen = applyAiEdits(tpl, data.edits);
+      setFields((f) => {
+        const next = { ...f };
+        for (const key of Object.keys(f) as (keyof BrandFields)[]) if (seen.tpl.brand[key] !== tpl.brand[key]) next[key] = seen.tpl.brand[key];
+        return next;
+      });
+      const skippedNote = seen.skipped
+        ? `\n\n⚠️ ${pick(
+          lang,
+          `${seen.skipped} of these changes could not be applied: it would have broken the page or used a photo the site does not have. Try asking in other words.`,
+          `${seen.skipped} de estos cambios no se pudieron aplicar: habrían dañado la página o usado una foto que el sitio no tiene. Intente pedirlo de otra forma.`,
+        )}`
+        : "";
+      setChat([...nextChat, { role: "assistant", content: data.reply + skippedNote }]);
     } catch (e) {
       const m = e instanceof Error ? e.message : pick(lang, "Request failed", "No se pudo completar la solicitud");
       setError(m);
