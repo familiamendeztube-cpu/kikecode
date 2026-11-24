@@ -14,11 +14,13 @@ export function brandFields({ name, phone, city, address, email }: BusinessTempl
   return { name, phone, city, address, email };
 }
 
-/** The content kike-sites stores for a site: what `save` sends and a revision freezes. */
-export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemplate) {
-  // Snapshot every editable field beyond brand/content/photos so panel + inline
-  // edits round-trip. JSON round-trip strips functions (icons) and undefined.
-  const overrides = JSON.parse(
+/**
+ * Every editable field beyond the copy, as plain JSON: what a save stores so
+ * panel, inline and AI edits round-trip. The JSON round-trip strips functions
+ * (icons) and undefined.
+ */
+export function siteOverrides(tpl: BusinessTemplate): Record<string, unknown> {
+  return JSON.parse(
     JSON.stringify({
       brand: tpl.brand,
       media: tpl.media,
@@ -41,6 +43,11 @@ export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemp
       contentConfirmed: tpl.contentConfirmed,
     }),
   );
+}
+
+/** The content kike-sites stores for a site: what `save` sends and a revision freezes. */
+export function sitePayload(slug: string, fields: BrandFields, tpl: BusinessTemplate) {
+  const overrides = siteOverrides(tpl);
   return {
     slug,
     template_version: templateVersion(slug),

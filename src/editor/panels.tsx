@@ -478,8 +478,8 @@ export function AiChatLog({ chat, sending, error }: { chat: ChatMsg[]; sending: 
       <p className="text-[11px] text-slate-500">
         {pick(
           lang,
-          "Tell the AI what to change in plain language: \"make it sound more elegant\", \"add their 25 years of experience to the hero\", \"translate this for a Cuban audience in Miami\"…",
-          "Dígale a la IA qué cambiar, en palabras sencillas: \"que suene más elegante\", \"agregue sus 25 años de experiencia a la sección principal\", \"adapte esto para un público cubano en Miami\"…",
+          "Tell the AI what to change in plain language: text, colors, photos, prices, anything on the site. \"Make the main color blue\", \"use the second gallery photo as the main one\", \"a haircut costs ₡6 000\", \"make it sound more elegant\"…",
+          "Dígale a la IA qué cambiar, en palabras sencillas: textos, colores, fotos, precios, cualquier cosa del sitio. \"Cambie el color principal a azul\", \"ponga la segunda foto de la galería como la principal\", \"el corte cuesta ₡6 000\", \"que suene más elegante\"…",
         )}
       </p>
 

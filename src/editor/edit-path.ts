@@ -1,6 +1,16 @@
 /** Where a field lives in a template, e.g. ["content", "en", "hero", "title1"]. */
 export type EditPath = (string | number)[];
 
+/** Keys that hold an image or video URL, and lists whose items are image URLs. */
+export const IMG_KEYS = new Set(["hero", "heroPoster", "teamPortrait", "logo", "src", "poster"]);
+export const VIDEO_KEYS = new Set(["heroVideo", "video"]);
+export const IMG_ARRAY_PARENTS = new Set(["gallery", "images"]);
+
+export function looksLikeImage(v: string): boolean {
+  return v.startsWith("data:image/") || /\.(png|jpe?g|webp|gif|svg|avif)(\?|$)/i.test(v) ||
+    v.startsWith("http") && /(images|photo|img|unsplash|cdn)/i.test(v);
+}
+
 /** Immutably set a deep value by path (creating object/array spines as needed). */
 export function setByPath<T>(root: T, path: EditPath, value: unknown): T {
   if (path.length === 0) return value as T;

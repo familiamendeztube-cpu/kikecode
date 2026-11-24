@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Plus, LayoutGrid, Radio, LogOut, Users } from "lucide-react";
+import { Plus, LayoutGrid, Radio, LogOut, Users, FolderOpen } from "lucide-react";
 import { supabase } from "@/lib/plw";
 import { pick } from "@/lib/i18n";
 import { useOperatorLang } from "@/lib/operator-lang";
@@ -18,6 +18,10 @@ export function OperatorBar() {
           <Link href="/" className={LINK} data-testid="link-gallery">
             <LayoutGrid className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{pick(lang, "Templates", "Plantillas")}</span>
+          </Link>
+          <Link href="/mis-sitios" className={LINK} data-testid="link-my-sites">
+            <FolderOpen className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{pick(lang, "My sites", "Mis sitios")}</span>
           </Link>
           <Link href="/demos" className={LINK} data-testid="link-demos">
             <Radio className="w-3.5 h-3.5" />

@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, ImagePlus, Plus, Trash2 } from "lucide-react";
 import type { BusinessTemplate, Lang } from "@/templates/types";
-import type { EditPath } from "./edit-path";
+import { IMG_ARRAY_PARENTS, IMG_KEYS, VIDEO_KEYS, looksLikeImage, type EditPath } from "./edit-path";
 import { pick } from "@/lib/i18n";
 import { useOperatorLang } from "@/lib/operator-lang";
 
@@ -24,9 +24,6 @@ const SKIP_KEYS = new Set([
   "heroIcon", "serviceIcons", "whyIcons", "icon", "palette", "lockedLang", "defaultLang",
   "websiteType", "defaultServicesField", "slug", "id", "phoneHref", "phoneAltHref",
 ]);
-const IMG_KEYS = new Set(["hero", "heroPoster", "teamPortrait", "logo", "src", "poster"]);
-const VIDEO_KEYS = new Set(["heroVideo", "video"]);
-const IMG_ARRAY_PARENTS = new Set(["gallery", "images"]);
 
 /** Field labels in the staff UI language: [English, Spanish]. */
 const LABELS: Record<string, [en: string, es: string]> = {
@@ -76,11 +73,6 @@ function humanize(key: string, lang: Lang): string {
     .replace(/[_-]/g, " ")
     .replace(/^\w/, (c) => c.toUpperCase())
     .trim();
-}
-
-function looksLikeImage(v: string): boolean {
-  return v.startsWith("data:image/") || /\.(png|jpe?g|webp|gif|svg|avif)(\?|$)/i.test(v) ||
-    v.startsWith("http") && /(images|photo|img|unsplash|cdn)/i.test(v);
 }
 
 function ImageField({

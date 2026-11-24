@@ -26,7 +26,8 @@ function OperatorRoutes() {
       <Route path="/templates" component={Templates} />
       <Route path="/templates/:slug/preview" component={TemplatePreview} />
       <Route path="/sites/:id/edit" component={EditSite} />
-      <Route path="/demos" component={Demos} />
+      <Route path="/demos"><Demos /></Route>
+      <Route path="/mis-sitios"><Demos mine /></Route>
       <Route path="/videos" component={Videos} />
       <Route path="/equipo" component={Team} />
       <Route component={NotFound} />
