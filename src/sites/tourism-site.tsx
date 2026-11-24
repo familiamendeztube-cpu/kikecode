@@ -7,7 +7,7 @@ import {
 import * as Dialog from "@radix-ui/react-dialog";
 import type { BusinessTemplate, Lang, TourismDemo } from "@/templates/types";
 import { pick } from "@/lib/i18n";
-import { waLink } from "@/sites/shared/whatsapp";
+import { PLW_WHATSAPP, waLink } from "@/sites/shared/whatsapp";
 import { useReturnFocus } from "@/sites/shared/return-focus";
 import { claimAudio, releaseAudio } from "@/sites/shared/site-audio";
 import { SecretariaCard } from "@/sites/shared/secretaria-card";
@@ -588,11 +588,13 @@ export default function TourismSite({ template, previewToken }: { template: Busi
   const t = template.content[lang];
   const TypeIcon = brand.heroIcon;
   // The business type's calls to action: WhatsApp with its own message when the
-  // draft has a confirmed phone, else the contact section.
+  // draft has a confirmed phone. A sample without one is still a demo for its
+  // owner, so its buttons write to PLW instead (owner decision 2026-11-24).
   const ctas = template.plwSite?.ctas ?? [{ label: t.hero.cta1, message: "" }];
-  const ctaHref = (message: string) => (phone ? waLink(brand.whatsapp || phone.href, message || undefined) : "#contact");
+  const plwHref = waLink(PLW_WHATSAPP, pick(lang, `Hi! I saw the sample website for "${brand.name}" and would like more information.`, `¡Hola! Vi la muestra del sitio web de "${brand.name}" y quisiera más información.`));
+  const ctaHref = (message: string) => (phone ? waLink(brand.whatsapp || phone.href, message || undefined) : plwHref);
   const askHref = (service: string) =>
-    phone ? waLink(brand.whatsapp || phone.href, pick(lang, `Hi! I'd like to ask about: ${service}.`, `¡Hola! Quisiera consultar por: ${service}.`)) : "#contact";
+    phone ? waLink(brand.whatsapp || phone.href, pick(lang, `Hi! I'd like to ask about: ${service}.`, `¡Hola! Quisiera consultar por: ${service}.`)) : plwHref;
   // The first approved image leads the hero; then the draft's own hero image; then
   // the template's stock photo (tourism only). The other types get HeroArt.
   const approved = demo.approvedImages;
@@ -664,7 +666,7 @@ export default function TourismSite({ template, previewToken }: { template: Busi
               {nav.map((n) => (
                 <a key={n.href} href={n.href} className="rounded-full px-3 py-2 transition-colors hover:bg-white/10 hover:text-white">{n.label}</a>
               ))}
-              <Cta href={ctaHref(ctas[0].message)} external={!!phone} size="sm" className="ml-2">{ctas[0].label}</Cta>
+              <Cta href={ctaHref(ctas[0].message)} external size="sm" className="ml-2">{ctas[0].label}</Cta>
             </nav>
             <button
               className={`grid size-10 place-items-center rounded-full text-white hover:bg-white/10 md:hidden ${PRESS}`}
@@ -696,7 +698,7 @@ export default function TourismSite({ template, previewToken }: { template: Busi
                 <a key={n.href} href={n.href} onClick={() => setMenuOpen(false)} className="border-b border-white/10 py-4 text-lg font-medium">{n.label}</a>
               ))}
             </nav>
-            <Cta href={ctaHref(ctas[0].message)} external={!!phone} className="mt-6 w-full">{ctas[0].label}</Cta>
+            <Cta href={ctaHref(ctas[0].message)} external className="mt-6 w-full">{ctas[0].label}</Cta>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
@@ -730,9 +732,9 @@ export default function TourismSite({ template, previewToken }: { template: Busi
               </p>
             )}
             <div className="plw-rise mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Cta href={ctaHref(ctas[0].message)} external={!!phone}><MessageCircle className="size-5" /> {ctas[0].label}</Cta>
+              <Cta href={ctaHref(ctas[0].message)} external><MessageCircle className="size-5" /> {ctas[0].label}</Cta>
               {ctas[1] ? (
-                <Cta variant="ghost" href={ctaHref(ctas[1].message)} external={!!phone}><MessageCircle className="size-5" /> {ctas[1].label}</Cta>
+                <Cta variant="ghost" href={ctaHref(ctas[1].message)} external><MessageCircle className="size-5" /> {ctas[1].label}</Cta>
               ) : demo.services.length > 0 && (
                 <Cta variant="ghost" href="#services">{pick(lang, "See services", "Ver servicios")} <ArrowRight className="size-4" /></Cta>
               )}
@@ -760,7 +762,7 @@ export default function TourismSite({ template, previewToken }: { template: Busi
                         <TypeIcon className="size-5" aria-hidden />
                       </span>
                       <h3 className="mt-6 text-lg font-semibold leading-snug text-[#1C241E]">{s}</h3>
-                      <a href={askHref(s)} {...(phone ? EXTERNAL : {})} className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-semibold text-[#1F5E3B]">
+                      <a href={askHref(s)} {...EXTERNAL} className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-semibold text-[#1F5E3B]">
                         {pick(lang, "Ask about it", "Consultar")} <ArrowRight className="size-4 transition-[translate] duration-300 group-hover:translate-x-1" />
                       </a>
                     </div>
@@ -952,6 +954,7 @@ export default function TourismSite({ template, previewToken }: { template: Busi
                   <p className="mt-2 text-sm text-white/70">
                     {pick(lang, "This is a preview — the business's phone is not published yet. Contact us to add it.", "Esto es una vista previa — el teléfono del negocio aún no está publicado. Contáctenos para agregarlo.")}
                   </p>
+                  <Cta href={plwHref} external size="sm" className="mt-4"><MessageCircle className="size-4" /> {pick(lang, "Contact us on WhatsApp", "Contáctenos por WhatsApp")}</Cta>
                 </div>
               )}
               {fullPlace && <p className="mt-8 flex items-center gap-2 text-white/70"><MapPin className="size-4 shrink-0" /> {fullPlace}</p>}

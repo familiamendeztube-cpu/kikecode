@@ -146,7 +146,8 @@ export function ContentCheckPanel({ applies, confirmed, onConfirmed }: {
   );
 }
 
-export type ShareState = { url: string; copied: boolean } | null;
+/** The saved draft's preview link, and which copy button just copied ("both": site + Secretaria). */
+export type ShareState = { url: string; copied: "site" | "both" | null } | null;
 
 export function SharePanel({
   clients, clientId, onClientId, customDomain, onCustomDomain, saved, saving, error, invalid, share, onSave, onCopy,
@@ -164,7 +165,7 @@ export function SharePanel({
   error: string | null;
   share: ShareState;
   onSave: () => void;
-  onCopy: () => void;
+  onCopy: (which: "site" | "both") => void;
 }) {
   const { lang } = useOperatorLang();
   return (
@@ -231,9 +232,9 @@ export function SharePanel({
               className="bg-slate-950 border-slate-700 text-white text-[11px] h-8 px-2"
               onFocus={(e) => e.currentTarget.select()}
               data-testid="input-share-url" />
-            <Button size="sm" variant="secondary" onClick={onCopy}
+            <Button size="sm" variant="secondary" onClick={() => onCopy("site")}
               className="h-8 px-2.5 shrink-0" data-testid="button-copy-share">
-              <IconSwap swapped={share.copied} from={<Copy className="w-3.5 h-3.5" />} to={<Check className="w-3.5 h-3.5" />} />
+              <IconSwap swapped={share.copied === "site"} from={<Copy className="w-3.5 h-3.5" />} to={<Check className="w-3.5 h-3.5" />} />
             </Button>
             <a href={share.url} target="_blank" rel="noreferrer"
               className="h-8 px-2.5 shrink-0 inline-flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200"
@@ -241,11 +242,16 @@ export function SharePanel({
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
+          <Button size="sm" variant="secondary" onClick={() => onCopy("both")}
+            className="w-full h-8 text-[11px]" data-testid="button-copy-both">
+            <IconSwap swapped={share.copied === "both"} from={<Copy className="w-3.5 h-3.5" />} to={<Check className="w-3.5 h-3.5" />} />
+            <span className="ml-1.5">{pick(lang, "Copy both links (site + AI Secretary)", "Copiar ambos enlaces (sitio + Secretaria IA)")}</span>
+          </Button>
           <p className="flex items-start gap-1 text-[10px] text-emerald-400">
             <Check className="w-3 h-3 mt-px shrink-0" /> {pick(
               lang,
-              "Draft saved. This preview link shows it to your client on any phone; its forms send nothing.",
-              "Borrador guardado. Este enlace de vista previa se lo muestra a su cliente en cualquier teléfono; sus formularios no envían nada.",
+              "Draft saved. This preview link shows it to your client on any phone; its forms send nothing. The second link lets them talk to the AI Secretary (3 conversations per link).",
+              "Borrador guardado. Este enlace de vista previa se lo muestra a su cliente en cualquier teléfono; sus formularios no envían nada. El segundo enlace le permite hablar con la Secretaria IA (3 conversaciones por enlace).",
             )}
           </p>
         </div>

@@ -188,7 +188,7 @@ export default function Customizer({
       // A new id reloads the lifecycle by itself; the same id needs a refresh.
       if (saved.id === siteId) void lifecycle.refresh().catch(() => {});
       setSiteId(saved.id);
-      setShare({ url: saved.url, copied: false });
+      setShare({ url: saved.url, copied: null });
     } catch (e) {
       setShareError(saveErrorMessage(e));
       // Take the operator to the first rejected field that has an input in the drawer.
@@ -202,12 +202,13 @@ export default function Customizer({
     }
   }
 
-  async function copyShareUrl() {
+  /** Copy the preview link, or both links for WhatsApp: the site first, then its Secretaria IA. */
+  async function copyShareUrl(which: "site" | "both") {
     if (!share) return;
     try {
-      await navigator.clipboard.writeText(share.url);
-      setShare({ ...share, copied: true });
-      setTimeout(() => setShare((s) => (s ? { ...s, copied: false } : s)), 2000);
+      await navigator.clipboard.writeText(which === "both" ? `${share.url}\n${share.url}/secretaria` : share.url);
+      setShare({ ...share, copied: which });
+      setTimeout(() => setShare((s) => (s ? { ...s, copied: null } : s)), 2000);
     } catch {
       /* ignore */
     }

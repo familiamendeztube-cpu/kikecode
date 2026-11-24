@@ -4,6 +4,13 @@
 
 export const CONVERSE_ENDPOINT = "https://meagbbmittuhdgwnhvxa.supabase.co/functions/v1/plw-secretary-converse";
 
+/** The token PLW's Secretaria takes for a preview link's token: a Call Center
+ *  sample's without its "plw-", a Kike Code draft's as "kike-<token>" (PLW then
+ *  reads that business from Kike's public preview). */
+export function secretaryToken(previewToken: string): string {
+  return previewToken.startsWith("plw-") ? previewToken.slice(4) : `kike-${previewToken}`;
+}
+
 export type DemoStatus = {
   notice: string;
   closing: string;
