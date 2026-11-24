@@ -225,7 +225,8 @@ export function ClosingCta({ brand, p, lang }: SiteProps) {
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a href={brand.phoneHref} className={`inline-flex items-center justify-center gap-2 bg-white font-bold px-7 py-4 rounded-lg shadow-2xl hover:-translate-y-0.5 ${PRESS}`} style={{ color: p.primaryDark }}>
-            <Phone className="w-4 h-4" /> {pick(lang, "Call now", "Llamar ahora")}
+            {/* The number shows: on a computer a tel: link does nothing, so the visitor reads it. */}
+            <Phone className="w-4 h-4" /> {pick(lang, "Call", "Llamar al")} {brand.phone}
           </a>
           <WhatsAppButton
             href={whatsappLink(brand, hello(brand, lang))}

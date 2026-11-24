@@ -4,6 +4,7 @@ import type { BusinessTemplate, Lang } from "@/templates/types";
 import { pick } from "@/lib/i18n";
 import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
 import { PRESS, type SiteProps } from "./ui";
+import { whatsappLink } from "@/sites/shared/whatsapp";
 import { buildGreeting } from "./data";
 import { bookingCopy, PREFERRED_TIMES } from "./booking-copy";
 
@@ -47,7 +48,12 @@ export function AssistantStrip({ template, brand, p, lang }: SiteProps) {
           </p>
         </div>
 
-        <a href={brand.phoneHref} className={`hidden md:inline-flex items-center justify-center gap-2 text-white font-bold px-5 py-3 rounded-xl shadow-md hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primaryDark }}>
+        {/* Computers only (md+), where a tel: link does nothing: a chat with the business on WhatsApp. */}
+        <a
+          href={whatsappLink(brand, pick(lang, `Hi ${brand.name}! I'd like to talk to someone.`, `¡Hola ${brand.name}! Quisiera hablar con una persona.`))}
+          target="_blank" rel="noopener noreferrer"
+          className={`hidden md:inline-flex items-center justify-center gap-2 text-white font-bold px-5 py-3 rounded-xl shadow-md hover:opacity-90 ${PRESS}`} style={{ backgroundColor: p.primaryDark }}
+        >
           <MessageCircle className="w-4 h-4" />
           {pick(lang, "Talk to a human", "Hable con una persona")}
         </a>

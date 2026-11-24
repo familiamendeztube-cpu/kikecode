@@ -239,7 +239,7 @@ export function InventorySection({ inv, lang, p, brand }: {
                       <MessageCircle className="w-4 h-4" /> {L.whatsapp}
                     </WhatsAppButton>
                     <a href={brand.phoneHref} className="flex-1 inline-flex items-center justify-center gap-2 font-bold px-5 py-3 rounded-xl text-white transition-opacity hover:opacity-90" style={{ backgroundColor: p.primary }}>
-                      <Phone className="w-4 h-4" /> {L.call}
+                      <Phone className="w-4 h-4" /> {L.call} {brand.phone}
                     </a>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2.5">
