@@ -154,7 +154,7 @@ export function Globe({ className = "" }: { className?: string }) {
       ctx.fillStyle = sphere;
       ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
 
-      const dot = Math.max(1, R / 230);
+      const dot = Math.max(1.2, R / 170);
       for (const d of dots) {
         const p = view(d);
         if (p.front <= 0) continue;

@@ -352,7 +352,7 @@ function PassScene({ template, t, lang, trip }: Site) {
   const promise = lang === "es" ? template.facts?.guaranteeEs : template.facts?.guaranteeEn;
   return (
     <div id="booking" data-scene="pass" className="tw-scene tw-pass">
-      <div className="tw-ticket-wrap">
+      <div data-j="ticket-wrap" className="tw-ticket-wrap">
         <article data-j="ticket" className="tw-ticket">
           <PassMap className="tw-ticket-map" />
           <div className="tw-ticket-body">
@@ -455,6 +455,10 @@ function NightScene(site: Site) {
         <p data-rise className="tw-lead text-(--claro-2)">{t.contact.blurb}</p>
       </div>
       <div className="tw-night-form tw-gutter"><RequestForm {...site} /></div>
+      <div data-j="land" aria-hidden className="tw-layer tw-land">
+        <Shot s={SCENERY.bay} />
+        <div data-j="land-clouds" className="tw-land-clouds"><Clouds seed={29} top={0.05} density={1.6} className="size-full" /></div>
+      </div>
     </div>
   );
 }
@@ -736,6 +740,7 @@ function Footer({ template, t, lang, onJump }: Site & { onJump: (e: MouseEvent<H
           </p>
         </div>
       </div>
+      <p aria-hidden className="tw-footer-giant">{brand.name.split(" ")[0]}</p>
       <Engraving className="mt-6 block h-[clamp(160px,22vw,320px)] w-full" />
     </footer>
   );
@@ -894,9 +899,17 @@ const CSS = `
 .is-staged .tw-night .tw-layer { display: block; }
 .is-staged .tw-night-head { position: absolute; inset: calc(var(--nav-h) + 1.5vh) 0 auto; z-index: 3; }
 .is-staged .tw-night-head .tw-hero { font-size: clamp(36px, min(4.6vw, 7.4vh), 76px); }
-.is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 8vh + 70px) 0 290px; }
-.is-staged .tw-night .tw-win { width: clamp(120px, min(16vw, 27vh), 260px); }
+.is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 4vh + 70px) 0 0; align-items: flex-start; }
+.is-staged .tw-night .tw-win { width: min(29vw, 62vh * 33 / 42); }
 .is-staged .tw-night-form { position: absolute; inset: auto 0 20px; }
+/* The landing after the boat pass: the bay from above, through a last bank of cloud. */
+.tw-land { z-index: 4; }
+.tw-land-clouds { position: absolute; inset: -10% -10% -30%; background: radial-gradient(70% 60% at 50% 55%, rgba(236,241,247,.9), rgba(236,241,247,0) 75%); }
+/* Like rumo: the menu and the chat button step aside during the film's quiet scenes. */
+.tw-nav { transition: translate .6s cubic-bezier(.2,.7,.2,1), opacity .6s; }
+.tw-nav-off .tw-nav { translate: 0 -110%; opacity: 0; pointer-events: none; }
+.tw-in-journey .tw-dock { opacity: 0 !important; translate: 0 24px !important; pointer-events: none !important; }
+.tw-footer-giant { position: relative; margin: 48px 0 -0.12em; padding-inline: var(--gutter); font-family: "Archivo", system-ui, sans-serif; font-weight: 700; font-size: clamp(88px, 24vw, 420px); line-height: .8; letter-spacing: -0.06em; color: var(--claro); white-space: nowrap; overflow: hidden; }
 /* Phones get the same film, fitted to a tall narrow screen. */
 .tw-in-journey .tw-mbar { translate: 0 100% !important; }
 @media (max-width: 767px) {
