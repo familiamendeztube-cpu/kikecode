@@ -44,8 +44,8 @@ const OUT = "expo.out";
  * never rewrites their text (an editor change or a language switch would
  * otherwise leave stale words on screen).
  *
- * THE JOURNEY ([data-journey]): on a laptop-sized screen or bigger, with motion
- * allowed, everything above the FAQ is one pinned stage. The class
+ * THE JOURNEY ([data-journey]): on any screen at least 520px tall, with motion
+ * allowed (phones included), everything above the FAQ is one pinned stage. The class
  * `is-staged` lays its scenes ([data-scene]) on top of each other, and one
  * scrubbed timeline plays them like a film as the visitor scrolls:
  *
@@ -58,7 +58,7 @@ const OUT = "expo.out";
  *   pass   the boat pass slides in, its numbers type out, the stub tears off
  *   night  the windows come back at night, and the request form rises
  *
- * Without the stage (phones, reduced motion, before this runs) the same scenes
+ * Without the stage (reduced motion, very short screens, before this runs) the same scenes
  * are ordinary sections, one after another, with everything in place.
  *
  * Elsewhere:
@@ -78,7 +78,7 @@ export function useSiteMotion(root: RefObject<HTMLElement | null>, key: string) 
     mm.add(
       {
         motion: "(prefers-reduced-motion: no-preference)",
-        stage: "(min-width: 768px) and (min-height: 600px)",
+        stage: "(min-height: 520px)",
         mouse: "(pointer: fine)",
       },
       (ctx) => {
@@ -341,6 +341,13 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
     invalidateOnRefresh: true,
     animation: tl,
   });
+  // The phone action bar steps aside while the film plays, and until its last frame (the form) scrolls away.
+  ScrollTrigger.create({
+    start: () => st.start,
+    end: () => st.end + window.innerHeight * 0.9,
+    onToggle: (self) => document.documentElement.classList.toggle("tw-in-journey", self.isActive),
+  });
+  cleanups.push(() => document.documentElement.classList.remove("tw-in-journey"));
 
   // Nav links to scenes land where the scene has fully arrived.
   for (const [id, time] of Object.entries(at)) {
