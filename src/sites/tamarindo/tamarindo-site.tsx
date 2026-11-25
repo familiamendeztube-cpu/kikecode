@@ -823,7 +823,8 @@ const CSS = `
 .tw-card { position: relative; overflow: hidden; border-radius: var(--raio); min-height: 78svh; color: var(--claro); background: #20262f; isolation: isolate; }
 .tw-card-photo { position: absolute; inset: 0; z-index: -2; }
 .tw-card-dim { position: absolute; inset: 0; z-index: 4; background: #07131F; opacity: 0; pointer-events: none; }
-.is-staged [data-card], .is-staged [data-j='windows'], .is-staged [data-j='night-windows'], .is-staged [data-j] > img, .is-staged [data-j^='cloud'] { will-change: transform, opacity; }
+/* The window rows are left off this list on purpose: they zoom to several times the screen, and a layer that big runs out of GPU tiles in Chrome and paints in pieces. */
+.is-staged [data-card], .is-staged [data-j] > img, .is-staged [data-j^='cloud'] { will-change: transform, opacity; }
 .tw-card-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(8,10,14,.72) 100%), linear-gradient(90deg, rgba(8,10,14,.45) 0%, rgba(8,10,14,0) 50%); }
 .tw-card-text { position: absolute; left: clamp(20px, 3vw, 48px); bottom: clamp(20px, 4vw, 56px); right: 340px; }
 .tw-card-title { font-size: var(--t-card); line-height: .92; letter-spacing: -0.035em; }
