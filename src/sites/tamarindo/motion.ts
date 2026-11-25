@@ -10,12 +10,13 @@ gsap.registerPlugin(ScrollTrigger);
 let lenis: Lenis | null = null;
 
 /** Sections inside the pinned journey have no place of their own on the page while
- *  it plays: each id maps to the scroll position where its scene is on screen. */
-const jumps = new Map<string, () => number>();
+ *  it plays: each one (and #contact, just after it) maps to the scroll position where
+ *  its scene is on screen. */
+const jumps = new Map<Element, () => number>();
 
 /** Glide to an element: through Lenis when it runs, else the browser's own scrolling. */
 export function scrollToEl(target: HTMLElement) {
-  const at = jumps.get(target.id)?.();
+  const at = jumps.get(target)?.();
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (at !== undefined) {
     if (lenis) lenis.scrollTo(at, { duration: 1.8 });
@@ -49,14 +50,19 @@ const OUT = "expo.out";
  * `is-staged` lays its scenes ([data-scene]) on top of each other, and one
  * scrubbed timeline plays them like a film as the visitor scrolls:
  *
- *   open   the headline lifts away; the camera flies into the middle window
- *   fly    over the bay, then down through the clouds to the coast
- *   tours  the coast shrinks into the first card; each scroll slides the next
- *          card up over the stack
- *   world  the cards fan out and fall into the globe, which turns to Costa
- *          Rica while routes draw in to Tamarindo (canvas.tsx paints it)
- *   pass   the boat pass slides in, its numbers type out, the stub tears off
- *   night  the windows come back at night, and the request form rises
+ *   open    the headline lifts away; the camera flies into the middle window
+ *   fly     over the bay, then down through the clouds to the coast
+ *   tours   the coast shrinks into the first card; each scroll slides the next
+ *           card up over the stack
+ *   world   the cards fan out and fall into the globe, which turns to Costa
+ *           Rica while routes draw in to Tamarindo (canvas.tsx paints it)
+ *   captain Willy's portrait opens up; his days on the water roll past
+ *   pass    the boat pass slides in, its numbers type out, the stub tears off
+ *           and "Get my quote" rises where it was
+ *   night   the windows come back at night, and the request form rises
+ *
+ * Scenes fade with opacity, never visibility: screen readers read every scene,
+ * and Tab plays the film to whatever it focuses.
  *
  * Without the stage (reduced motion, very short screens, before this runs) the same scenes
  * are ordinary sections, one after another, with everything in place.
@@ -125,10 +131,11 @@ export function useSiteMotion(root: RefObject<HTMLElement | null>, key: string) 
           once(h, () => gsap.to(words, { yPercent: 0, duration: 1.2, ease: OUT, stagger: 0.05, overwrite: true }));
         }
 
+        // Opacity, not autoAlpha: text waiting to rise stays readable to screen readers.
         for (const r of q("[data-rise]")) {
           if (inStage(r) || r.closest("[data-scene='open']")) continue;
-          gsap.set(r, { y: 36, autoAlpha: 0 });
-          once(r, () => gsap.to(r, { y: 0, autoAlpha: 1, duration: 1.1, ease: OUT, overwrite: true }));
+          gsap.set(r, { y: 36, opacity: 0 });
+          once(r, () => gsap.to(r, { y: 0, opacity: 1, duration: 1.1, ease: OUT, overwrite: true }));
         }
 
         if (mouse) {
@@ -187,7 +194,12 @@ function intoWindow(row: HTMLElement) {
   };
 }
 
-/** The pinned film. Times are in "screens": one unit is a little under one screen of scrolling. */
+/** Screens of scrolling per unit of film time: the one knob for how long the film scrolls.
+ *  Lower plays the same motion in fewer scrolls (the scrub and Lenis keep it smooth);
+ *  too low and one flick on a phone skips past a tour card. */
+const SCROLL = 0.55;
+
+/** The pinned film. Times are in units of SCROLL screens of scrolling. */
 function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean) {
   const one = (sel: string, root: ParentNode = stage) => root.querySelector<HTMLElement>(sel) ?? undefined;
   const scene = (name: string) => one(`[data-scene='${name}']`);
@@ -195,18 +207,35 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
   const rises = (root?: Element) => root?.querySelectorAll("[data-rise]") ?? [];
 
   const open = scene("open"), fly = scene("fly"), tours = scene("tours"), world = scene("world"), captain = scene("captain"), pass = scene("pass"), night = scene("night");
-  gsap.set([fly, tours, world, captain, pass, night].filter(Boolean), { autoAlpha: 0 });
+  const passCta = pass && one("[data-j='pass-cta']", pass);
+
+  // Everything here fades with opacity, never visibility, so screen readers and the Tab
+  // key reach every scene. A scene (or the pass's button) that isn't showing must not
+  // catch the clicks meant for what is on screen.
+  const faders = [open, fly, tours, world, captain, pass, night, passCta].filter((x): x is HTMLElement => !!x);
+  const syncPointer = () => {
+    for (const x of faders) {
+      const v = Number(gsap.getProperty(x, "opacity")) > 0.5 ? "" : "none";
+      if (x.style.pointerEvents !== v) x.style.pointerEvents = v;
+    }
+  };
+  cleanups.push(() => faders.forEach((x) => { x.style.pointerEvents = ""; }));
+  gsap.set([fly, tours, world, captain, pass, night].filter(Boolean), { opacity: 0 });
   intro(stage);
 
-  const tl = gsap.timeline({ defaults: { ease: "none", force3D: true } });
-  const at: Record<string, number> = { top: 0 };
+  const tl = gsap.timeline({ defaults: { ease: "none", force3D: true }, onUpdate: syncPointer });
+  /** Where each part of the film has fully arrived: nav links and keyboard focus land there. */
+  const at = new Map<Element, number>([[stage, 0]]);
+  if (open) at.set(open, 0);
   const marks = { worldIn: Infinity, capIn: Infinity, passIn: Infinity, nightIn: Infinity };
 
   // 1 · open: the words lift, the camera flies into the middle window.
   const row = open && one("[data-j='windows']", open);
   if (open && row) {
-    tl.to(open.querySelectorAll("[data-j='head'] [data-words] .w > span, [data-j='head'] [data-rise]"), { yPercent: -120, autoAlpha: 0, stagger: 0.02, duration: 0.45, ease: "power2.in" }, 0)
-      .to(one("[data-j='foot']", open) ?? [], { y: 60, autoAlpha: 0, duration: 0.45, ease: "power2.in" }, 0)
+    // The intro raises these same words. A fromTo just after 0 never renders while the page
+    // sits at the top, so it can't save a half-raised word as the place to scroll back to.
+    tl.fromTo(open.querySelectorAll("[data-j='head'] [data-words] .w > span, [data-j='head'] [data-rise]"), { yPercent: 0, opacity: 1 }, { yPercent: -120, opacity: 0, stagger: 0.02, duration: 0.45, ease: "power2.in", immediateRender: false }, 0.01)
+      .to(one("[data-j='foot']", open) ?? [], { y: 60, opacity: 0, duration: 0.45, ease: "power2.in" }, 0)
       .fromTo(row, { x: 0, y: 0, scale: 1 }, {
         x: () => intoWindow(row).x, y: () => intoWindow(row).y, scale: () => intoWindow(row).scale,
         transformOrigin: () => intoWindow(row).origin, duration: 1.6, ease: "power2.in", immediateRender: false,
@@ -218,20 +247,19 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
   if (fly) {
     const bay = one("[data-j='bay']", fly), above = one("[data-j='above']", fly);
     const front = one("[data-j='cloud-front']", fly), back = one("[data-j='cloud-back']", fly);
-    tl.set(fly, { autoAlpha: 1 }, t)
-      .fromTo(fly, { opacity: 0 }, { opacity: 1, duration: 0.45 }, t)
+    tl.fromTo(fly, { opacity: 0 }, { opacity: 1, duration: 0.45 }, t)
       .fromTo(bay?.querySelector("img") ?? [], { scale: 1.08 }, { scale: 1.2, duration: 1.4 }, t);
-    if (open) tl.set(open, { autoAlpha: 0 }, t + 0.5);
+    if (open) tl.set(open, { opacity: 0 }, t + 0.5);
     tl.from(words(fly), { yPercent: 115, stagger: 0.04, duration: 0.5, ease: "power2.out" }, t + 0.5)
-      .from(rises(fly), { y: 24, autoAlpha: 0, duration: 0.4 }, t + 0.7)
-      .to(one("[data-j='fly-copy']", fly) ?? [], { y: -80, autoAlpha: 0, duration: 0.5, ease: "power1.in" }, t + 1.5)
+      .from(rises(fly), { y: 24, opacity: 0, duration: 0.4 }, t + 0.7)
+      .to(one("[data-j='fly-copy']", fly) ?? [], { y: -80, opacity: 0, duration: 0.5, ease: "power1.in" }, t + 1.5)
       .to(bay?.querySelector("img") ?? [], { scale: 1.9, yPercent: 8, duration: 1.3, ease: "power1.in" }, t + 1.4)
-      .fromTo(back ?? [], { yPercent: 0 }, { yPercent: -70, scale: 1.4, autoAlpha: 0, duration: 1.3 }, t + 1.4)
-      .fromTo(front ?? [], { yPercent: 90, autoAlpha: 0 }, { yPercent: -10, autoAlpha: 1, duration: 1.0, ease: "power1.out" }, t + 1.6)
-      .fromTo(above ?? [], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 }, t + 2.4)
+      .fromTo(back ?? [], { yPercent: 0 }, { yPercent: -70, scale: 1.4, opacity: 0, duration: 1.3 }, t + 1.4)
+      .fromTo(front ?? [], { yPercent: 90, opacity: 0 }, { yPercent: -10, opacity: 1, duration: 1.0, ease: "power1.out" }, t + 1.6)
+      .fromTo(above ?? [], { opacity: 0 }, { opacity: 1, duration: 0.2 }, t + 2.4)
       .fromTo(above?.querySelector("img") ?? [], { scale: 1.6 }, { scale: 1, duration: 1.4, ease: "power2.out" }, t + 2.4)
-      .to(front ?? [], { yPercent: -130, scale: 1.3, autoAlpha: 0, duration: 1.1, ease: "power1.in" }, t + 2.6)
-      .set(bay ?? [], { autoAlpha: 0 }, t + 2.6);
+      .to(front ?? [], { yPercent: -130, scale: 1.3, opacity: 0, duration: 1.1, ease: "power1.in" }, t + 2.6)
+      .set(bay ?? [], { opacity: 0 }, t + 2.6);
     t += 4.1;
   }
 
@@ -245,20 +273,22 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
       const r = deck.getBoundingClientRect();
       return `inset(${r.top}px ${window.innerWidth - r.right}px ${window.innerHeight - r.bottom}px ${r.left}px round 28px)`;
     };
-    at.tours = t + 0.4;
+    // Each card has fully arrived just before the next one deals up over it.
+    cards.forEach((card, k) => at.set(card, t + 1.25 + k * CARD));
+    at.set(tours, t + 1.25);
     if (above) tl.fromTo(above, { clipPath: "inset(0px 0px 0px 0px round 0px)" }, { clipPath: frame, duration: 0.7, ease: "power2.inOut", immediateRender: false }, t);
-    tl.set(tours, { autoAlpha: 1 }, t + 0.5)
-      .fromTo(cards[0], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, immediateRender: false }, t + 0.5)
-      .from(cards[0].querySelectorAll(".tw-card-text > *, .tw-card-glass"), { y: 40, autoAlpha: 0, stagger: 0.08, duration: 0.4, ease: "power2.out" }, t + 0.7);
-    if (fly) tl.set(fly, { autoAlpha: 0 }, t + 0.9);
+    tl.set(tours, { opacity: 1 }, t + 0.5)
+      .fromTo(cards[0], { opacity: 0 }, { opacity: 1, duration: 0.35, immediateRender: false }, t + 0.5)
+      .from(cards[0].querySelectorAll(".tw-card-text > *, .tw-card-glass"), { y: 40, opacity: 0, stagger: 0.08, duration: 0.4, ease: "power2.out" }, t + 0.7);
+    if (fly) tl.set(fly, { opacity: 0 }, t + 0.9);
     cards.slice(1).forEach((card, j) => {
       const i = j + 1;
       const when = t + 1.3 + j * CARD;
       tl.from(card, { yPercent: 108, duration: 0.85, ease: "power2.out" }, when)
-        .from(card.querySelectorAll(".tw-card-text > *, .tw-card-glass"), { y: 50, autoAlpha: 0, stagger: 0.06, duration: 0.45, ease: "power2.out" }, when + 0.35);
+        .from(card.querySelectorAll(".tw-card-text > *, .tw-card-glass"), { y: 50, opacity: 0, stagger: 0.06, duration: 0.45, ease: "power2.out" }, when + 0.35);
       for (let k = Math.max(0, i - 4); k < i; k++) {
         const depth = i - k;
-        tl.to(cards[k], { scale: 1 - depth * 0.045, y: -depth * 16, autoAlpha: depth > 3 ? 0 : 1, duration: 0.85, ease: "power2.out" }, when)
+        tl.to(cards[k], { scale: 1 - depth * 0.045, y: -depth * 16, opacity: depth > 3 ? 0 : 1, duration: 0.85, ease: "power2.out" }, when)
           .to(cards[k].querySelector(".tw-card-dim") ?? [], { opacity: Math.min(0.7, depth * 0.25), duration: 0.85, ease: "power2.out" }, when);
       }
     });
@@ -272,68 +302,72 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
     const g: GlobeState = { lon: -10, lat: 8, arcs: 0, alpha: 1 };
     const paint = () => paintGlobe(canvas, g);
     paint();
-    at.world = t + 2.6;
+    at.set(world, t + 2.6);
     marks.worldIn = t + 0.2;
-    tl.set(world, { autoAlpha: 1 }, t)
-      .fromTo(world, { opacity: 0 }, { opacity: 1, duration: 0.4 }, t)
-      .from(one("[data-j='giant']", world) ?? [], { yPercent: 30, autoAlpha: 0, duration: 0.7, ease: "power2.out" }, t + 0.1)
-      .from(globe ?? [], { yPercent: 55, scale: 0.7, autoAlpha: 0, duration: 1.0, ease: "power2.out" }, t + 0.3)
+    tl.fromTo(world, { opacity: 0 }, { opacity: 1, duration: 0.4 }, t)
+      .from(one("[data-j='giant']", world) ?? [], { yPercent: 30, opacity: 0, duration: 0.7, ease: "power2.out" }, t + 0.1)
+      .from(globe ?? [], { yPercent: 55, scale: 0.7, opacity: 0, duration: 1.0, ease: "power2.out" }, t + 0.3)
       .to(g, { lon: -84, lat: 17, duration: 3.2, ease: "power1.inOut", onUpdate: paint }, t + 0.3)
       .to(g, { arcs: 1, duration: 2.0, onUpdate: paint }, t + 2.1)
-      .from(rises(world), { y: 30, autoAlpha: 0, stagger: 0.1, duration: 0.45 }, t + 1.5);
+      .from(rises(world), { y: 30, opacity: 0, stagger: 0.1, duration: 0.45 }, t + 1.5);
     if (tours && deck) {
       tl.set(tours, { zIndex: 5 }, t);
       cards.forEach((card, i) => {
         const spread = i - (cards.length - 1) / 2;
         tl.to(card, {
-          scale: 0.19, xPercent: spread * 115, y: 0, yPercent: 8, autoAlpha: 1, duration: 0.9, ease: "power2.inOut",
+          scale: 0.19, xPercent: spread * 115, y: 0, yPercent: 8, opacity: 1, duration: 0.9, ease: "power2.inOut",
         }, t)
           .to(card.querySelector(".tw-card-dim") ?? [], { opacity: 0, duration: 0.6 }, t)
-          .to(card, { xPercent: spread * 20, yPercent: 30, scale: 0.04, autoAlpha: 0, duration: 0.6, ease: "power2.in" }, t + 1.0 + Math.abs(spread) * 0.06);
+          .to(card, { xPercent: spread * 20, yPercent: 30, scale: 0.04, opacity: 0, duration: 0.6, ease: "power2.in" }, t + 1.0 + Math.abs(spread) * 0.06);
       });
-      tl.set(tours, { autoAlpha: 0 }, t + 1.8);
+      tl.set(tours, { opacity: 0 }, t + 1.8);
     }
-    t += 5.0;
+    t += 4.5; // the routes finish drawing at 4.1
   }
 
   // 4b · captain: the globe lifts away, Willy's portrait opens up, his days on the water roll past.
   if (captain) {
     const frame = one("[data-j='cap-frame']", captain), strip = one("[data-j='cap-strip']", captain);
-    at.captain = t + 1.8;
+    at.set(captain, t + 1.8);
     marks.capIn = t;
-    if (world) tl.to(world.querySelectorAll("[data-j='globe'], [data-j='giant'], .tw-world-foot"), { yPercent: -25, autoAlpha: 0, duration: 0.6, ease: "power1.in" }, t);
-    tl.set(captain, { autoAlpha: 1 }, t + 0.2);
+    if (world) tl.to(world.querySelectorAll("[data-j='globe'], [data-j='giant'], .tw-world-foot"), { yPercent: -25, opacity: 0, duration: 0.6, ease: "power1.in" }, t);
+    tl.set(captain, { opacity: 1 }, t + 0.2);
     if (frame) {
       tl.fromTo(frame, { clipPath: "inset(100% 0% 0% 0% round 28px)" }, { clipPath: "inset(0% 0% 0% 0% round 28px)", duration: 0.9, ease: "power3.out", immediateRender: false }, t + 0.3)
         .fromTo(frame.querySelector("img") ?? [], { scale: 1.35 }, { scale: 1, duration: 1.8, ease: "power2.out", immediateRender: false }, t + 0.3);
     }
     tl.from(words(captain), { yPercent: 115, stagger: 0.05, duration: 0.5, ease: "power2.out" }, t + 0.7)
-      .from(rises(captain), { y: 30, autoAlpha: 0, stagger: 0.1, duration: 0.45 }, t + 0.9);
+      .from(rises(captain), { y: 30, opacity: 0, stagger: 0.1, duration: 0.45 }, t + 0.9);
     if (strip) {
       tl.fromTo(strip, { x: () => window.innerWidth * 0.4 }, { x: () => Math.min(0, window.innerWidth - strip.scrollWidth - 40), duration: 3.4, ease: "none", immediateRender: false }, t + 0.6);
     }
     t += 4.4;
-    tl.to(captain, { autoAlpha: 0, duration: 0.5 }, t);
+    tl.to(captain, { opacity: 0, duration: 0.5 }, t);
   }
 
-  // 5 · pass: the boat pass slides in, its numbers type out, the stub tears away.
+  // 5 · pass: the boat pass slides in and its numbers type out. On a wide screen the stub
+  // then tears off at the perforation, and "Get my quote" rises where it was; the pass
+  // stays a moment for reading and clicking, then flies away.
   if (pass) {
-    const stub = one("[data-j='stub']", pass), cta = one("[data-j='pass-cta']", pass);
-    at.booking = t + 1.6;
-    if (world) tl.to(world.querySelectorAll("[data-j='globe'], [data-j='giant'], .tw-world-foot"), { yPercent: -25, autoAlpha: 0, duration: 0.6, ease: "power1.in" }, t);
-    tl.set(pass, { autoAlpha: 1 }, t + 0.2)
-      .from(one("[data-j='ticket']", pass) ?? [], { yPercent: 45, rotate: -4, autoAlpha: 0, duration: 0.9, ease: "power3.out" }, t + 0.3)
+    const stub = one("[data-j='stub']", pass);
+    const tears = !!stub && window.matchMedia("(min-width: 900px)").matches;
+    const ctaAt = tears ? 3.5 : 2.4; // the stub is all but gone by 3.5
+    at.set(pass, t + ctaAt + 0.7);
+    if (world) tl.to(world.querySelectorAll("[data-j='globe'], [data-j='giant'], .tw-world-foot"), { yPercent: -25, opacity: 0, duration: 0.6, ease: "power1.in" }, t);
+    tl.set(pass, { opacity: 1 }, t + 0.2)
+      .from(one("[data-j='ticket']", pass) ?? [], { yPercent: 45, rotate: -4, opacity: 0, duration: 0.9, ease: "power3.out" }, t + 0.3)
       .fromTo(pass.querySelectorAll("[data-type]"), { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "steps(10)", stagger: 0.3, duration: 0.5 }, t + 1.0)
-      .from(pass.querySelectorAll("[data-step] p:last-child"), { y: 14, autoAlpha: 0, stagger: 0.3, duration: 0.4 }, t + 1.2);
-    if (cta) tl.from(cta, { x: 30, autoAlpha: 0, duration: 0.5, ease: "power2.out" }, t + 2.4);
-    marks.passIn = t;
-    t += 4.4;
-    // The stub tears off, and the pass flies away like a boarding pass handed back.
-    if (stub && window.matchMedia("(min-width: 900px)").matches) {
-      tl.to(stub, { rotate: 16, x: 70, yPercent: 62, autoAlpha: 0, duration: 0.8, ease: "power2.in" }, t);
+      .from(pass.querySelectorAll("[data-step] p:last-child"), { y: 14, opacity: 0, stagger: 0.3, duration: 0.4 }, t + 1.2);
+    if (stub && tears) {
+      // A small pull that parts the perforation, then the stub swings down and away.
+      tl.to(stub, { x: 10, rotate: 1.5, duration: 0.35, ease: "power1.inOut" }, t + 2.5)
+        .to(stub, { x: 90, yPercent: 70, rotate: 18, opacity: 0, duration: 0.8, ease: "power2.in" }, t + 2.85);
     }
-    tl.to(one("[data-j='ticket-wrap']", pass) ?? [], { yPercent: -70, rotate: -5, autoAlpha: 0, duration: 0.9, ease: "power2.in" }, t + 0.35);
-    if (world) tl.set(world, { autoAlpha: 0 }, t);
+    if (passCta) tl.from(passCta, { y: 22, opacity: 0, duration: 0.7, ease: "power3.out" }, t + ctaAt);
+    marks.passIn = t;
+    t += ctaAt + 1.4; // the button is fully in at ctaAt + 0.7
+    tl.to(one("[data-j='ticket-wrap']", pass) ?? [], { yPercent: -70, rotate: -5, opacity: 0, duration: 0.9, ease: "power2.in" }, t + 0.35);
+    if (world) tl.set(world, { opacity: 0 }, t);
   }
 
   // 6 · night: back through the windows, after dark; the request form rises.
@@ -341,29 +375,30 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
     const nrow = one("[data-j='night-windows']", night), full = one("[data-j='night-full']", night);
     const land = one("[data-j='land']", night), landClouds = one("[data-j='land-clouds']", night);
     // 6a · landing: down through the clouds onto the bay, then the day turns to night.
-    if (pass) tl.set(pass, { autoAlpha: 0 }, t + 1.3);
-    tl.set(night, { autoAlpha: 1 }, t + 0.5)
-      .fromTo(night, { opacity: 0 }, { opacity: 1, duration: 0.5 }, t + 0.5);
+    if (pass) tl.set(pass, { opacity: 0 }, t + 1.3);
+    tl.fromTo(night, { opacity: 0 }, { opacity: 1, duration: 0.5 }, t + 0.5);
     // The windows wait, zoomed into the middle one, until the landing clears.
     if (nrow) tl.set(nrow, { x: () => intoWindow(nrow).x, y: () => intoWindow(nrow).y, scale: () => intoWindow(nrow).scale, transformOrigin: () => intoWindow(nrow).origin }, t + 0.5);
     if (land) {
-      tl.fromTo(land, { autoAlpha: 1 }, { autoAlpha: 1, duration: 0.01, immediateRender: false }, t + 0.5)
+      tl.fromTo(land, { opacity: 1 }, { opacity: 1, duration: 0.01, immediateRender: false }, t + 0.5)
         .fromTo(land.querySelector("img") ?? [], { scale: 1.8 }, { scale: 1.08, duration: 1.9, ease: "power2.out" }, t + 0.5)
-        .fromTo(landClouds ?? [], { yPercent: 0, autoAlpha: 1 }, { yPercent: -60, scale: 1.5, autoAlpha: 0, duration: 1.3, ease: "power1.in", immediateRender: false }, t + 0.7)
-        .to(land, { autoAlpha: 0, duration: 0.8, ease: "power1.inOut" }, t + 2.4);
+        .fromTo(landClouds ?? [], { yPercent: 0, opacity: 1 }, { yPercent: -60, scale: 1.5, opacity: 0, duration: 1.3, ease: "power1.in", immediateRender: false }, t + 0.7)
+        .to(land, { opacity: 0, duration: 0.8, ease: "power1.inOut" }, t + 2.4);
     }
     t += 3.0;
     marks.nightIn = t;
-    at.contact = t + 2.2;
+    at.set(night, t + 2.4);
+    const contact = document.getElementById("contact");
+    if (contact) at.set(contact, t + 2.4);
     if (nrow) {
       tl.fromTo(nrow, {
         x: () => intoWindow(nrow).x, y: () => intoWindow(nrow).y, scale: () => intoWindow(nrow).scale, transformOrigin: () => intoWindow(nrow).origin,
       }, { x: 0, y: 0, scale: 1, duration: 1.5, ease: "power2.out", immediateRender: false }, t + 0.4);
     }
-    if (full) tl.fromTo(full, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.4, immediateRender: false }, t + 0.5);
+    if (full) tl.fromTo(full, { opacity: 1 }, { opacity: 0, duration: 0.4, immediateRender: false }, t + 0.5);
     tl.from(words(night), { yPercent: 115, stagger: 0.05, duration: 0.5, ease: "power2.out" }, t + 1.5)
-      .from(rises(night), { y: 40, autoAlpha: 0, stagger: 0.12, duration: 0.5, ease: "power2.out" }, t + 1.7);
-    t += 3.2; // the last frame rests before the page lets go
+      .from(rises(night), { y: 40, opacity: 0, stagger: 0.12, duration: 0.5, ease: "power2.out" }, t + 1.7);
+    t += 2.7; // the form is in at 2.3; the last frame rests a moment before the page lets go
   }
 
   const screens = t;
@@ -372,11 +407,11 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
   const st = ScrollTrigger.create({
     trigger: stage,
     start: "top top",
-    end: () => `+=${Math.round(window.innerHeight * screens * 0.85)}`,
+    end: () => `+=${Math.round(window.innerHeight * screens * SCROLL)}`,
     pin: true,
     // Lenis already glides the wheel, so the film follows it closely; touch
     // scrolling gets the smoothing from the scrub instead.
-    scrub: smoothed ? 0.3 : 1,
+    scrub: smoothed ? 0.5 : 1,
     anticipatePin: 1,
     invalidateOnRefresh: true,
     animation: tl,
@@ -393,8 +428,24 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
   cleanups.push(() => document.documentElement.classList.remove("tw-in-journey"));
 
   // Nav links to scenes land where the scene has fully arrived.
-  for (const [id, time] of Object.entries(at)) {
-    jumps.set(id, () => st.start + (time / tl.duration()) * (st.end - st.start));
-  }
+  const scrollFor = (time: number) => st.start + (time / tl.duration()) * (st.end - st.start);
+  for (const [el, time] of at) jumps.set(el, () => scrollFor(time));
   cleanups.push(() => jumps.clear());
+
+  // Tab (or a screen reader) can move focus into a part of the film that isn't on screen:
+  // play the film to it. Scenes clip with overflow: clip, so the browser can't scroll them.
+  const onFocus = (e: FocusEvent) => {
+    const el = e.target as HTMLElement;
+    const r = el.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    if (hit && el.contains(hit) && el.checkVisibility?.({ opacityProperty: true }) !== false) return;
+    const host = el.closest("[data-card]") ?? el.closest("[data-scene]");
+    const time = host ? at.get(host) : undefined;
+    if (time === undefined) return;
+    if (lenis) lenis.scrollTo(scrollFor(time), { immediate: true });
+    else window.scrollTo({ top: scrollFor(time), behavior: "instant" });
+  };
+  stage.addEventListener("focusin", onFocus);
+  cleanups.push(() => stage.removeEventListener("focusin", onFocus));
+  syncPointer();
 }

@@ -33,11 +33,14 @@ import { BTN_GHOST, BTN_SUN, EXTERNAL, PRESS, siteVars, useScrolledPast, useSect
     tours  the coast becomes the first tour card; the other five slide up
            over it, one per scroll
     world  the cards fly into a dotted globe that turns to Costa Rica while
-           routes draw in to Tamarindo
-    pass   the boat pass: how a request works, then its stub tears away
+           routes draw in to Tamarindo; the meeting point and its map link
+    captain Willy's portrait, his years on the water and his photos
+    pass   the boat pass: how a request works; its stub tears away and
+           "Get my quote" rises where it was
     night  back to the windows at night, with the request form
 
-  Phones and reduced motion get the same scenes as ordinary sections. The
+  Phones get the film too. Reduced motion and screens under 520px tall get
+  the same scenes as ordinary sections. The
   drawings (clouds, globe, maps, the footer's engraving) are canvases in
   canvas.tsx; the photos are Unsplash's (scenery.ts) beside the business's own.
 
@@ -65,6 +68,9 @@ function wa(template: BusinessTemplate, text: string): string {
 }
 
 const bookText = (lang: Lang) => pick(lang, "Hi Willy! I'd like to book a private boat tour.", "¡Hola Willy! Quisiera reservar un tour privado en bote.");
+
+/** Where every tour leaves from (the template's steps and FAQ say the same). */
+const meetingPoint = (lang: Lang) => pick(lang, "Playa Tamarindo, in front of Restaurante El Chiringuito", "Playa Tamarindo, frente al Restaurante El Chiringuito");
 
 /** A heading whose words rise from behind their masks (motion.ts, data-words). */
 function Words({ text }: { text: string }) {
@@ -212,12 +218,11 @@ function Nav({ template, t, lang, trip, setLang, onJump }: Site & { setLang: (l:
 /* The journey.                                                        */
 
 /** One airplane window: a cream bezel, the glass, a half-drawn blind and a glare. */
-function Window({ s, src, clouds, seed = 1, night }: { s: Scenery; src?: string; clouds?: boolean; seed?: number; night?: boolean }) {
+function Window({ s, src, night }: { s: Scenery; src?: string; night?: boolean }) {
   return (
     <div className={`tw-win ${night ? "is-night" : ""}`}>
       <div className="tw-glass">
         <Shot s={s} src={src} sizes="(min-width: 768px) 30vw, 70vw" className={night ? "tw-night-img" : ""} eager={!night} />
-        {clouds && <Clouds seed={seed} top={0.72} density={0.45} tint={night ? "150,165,195" : undefined} shade={night ? "40,52,80" : undefined} className="absolute inset-x-0 bottom-0 h-2/5 w-full" />}
         {night && <span aria-hidden className="tw-moon" />}
         <span aria-hidden className="tw-blind" />
         <span aria-hidden className="tw-glare" />
@@ -230,9 +235,9 @@ function OpenScene({ template, t, lang, trip }: Site) {
   return (
     <div data-scene="open" className="tw-scene tw-open">
       <div data-j="windows" className="tw-windows">
-        <Window s={SCENERY.shore} clouds seed={3} />
+        <Window s={SCENERY.shore} />
         <Window s={SCENERY.bay} src={template.media?.hero} />
-        <Window s={SCENERY.beach} clouds seed={9} />
+        <Window s={SCENERY.beach} />
       </div>
       <div data-j="head" className="tw-open-head">
         <h1 className="tw-title tw-hero"><Words text={`${t.hero.title1} ${t.hero.title2}`} /></h1>
@@ -307,9 +312,7 @@ function ToursScene(site: Site) {
 }
 
 function WorldScene({ template, lang, trip }: Site) {
-  const stats = template.facts?.stats ?? [];
-  const years = stats.find((s) => /years/i.test(s.labelEn));
-  const ratings = stats.filter((s) => /google|tripadvisor/i.test(s.labelEn));
+  const ratings = (template.facts?.stats ?? []).filter((s) => /google|tripadvisor/i.test(s.labelEn));
   return (
     <div id="world" data-scene="world" className="tw-scene tw-world">
       <p data-j="giant" aria-hidden className="tw-giant">Tamarindo</p>
@@ -318,9 +321,15 @@ function WorldScene({ template, lang, trip }: Site) {
         <span data-pin="home" className="tw-pin is-home">Tamarindo</span>
         {GATEWAYS.map((g) => <span key={g.name} data-pin={g.name} className="tw-pin">{g.name}</span>)}
       </div>
-      <h2 className="sr-only">{pick(lang, "Wherever you fly in from", "Venga de donde venga")}</h2>
+      <h2 className="sr-only">{pick(lang, "Getting here", "Cómo llegar")}</h2>
       <div className="tw-world-foot tw-gutter">
-        {years && <p data-rise className="tw-small">{pick(lang, `${years.value} years on Guanacaste's waters, wherever you fly in from.`, `${years.value} años en las aguas de Guanacaste, venga de donde venga.`)}</p>}
+        <div data-rise className="tw-small">
+          <p className="tw-label text-(--claro-2)">{pick(lang, "Meeting point", "Punto de encuentro")}</p>
+          <a href={MAPS} {...EXTERNAL} className="mt-1.5 inline-flex items-baseline gap-1.5">
+            <span className="tw-link">{meetingPoint(lang)}</span> <ArrowUpRight className="size-4 shrink-0 self-center text-(--acento)" />
+            <span className="sr-only">{pick(lang, "(opens Google Maps)", "(abre Google Maps)")}</span>
+          </a>
+        </div>
         <div data-rise className="flex items-center justify-center gap-3">
           <Pill onClick={() => trip.openQuote()}>{pick(lang, "Get my quote", "Cotizar mi tour")}</Pill>
           <BoatButton template={template} lang={lang} />
@@ -357,8 +366,7 @@ function CaptainScene({ template, lang, trip }: Site) {
         <span className="tw-cap-tag">🇨🇷 Willy Vega</span>
       </div>
       <div className="tw-cap-text">
-        <p data-rise className="tw-label text-(--acento)">{pick(lang, "Your captain", "Su capitán")}</p>
-        <h2 className="tw-title tw-h2 mt-3"><Words text={pick(lang, "Captain Willy", "Capitán Willy")} /></h2>
+        <h2 className="tw-title tw-h2"><Words text={pick(lang, "Captain Willy", "Capitán Willy")} /></h2>
         <p data-rise className="tw-cap-years mt-5"><span>{years}</span> {pick(lang, "years on the water in Guanacaste", "años en el agua en Guanacaste")}</p>
         <p data-rise className="tw-lead mt-5 max-w-xl text-(--claro)/80">{pick(lang,
           "Willy leads private fishing, snorkeling, tubing and beach tours from Tamarindo. Tell him what you'd like to do and who is coming; he confirms the plan and the logistics for your group.",
@@ -489,9 +497,9 @@ function NightScene(site: Site) {
     <div data-scene="night" className="tw-scene tw-night">
       <div data-j="night-full" className="tw-layer"><Shot s={SCENERY.night} className="tw-night-img" /><span aria-hidden className="tw-moon" /></div>
       <div data-j="night-windows" className="tw-windows">
-        <Window s={SCENERY.bay} clouds seed={13} night />
+        <Window s={SCENERY.bay} night />
         <Window s={SCENERY.night} night />
-        <Window s={SCENERY.headland} clouds seed={17} night />
+        <Window s={SCENERY.headland} night />
       </div>
       <div className="tw-night-head">
         <h2 className="tw-title tw-hero"><Words text={t.contact.title} /></h2>
@@ -735,7 +743,7 @@ function Footer({ template, t, lang, onJump }: Site & { onJump: (e: MouseEvent<H
   ].filter((x): x is { href: string; label: string } => !!x);
   const credits = Object.values(SCENERY).filter((s, i, all) => all.findIndex((x) => x.by === s.by) === i);
   return (
-    <footer className="relative overflow-hidden bg-(--parede) pt-24 text-(--claro)">
+    <footer className="@container relative overflow-hidden bg-(--parede) pt-24 text-(--claro)">
       <div className="tw-gutter relative z-10">
         <div className="flex flex-wrap items-end justify-between gap-8">
           <a href="#top" onClick={onJump} className="flex items-center gap-5">
@@ -762,7 +770,7 @@ function Footer({ template, t, lang, onJump }: Site & { onJump: (e: MouseEvent<H
           </div>
           <div>
             <p className="tw-label text-(--claro-2)">{pick(lang, "Meeting point", "Punto de encuentro")}</p>
-            <p className="mt-4">{pick(lang, "Playa Tamarindo, in front of Restaurante El Chiringuito", "Playa Tamarindo, frente al Restaurante El Chiringuito")}</p>
+            <p className="mt-4">{meetingPoint(lang)}</p>
             <a href={MAPS} {...EXTERNAL} className="mt-2 inline-flex items-center gap-1 text-(--acento)"><span className="tw-link">{pick(lang, "Open in Google Maps", "Abrir en Google Maps")}</span> <ArrowUpRight className="size-3.5" /></a>
           </div>
           <div>
@@ -809,7 +817,9 @@ const CSS = `
 .tw-h2 { font-size: var(--t-titulo); line-height: 1.04; text-wrap: balance; }
 .tw-lead { font-size: var(--t-lead); line-height: 1.3; font-weight: 560; letter-spacing: -0.005em; }
 .tw-small { font-size: clamp(15px, 1.2vw, 19px); line-height: 1.35; }
-.tw-label, .tt-eyebrow { font-size: 11.5px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; color: rgba(21,26,34,.55); }
+/* No colour here: this block isn't in a Tailwind layer, so a colour would beat every text-* class on a label. */
+.tw-label, .tt-eyebrow { font-size: 11.5px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; }
+.tw-ticket .tw-label { color: rgba(21,26,34,.55); }
 .tw-link { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .5s var(--ease); }
 .tw-link:hover, a:hover > .tw-link { background-size: 100% 1px; }
 .tt-noscroll { scrollbar-width: none; } .tt-noscroll::-webkit-scrollbar { display: none; }
@@ -828,8 +838,9 @@ const CSS = `
 
 /* The stage and its scenes, stacked (phones, reduced motion). */
 .tw-stage { position: relative; background: var(--parede); color: var(--claro); }
-.tw-scene { position: relative; overflow: hidden; min-height: 100svh; }
-.tw-layer { position: absolute; inset: 0; overflow: hidden; }
+/* clip, not just hidden: a scene is never a scroll box, so focusing something inside can't scroll it. */
+.tw-scene { position: relative; overflow: hidden; overflow: clip; min-height: 100svh; }
+.tw-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .tw-open { background: radial-gradient(120% 90% at 50% 55%, #4a4038 0%, #2c2722 45%, #15130f 100%); display: flex; flex-direction: column; justify-content: space-between; padding-top: calc(var(--nav-h) + 8px); padding-bottom: 28px; }
 .tw-open-head, .tw-night-head { text-align: center; padding-inline: var(--gutter); }
 .tw-open-head .tw-lead, .tw-night-head .tw-lead { margin-top: 10px; }
@@ -884,7 +895,9 @@ const CSS = `
 
 /* The globe. */
 .tw-world { background: var(--parede-funda); display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 28px; }
-.tw-giant { position: absolute; left: 50%; top: calc(var(--nav-h) - 1vw); translate: -50% 0; font-family: "Archivo", system-ui, sans-serif; font-weight: 700; font-size: clamp(90px, 21vw, 360px); line-height: .85; letter-spacing: -0.05em; color: #1b2130; white-space: nowrap; pointer-events: none; }
+/* The giant words fit the width: "Tamarindo" is 4.63em wide here (4.54em in the footer); the divisors leave a little room.
+   ponytail: sized for that one word; a longer one (the footer shows the brand's first word) needs a bigger divisor. */
+.tw-giant { position: absolute; left: 50%; top: calc(var(--nav-h) - 1vw); translate: -50% 0; font-family: "Archivo", system-ui, sans-serif; font-weight: 700; font-size: min(360px, (100vw - 2 * var(--gutter)) / 4.8); line-height: .85; letter-spacing: -0.05em; color: #1b2130; white-space: nowrap; pointer-events: none; }
 .tw-globe { position: relative; margin: 6vh auto 2vh; width: min(68vh, 80vw); aspect-ratio: 1; }
 .tw-pin { position: absolute; left: 0; top: 0; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 650; white-space: nowrap; background: rgba(18,22,30,.82); color: var(--claro); border: 1px solid rgba(244,239,231,.16); pointer-events: none; }
 .tw-pin.is-home { background: var(--claro); color: var(--tinta); }
@@ -923,10 +936,10 @@ const CSS = `
 .tw-chips input:focus-visible + span { outline: 2px solid var(--acento); outline-offset: 2px; }
 
 /* ---- Staged: motion.ts adds .is-staged; every scene is one layer of one screen. ---- */
-.is-staged { height: 100vh; overflow: hidden; }
+.is-staged { height: 100vh; overflow: hidden; overflow: clip; }
 .is-staged .tw-scene { position: absolute; inset: 0; min-height: 0; height: 100%; }
 .is-staged .tw-open-head { position: absolute; inset: calc(var(--nav-h) - 4px) 0 auto; z-index: 3; }
-.is-staged .tw-open .tw-windows, .is-staged .tw-night .tw-windows { position: absolute; inset: 0; padding: 0; align-items: center; transform-origin: 50% 50%; }
+.is-staged .tw-open .tw-windows { position: absolute; inset: 0; padding: 0; align-items: center; transform-origin: 50% 50%; }
 .is-staged .tw-open .tw-windows { top: 9vh; }
 .is-staged .tw-win { width: min(21vw, 46vh * 33 / 42); }
 .is-staged .tw-open-foot { position: absolute; inset: auto 0 28px; z-index: 3; }
@@ -940,13 +953,15 @@ const CSS = `
 .is-staged .tw-world-foot { position: absolute; inset: auto 0 28px; }
 .is-staged .tw-pass { padding-top: var(--nav-h); }
 .is-staged .tw-ticket-wrap { width: min(1180px, 100%); }
-.is-staged .tw-pass-cta { position: absolute; right: 30px; top: 50%; translate: 0 -50%; margin: 0; }
+/* Wide screens: "Get my quote" waits where the stub is, and rises once the stub has torn away (motion.ts). */
+@media (min-width: 900px) { .is-staged .tw-pass-cta { position: absolute; top: 50%; right: 0; width: 300px; translate: 0 -50%; margin: 0; } }
 .is-staged .tw-night .tw-layer { display: block; }
-.is-staged .tw-night-head { position: absolute; inset: calc(var(--nav-h) + 1.5vh) 0 auto; z-index: 3; }
+/* Head, windows, form in one column: the windows take only the height left over, so nothing overlaps on any screen. */
+.is-staged .tw-night { padding: calc(var(--nav-h) + 1.5vh) 0 20px; }
+.is-staged .tw-night-head { position: relative; z-index: 3; order: -1; }
 .is-staged .tw-night-head .tw-hero { font-size: clamp(36px, min(4.6vw, 7.4vh), 76px); }
-.is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 4vh + 70px) 0 0; align-items: flex-start; }
-.is-staged .tw-night .tw-win { width: min(29vw, 62vh * 33 / 42); }
-.is-staged .tw-night-form { position: absolute; inset: auto 0 20px; }
+.is-staged .tw-night .tw-windows { flex: 1; min-height: 0; padding-block: 2.5vh; }
+.is-staged .tw-night .tw-windows > .tw-win { width: auto; max-width: none; height: min(100%, 29vw * 42 / 33); }
 /* Captain Willy. */
 .tw-captain { background: var(--parede); display: grid; gap: 28px; padding: calc(var(--nav-h) + 24px) var(--gutter) 40px; align-content: start; }
 @media (min-width: 900px) { .tw-captain { grid-template-columns: minmax(0, .95fr) minmax(0, 1fr); align-items: center; column-gap: clamp(28px, 4vw, 72px); } }
@@ -973,7 +988,7 @@ const CSS = `
 .tw-nav { transition: translate .6s cubic-bezier(.2,.7,.2,1), opacity .6s; }
 .tw-nav-off .tw-nav { translate: 0 -110%; opacity: 0; pointer-events: none; }
 .tw-in-journey .tw-dock { opacity: 0 !important; translate: 0 24px !important; pointer-events: none !important; }
-.tw-footer-giant { position: relative; margin: 48px 0 -0.12em; padding-inline: var(--gutter); font-family: "Archivo", system-ui, sans-serif; font-weight: 700; font-size: clamp(88px, 24vw, 420px); line-height: .8; letter-spacing: -0.06em; color: var(--claro); white-space: nowrap; overflow: hidden; }
+.tw-footer-giant { position: relative; margin: 48px 0 -0.12em; padding-inline: var(--gutter); font-family: "Archivo", system-ui, sans-serif; font-weight: 700; font-size: min(420px, (100cqi - 2 * var(--gutter)) / 4.7); line-height: .8; letter-spacing: -0.06em; color: var(--claro); white-space: nowrap; overflow: hidden; }
 /* Phones get the same film, fitted to a tall narrow screen. */
 .tw-in-journey .tw-mbar { translate: 0 100% !important; }
 @media (max-width: 767px) {
@@ -996,15 +1011,12 @@ const CSS = `
   .is-staged [data-step] p:last-child { margin-top: 4px; font-size: 12.5px; }
   .is-staged .tw-ticket-body > div:first-of-type { display: none; }
   .is-staged .tw-ticket-body ol { margin-top: 14px; }
-  .is-staged .tw-pass-cta { position: relative; right: auto; top: auto; translate: none; margin-top: 16px; }
+  .is-staged .tw-pass-cta { margin-top: 16px; }
   .is-staged .tw-pass-cta > p { margin-top: 6px; font-size: 12px; max-width: 18rem; }
-  .is-staged .tw-night { padding: 0; }
-  .is-staged .tw-night-head { inset: calc(var(--nav-h) + 2px) 0 auto; }
+  .is-staged .tw-night { padding: calc(var(--nav-h) + 2px) 0 max(10px, env(safe-area-inset-bottom)); }
   .is-staged .tw-night-head .tw-hero { font-size: clamp(28px, 8.4vw, 40px); }
   .is-staged .tw-night-head .tw-lead { font-size: 14px; margin-top: 6px; }
-  .is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 112px) 0 auto; height: 14vh; gap: 10px; }
-  .is-staged .tw-night .tw-win { width: min(20vw, 11vh); }
-  .is-staged .tw-night-form { bottom: max(10px, env(safe-area-inset-bottom)); }
+  .is-staged .tw-night .tw-windows { gap: 10px; }
   .is-staged .tw-form { padding: 14px; border-radius: 20px; }
   .is-staged .tw-form > p:first-child { margin-bottom: 10px; padding: 6px 10px; font-size: 12px; }
   .is-staged .tw-form-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
@@ -1040,8 +1052,6 @@ const CSS = `
   .is-staged .tw-pass-cta { margin-top: 10px; }
   .is-staged .tw-pass-cta > p { display: none; }
   .is-staged .tw-night-head .tw-lead { display: none; }
-  .is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 72px) 0 auto; height: 11vh; }
-  .is-staged .tw-night .tw-win { width: min(16vw, 9vh); }
   .is-staged .tw-form > p:first-child { margin-bottom: 8px; padding: 5px 9px; font-size: 11px; }
   .is-staged .tw-field input, .is-staged .tw-field select { height: 38px; }
   .is-staged .tw-form-send { height: 42px; }
