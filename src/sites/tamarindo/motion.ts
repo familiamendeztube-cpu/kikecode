@@ -194,13 +194,13 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
   const words = (root?: Element) => root?.querySelectorAll("[data-words] .w > span") ?? [];
   const rises = (root?: Element) => root?.querySelectorAll("[data-rise]") ?? [];
 
-  const open = scene("open"), fly = scene("fly"), tours = scene("tours"), world = scene("world"), pass = scene("pass"), night = scene("night");
-  gsap.set([fly, tours, world, pass, night].filter(Boolean), { autoAlpha: 0 });
+  const open = scene("open"), fly = scene("fly"), tours = scene("tours"), world = scene("world"), captain = scene("captain"), pass = scene("pass"), night = scene("night");
+  gsap.set([fly, tours, world, captain, pass, night].filter(Boolean), { autoAlpha: 0 });
   intro(stage);
 
   const tl = gsap.timeline({ defaults: { ease: "none", force3D: true } });
   const at: Record<string, number> = { top: 0 };
-  const marks = { worldIn: Infinity, passIn: Infinity, nightIn: Infinity };
+  const marks = { worldIn: Infinity, capIn: Infinity, passIn: Infinity, nightIn: Infinity };
 
   // 1 · open: the words lift, the camera flies into the middle window.
   const row = open && one("[data-j='windows']", open);
@@ -296,6 +296,26 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
     t += 5.0;
   }
 
+  // 4b · captain: the globe lifts away, Willy's portrait opens up, his days on the water roll past.
+  if (captain) {
+    const frame = one("[data-j='cap-frame']", captain), strip = one("[data-j='cap-strip']", captain);
+    at.captain = t + 1.8;
+    marks.capIn = t;
+    if (world) tl.to(world.querySelectorAll("[data-j='globe'], [data-j='giant'], .tw-world-foot"), { yPercent: -25, autoAlpha: 0, duration: 0.6, ease: "power1.in" }, t);
+    tl.set(captain, { autoAlpha: 1 }, t + 0.2);
+    if (frame) {
+      tl.fromTo(frame, { clipPath: "inset(100% 0% 0% 0% round 28px)" }, { clipPath: "inset(0% 0% 0% 0% round 28px)", duration: 0.9, ease: "power3.out", immediateRender: false }, t + 0.3)
+        .fromTo(frame.querySelector("img") ?? [], { scale: 1.35 }, { scale: 1, duration: 1.8, ease: "power2.out", immediateRender: false }, t + 0.3);
+    }
+    tl.from(words(captain), { yPercent: 115, stagger: 0.05, duration: 0.5, ease: "power2.out" }, t + 0.7)
+      .from(rises(captain), { y: 30, autoAlpha: 0, stagger: 0.1, duration: 0.45 }, t + 0.9);
+    if (strip) {
+      tl.fromTo(strip, { x: () => window.innerWidth * 0.4 }, { x: () => Math.min(0, window.innerWidth - strip.scrollWidth - 40), duration: 3.4, ease: "none", immediateRender: false }, t + 0.6);
+    }
+    t += 4.4;
+    tl.to(captain, { autoAlpha: 0, duration: 0.5 }, t);
+  }
+
   // 5 · pass: the boat pass slides in, its numbers type out, the stub tears away.
   if (pass) {
     const stub = one("[data-j='stub']", pass), cta = one("[data-j='pass-cta']", pass);
@@ -348,7 +368,7 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
 
   const screens = t;
   // Like rumo, the menu steps aside while the globe and the closing windows play.
-  const quiet = (time: number) => (time >= marks.worldIn && time < marks.passIn) || time >= marks.nightIn + 1.2;
+  const quiet = (time: number) => (time >= marks.worldIn && time < Math.min(marks.capIn, marks.passIn)) || time >= marks.nightIn + 1.2;
   const st = ScrollTrigger.create({
     trigger: stage,
     start: "top top",
