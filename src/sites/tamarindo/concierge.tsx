@@ -60,7 +60,7 @@ export function ConciergeDock({ template, lang, onChat, onQuote }: {
   return (
     <div
       ref={box}
-      className={`fixed bottom-6 right-6 z-40 hidden flex-col items-end gap-3 transition-[opacity,translate] duration-700 md:flex ${EASE} ${shown ? "" : "pointer-events-none translate-y-6 opacity-0"}`}
+      className={`tw-dock fixed bottom-6 right-6 z-40 hidden flex-col items-end gap-3 transition-[opacity,translate] duration-700 md:flex ${EASE} ${shown ? "" : "pointer-events-none translate-y-6 opacity-0"}`}
     >
       <div
         id="tt-dock-menu"
