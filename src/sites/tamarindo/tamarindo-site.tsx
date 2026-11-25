@@ -1,26 +1,45 @@
-import { Fragment, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
-  ArrowRight, ArrowUpRight, Bot, Calculator, Check, ChevronLeft, ChevronRight, Clock, Link2, Mail, MapPin, Menu,
-  MessageCircle, MessagesSquare, Phone, Plus, ShieldCheck, Users, X,
+  ArrowRight, ArrowUpRight, Bot, Calculator, Check, Link2, Menu, MessageCircle, MessagesSquare, Phone, Plane, Plus, Sailboat, X,
 } from "lucide-react";
 import type { BusinessTemplate, Lang, LocalizedContent, TourOffer } from "@/templates/types";
 import { pick } from "@/lib/i18n";
 import { whatsappLink } from "@/sites/shared/whatsapp";
 import { useReturnFocus } from "@/sites/shared/return-focus";
+import { leadOutcomeMessage, previewNotice, useLeadForm } from "@/sites/shared/lead-form";
 import { SECRETARIA_LANGUAGES, SecretariaCard } from "@/sites/shared/secretaria-card";
 import { secretaryToken } from "@/sites/shared/secretary-converse";
 import { scrollToEl, useScrollPause, useSiteMotion } from "./motion";
 import { usd } from "./quote";
-import { QuoteBuilder, QuoteDialog } from "./quote-builder";
+import { QuoteDialog } from "./quote-builder";
 import { ConciergeChat, ConciergeDock } from "./concierge";
-import { BTN_GHOST, BTN_SUN, EXTERNAL, Photo, PRESS, siteVars, useScrolledPast, useSectionInView } from "./ui";
+import { Clouds, Engraving, GATEWAYS, Globe, PassMap } from "./canvas";
+import { SCENERY, scenery, scenerySet, tourScenery, type Scenery } from "./scenery";
+import { BTN_GHOST, BTN_SUN, EXTERNAL, PRESS, siteVars, useScrolledPast, useSectionInView } from "./ui";
 
 /*
-  Tamarindo Tours Discovery: a one-page site for a private boat tour operator.
-  Navy and teal from the logo, sunset orange for the main actions, sand for
-  the light sections; Instrument Serif headlines over Inter. Motion lives in
-  motion.ts (GSAP) and only moves what React draws.
+  Tamarindo Tours Discovery: a one-page site for a private boat tour operator,
+  told as one flight from top to bottom (the owner asked for the scroll and
+  layout of a travel-agency concept site, with this business's content and
+  Costa Rica photos).
+
+  On a laptop or bigger the page above the FAQ is one pinned stage
+  (motion.ts, "the journey"), played by the scroll:
+
+    open   three airplane windows over Guanacaste; the camera flies into the
+           middle one
+    fly    over Tamarindo's bay, then down through the clouds to the coast
+    tours  the coast becomes the first tour card; the other five slide up
+           over it, one per scroll
+    world  the cards fly into a dotted globe that turns to Costa Rica while
+           routes draw in to Tamarindo
+    pass   the boat pass: how a request works, then its stub tears away
+    night  back to the windows at night, with the request form
+
+  Phones and reduced motion get the same scenes as ordinary sections. The
+  drawings (clouds, globe, maps, the footer's engraving) are canvases in
+  canvas.tsx; the photos are Unsplash's (scenery.ts) beside the business's own.
 
   Honesty rules this page keeps:
   - Every fact, price and policy comes from the template, which comes from the
@@ -28,13 +47,13 @@ import { BTN_GHOST, BTN_SUN, EXTERNAL, Photo, PRESS, siteVars, useScrolledPast, 
   - The request form and the Secretaria say "request": Willy confirms each
     date. Nothing here claims a booking (the site cannot see his calendar).
   - Unpublished (no plwSiteId) the form says it is a preview and sends nothing.
+  - The globe's routes are a picture of travel, not a list of flights.
 */
 
-const FONT = "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap";
+const FONT = "https://fonts.googleapis.com/css2?family=Archivo:wght@400..800&family=Manrope:wght@400..800&display=swap";
 const TRIPADVISOR = "https://www.tripadvisor.com/Attraction_Review-g309253-d14215079-Reviews-Tamarindo_Tours_Discovery-Tamarindo_Province_of_Guanacaste.html";
 const YOUTUBE = "https://www.youtube.com/channel/UCSNggXGbVniG1N4eE21B-4w";
 const MAPS = "https://www.google.com/maps/search/?api=1&query=El+Chiringuito+Playa+Tamarindo+Costa+Rica";
-
 
 /** The quote builder and the chat, open from anywhere on the page. */
 type Trip = { openQuote: (tour?: number) => void; openChat: () => void };
@@ -45,6 +64,8 @@ function wa(template: BusinessTemplate, text: string): string {
   return whatsappLink(template.brand, text);
 }
 
+const bookText = (lang: Lang) => pick(lang, "Hi Willy! I'd like to book a private boat tour.", "¡Hola Willy! Quisiera reservar un tour privado en bote.");
+
 /** A heading whose words rise from behind their masks (motion.ts, data-words). */
 function Words({ text }: { text: string }) {
   return (
@@ -52,7 +73,7 @@ function Words({ text }: { text: string }) {
       {text.split(" ").map((w, i) => (
         <Fragment key={i}>
           {i > 0 && " "}
-          <span className="w inline-block overflow-hidden pb-[0.14em] -mb-[0.14em] align-top">
+          <span className="w inline-block overflow-hidden pb-[0.12em] -mb-[0.12em] align-top">
             <span className="inline-block">{w}</span>
           </span>
         </Fragment>
@@ -61,40 +82,55 @@ function Words({ text }: { text: string }) {
   );
 }
 
-/** A number drawn as digit strips that roll to their value (motion.ts, data-odometer). */
-function Odometer({ value }: { value: string }) {
-  return (
-    <>
-      <span className="sr-only">{value}</span>
-      <span aria-hidden data-odometer className="inline-flex">
-        {[...value].map((ch, i) =>
-          /\d/.test(ch) ? (
-            <span key={i} className="inline-block h-[1.05em] overflow-hidden">
-              <span data-digit={ch} className="flex flex-col" style={{ transform: `translateY(-${Number(ch) * 10}%)` }}>
-                {"0123456789".split("").map((d) => <span key={d} className="h-[1.05em] leading-[1.05em]">{d}</span>)}
-              </span>
-            </span>
-          ) : (
-            <span key={i} className="leading-[1.05em]">{ch}</span>
-          ),
-        )}
-      </span>
-    </>
-  );
-}
-
-function Eyebrow({ children, tone = "sea" }: { children: ReactNode; tone?: "sea" | "teal" | "sun" }) {
-  const color = { sea: "text-(--sea)", teal: "text-(--teal)", sun: "text-(--sun)" }[tone];
-  return <p className={`tt-eyebrow ${color}`}>{children}</p>;
-}
-
 /** The logo is an off-centre round badge on a square: frame just the badge. */
-function Logo({ src, size = "size-11" }: { src?: string; size?: string }) {
+function Logo({ src, size = "size-10" }: { src?: string; size?: string }) {
   if (!src) return null;
   return (
     <span className={`relative block shrink-0 overflow-hidden rounded-full bg-white ${size}`}>
       <img src={src} alt="" className="size-full translate-y-[6%] scale-[1.36] object-cover" />
     </span>
+  );
+}
+
+/** A full-bleed Costa Rica photo. */
+function Shot({ s, j, className = "", eager, sizes = "100vw" }: { s: Scenery; j?: string; className?: string; eager?: boolean; sizes?: string }) {
+  return (
+    <img
+      data-j={j}
+      src={scenery(s, 1600)}
+      srcSet={scenerySet(s)}
+      sizes={sizes}
+      alt=""
+      loading={eager ? "eager" : "lazy"}
+      fetchPriority={eager ? "high" : undefined}
+      decoding="async"
+      className={`absolute inset-0 size-full object-cover ${className}`}
+    />
+  );
+}
+
+/** The cream pill: its label rolls up to a copy of itself on hover. */
+function Pill({ children, onClick, href, type = "button", className = "", ...rest }: {
+  children: string; onClick?: () => void; href?: string; type?: "button" | "submit"; className?: string; disabled?: boolean; "data-magnetic"?: boolean;
+}) {
+  const inner = (
+    <span className="tw-roll">
+      <span>{children}</span>
+      <span aria-hidden>{children}</span>
+    </span>
+  );
+  const cls = `tw-pill ${className}`;
+  return href
+    ? <a href={href} {...EXTERNAL} className={cls} {...rest}>{inner}</a>
+    : <button type={type} onClick={onClick} className={cls} {...rest}>{inner}</button>;
+}
+
+/** The pill's round partner: WhatsApp, drawn as a boat. */
+function BoatButton({ template, lang }: { template: BusinessTemplate; lang: Lang }) {
+  return (
+    <a href={wa(template, bookText(lang))} {...EXTERNAL} className="tw-round" aria-label={template.content[lang].hero.cta1}>
+      <Sailboat className="size-5" />
+    </a>
   );
 }
 
@@ -114,95 +150,50 @@ function usePreviewBannerHeight(): number {
 /* ------------------------------------------------------------------ */
 
 function Nav({ template, t, lang, trip, setLang, onJump }: Site & { setLang: (l: Lang) => void; onJump: (e: MouseEvent<HTMLAnchorElement>) => void }) {
-  const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [menu, setMenu] = useState(false);
   const focus = useReturnFocus();
   useScrollPause(menu);
   const top = usePreviewBannerHeight();
   const { brand } = template;
-
-  useEffect(() => {
-    let last = window.scrollY;
-    const on = () => {
-      const y = window.scrollY;
-      setScrolled(y > 40);
-      if (Math.abs(y - last) > 6) { setHidden(y > last && y > 640); last = y; }
-    };
-    on();
-    window.addEventListener("scroll", on, { passive: true });
-    return () => window.removeEventListener("scroll", on);
-  }, []);
-
   const links = [
     { href: "#tours", label: t.nav.services },
-    { href: "#captain", label: t.nav.why },
+    { href: "#world", label: pick(lang, "Getting here", "Cómo llegar") },
     { href: "#booking", label: t.nav.process },
-    { href: "#gallery", label: pick(lang, "Gallery", "Galería") },
-    { href: "#faq", label: t.nav.faq },
+    { href: "#contact", label: t.nav.contact },
   ];
-  const book = wa(template, pick(lang, "Hi Willy! I'd like to book a private boat tour.", "¡Hola Willy! Quisiera reservar un tour privado en bote."));
-
   return (
-    <header
-      style={{ top }}
-      className={`fixed inset-x-0 z-50 transition-[translate,background-color,box-shadow] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] ${
-        hidden && !menu ? "-translate-y-full" : ""
-      } ${scrolled ? "bg-(--navy)/80 backdrop-blur-xl" : "bg-transparent"} ${scrolled && !hidden ? "shadow-[0_12px_40px_-24px_rgba(0,0,0,.6)]" : ""}`}
-    >
-      <div className="tt-wrap flex h-[72px] items-center justify-between gap-6 text-white">
+    <header style={{ top }} className="tw-nav fixed inset-x-0 z-50 text-(--claro)">
+      <div className="tw-gutter flex h-(--nav-h) items-center justify-between gap-6">
         <a href="#top" onClick={onJump} className="flex min-w-0 items-center gap-3">
           <Logo src={brand.logo} />
-          <span className="truncate font-semibold tracking-tight max-[440px]:sr-only">{brand.name}</span>
+          <span className="tw-title truncate text-[19px] max-[440px]:sr-only">{brand.name}</span>
         </a>
-        <nav className="hidden items-center gap-7 text-sm text-white/80 lg:flex">
-          {links.map((l) => (
-            <a key={l.href} href={l.href} onClick={onJump} className="tt-link py-1 transition-colors hover:text-white">{l.label}</a>
-          ))}
+        <nav className="hidden items-center gap-8 text-[15px] lg:flex">
+          {links.map((l) => <a key={l.href} href={l.href} onClick={onJump} className="tw-link">{l.label}</a>)}
         </nav>
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-5 text-[15px]">
+          {t.footer.hours && <span className="hidden text-(--claro)/80 xl:inline">{t.footer.hours}</span>}
+          <a href={brand.phoneHref} className="tw-link hidden md:inline">{brand.phone}</a>
           <LangSwitch lang={lang} setLang={setLang} hidden={!!template.lockedLang} />
-          <button type="button" onClick={() => trip.openQuote()} className={`hidden h-11 items-center gap-2 rounded-full bg-(--sun) px-5 text-sm font-semibold text-(--navy) hover:bg-[#F7B567] md:inline-flex ${PRESS}`}>
-            {pick(lang, "Get a quote", "Cotizar")}
-          </button>
           <Dialog.Root open={menu} onOpenChange={setMenu}>
-            <Dialog.Trigger className={`grid size-11 place-items-center rounded-full bg-white/10 hover:bg-white/20 lg:hidden ${PRESS}`} aria-label={pick(lang, "Open menu", "Abrir menú")}>
+            <Dialog.Trigger className={`grid size-11 place-items-center rounded-full bg-(--claro)/10 lg:hidden ${PRESS}`} aria-label={pick(lang, "Open menu", "Abrir menú")}>
               <Menu className="size-5" />
             </Dialog.Trigger>
             <Dialog.Portal>
-              <Dialog.Content
-                {...focus}
-                aria-describedby={undefined}
-                className="tt-site fixed inset-0 z-[80] flex flex-col bg-(--navy) px-6 pb-10 pt-6 text-white data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:duration-500"
-                style={siteVars(template)}
-              >
+              <Dialog.Content {...focus} aria-describedby={undefined} className="tt-site fixed inset-0 z-[80] flex flex-col bg-(--parede) px-6 pb-10 pt-6 text-(--claro) data-[state=open]:animate-in data-[state=open]:fade-in-0" style={siteVars(template)}>
                 <Dialog.Title className="sr-only">{pick(lang, "Menu", "Menú")}</Dialog.Title>
                 <div className="flex items-center justify-between">
                   <Logo src={brand.logo} />
-                  <Dialog.Close className={`grid size-11 place-items-center rounded-full bg-white/10 ${PRESS}`} aria-label={pick(lang, "Close menu", "Cerrar menú")}>
-                    <X className="size-5" />
-                  </Dialog.Close>
+                  <Dialog.Close className={`grid size-11 place-items-center rounded-full bg-(--claro)/10 ${PRESS}`} aria-label={pick(lang, "Close menu", "Cerrar menú")}><X className="size-5" /></Dialog.Close>
                 </div>
                 <nav className="mt-14 flex flex-col">
-                  {links.map((l, i) => (
-                    <a
-                      key={l.href}
-                      href={l.href}
-                      onClick={(e) => { setMenu(false); onJump(e); }}
-                      style={{ animationDelay: `${120 + i * 60}ms` }}
-                      className="tt-display tt-menu-in border-b border-white/10 py-4 text-4xl"
-                    >
-                      {l.label}
-                    </a>
+                  {links.map((l) => (
+                    <a key={l.href} href={l.href} onClick={(e) => { setMenu(false); onJump(e); }} className="tw-title border-b border-(--claro)/10 py-4 text-4xl">{l.label}</a>
                   ))}
                 </nav>
                 <div className="mt-auto grid gap-3">
-                  <button type="button" onClick={() => { setMenu(false); trip.openQuote(); }} className={`${BTN_SUN} w-full`}>
-                    <Calculator className="size-5" /> {pick(lang, "Get my quote", "Cotizar mi tour")}
-                  </button>
-                  <a href={book} {...EXTERNAL} className={`${BTN_GHOST} w-full`}>
-                    <MessageCircle className="size-5" /> {t.hero.cta1}
-                  </a>
+                  <button type="button" onClick={() => { setMenu(false); trip.openQuote(); }} className={`${BTN_SUN} w-full`}><Calculator className="size-5" /> {pick(lang, "Get my quote", "Cotizar mi tour")}</button>
+                  <a href={wa(template, bookText(lang))} {...EXTERNAL} className={`${BTN_GHOST} w-full`}><MessageCircle className="size-5" /> {t.hero.cta1}</a>
                 </div>
               </Dialog.Content>
             </Dialog.Portal>
@@ -213,403 +204,270 @@ function Nav({ template, t, lang, trip, setLang, onJump }: Site & { setLang: (l:
   );
 }
 
-function LangSwitch({ lang, setLang, hidden }: { lang: Lang; setLang: (l: Lang) => void; hidden: boolean }) {
-  if (hidden) return null;
+/* ------------------------------------------------------------------ */
+/* The journey.                                                        */
+
+/** One airplane window: a cream bezel, the glass, a half-drawn blind and a glare. */
+function Window({ s, clouds, seed = 1, night }: { s: Scenery; clouds?: boolean; seed?: number; night?: boolean }) {
   return (
-    <div role="group" aria-label={pick(lang, "Language", "Idioma")} className="flex rounded-full bg-white/10 p-1 text-xs font-semibold backdrop-blur">
-      {(["en", "es"] as const).map((l) => (
-        <button
-          key={l}
-          onClick={() => setLang(l)}
-          aria-pressed={lang === l}
-          className={`h-8 rounded-full px-3 uppercase ${PRESS} ${lang === l ? "bg-white text-(--navy)" : "text-white/70 hover:text-white"}`}
-        >
-          {l}
+    <div className={`tw-win ${night ? "is-night" : ""}`}>
+      <div className="tw-glass">
+        <Shot s={s} sizes="(min-width: 768px) 30vw, 70vw" className={night ? "tw-night-img" : ""} eager={!night} />
+        {clouds && <Clouds seed={seed} top={0.72} density={0.45} tint={night ? "150,165,195" : undefined} shade={night ? "40,52,80" : undefined} className="absolute inset-x-0 bottom-0 h-2/5 w-full" />}
+        {night && <span aria-hidden className="tw-moon" />}
+        <span aria-hidden className="tw-blind" />
+        <span aria-hidden className="tw-glare" />
+      </div>
+    </div>
+  );
+}
+
+function OpenScene({ template, t, lang, trip }: Site) {
+  return (
+    <div data-scene="open" className="tw-scene tw-open">
+      <div data-j="windows" className="tw-windows">
+        <Window s={SCENERY.shore} clouds seed={3} />
+        <Window s={SCENERY.bay} />
+        <Window s={SCENERY.beach} clouds seed={9} />
+      </div>
+      <div data-j="head" className="tw-open-head">
+        <h1 className="tw-title tw-hero"><Words text={`${t.hero.title1} ${t.hero.title2}`} /></h1>
+        <p data-rise className="tw-lead text-(--claro-2)">{pick(lang, "Only your group on board", "Solo su grupo a bordo")}</p>
+      </div>
+      <div data-j="foot" className="tw-open-foot tw-gutter">
+        <p data-rise className="tw-lead">{pick(lang, "Sport fishing, snorkeling and sunset cruises.", "Pesca deportiva, snorkel y atardeceres.")}</p>
+        <div data-rise className="flex items-center gap-3">
+          <Pill onClick={() => trip.openQuote()} data-magnetic>{pick(lang, "Get my quote", "Cotizar mi tour")}</Pill>
+          <BoatButton template={template} lang={lang} />
+        </div>
+        <p data-rise className="tw-lead md:text-right">{pick(lang, "With Captain Willy, 26 years on these waters.", "Con el Capitán Willy, 26 años en estas aguas.")}</p>
+      </div>
+    </div>
+  );
+}
+
+function FlyScene({ t }: Site) {
+  return (
+    <div data-scene="fly" className="tw-scene tw-fly">
+      <div data-j="bay" className="tw-layer"><Shot s={SCENERY.bay} /></div>
+      <div data-j="above" className="tw-layer tw-above"><Shot s={SCENERY.above} /></div>
+      <div data-j="cloud-back" className="tw-cloud-back" aria-hidden><Clouds seed={21} top={0.5} className="size-full" /></div>
+      <div data-j="fly-copy" className="tw-fly-copy tw-gutter">
+        <h2 className="tw-title tw-h2"><Words text={t.services.title} /></h2>
+        {t.services.blurb && <p data-rise className="tw-lead mx-auto mt-4 max-w-xl text-(--claro)/85">{t.services.blurb}</p>}
+      </div>
+      <div data-j="cloud-front" className="tw-cloud-front" aria-hidden>
+        <Clouds seed={5} top={0.2} density={1.4} className="size-full" />
+      </div>
+    </div>
+  );
+}
+
+function TourCard({ lang, trip, tour, i }: Site & { tour: TourOffer; i: number }) {
+  return (
+    <article data-card className="tw-card">
+      <div className="tw-card-photo"><Shot s={tourScenery(tour.title.en, i)} /></div>
+      <div aria-hidden className="tw-card-shade" />
+      <div aria-hidden className="tw-card-dim" />
+      <div className="tw-card-text">
+        <h3 className="tw-title tw-card-title">{tour.title[lang]}</h3>
+        <p className="tw-lead mt-3 max-w-md">{tour.blurb[lang]}</p>
+      </div>
+      <div className="tw-card-glass">
+        <div className="flex items-start justify-between gap-3">
+          <p className="tw-title text-[clamp(1.5rem,2.3vw,2.25rem)] leading-none">
+            {tour.guests !== undefined ? pick(lang, `Up to ${tour.guests}`, `Hasta ${tour.guests}`) : pick(lang, "Your plan", "A su medida")}
+          </p>
+          {tour.image && <img src={tour.image} alt={pick(lang, `The business's own photo of ${tour.title.en}`, `Foto del negocio: ${tour.title.es}`)} loading="lazy" className="size-11 shrink-0 rounded-full object-cover ring-2 ring-(--claro)/40" />}
+        </div>
+        <p className="mt-2 text-[14px] text-(--claro)/80">{pick(lang, `from ${usd(tour.priceUsd, lang)}, the whole boat`, `desde ${usd(tour.priceUsd, lang)}, el bote completo`)}</p>
+        <button type="button" onClick={() => trip.openQuote(i)} className="tw-card-go">
+          {pick(lang, "Get a quote", "Cotizar")} <ArrowRight className="size-4" />
+          <span className="sr-only">: {tour.title[lang]}</span>
         </button>
-      ))}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function Hero({ template, t, lang, trip }: Site) {
-  const stats = template.facts?.stats ?? [];
-  const ratings = stats.filter((s) => /google|tripadvisor/i.test(s.labelEn));
-  return (
-    <section id="top" data-hero className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-(--navy) text-white">
-      {/* The photo's own edges fade to white: the frame overscales past them. */}
-      <div aria-hidden className="absolute inset-0 -z-10 scale-[1.14] max-sm:scale-[1.32]">
-        <img
-          data-hero-img
-          src={template.media?.hero}
-          alt=""
-          fetchPriority="high"
-          className="size-full object-cover"
-          style={{ objectPosition: template.media?.heroFocus }}
-        />
       </div>
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(6,24,42,.6)_0%,rgba(6,24,42,0)_26%,rgba(6,24,42,0)_42%,rgba(6,24,42,.92)_100%)]" />
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_75%_60%_at_10%_95%,rgba(6,24,42,.75),transparent_70%)]" />
-
-      <div data-hero-copy className="tt-wrap pb-14 pt-36 sm:pb-20">
-        <p data-hero-in className="tt-eyebrow inline-flex rounded-full border border-white/15 bg-(--navy)/35 px-4 py-2 text-white/90 backdrop-blur-md max-sm:text-[10px] max-sm:tracking-[0.14em]">{t.hero.eyebrow}</p>
-        <h1 className="tt-display mt-5 max-w-5xl text-[clamp(3.1rem,9vw,8.25rem)] leading-[0.9]">
-          <Words text={t.hero.title1} />{" "}
-          <em className="block text-(--sun)"><Words text={t.hero.title2} /></em>
-        </h1>
-        <p data-hero-in className="mt-7 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">{t.hero.subtitle}</p>
-        <div data-hero-in className="mt-9 flex flex-col gap-3 sm:flex-row">
-          <button type="button" data-magnetic onClick={() => trip.openQuote()} className={BTN_SUN}>
-            <Calculator className="size-5" /> {pick(lang, "Get my quote", "Cotizar mi tour")}
-          </button>
-          <a href={wa(template, pick(lang, "Hi Willy! I'd like to book a private boat tour.", "¡Hola Willy! Quisiera reservar un tour privado en bote."))} {...EXTERNAL} className={BTN_GHOST}>
-            <MessageCircle className="size-5" /> {t.hero.cta1}
-          </a>
-        </div>
-        <ul data-hero-in className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm text-white/85">
-          {t.hero.badges.map((b) => (
-            <li key={b} className="flex items-center gap-2"><Check className="size-4 text-(--sun)" /> {b}</li>
-          ))}
-          {ratings.map((s) => (
-            <li key={s.labelEn} className="flex items-center gap-2">
-              <span className="text-(--sun)" aria-hidden>★</span>
-              {lang === "es" ? s.valueEs ?? s.value : s.value} {lang === "es" ? s.labelEs : s.labelEn}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div aria-hidden className="absolute bottom-8 right-[var(--pad)] hidden flex-col items-center gap-3 text-[11px] uppercase tracking-[0.3em] text-white/60 sm:flex">
-        <span className="[writing-mode:vertical-rl]">{pick(lang, "Scroll", "Deslice")}</span>
-        <span className="relative h-14 w-px overflow-hidden bg-white/20"><span className="tt-cue absolute inset-x-0 top-0 h-1/3 bg-white" /></span>
-      </div>
-    </section>
+    </article>
   );
 }
 
-function Marquee({ template, lang }: Site) {
-  const names = (template.tours ?? []).map((tour) => tour.title[lang]);
-  if (names.length === 0) return null;
-  const row = (
-    <span className="flex shrink-0 items-center">
-      {names.map((n) => (
-        <Fragment key={n}>
-          <span className="tt-display px-6 italic sm:px-10">{n}</span>
-          <span className="text-[0.45em] text-(--sun)">✦</span>
-        </Fragment>
-      ))}
-    </span>
-  );
-  // Decorative: the tour names are listed for real in the next sections.
-  return (
-    <div aria-hidden className="overflow-hidden border-y border-white/10 bg-(--navy) py-6 text-white/90 sm:py-8">
-      <div data-marquee className="flex w-max text-[clamp(2.2rem,5.5vw,4.5rem)] leading-none">{row}{row}</div>
-    </div>
-  );
-}
-
-function Intro({ template, lang }: Site) {
-  const stats = template.facts?.stats ?? [];
-  return (
-    <section id="about" className="bg-(--sand) pb-8 pt-28 text-(--ink) sm:pb-12 sm:pt-40">
-      <div className="tt-wrap">
-        <Eyebrow>{pick(lang, "Tamarindo, from the water", "Tamarindo, desde el mar")}</Eyebrow>
-        <p data-lit className="tt-display mt-8 max-w-6xl text-[clamp(2rem,4.6vw,4.4rem)] leading-[1.06]">
-          {pick(
-            lang,
-            "Tamarindo is best seen from the water. On a private boat with Captain Willy the day is yours: he plans it around the tide, the weather and what your group came to do.",
-            "Tamarindo se disfruta más desde el mar. En un bote privado con el Capitán Willy el día es suyo: él lo planea según la marea, el clima y lo que su grupo vino a hacer.",
-          ).split(" ").map((w, i) => <Fragment key={i}>{i > 0 && " "}<span className="lw">{w}</span></Fragment>)}
-        </p>
-        {stats.length > 0 && (
-          <dl className="mt-20 grid gap-10 border-t border-(--ink)/10 pt-10 sm:grid-cols-3">
-            {stats.map((s) => {
-              const label = lang === "es" ? s.labelEs : s.labelEn;
-              const value = lang === "es" ? s.valueEs ?? s.value : s.value;
-              const link = /tripadvisor/i.test(s.labelEn) ? TRIPADVISOR : null;
-              return (
-                <div key={s.labelEn}>
-                  <dt className="sr-only">{label}</dt>
-                  <dd className="tt-display text-7xl leading-none sm:text-8xl"><Odometer value={value} /></dd>
-                  <dd className="mt-3 text-[15px] text-(--ink)/65">
-                    {link ? <a href={link} {...EXTERNAL} className="tt-link inline-flex items-center gap-1">{label} <ArrowUpRight className="size-3.5" /></a> : label}
-                  </dd>
-                </div>
-              );
-            })}
-          </dl>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function TourCard({ lang, trip, tour, i, count }: Site & { tour: TourOffer; i: number; count: number }) {
-  const title = tour.title[lang];
-  return (
-    <li className="w-[84vw] shrink-0 snap-start sm:w-[400px] lg:w-[min(440px,34vw)]">
-      <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-[0_1px_0_rgba(10,26,42,.05),0_40px_70px_-45px_rgba(10,26,42,.55)] transition-transform duration-500 ease-[cubic-bezier(.2,.7,.2,1)] hover:-translate-y-0.5">
-        <div className="relative aspect-[4/3] overflow-hidden lg:aspect-auto lg:h-[clamp(170px,25vh,290px)]">
-          <Photo
-            src={tour.image}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="size-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.04]"
-          />
-          <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold tabular-nums text-(--navy) backdrop-blur">
-            {String(i + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
-          </span>
-        </div>
-        <div className="flex flex-1 flex-col p-6 sm:p-7">
-          <h3 className="tt-display text-[2rem] leading-[1.05]">
-            <button type="button" onClick={() => trip.openQuote(i)} className="text-left outline-none after:absolute after:inset-0 after:rounded-3xl focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-(--sea)">
-              {title}
-            </button>
-          </h3>
-          <p className="mt-2.5 text-[15px] leading-relaxed text-(--ink)/70">{tour.blurb[lang]}</p>
-          <ul className="mt-4 flex flex-wrap gap-2 [@media(max-height:800px)]:lg:hidden">
-            {tour.includes[lang].map((x) => (
-              <li key={x} className="rounded-full border border-(--ink)/10 px-3 py-1 text-xs text-(--ink)/75">{x}</li>
-            ))}
-          </ul>
-          <div className="mt-auto flex items-end justify-between gap-4 border-t border-(--ink)/10 pt-5">
-            <p>
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-(--ink)/50">{pick(lang, "Private boat from", "Bote privado desde")}</span>
-              <span className="tt-display text-4xl leading-none">{usd(tour.priceUsd, lang)}</span>
-              {tour.guests !== undefined && (
-                <span className="ml-3 inline-flex items-center gap-1.5 text-sm text-(--ink)/65">
-                  <Users className="size-4" /> {pick(lang, `Up to ${tour.guests}`, `Hasta ${tour.guests}`)}
-                </span>
-              )}
-            </p>
-            {/* What the card does, drawn as a button; the title's button carries the name. */}
-            <span aria-hidden className="flex h-11 shrink-0 items-center gap-2 rounded-full bg-(--navy) pl-4 pr-3 text-sm font-semibold text-white transition-colors duration-300 group-hover:bg-(--sun) group-hover:text-(--navy)">
-              {pick(lang, "Get a quote", "Cotizar")} <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-            </span>
-          </div>
-        </div>
-      </article>
-    </li>
-  );
-}
-
-function Tours(site: Site) {
-  const { template, t } = site;
-  const tours = template.tours ?? [];
+function ToursScene(site: Site) {
+  const tours = site.template.tours ?? [];
   if (tours.length === 0) return null;
   return (
-    <section id="tours" className="bg-(--sand) text-(--ink)">
-      {/* The pin wraps [data-pin] in a spacer; this div keeps that out of React's way. */}
-      <div>
-        <div data-pin className="flex flex-col justify-center gap-10 overflow-hidden py-24 lg:min-h-[100svh] lg:gap-7 lg:pb-8 lg:pt-24">
-          <div className="tt-wrap grid items-end gap-6 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <Eyebrow>{t.nav.services}</Eyebrow>
-              <h2 className="tt-display mt-4 text-[clamp(2.6rem,4.4vw,4.25rem)] leading-[0.98]"><Words text={t.services.title} /></h2>
-            </div>
-            <div className="lg:col-span-5">
-              {t.services.blurb && <p className="text-[15px] leading-relaxed text-(--ink)/70">{t.services.blurb}</p>}
-              <div aria-hidden className="mt-6 hidden h-px w-full bg-(--ink)/12 lg:block">
-                <div data-progress className="h-full origin-left bg-(--sea)" />
-              </div>
-            </div>
-          </div>
-          {/* Bottom padding inside the clip keeps the card shadows whole; the margin gives the space back. */}
-          <div data-track-viewport className="tt-noscroll -mb-12 snap-x snap-mandatory overflow-x-auto overscroll-x-contain">
-            <ol data-track className="tt-track flex w-max gap-5 pb-14">
-              {tours.map((tour, i) => <TourCard key={i} {...site} tour={tour} i={i} count={tours.length} />)}
-            </ol>
-          </div>
-        </div>
+    <div id="tours" data-scene="tours" className="tw-scene tw-tours">
+      <h2 className="sr-only">{site.t.services.title}</h2>
+      <div data-j="deck" className="tw-deck">
+        {tours.map((tour, i) => <TourCard key={i} {...site} tour={tour} i={i} />)}
       </div>
-    </section>
+    </div>
   );
 }
 
-function Captain({ template, t, lang }: Site) {
-  const portrait = template.media?.teamPortrait;
+function WorldScene({ template, lang, trip }: Site) {
+  const stats = template.facts?.stats ?? [];
+  const years = stats.find((s) => /years/i.test(s.labelEn));
+  const ratings = stats.filter((s) => /google|tripadvisor/i.test(s.labelEn));
   return (
-    <section id="captain" className="overflow-hidden bg-(--navy) py-28 text-white sm:py-40">
-      <div className="tt-wrap grid items-center gap-14 lg:grid-cols-12 lg:gap-16">
-        {portrait && (
-          <div className="lg:col-span-6">
-            <div data-clip className="relative aspect-[4/5] overflow-hidden rounded-3xl">
-              <Photo
-                dark
-                src={portrait}
-                alt={pick(lang, "Captain Willy at the helm of his boat", "El Capitán Willy al timón de su bote")}
-                loading="lazy"
-                decoding="async"
-                className="size-full object-cover"
-                style={{ objectPosition: "58% 35%" }}
-              />
-            </div>
-          </div>
-        )}
-        <div className={portrait ? "lg:col-span-6" : "lg:col-span-12"}>
-          <Eyebrow tone="teal">{pick(lang, "Your captain", "Su capitán")}</Eyebrow>
-          <h2 className="tt-display mt-4 text-[clamp(2.6rem,5vw,4.5rem)] leading-[0.98]"><Words text={t.why.title} /></h2>
-          <p data-rise className="mt-6 max-w-lg text-lg leading-relaxed text-white/75">
-            {pick(
-              lang,
-              "Willy Vega owns and runs Tamarindo Tours Discovery from Playa Tamarindo. Tell him what your group wants and he plans the day with you.",
-              "Willy Vega es dueño y operador de Tamarindo Tours Discovery, en Playa Tamarindo. Cuéntele qué quiere su grupo y él planea el día con usted.",
-            )}
-          </p>
-          <ol className="mt-12 grid gap-px overflow-hidden rounded-3xl bg-white/10 sm:grid-cols-2">
-            {t.why.items.map((w, i) => (
-              <li key={i} data-rise className="bg-(--navy) p-6 sm:p-7">
-                <span className="tt-display text-2xl text-(--teal)">{String(i + 1).padStart(2, "0")}</span>
-                <h3 className="mt-3 text-lg font-semibold">{w.title}</h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-white/65">{w.blurb}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
+    <div id="world" data-scene="world" className="tw-scene tw-world">
+      <p data-j="giant" aria-hidden className="tw-giant">Tamarindo</p>
+      <div data-j="globe" className="tw-globe">
+        <Globe className="size-full" />
+        <span data-pin="home" className="tw-pin is-home">Tamarindo</span>
+        {GATEWAYS.map((g) => <span key={g.name} data-pin={g.name} className="tw-pin">{g.name}</span>)}
       </div>
-    </section>
+      <h2 className="sr-only">{pick(lang, "Wherever you fly in from", "Venga de donde venga")}</h2>
+      <div className="tw-world-foot tw-gutter">
+        {years && <p data-rise className="tw-small">{pick(lang, `${years.value} years on Guanacaste's waters, wherever you fly in from.`, `${years.value} años en las aguas de Guanacaste, venga de donde venga.`)}</p>}
+        <div data-rise className="flex items-center justify-center gap-3">
+          <Pill onClick={() => trip.openQuote()}>{pick(lang, "Get my quote", "Cotizar mi tour")}</Pill>
+          <BoatButton template={template} lang={lang} />
+        </div>
+        <p data-rise className="tw-small md:text-right">
+          {ratings.map((s, i) => (
+            <Fragment key={s.labelEn}>
+              {i > 0 && <br />}
+              {/tripadvisor/i.test(s.labelEn)
+                ? <a href={TRIPADVISOR} {...EXTERNAL} className="tw-link">{lang === "es" ? s.valueEs ?? s.value : s.value} {lang === "es" ? s.labelEs : s.labelEn}</a>
+                : <>{lang === "es" ? s.valueEs ?? s.value : s.value} {lang === "es" ? s.labelEs : s.labelEn}</>}
+            </Fragment>
+          ))}
+        </p>
+      </div>
+    </div>
   );
 }
 
-function Booking({ template, t, lang }: Site) {
+function PassScene({ template, t, lang, trip }: Site) {
   const steps = t.process.items;
+  const pricing = template.tourPricing;
+  const deposit = pricing ? usd(pricing.depositUsd, lang) : null;
+  const hours = pricing?.durations.map((d) => d.hours) ?? [];
+  const span = hours.length ? `${Math.min(...hours)}–${Math.max(...hours)} h`.replace(".", lang === "es" ? "," : ".") : null;
+  // Three fields, as on a boarding pass: the message, the deposit, the day itself.
+  const fields = [
+    { label: steps[0]?.title, value: pick(lang, "1 message", "1 mensaje"), text: steps[0]?.blurb },
+    { label: steps[1]?.title, value: deposit ?? "—", text: steps[1]?.blurb },
+    { label: steps[2]?.title, value: span ?? "—", text: [steps[2]?.blurb, steps[3]?.blurb].filter(Boolean).join(" ") },
+  ];
   const promise = lang === "es" ? template.facts?.guaranteeEs : template.facts?.guaranteeEn;
   return (
-    <section id="booking" className="bg-(--sand) py-28 text-(--ink) sm:py-40">
-      <div className="tt-wrap">
-        <Eyebrow>{t.nav.process}</Eyebrow>
-        <h2 className="tt-display mt-4 max-w-3xl text-[clamp(2.6rem,5.4vw,4.75rem)] leading-[0.98]"><Words text={t.process.title} /></h2>
-        <div className="relative mt-16">
-          <svg aria-hidden viewBox="0 0 1200 56" preserveAspectRatio="none" className="absolute inset-x-0 top-0 hidden h-14 w-full lg:block">
-            <path
-              data-draw
-              d="M0 28 C 100 2, 200 54, 300 28 S 500 2, 600 28 S 800 54, 900 28 S 1100 2, 1200 28"
-              fill="none"
-              stroke="var(--teal)"
-              strokeWidth="2"
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-          <ol className="relative grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-            {steps.map((s, i) => (
-              <li key={i} data-rise>
-                <span className="tt-display grid size-14 place-items-center rounded-full bg-(--navy) text-2xl text-white ring-8 ring-(--sand)">{i + 1}</span>
-                <h3 className="mt-6 text-xl font-semibold">{s.title}</h3>
-                <p className="mt-2 max-w-xs text-[15px] leading-relaxed text-(--ink)/70">{s.blurb}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div data-rise className="mt-20 grid gap-6 rounded-3xl bg-white p-7 sm:p-9 lg:grid-cols-2 lg:items-center">
-          {promise && (
-            <div className="flex gap-4">
-              <ShieldCheck className="mt-0.5 size-6 shrink-0 text-(--sea)" />
-              <div>
-                <p className="font-semibold">{promise.title}</p>
-                <p className="mt-1 text-[15px] text-(--ink)/70">{promise.blurb}</p>
-              </div>
+    <div id="booking" data-scene="pass" className="tw-scene tw-pass">
+      <div className="tw-ticket-wrap">
+        <article data-j="ticket" className="tw-ticket">
+          <PassMap className="tw-ticket-map" />
+          <div className="tw-ticket-body">
+            <header className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <span className="tw-title text-[22px]">{template.brand.name.split(" ")[0]}</span>
+              <h2 className="tw-title text-[22px] text-(--tinta)/60">{t.process.title}</h2>
+              <span className="tw-label ml-auto">{pick(lang, "Boat pass", "Pase a bordo")}</span>
+            </header>
+            <div className="mt-6 flex flex-wrap items-end gap-x-8 gap-y-3 border-b border-(--tinta)/15 pb-5">
+              <div><p className="tw-label">{pick(lang, "From", "De")}</p><p className="tw-title text-[clamp(1.6rem,2.4vw,2.4rem)] leading-tight">{pick(lang, "Your idea", "Su idea")}</p></div>
+              <Plane className="mb-2 size-6 rotate-45" />
+              <div><p className="tw-label">{pick(lang, "To", "A")}</p><p className="tw-title text-[clamp(1.6rem,2.4vw,2.4rem)] leading-tight">{pick(lang, "A day at sea", "Un día en el mar")}</p></div>
             </div>
-          )}
-          <p className="text-[15px] text-(--ink)/70 lg:text-right">
-            <span className="font-semibold text-(--ink)">{pick(lang, "We accept", "Aceptamos")}</span>
-            <br />
-            {pick(lang, "Cash · PayPal · Visa · Mastercard · American Express", "Efectivo · PayPal · Visa · Mastercard · American Express")}
-          </p>
+            <ol className="mt-5 grid gap-6 sm:grid-cols-3">
+              {fields.map((f, i) => (
+                <li key={i} data-step>
+                  <p className="tw-label">{String(i + 1).padStart(2, "0")} · {f.label}</p>
+                  <p data-type className="tw-title mt-1 text-[clamp(2rem,3.6vw,3.6rem)] leading-none">{f.value}</p>
+                  <p className="mt-3 text-[14px] leading-snug text-(--tinta)/70">{f.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <aside data-j="stub" className="tw-stub">
+            <p className="tw-title text-[22px]">{template.brand.name.split(" ")[0]}</p>
+            <dl className="mt-8 grid gap-5">
+              <div><dt className="tw-label">{pick(lang, "Guests", "Pasajeros")}</dt><dd className="tw-title text-2xl">{pick(lang, "Your group", "Su grupo")}</dd></div>
+              <div><dt className="tw-label">{pick(lang, "Boat", "Bote")}</dt><dd className="tw-title text-2xl">{pick(lang, "Private", "Privado")}</dd></div>
+              <div><dt className="tw-label">{pick(lang, "Departure", "Salida")}</dt><dd className="tw-title text-2xl">{pick(lang, "El Chiringuito", "El Chiringuito")}</dd></div>
+            </dl>
+            <span aria-hidden className="tw-barcode" />
+          </aside>
+        </article>
+        <div data-j="pass-cta" className="tw-pass-cta">
+          <Pill onClick={() => trip.openQuote()}>{pick(lang, "Get my quote", "Cotizar mi tour")}</Pill>
+          {promise && <p className="mt-3 max-w-[15rem] text-center text-[13px] text-(--claro-2)">{promise.blurb}</p>}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-/* ------------------------------------------------------------------ */
-
-function Gallery({ template, lang }: Site) {
-  const photos = template.media?.gallery ?? [];
-  const alts = template.galleryCaptions?.[lang] ?? [];
-  const [open, setOpen] = useState<number | null>(null);
-  const focus = useReturnFocus();
-  useScrollPause(open !== null);
-  if (photos.length === 0) return null;
-  // Three columns that drift at different speeds on wide screens; on phones the
-  // columns dissolve (display: contents) into a plain two-column grid.
-  const columns = [0, 1, 2].map((c) => photos.map((src, i) => ({ src, i })).filter(({ i }) => i % 3 === c));
-  const shapes = ["lg:aspect-[4/5]", "lg:aspect-square", "lg:aspect-[3/4]"];
-  const step = (d: number) => setOpen((o) => (o === null ? o : (o + d + photos.length) % photos.length));
-  const ig = template.brand.socials?.instagram;
-
+function RequestForm({ template, t, lang }: Site) {
+  const lead = useLeadForm(template.plwSiteId, lang);
+  const tours = template.tours ?? [];
+  const [tour, setTour] = useState<string>("");
+  const sent = lead.state.status === "sent";
+  const outcome = leadOutcomeMessage(lead.state, lang, template.brand.phone);
+  const submit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const guests = String(f.get("guests") ?? "");
+    void lead.submit({
+      form: "contact",
+      name: String(f.get("name") ?? "").trim(),
+      phone: String(f.get("phone") ?? "").trim(),
+      service: tour || undefined,
+      preferredTime: String(f.get("date") ?? "") || undefined,
+      message: pick(lang, `Group of ${guests}.`, `Grupo de ${guests}.`),
+    });
+  };
   return (
-    <section id="gallery" className="overflow-hidden bg-(--navy) py-28 text-white sm:py-40">
-      <div className="tt-wrap">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <Eyebrow tone="teal">{pick(lang, "Gallery", "Galería")}</Eyebrow>
-            <h2 className="tt-display mt-4 text-[clamp(2.6rem,5.4vw,4.75rem)] leading-[0.98]"><Words text={pick(lang, "Days on the water", "Días en el mar")} /></h2>
-          </div>
-          {ig && (
-            <a href={ig} {...EXTERNAL} className="inline-flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white">
-              <span className="tt-link">{pick(lang, "More on Instagram", "Más en Instagram")}</span> <ArrowUpRight className="size-4" />
-            </a>
-          )}
-        </div>
-        <div className="mt-14 grid grid-cols-2 items-start gap-3 sm:gap-4 lg:grid-cols-3 lg:gap-5">
-          {columns.map((col, c) => (
-            <div key={c} data-speed={[-6, 8, -12][c]} className="contents lg:grid lg:gap-5">
-              {col.map(({ src, i }) => (
-                <button
-                  key={i}
-                  onClick={() => setOpen(i)}
-                  className="group relative block overflow-hidden rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-(--sun)"
-                  aria-label={alts[i] || pick(lang, `Open photo ${i + 1}`, `Abrir foto ${i + 1}`)}
-                >
-                  <Photo
-                    dark
-                    src={src}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    className={`aspect-square w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.03] ${shapes[c]}`}
-                  />
-                </button>
-              ))}
-            </div>
-          ))}
-        </div>
+    <form data-rise onSubmit={submit} className="tw-form">
+      {lead.isPreview && <p className="mb-4 rounded-xl bg-(--luz)/15 px-4 py-2.5 text-[13px] text-(--luz)">{previewNotice(lang)}</p>}
+      <div className="tw-form-row">
+        <label className="tw-field"><span>{t.contact.name}</span><input name="name" required autoComplete="name" placeholder={pick(lang, "Your name", "Su nombre")} /></label>
+        <label className="tw-field"><span>WhatsApp</span><input name="phone" required type="tel" autoComplete="tel" placeholder="+1 555 000 0000" /></label>
+        <label className="tw-field"><span>{pick(lang, "Date", "Fecha")}</span><input name="date" type="date" /></label>
+        <label className="tw-field tw-field-s"><span>{pick(lang, "Guests", "Personas")}</span>
+          <select name="guests" defaultValue="2">{["1", "2", "3", "4", "5", "6"].map((n) => <option key={n}>{n}</option>)}</select>
+        </label>
+        <Pill type="submit" className="tw-form-send" disabled={lead.sending}>{t.contact.submit}</Pill>
       </div>
+      <fieldset className="tw-chips">
+        <legend className="tw-label text-(--claro-2)">{t.contact.service}</legend>
+        {tours.map((x) => (
+          <label key={x.title.en}>
+            <input type="radio" name="tour" value={x.title[lang]} checked={tour === x.title[lang]} onChange={() => setTour(x.title[lang])} className="sr-only" />
+            <span>{x.title[lang]}</span>
+          </label>
+        ))}
+      </fieldset>
+      <p role="status" className="mt-3 min-h-5 text-[14px] text-(--luz)">{sent ? t.contact.success : outcome}</p>
+    </form>
+  );
+}
 
-      <Dialog.Root open={open !== null} onOpenChange={(o) => !o && setOpen(null)}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-[90] bg-[#020a12]/95 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-          <Dialog.Content
-            {...focus}
-            aria-describedby={undefined}
-            onKeyDown={(e) => { if (e.key === "ArrowRight") step(1); if (e.key === "ArrowLeft") step(-1); }}
-            className="fixed inset-0 z-[95] flex items-center justify-center p-4 outline-none sm:p-12"
-          >
-            <Dialog.Title className="sr-only">{pick(lang, "Photo gallery", "Galería de fotos")}</Dialog.Title>
-            {open !== null && (
-              <div key={open} className="relative aspect-square w-[min(88vw,80dvh)] overflow-hidden rounded-2xl animate-in fade-in-0 zoom-in-95 duration-500">
-                <Photo dark src={photos[open]} alt={alts[open] ?? ""} className="size-full object-contain" />
-              </div>
-            )}
-            <Dialog.Close className={`absolute right-4 top-4 grid size-12 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 ${PRESS}`} aria-label={pick(lang, "Close", "Cerrar")}>
-              <X className="size-5" />
-            </Dialog.Close>
-            <div className="absolute inset-x-0 bottom-5 flex items-center justify-center gap-4 text-sm tabular-nums text-white/70">
-              <button onClick={() => step(-1)} className={`grid size-12 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 ${PRESS}`} aria-label={pick(lang, "Previous photo", "Foto anterior")}>
-                <ChevronLeft className="size-5" />
-              </button>
-              {open !== null && `${open + 1} / ${photos.length}`}
-              <button onClick={() => step(1)} className={`grid size-12 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 ${PRESS}`} aria-label={pick(lang, "Next photo", "Foto siguiente")}>
-                <ChevronRight className="size-5" />
-              </button>
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+function NightScene(site: Site) {
+  const { t } = site;
+  return (
+    <div data-scene="night" className="tw-scene tw-night">
+      <div data-j="night-full" className="tw-layer"><Shot s={SCENERY.night} className="tw-night-img" /><span aria-hidden className="tw-moon" /></div>
+      <div data-j="night-windows" className="tw-windows">
+        <Window s={SCENERY.bay} clouds seed={13} night />
+        <Window s={SCENERY.night} night />
+        <Window s={SCENERY.headland} clouds seed={17} night />
+      </div>
+      <div className="tw-night-head">
+        <h2 className="tw-title tw-hero"><Words text={t.contact.title} /></h2>
+        <p data-rise className="tw-lead text-(--claro-2)">{t.contact.blurb}</p>
+      </div>
+      <div className="tw-night-form tw-gutter"><RequestForm {...site} /></div>
+    </div>
+  );
+}
+
+function Journey(site: Site) {
+  return (
+    <section id="top" data-journey aria-label={site.template.brand.name} className="tw-stage">
+      <OpenScene {...site} />
+      <FlyScene {...site} />
+      <ToursScene {...site} />
+      <WorldScene {...site} />
+      <PassScene {...site} />
+      <NightScene {...site} />
     </section>
   );
 }
@@ -639,13 +497,13 @@ export function Secretaria({ template, lang, draftToken }: Site & { draftToken?:
     ];
 
   return (
-    <section id="secretaria" className="relative isolate overflow-hidden bg-(--sea) py-28 text-white sm:py-40">
-      <div aria-hidden className="absolute -right-40 -top-40 -z-10 size-[44rem] rounded-full bg-(--teal)/25 blur-3xl" />
-      <div aria-hidden className="absolute -bottom-56 -left-40 -z-10 size-[40rem] rounded-full bg-(--sun)/15 blur-3xl" />
-      <div className="tt-wrap grid items-center gap-14 lg:grid-cols-2 lg:gap-20 [&>*]:min-w-0">
+    <section id="secretaria" className="relative isolate overflow-hidden bg-(--parede) py-28 text-(--claro) sm:py-40">
+      <div aria-hidden className="absolute -right-40 -top-40 -z-10 size-[44rem] rounded-full bg-(--acento)/10 blur-3xl" />
+      <div aria-hidden className="absolute -bottom-56 -left-40 -z-10 size-[40rem] rounded-full bg-(--luz)/10 blur-3xl" />
+      <div className="tw-gutter mx-auto max-w-[84rem] grid items-center gap-14 lg:grid-cols-2 lg:gap-20 [&>*]:min-w-0">
         <div>
-          <Eyebrow tone="sun">{pick(lang, "AI receptionist", "Secretaria IA")}</Eyebrow>
-          <h2 className="tt-display mt-4 text-[clamp(2.6rem,5vw,4.5rem)] leading-[0.98]">
+          <p className="tw-label text-(--luz)">{pick(lang, "AI receptionist", "Secretaria IA")}</p>
+          <h2 className="tw-title tw-h2 mt-4">
             <Words
               key={String(published)}
               text={published
@@ -661,7 +519,7 @@ export function Secretaria({ template, lang, draftToken }: Site & { draftToken?:
           <ul className="mt-9 space-y-4">
             {features.map((f) => (
               <li key={f} data-rise className="flex items-start gap-3 text-white/90">
-                <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-(--sun) text-(--navy)"><Check className="size-3.5" /></span>
+                <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-(--sun) text-(--tinta)"><Check className="size-3.5" /></span>
                 {f}
               </li>
             ))}
@@ -679,7 +537,7 @@ export function Secretaria({ template, lang, draftToken }: Site & { draftToken?:
           ) : published ? (
             <div className="rounded-3xl border border-white/15 bg-white/10 p-7 backdrop-blur-xl sm:p-9">
               <div className="flex items-center gap-4">
-                <span className="grid size-14 shrink-0 place-items-center rounded-full bg-(--sun) text-(--navy)"><Bot className="size-7" /></span>
+                <span className="grid size-14 shrink-0 place-items-center rounded-full bg-(--sun) text-(--tinta)"><Bot className="size-7" /></span>
                 <div className="min-w-0">
                   <p className="text-lg font-semibold leading-tight">{pick(lang, "AI receptionist", "Recepcionista con IA")}</p>
                   <p className="truncate text-sm text-white/60">{brand.name}</p>
@@ -725,24 +583,24 @@ function Faq({ template, t, lang }: Site) {
   const [open, setOpen] = useState<number | null>(0);
   if (t.faq.items.length === 0) return null;
   return (
-    <section id="faq" className="bg-(--sand) py-28 text-(--ink) sm:py-40">
-      <div className="tt-wrap grid gap-12 lg:grid-cols-12">
+    <section id="faq" className="bg-(--parede-funda) py-28 text-(--claro) sm:py-40">
+      <div className="tw-gutter mx-auto max-w-[84rem] grid gap-12 lg:grid-cols-12">
         <div className="lg:col-span-4">
-          <Eyebrow>{t.nav.faq}</Eyebrow>
-          <h2 className="tt-display mt-4 text-[clamp(2.6rem,5vw,4.5rem)] leading-[0.98]"><Words text={t.faq.title} /></h2>
+          <p className="tw-label text-(--luz)">{t.nav.faq}</p>
+          <h2 className="tw-title tw-h2 mt-4"><Words text={t.faq.title} /></h2>
           <a
             href={wa(template, pick(lang, "Hi Willy! I have a question about the tours.", "¡Hola Willy! Tengo una pregunta sobre los tours."))}
             {...EXTERNAL}
-            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-(--sea)"
+            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-(--acento)"
           >
-            <span className="tt-link">{pick(lang, "Another question? Ask on WhatsApp", "¿Otra pregunta? Escríbanos por WhatsApp")}</span> <ArrowRight className="size-4" />
+            <span className="tw-link">{pick(lang, "Another question? Ask on WhatsApp", "¿Otra pregunta? Escríbanos por WhatsApp")}</span> <ArrowRight className="size-4" />
           </a>
         </div>
-        <div className="border-y border-(--ink)/10 lg:col-span-8">
+        <div className="border-y border-(--claro)/12 lg:col-span-8">
           {t.faq.items.map((f, i) => {
             const isOpen = open === i;
             return (
-              <div key={i} className="border-b border-(--ink)/10 last:border-b-0">
+              <div key={i} className="border-b border-(--claro)/12 last:border-b-0">
                 <h3>
                   <button
                     onClick={() => setOpen(isOpen ? null : i)}
@@ -751,14 +609,14 @@ function Faq({ template, t, lang }: Site) {
                     className="group flex w-full items-center justify-between gap-6 py-6 text-left text-lg font-medium sm:text-xl"
                   >
                     {f.q}
-                    <span className={`grid size-9 shrink-0 place-items-center rounded-full border border-(--ink)/15 transition-[rotate,background-color,color] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:bg-(--navy) group-hover:text-white ${isOpen ? "rotate-45 bg-(--navy) text-white" : ""}`}>
+                    <span className={`grid size-9 shrink-0 place-items-center rounded-full border border-(--claro)/20 transition-[rotate,background-color,color] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:bg-(--claro) group-hover:text-(--tinta) ${isOpen ? "rotate-45 bg-(--claro) text-(--tinta)" : ""}`}>
                       <Plus className="size-4" />
                     </span>
                   </button>
                 </h3>
                 <div id={`faq-${i}`} role="region" className={`grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
                   <div className="overflow-hidden">
-                    <p className="max-w-2xl pb-7 text-[16px] leading-relaxed text-(--ink)/70">{f.a}</p>
+                    <p className="max-w-2xl pb-7 text-[16px] leading-relaxed text-(--claro)/70">{f.a}</p>
                   </div>
                 </div>
               </div>
@@ -770,109 +628,25 @@ function Faq({ template, t, lang }: Site) {
   );
 }
 
-function Contact(site: Site) {
-  const { template, t, lang } = site;
-  const { brand } = template;
-  const sunset = template.tours?.find((tour) => /sunset/i.test(tour.title.en))?.image ?? template.media?.hero;
+
+function LangSwitch({ lang, setLang, hidden }: { lang: Lang; setLang: (l: Lang) => void; hidden: boolean }) {
+  if (hidden) return null;
   return (
-    <section id="contact" className="relative isolate overflow-hidden bg-(--navy) py-28 text-white sm:py-40">
-      {sunset && (
-        <div aria-hidden className="absolute inset-0 -z-10">
-          <img src={sunset} alt="" loading="lazy" decoding="async" className="size-full scale-110 object-cover opacity-45" />
-          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(6,24,42,.96)_25%,rgba(6,24,42,.55)_100%)]" />
-        </div>
-      )}
-      <div className="tt-wrap grid items-start gap-14 lg:grid-cols-12 lg:gap-16 [&>*]:min-w-0">
-        <div className="lg:col-span-6">
-          <Eyebrow tone="sun">{t.nav.contact}</Eyebrow>
-          <h2 className="tt-display mt-4 text-[clamp(2.8rem,6vw,5.5rem)] leading-[0.95]"><Words text={t.contact.title} /></h2>
-          <p data-rise className="mt-6 max-w-md text-lg leading-relaxed text-white/75">{t.contact.blurb}</p>
-          <div data-rise className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a data-magnetic href={wa(template, pick(lang, "Hi Willy! I'd like to book a private boat tour.", "¡Hola Willy! Quisiera reservar un tour privado en bote."))} {...EXTERNAL} className={BTN_SUN}>
-              <MessageCircle className="size-5" /> {t.hero.cta1}
-            </a>
-            <a href={brand.phoneHref} className={BTN_GHOST}>
-              <Phone className="size-4" /> {brand.phone}
-            </a>
-          </div>
-          <dl data-rise className="mt-12 grid gap-6 text-[15px] sm:grid-cols-2">
-            <div>
-              <dt className="flex items-center gap-2 text-white/50"><MapPin className="size-4" /> {pick(lang, "Meeting point", "Punto de encuentro")}</dt>
-              <dd className="mt-1.5">
-                {pick(lang, "Playa Tamarindo, in front of Restaurante El Chiringuito", "Playa Tamarindo, frente al Restaurante El Chiringuito")}
-                <a href={MAPS} {...EXTERNAL} className="mt-1 flex items-center gap-1 text-(--sun)"><span className="tt-link">{pick(lang, "Open in Google Maps", "Abrir en Google Maps")}</span> <ArrowUpRight className="size-3.5" /></a>
-              </dd>
-            </div>
-            {t.footer.hours && (
-              <div>
-                <dt className="flex items-center gap-2 text-white/50"><Clock className="size-4" /> {t.footer.hoursLabel}</dt>
-                <dd className="mt-1.5">{t.footer.hours}</dd>
-              </div>
-            )}
-            {brand.email && (
-              <div className="sm:col-span-2">
-                <dt className="flex items-center gap-2 text-white/50"><Mail className="size-4" /> Email</dt>
-                <dd className="mt-1.5"><a href={`mailto:${brand.email}`} className="tt-link break-all">{brand.email}</a></dd>
-              </div>
-            )}
-          </dl>
-        </div>
-        <div data-rise className="lg:col-span-6">
-          <QuoteBuilder template={template} lang={lang} inline />
-        </div>
-      </div>
-    </section>
+    <div role="group" aria-label={pick(lang, "Language", "Idioma")} className="flex rounded-full bg-(--claro)/10 p-1 text-xs font-semibold backdrop-blur">
+      {(["en", "es"] as const).map((l) => (
+        <button
+          key={l}
+          onClick={() => setLang(l)}
+          aria-pressed={lang === l}
+          className={`h-8 rounded-full px-3 uppercase ${PRESS} ${lang === l ? "bg-(--claro) text-(--tinta)" : "text-white/70 hover:text-white"}`}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
   );
 }
 
-function Footer({ template, t, lang, onJump }: Site & { onJump: (e: MouseEvent<HTMLAnchorElement>) => void }) {
-  const { brand } = template;
-  const follow = [
-    brand.socials?.instagram && { href: brand.socials.instagram, label: "Instagram" },
-    brand.socials?.facebook && { href: brand.socials.facebook, label: "Facebook" },
-    { href: TRIPADVISOR, label: "Tripadvisor" },
-    { href: YOUTUBE, label: "YouTube" },
-  ].filter((x): x is { href: string; label: string } => !!x);
-  return (
-    <footer className="bg-[#04101C] pb-32 pt-20 text-white/70 md:pb-12">
-      <div className="tt-wrap">
-        <div className="grid gap-12 border-b border-white/10 pb-14 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <a href="#top" onClick={onJump} className="flex items-center gap-3 text-white">
-              <Logo src={brand.logo} size="size-14" />
-              <span className="tt-display text-3xl">{brand.name}</span>
-            </a>
-            <p className="mt-5 max-w-sm text-[15px] leading-relaxed">{t.footer.tagline}</p>
-          </div>
-          <div className="grid gap-10 sm:grid-cols-3 lg:col-span-7">
-            <div>
-              <p className="tt-eyebrow text-white/40">{t.nav.services}</p>
-              <ul className="mt-4 space-y-2.5 text-[15px]">
-                {(template.tours ?? []).map((tour) => <li key={tour.title.en}><a href="#tours" onClick={onJump} className="tt-link hover:text-white">{tour.title[lang]}</a></li>)}
-              </ul>
-            </div>
-            <div>
-              <p className="tt-eyebrow text-white/40">{t.nav.contact}</p>
-              <ul className="mt-4 space-y-2.5 text-[15px]">
-                <li><a href={brand.phoneHref} className="tt-link hover:text-white">{brand.phone}</a></li>
-                <li><a href={wa(template, pick(lang, "Hi Willy!", "¡Hola Willy!"))} {...EXTERNAL} className="tt-link hover:text-white">WhatsApp</a></li>
-                {brand.email && <li><a href={`mailto:${brand.email}`} className="tt-link break-all hover:text-white">{brand.email}</a></li>}
-                <li>{brand.address}</li>
-              </ul>
-            </div>
-            <div>
-              <p className="tt-eyebrow text-white/40">{pick(lang, "Follow", "Síganos")}</p>
-              <ul className="mt-4 space-y-2.5 text-[15px]">
-                {follow.map((f) => <li key={f.label}><a href={f.href} {...EXTERNAL} className="tt-link hover:text-white">{f.label}</a></li>)}
-              </ul>
-            </div>
-          </div>
-        </div>
-        <p className="pt-8 text-xs text-white/40">© {new Date().getFullYear()} {brand.name}. {t.footer.rights}</p>
-      </div>
-    </footer>
-  );
-}
 
 /** Phones: the concierge's actions in one bar, once the hero's own buttons scroll off. */
 function MobileBar({ template, lang, trip }: Site) {
@@ -884,7 +658,7 @@ function MobileBar({ template, lang, trip }: Site) {
   const icon = `grid size-12 shrink-0 place-items-center rounded-full ${PRESS}`;
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-40 flex gap-2 bg-(--navy)/90 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl transition-[translate] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] md:hidden ${show ? "" : "translate-y-full"}`}
+      className={`fixed inset-x-0 bottom-0 z-40 flex gap-2 bg-(--parede)/90 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl transition-[translate] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] md:hidden ${show ? "" : "translate-y-full"}`}
     >
       <button type="button" onClick={() => trip.openQuote()} className={`${BTN_SUN} h-12 min-w-0 flex-1 px-4`}>
         <Calculator className="size-5 shrink-0" /> <span className="truncate">{pick(lang, "Get my quote", "Cotizar mi tour")}</span>
@@ -902,45 +676,238 @@ function MobileBar({ template, lang, trip }: Site) {
   );
 }
 
+
+function Footer({ template, t, lang, onJump }: Site & { onJump: (e: MouseEvent<HTMLAnchorElement>) => void }) {
+  const { brand } = template;
+  const follow = [
+    brand.socials?.instagram && { href: brand.socials.instagram, label: "Instagram" },
+    brand.socials?.facebook && { href: brand.socials.facebook, label: "Facebook" },
+    { href: TRIPADVISOR, label: "Tripadvisor" },
+    { href: YOUTUBE, label: "YouTube" },
+  ].filter((x): x is { href: string; label: string } => !!x);
+  const credits = Object.values(SCENERY).filter((s, i, all) => all.findIndex((x) => x.by === s.by) === i);
+  return (
+    <footer className="relative overflow-hidden bg-(--parede) pt-24 text-(--claro)">
+      <div className="tw-gutter relative z-10">
+        <div className="flex flex-wrap items-end justify-between gap-8">
+          <a href="#top" onClick={onJump} className="flex items-center gap-5">
+            <Logo src={brand.logo} size="size-[clamp(64px,8vw,120px)]" />
+            <span className="tw-title max-w-[12ch] text-[clamp(44px,7vw,120px)] leading-[0.9]">{brand.name}</span>
+          </a>
+          <p className="tw-lead max-w-sm text-(--claro-2) md:text-right">{t.footer.tagline}</p>
+        </div>
+        <div className="mt-16 grid gap-10 text-[15px] sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <p className="tw-label text-(--claro-2)">{t.nav.services}</p>
+            <ul className="mt-4 space-y-2">
+              {(template.tours ?? []).map((tour) => <li key={tour.title.en}><a href="#tours" onClick={onJump} className="tw-link">{tour.title[lang]}</a></li>)}
+            </ul>
+          </div>
+          <div>
+            <p className="tw-label text-(--claro-2)">{t.nav.contact}</p>
+            <ul className="mt-4 space-y-2">
+              <li><a href={wa(template, pick(lang, "Hi Willy!", "¡Hola Willy!"))} {...EXTERNAL} className="tw-link">WhatsApp</a></li>
+              <li><a href={brand.phoneHref} className="tw-link">{brand.phone}</a></li>
+              {brand.email && <li><a href={`mailto:${brand.email}`} className="tw-link break-all">{brand.email}</a></li>}
+              {t.footer.hours && <li className="text-(--claro-2)">{t.footer.hours}</li>}
+            </ul>
+          </div>
+          <div>
+            <p className="tw-label text-(--claro-2)">{pick(lang, "Meeting point", "Punto de encuentro")}</p>
+            <p className="mt-4">{pick(lang, "Playa Tamarindo, in front of Restaurante El Chiringuito", "Playa Tamarindo, frente al Restaurante El Chiringuito")}</p>
+            <a href={MAPS} {...EXTERNAL} className="mt-2 inline-flex items-center gap-1 text-(--acento)"><span className="tw-link">{pick(lang, "Open in Google Maps", "Abrir en Google Maps")}</span> <ArrowUpRight className="size-3.5" /></a>
+          </div>
+          <div>
+            <p className="tw-label text-(--claro-2)">{pick(lang, "Follow", "Síganos")}</p>
+            <ul className="mt-4 space-y-2">
+              {follow.map((f) => <li key={f.label}><a href={f.href} {...EXTERNAL} className="tw-link">{f.label}</a></li>)}
+            </ul>
+          </div>
+        </div>
+        <div className="mt-14 flex flex-wrap justify-between gap-3 text-xs text-(--claro-2)">
+          <p>© {new Date().getFullYear()} {brand.name}. {t.footer.rights}</p>
+          <p className="max-w-2xl md:text-right">
+            {pick(lang, "Costa Rica photos on Unsplash by ", "Fotos de Costa Rica en Unsplash por ")}
+            {credits.map((c, i) => (
+              <Fragment key={c.by}>
+                <a href={c.page} {...EXTERNAL} className="tw-link">{c.by}</a>{i < credits.length - 1 ? ", " : "."}
+              </Fragment>
+            ))}
+          </p>
+        </div>
+      </div>
+      <Engraving className="mt-6 block h-[clamp(160px,22vw,320px)] w-full" />
+    </footer>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 
 const CSS = `
-.tt-site { --pad: 1.25rem; font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-/* No pure white: every white here (cards, dialogs, text on navy) is a warm off-white. */
-.tt-site { --color-white: #FFFDF8; }
-.tt-skel { overflow: hidden; }
-.tt-skel::after { content: ""; position: absolute; inset: 0; translate: -100% 0; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--color-white) 55%, transparent), transparent); }
-.tt-fade { animation: tt-fade .7s cubic-bezier(.2,.7,.2,1) both; }
-@keyframes tt-fade { from { opacity: 0; } }
-@keyframes tt-shimmer { to { translate: 100% 0; } }
-@media (min-width: 640px) { .tt-site { --pad: 2rem; } }
-@media (min-width: 1024px) { .tt-site { --pad: 3rem; } }
-.tt-wrap { width: 100%; max-width: 80rem; margin-inline: auto; padding-inline: var(--pad); }
-.tt-display { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; letter-spacing: -0.015em; }
-.tt-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; }
-.tt-link { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .5s cubic-bezier(.2,.7,.2,1); }
-.tt-link:hover, a:hover > .tt-link, button:hover > .tt-link { background-size: 100% 1px; }
-/* The tours row starts and ends on the page's content edges. */
-.tt-track { padding-inline: max(var(--pad), calc((100vw - 80rem) / 2 + var(--pad))); }
-.tt-noscroll { scrollbar-width: none; } .tt-noscroll::-webkit-scrollbar { display: none; }
-.tt-track > li { scroll-margin-inline: max(var(--pad), calc((100vw - 80rem) / 2 + var(--pad))); }
-.tt-site ::selection { background: var(--sun); color: var(--navy); }
-@media (prefers-reduced-motion: no-preference) {
-  .tt-cue { animation: tt-cue 2.4s cubic-bezier(.6,0,.2,1) infinite; }
-  .tt-menu-in { animation: tt-menu-in .7s cubic-bezier(.2,.7,.2,1) both; }
-  /* Only a load slower than 1 s shows the shimmer. */
-  .tt-skel::after { animation: tt-shimmer 1.6s ease-in-out 1s infinite; }
+.tt-site {
+  --parede: #12161e; --parede-funda: #0b0e14; --claro: #f3f0ea; --claro-2: #9aa3b0; --papel: #f2ede4; --tinta: #151a22;
+  --luz: #f6cf98; --acento: #FF6B3D; --noite: #0b1322;
+  --nav-h: 88px; --gutter: clamp(16px, 3.2vw, 48px); --raio: clamp(20px, 2.2vw, 32px);
+  --t-hero: clamp(38px, 5.6vw, 92px); --t-titulo: clamp(30px, 3.9vw, 64px); --t-card: clamp(44px, 7vw, 120px);
+  --t-lead: clamp(17px, 1.55vw, 25px); --ease: cubic-bezier(.16, 1, .3, 1);
+  font-family: "Manrope", system-ui, sans-serif; font-weight: 500; -webkit-font-smoothing: antialiased;
+  --color-white: #FFFDF8;
 }
-@keyframes tt-cue { from { translate: 0 -100%; } to { translate: 0 300%; } }
+.tt-site ::selection { background: var(--acento); color: var(--parede); }
+.tw-gutter { padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px)); }
+.tw-title, .tt-display { font-family: "Archivo", "Manrope", system-ui, sans-serif; font-weight: 560; letter-spacing: -0.025em; }
+.tw-hero { font-size: var(--t-hero); line-height: 1; text-wrap: balance; }
+.tw-h2 { font-size: var(--t-titulo); line-height: 1.04; text-wrap: balance; }
+.tw-lead { font-size: var(--t-lead); line-height: 1.3; font-weight: 560; letter-spacing: -0.005em; }
+.tw-small { font-size: clamp(15px, 1.2vw, 19px); line-height: 1.35; }
+.tw-label, .tt-eyebrow { font-size: 11.5px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; color: rgba(21,26,34,.55); }
+.tw-link { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .5s var(--ease); }
+.tw-link:hover, a:hover > .tw-link { background-size: 100% 1px; }
+.tt-noscroll { scrollbar-width: none; } .tt-noscroll::-webkit-scrollbar { display: none; }
+.tt-skel { overflow: hidden; } .tt-fade { animation: tt-fade .7s var(--ease) both; } @keyframes tt-fade { from { opacity: 0; } }
+
+/* Buttons: the cream pill whose label rolls, and its round partner. */
+.tw-pill { display: inline-flex; height: 58px; align-items: center; border-radius: 999px; padding-inline: 34px; background: var(--claro); color: var(--tinta); font-size: 17px; font-weight: 650; transition: scale .18s, background-color .3s; }
+.tw-pill:active { scale: .97; } .tw-pill:disabled { opacity: .6; }
+.tw-roll { position: relative; display: inline-grid; overflow: hidden; height: 1.5em; line-height: 1.5em; }
+.tw-roll > span { grid-area: 1 / 1; transition: translate .5s var(--ease); }
+.tw-roll > span + span { translate: 0 110%; }
+.tw-pill:hover .tw-roll > span:first-child { translate: 0 -110%; }
+.tw-pill:hover .tw-roll > span + span { translate: 0 0; }
+.tw-round { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 999px; background: var(--claro); color: var(--tinta); transition: rotate .5s var(--ease), scale .18s; }
+.tw-round:hover { rotate: -12deg; } .tw-round:active { scale: .95; }
+
+/* The stage and its scenes, stacked (phones, reduced motion). */
+.tw-stage { position: relative; background: var(--parede); color: var(--claro); }
+.tw-scene { position: relative; overflow: hidden; min-height: 100svh; }
+.tw-layer { position: absolute; inset: 0; overflow: hidden; }
+.tw-open { background: radial-gradient(120% 90% at 50% 55%, #4a4038 0%, #2c2722 45%, #15130f 100%); display: flex; flex-direction: column; justify-content: space-between; padding-top: calc(var(--nav-h) + 8px); padding-bottom: 28px; }
+.tw-open-head, .tw-night-head { text-align: center; padding-inline: var(--gutter); }
+.tw-open-head .tw-lead, .tw-night-head .tw-lead { margin-top: 10px; }
+.tw-windows { display: flex; justify-content: center; align-items: center; gap: clamp(14px, 2.6vw, 44px); padding-block: 28px; }
+.tw-open-foot { display: grid; gap: 18px; align-items: end; justify-items: center; text-align: center; }
+@media (min-width: 768px) { .tw-open-foot { grid-template-columns: 1fr auto 1fr; justify-items: stretch; text-align: left; } }
+
+/* Airplane windows. */
+.tw-win { position: relative; flex-shrink: 0; width: clamp(150px, 21vw, 330px); aspect-ratio: 33 / 42; border-radius: 44% / 34%;
+  background: radial-gradient(120% 90% at 30% 20%, #fbf8f2 0%, #ebe7df 40%, #c9c1b4 85%, #a69c8c 100%);
+  box-shadow: inset 0 2px 1px rgba(255,255,255,.7), inset 0 -14px 30px rgba(70,58,44,.35), inset 0 0 0 1px rgba(0,0,0,.08), 0 40px 70px -30px rgba(0,0,0,.85), 0 0 0 10px rgba(0,0,0,.12); }
+.tw-win:first-child, .tw-win:last-child { max-width: 30vw; }
+@media (max-width: 767px) { .tw-win:first-child, .tw-win:last-child { display: none; } .tw-win { width: min(70vw, 300px); } }
+.tw-glass { position: absolute; inset: 12% 14%; border-radius: 42% / 31%; overflow: hidden; background: #8fb5d6;
+  box-shadow: inset 0 0 0 3px rgba(60,52,44,.45), inset 0 10px 24px rgba(0,0,0,.35); isolation: isolate; }
+.tw-blind { position: absolute; inset: 0 0 auto; height: 17%; background: linear-gradient(180deg, #d8cfc2, #cdc3b4 85%, #b3a898); box-shadow: 0 3px 6px rgba(0,0,0,.25); z-index: 2; }
+.tw-glare { position: absolute; inset: 0; background: linear-gradient(125deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 32%, rgba(255,255,255,0) 70%, rgba(255,255,255,.12) 100%); z-index: 3; pointer-events: none; }
+.tw-win.is-night { background: radial-gradient(120% 90% at 30% 20%, #8f8a85 0%, #5d5853 45%, #3a3632 85%, #2a2724 100%); box-shadow: inset 0 2px 1px rgba(255,255,255,.25), inset 0 -14px 30px rgba(0,0,0,.45), 0 40px 70px -30px rgba(0,0,0,.9); }
+.tw-win.is-night .tw-blind { background: linear-gradient(180deg, #4b4741, #3e3a35); }
+.tw-night-img { filter: brightness(.38) saturate(.55) contrast(1.1); }
+.tw-moon { position: absolute; inset: 0; background: radial-gradient(60% 40% at 50% 0%, rgba(169,189,220,.35), transparent 70%), linear-gradient(180deg, rgba(11,19,34,.55), rgba(11,19,34,.15) 45%, rgba(11,19,34,.6)); mix-blend-mode: screen; pointer-events: none; }
+.tw-night-img + .tw-moon { mix-blend-mode: normal; background: radial-gradient(55% 35% at 50% 0%, rgba(169,189,220,.28), transparent 70%), linear-gradient(180deg, rgba(11,19,34,.35), rgba(11,19,34,.1) 45%, rgba(11,19,34,.55)); }
+
+/* The flight. */
+.tw-fly { display: flex; align-items: flex-start; justify-content: center; }
+.tw-fly .tw-layer img { object-position: 50% 40%; }
+.tw-above { display: none; }
+.tw-cloud-back { position: absolute; inset: auto 0 0; height: 45%; opacity: .9; -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%); mask-image: linear-gradient(180deg, #000 55%, transparent 100%); pointer-events: none; }
+.tw-cloud-front { position: absolute; inset: auto -10% -28%; height: 92%; background: linear-gradient(180deg, transparent 62%, #e9eff6 82%); pointer-events: none; display: none; }
+.tw-fly-copy { position: relative; z-index: 2; text-align: center; padding-top: calc(var(--nav-h) + 8vh); text-shadow: 0 2px 30px rgba(10,30,60,.45); }
+
+/* The tour cards. */
+.tw-tours { background: var(--parede); padding: calc(var(--nav-h)) var(--gutter) var(--gutter); min-height: 0; }
+.tw-deck { display: grid; gap: 18px; }
+.tw-card { position: relative; overflow: hidden; border-radius: var(--raio); min-height: 78svh; color: var(--claro); background: #20262f; isolation: isolate; }
+.tw-card-photo { position: absolute; inset: 0; z-index: -2; }
+.tw-card-dim { position: absolute; inset: 0; z-index: 4; background: #07131F; opacity: 0; pointer-events: none; }
+.is-staged [data-card], .is-staged [data-j='windows'], .is-staged [data-j='night-windows'], .is-staged [data-j] > img, .is-staged [data-j^='cloud'] { will-change: transform, opacity; }
+.tw-card-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(8,10,14,.72) 100%), linear-gradient(90deg, rgba(8,10,14,.45) 0%, rgba(8,10,14,0) 50%); }
+.tw-card-text { position: absolute; left: clamp(20px, 3vw, 48px); bottom: clamp(20px, 4vw, 56px); right: 340px; }
+.tw-card-title { font-size: var(--t-card); line-height: .92; letter-spacing: -0.035em; }
+.tw-card-glass { position: absolute; right: clamp(16px, 2.2vw, 36px); bottom: clamp(16px, 2.2vw, 36px); width: 302px; padding: 22px; border-radius: 22px;
+  background: rgba(244,239,231,.14); border: 1px solid rgba(244,239,231,.14); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); }
+.tw-card-go { margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding-inline: 18px; border-radius: 999px; background: var(--claro); color: var(--tinta); font-size: 14px; font-weight: 650; transition: gap .4s var(--ease); }
+.tw-card-go:hover { gap: 12px; }
+.tw-card-go::after { content: ""; position: absolute; inset: 0; }
+@media (max-width: 767px) {
+  .tw-card { min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 46vw 18px 18px; }
+  .tw-card-text { position: static; } .tw-card-glass { position: static; width: auto; margin-top: 18px; }
+}
+
+/* The globe. */
+.tw-world { background: var(--parede-funda); display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 28px; }
+.tw-giant { position: absolute; left: 50%; top: calc(var(--nav-h) - 1vw); translate: -50% 0; font-family: "Archivo", system-ui, sans-serif; font-weight: 700; font-size: clamp(90px, 21vw, 360px); line-height: .85; letter-spacing: -0.05em; color: #1b2130; white-space: nowrap; pointer-events: none; }
+.tw-globe { position: relative; margin: 6vh auto 2vh; width: min(68vh, 80vw); aspect-ratio: 1; }
+.tw-pin { position: absolute; left: 0; top: 0; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 650; white-space: nowrap; background: rgba(18,22,30,.82); color: var(--claro); border: 1px solid rgba(244,239,231,.16); pointer-events: none; }
+.tw-pin.is-home { background: var(--claro); color: var(--tinta); }
+.tw-world-foot { position: relative; display: grid; gap: 16px; align-items: end; justify-items: center; text-align: center; }
+@media (min-width: 768px) { .tw-world-foot { grid-template-columns: 1fr auto 1fr; justify-items: stretch; text-align: left; } }
+
+/* The boat pass. */
+.tw-pass { background: var(--parede-funda); display: flex; align-items: center; justify-content: center; padding: calc(var(--nav-h) + 20px) var(--gutter) 40px; }
+.tw-ticket-wrap { position: relative; width: min(1180px, 100%); }
+.tw-ticket { position: relative; display: grid; color: var(--tinta); }
+@media (min-width: 900px) { .tw-ticket { grid-template-columns: 1fr 300px; } }
+.tw-ticket-body, .tw-stub { position: relative; background: var(--papel); padding: clamp(22px, 3vw, 44px); }
+.tw-ticket-body { border-radius: 26px 6px 6px 26px; overflow: hidden; isolation: isolate; }
+.tw-ticket-map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.tw-stub { border-radius: 6px 26px 26px 6px; border-left: 2px dashed rgba(21,26,34,.25); display: flex; flex-direction: column; transform-origin: 0% 0%; }
+@media (max-width: 899px) { .tw-ticket-body, .tw-stub { border-radius: 26px; } .tw-stub { border-left: 0; margin-top: 10px; } }
+.tw-barcode { margin-top: auto; padding-top: 24px; height: 70px; background: repeating-linear-gradient(90deg, var(--tinta) 0 2px, transparent 2px 4px, var(--tinta) 4px 7px, transparent 7px 9px, var(--tinta) 9px 10px, transparent 10px 13px); background-clip: content-box; }
+.tw-pass-cta { display: flex; flex-direction: column; align-items: center; margin-top: 26px; }
+
+/* Night and the request form. */
+.tw-night { background: var(--noite); display: flex; flex-direction: column; justify-content: space-between; padding-top: calc(var(--nav-h) + 8px); padding-bottom: 28px; }
+.tw-night .tw-layer { display: none; }
+@media (max-width: 767px), (max-height: 599px) { .tw-nav { background: linear-gradient(180deg, rgba(7,19,31,.92), rgba(7,19,31,.72)); backdrop-filter: blur(10px); } }
+.tw-night-form { position: relative; z-index: 2; }
+.tw-form { margin-inline: auto; max-width: 1340px; padding: 22px; border-radius: 24px; background: rgba(16,20,28,.62); border: 1px solid rgba(244,239,231,.14); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.tw-form-row { display: grid; gap: 12px; align-items: end; }
+@media (min-width: 900px) { .tw-form-row { grid-template-columns: 1.2fr 1fr 1fr .5fr auto; } }
+.tw-field { display: grid; gap: 6px; font-size: 11.5px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; color: var(--claro-2); }
+.tw-field input, .tw-field select { height: 52px; border-radius: 14px; padding-inline: 16px; background: rgba(244,239,231,.08); border: 1px solid rgba(244,239,231,.14); color: var(--claro); font: 500 16px "Manrope", system-ui, sans-serif; letter-spacing: 0; text-transform: none; color-scheme: dark; }
+.tw-field input:focus-visible, .tw-field select:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.tw-form-send { height: 52px; justify-content: center; }
+.tw-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; }
+.tw-chips legend { float: left; margin-right: 10px; }
+.tw-chips label span { display: inline-flex; height: 40px; align-items: center; padding-inline: 16px; border-radius: 999px; border: 1px solid rgba(244,239,231,.18); font-size: 14px; cursor: pointer; transition: background-color .3s, color .3s; }
+.tw-chips input:checked + span { background: var(--claro); color: var(--tinta); }
+.tw-chips input:focus-visible + span { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+/* ---- Staged: motion.ts adds .is-staged; every scene is one layer of one screen. ---- */
+.is-staged { height: 100vh; overflow: hidden; }
+.is-staged .tw-scene { position: absolute; inset: 0; min-height: 0; height: 100%; }
+.is-staged .tw-open-head { position: absolute; inset: calc(var(--nav-h) - 4px) 0 auto; z-index: 3; }
+.is-staged .tw-open .tw-windows, .is-staged .tw-night .tw-windows { position: absolute; inset: 0; padding: 0; align-items: center; transform-origin: 50% 50%; }
+.is-staged .tw-open .tw-windows { top: 9vh; }
+.is-staged .tw-win { width: min(21vw, 46vh * 33 / 42); }
+.is-staged .tw-open-foot { position: absolute; inset: auto 0 28px; z-index: 3; }
+.is-staged .tw-above { display: block; }
+.is-staged .tw-cloud-front { display: block; }
+.is-staged .tw-tours { padding: 0; background: transparent; }
+.is-staged .tw-deck { position: absolute; inset: var(--nav-h) var(--gutter) 3vh; display: block; }
+.is-staged .tw-card { position: absolute; inset: 0; min-height: 0; transform-origin: 50% 0%; }
+.is-staged .tw-world { padding-bottom: 28px; }
+.is-staged .tw-globe { position: absolute; left: 50%; top: 54%; translate: -50% -50%; margin: 0; width: min(66vh, 60vw); }
+.is-staged .tw-world-foot { position: absolute; inset: auto 0 28px; }
+.is-staged .tw-pass { padding-top: var(--nav-h); }
+.is-staged .tw-ticket-wrap { width: min(1180px, 100%); }
+.is-staged .tw-pass-cta { position: absolute; right: 30px; top: 50%; translate: 0 -50%; margin: 0; }
+.is-staged .tw-night .tw-layer { display: block; }
+.is-staged .tw-night-head { position: absolute; inset: calc(var(--nav-h) + 1.5vh) 0 auto; z-index: 3; }
+.is-staged .tw-night-head .tw-hero { font-size: clamp(36px, min(4.6vw, 7.4vh), 76px); }
+.is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 8vh + 70px) 0 290px; }
+.is-staged .tw-night .tw-win { width: clamp(120px, min(16vw, 27vh), 260px); }
+.is-staged .tw-night-form { position: absolute; inset: auto 0 20px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .tt-menu-in { animation: tt-menu-in .7s var(--ease) both; }
+  .tt-check { stroke-dasharray: 24; stroke-dashoffset: 24; animation: tt-draw .7s .25s var(--ease) forwards; }
+}
 @keyframes tt-menu-in { from { opacity: 0; translate: 0 24px; } }
+@keyframes tt-draw { to { stroke-dashoffset: 0; } }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
-@media (prefers-reduced-motion: no-preference) {
-  .tt-check { stroke-dasharray: 24; stroke-dashoffset: 24; animation: tt-draw .7s .25s cubic-bezier(.2,.7,.2,1) forwards; }
-}
-@keyframes tt-draw { to { stroke-dashoffset: 0; } }
 `;
 
 export default function TamarindoSite({ template, draftToken }: { template: BusinessTemplate; draftToken?: string | null }) {
@@ -950,7 +917,7 @@ export default function TamarindoSite({ template, draftToken }: { template: Busi
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
 
   const root = useRef<HTMLDivElement>(null);
-  useSiteMotion(root, `${lang}|${template.tours?.length ?? 0}|${template.media?.gallery.length ?? 0}|${!!template.secretaria}`);
+  useSiteMotion(root, `${lang}|${template.tours?.length ?? 0}|${!!template.secretaria}`);
 
   // The quote builder (with a tour already chosen, from a tour card or the chat) and the chat.
   const [quote, setQuote] = useState<{ open: boolean; tour: number | null }>({ open: false, tour: null });
@@ -961,7 +928,8 @@ export default function TamarindoSite({ template, draftToken }: { template: Busi
   };
   const site: Site = { template, t: template.content[lang], lang, trip };
 
-  // In-page links glide with the page's scroller (CSS smooth scrolling would fight ScrollTrigger's measuring).
+  // In-page links glide with the page's scroller; a scene inside the pinned journey
+  // has its own landing spot (motion.ts).
   const onJump = (e: MouseEvent<HTMLAnchorElement>) => {
     const id = e.currentTarget.getAttribute("href");
     const target = id?.startsWith("#") ? document.querySelector<HTMLElement>(id) : null;
@@ -971,20 +939,15 @@ export default function TamarindoSite({ template, draftToken }: { template: Busi
   };
 
   return (
-    <div ref={root} className="tt-site min-h-dvh bg-(--sand) text-(--ink)" style={siteVars(template)}>
+    <div ref={root} className="tt-site min-h-dvh bg-(--parede) text-(--claro)" style={siteVars(template)}>
       <link rel="stylesheet" href={FONT} precedence="default" />
       <style>{CSS}</style>
       <Nav {...site} setLang={setLang} onJump={onJump} />
       <main>
-        <Hero {...site} />
-        <Marquee {...site} />
-        <Intro {...site} />
-        <Tours {...site} />
-        <Captain {...site} />
-        <Booking {...site} />
-        <Gallery {...site} />
+        <Journey {...site} />
+        {/* The request form is the journey's last scene; this marks where it ends on the page. */}
+        <span id="contact" aria-hidden className="block h-px" />
         <Secretaria {...site} draftToken={draftToken} />
-        <Contact {...site} />
         <Faq {...site} />
       </main>
       <Footer {...site} onJump={onJump} />
