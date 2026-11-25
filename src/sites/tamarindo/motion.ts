@@ -200,6 +200,7 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
 
   const tl = gsap.timeline({ defaults: { ease: "none", force3D: true } });
   const at: Record<string, number> = { top: 0 };
+  const marks = { worldIn: Infinity, passIn: Infinity, nightIn: Infinity };
 
   // 1 · open: the words lift, the camera flies into the middle window.
   const row = open && one("[data-j='windows']", open);
@@ -235,7 +236,7 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
   }
 
   // 3 · tours: the coast shrinks into the first card's frame, the cards deal up.
-  const CARD = 1.15; // screens per card: time to read one before the next deals up
+  const CARD = 0.85; // screens per card: time to read one before the next deals up
   const deck = tours && one("[data-j='deck']", tours);
   const cards = deck ? [...deck.querySelectorAll<HTMLElement>("[data-card]")] : [];
   if (tours && deck && cards.length) {
@@ -271,13 +272,14 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
     const g: GlobeState = { lon: -10, lat: 8, arcs: 0, alpha: 1 };
     const paint = () => paintGlobe(canvas, g);
     paint();
-    at.world = t + 2.2;
+    at.world = t + 2.6;
+    marks.worldIn = t + 0.2;
     tl.set(world, { autoAlpha: 1 }, t)
       .fromTo(world, { opacity: 0 }, { opacity: 1, duration: 0.4 }, t)
       .from(one("[data-j='giant']", world) ?? [], { yPercent: 30, autoAlpha: 0, duration: 0.7, ease: "power2.out" }, t + 0.1)
       .from(globe ?? [], { yPercent: 55, scale: 0.7, autoAlpha: 0, duration: 1.0, ease: "power2.out" }, t + 0.3)
-      .to(g, { lon: -84, lat: 17, duration: 2.4, ease: "power1.inOut", onUpdate: paint }, t + 0.3)
-      .to(g, { arcs: 1, duration: 1.4, onUpdate: paint }, t + 1.7)
+      .to(g, { lon: -84, lat: 17, duration: 3.2, ease: "power1.inOut", onUpdate: paint }, t + 0.3)
+      .to(g, { arcs: 1, duration: 2.0, onUpdate: paint }, t + 2.1)
       .from(rises(world), { y: 30, autoAlpha: 0, stagger: 0.1, duration: 0.45 }, t + 1.5);
     if (tours && deck) {
       tl.set(tours, { zIndex: 5 }, t);
@@ -291,7 +293,7 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
       });
       tl.set(tours, { autoAlpha: 0 }, t + 1.8);
     }
-    t += 3.8;
+    t += 5.0;
   }
 
   // 5 · pass: the boat pass slides in, its numbers type out, the stub tears away.
@@ -303,20 +305,36 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
       .from(one("[data-j='ticket']", pass) ?? [], { yPercent: 45, rotate: -4, autoAlpha: 0, duration: 0.9, ease: "power3.out" }, t + 0.3)
       .fromTo(pass.querySelectorAll("[data-type]"), { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "steps(10)", stagger: 0.3, duration: 0.5 }, t + 1.0)
       .from(pass.querySelectorAll("[data-step] p:last-child"), { y: 14, autoAlpha: 0, stagger: 0.3, duration: 0.4 }, t + 1.2);
+    if (cta) tl.from(cta, { x: 30, autoAlpha: 0, duration: 0.5, ease: "power2.out" }, t + 2.4);
+    marks.passIn = t;
+    t += 4.4;
+    // The stub tears off, and the pass flies away like a boarding pass handed back.
     if (stub && window.matchMedia("(min-width: 900px)").matches) {
-      tl.to(stub, { rotate: 16, x: 70, yPercent: 62, duration: 0.9, ease: "power2.in" }, t + 2.3);
+      tl.to(stub, { rotate: 16, x: 70, yPercent: 62, autoAlpha: 0, duration: 0.8, ease: "power2.in" }, t);
     }
-    if (cta) tl.from(cta, { x: 30, autoAlpha: 0, duration: 0.5, ease: "power2.out" }, t + 2.8);
-    t += 3.9;
+    tl.to(one("[data-j='ticket-wrap']", pass) ?? [], { yPercent: -70, rotate: -5, autoAlpha: 0, duration: 0.9, ease: "power2.in" }, t + 0.35);
+    if (world) tl.set(world, { autoAlpha: 0 }, t);
   }
 
   // 6 · night: back through the windows, after dark; the request form rises.
   if (night) {
     const nrow = one("[data-j='night-windows']", night), full = one("[data-j='night-full']", night);
+    const land = one("[data-j='land']", night), landClouds = one("[data-j='land-clouds']", night);
+    // 6a · landing: down through the clouds onto the bay, then the day turns to night.
+    if (pass) tl.set(pass, { autoAlpha: 0 }, t + 1.3);
+    tl.set(night, { autoAlpha: 1 }, t + 0.5)
+      .fromTo(night, { opacity: 0 }, { opacity: 1, duration: 0.5 }, t + 0.5);
+    // The windows wait, zoomed into the middle one, until the landing clears.
+    if (nrow) tl.set(nrow, { x: () => intoWindow(nrow).x, y: () => intoWindow(nrow).y, scale: () => intoWindow(nrow).scale, transformOrigin: () => intoWindow(nrow).origin }, t + 0.5);
+    if (land) {
+      tl.fromTo(land, { autoAlpha: 1 }, { autoAlpha: 1, duration: 0.01, immediateRender: false }, t + 0.5)
+        .fromTo(land.querySelector("img") ?? [], { scale: 1.8 }, { scale: 1.08, duration: 1.9, ease: "power2.out" }, t + 0.5)
+        .fromTo(landClouds ?? [], { yPercent: 0, autoAlpha: 1 }, { yPercent: -60, scale: 1.5, autoAlpha: 0, duration: 1.3, ease: "power1.in", immediateRender: false }, t + 0.7)
+        .to(land, { autoAlpha: 0, duration: 0.8, ease: "power1.inOut" }, t + 2.4);
+    }
+    t += 3.0;
+    marks.nightIn = t;
     at.contact = t + 2.2;
-    if (pass) tl.to(pass, { autoAlpha: 0, duration: 0.5 }, t);
-    tl.set(night, { autoAlpha: 1 }, t)
-      .fromTo(night, { opacity: 0 }, { opacity: 1, duration: 0.5 }, t);
     if (nrow) {
       tl.fromTo(nrow, {
         x: () => intoWindow(nrow).x, y: () => intoWindow(nrow).y, scale: () => intoWindow(nrow).scale, transformOrigin: () => intoWindow(nrow).origin,
@@ -329,6 +347,8 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
   }
 
   const screens = t;
+  // Like rumo, the menu steps aside while the globe and the closing windows play.
+  const quiet = (time: number) => (time >= marks.worldIn && time < marks.passIn) || time >= marks.nightIn + 1.2;
   const st = ScrollTrigger.create({
     trigger: stage,
     start: "top top",
@@ -340,7 +360,10 @@ function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean
     anticipatePin: 1,
     invalidateOnRefresh: true,
     animation: tl,
+    onUpdate: (self) => document.documentElement.classList.toggle("tw-nav-off", self.isActive && quiet(self.progress * tl.duration())),
+    onToggle: (self) => { if (!self.isActive) document.documentElement.classList.remove("tw-nav-off"); },
   });
+  cleanups.push(() => document.documentElement.classList.remove("tw-nav-off"));
   // The phone action bar steps aside while the film plays, and until its last frame (the form) scrolls away.
   ScrollTrigger.create({
     start: () => st.start,
