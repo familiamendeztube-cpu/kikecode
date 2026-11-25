@@ -1027,6 +1027,7 @@ const CSS = `
   .is-staged .tw-cap-text > div { margin-top: 12px; }
   .is-staged .tw-cap-strip { bottom: max(16px, env(safe-area-inset-bottom)); gap: 10px; }
   .is-staged .tw-cap-strip img { height: 11vh; border-radius: 14px; }
+  .is-staged .tw-cap-text .tw-pill { padding-inline: 22px; font-size: 15.5px; white-space: nowrap; }
 }
 /* Short phones (iPhone SE and the like): trim the extras so each frame still fits. */
 @media (max-width: 767px) and (max-height: 620px) {
