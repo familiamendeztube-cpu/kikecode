@@ -658,7 +658,7 @@ function MobileBar({ template, lang, trip }: Site) {
   const icon = `grid size-12 shrink-0 place-items-center rounded-full ${PRESS}`;
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-40 flex gap-2 bg-(--parede)/90 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl transition-[translate] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] md:hidden ${show ? "" : "translate-y-full"}`}
+      className={`tw-mbar fixed inset-x-0 bottom-0 z-40 flex gap-2 bg-(--parede)/90 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl transition-[translate] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] md:hidden ${show ? "" : "translate-y-full"}`}
     >
       <button type="button" onClick={() => trip.openQuote()} className={`${BTN_SUN} h-12 min-w-0 flex-1 px-4`}>
         <Calculator className="size-5 shrink-0" /> <span className="truncate">{pick(lang, "Get my quote", "Cotizar mi tour")}</span>
@@ -897,6 +897,66 @@ const CSS = `
 .is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 8vh + 70px) 0 290px; }
 .is-staged .tw-night .tw-win { width: clamp(120px, min(16vw, 27vh), 260px); }
 .is-staged .tw-night-form { position: absolute; inset: auto 0 20px; }
+/* Phones get the same film, fitted to a tall narrow screen. */
+.tw-in-journey .tw-mbar { translate: 0 100% !important; }
+@media (max-width: 767px) {
+  .is-staged .tw-open-head { inset: calc(var(--nav-h) + 2vh) 0 auto; }
+  .is-staged .tw-open .tw-windows { top: 4vh; gap: 10px; }
+  .is-staged .tw-win, .is-staged .tw-win:first-child, .is-staged .tw-win:last-child { display: block; width: 27vw; max-width: none; }
+  .is-staged .tw-win:nth-child(2) { width: 33vw; }
+  .is-staged .tw-open-foot { bottom: max(22px, env(safe-area-inset-bottom)); gap: 12px; }
+  .is-staged .tw-deck { inset: calc(var(--nav-h) + 4px) var(--gutter) max(16px, env(safe-area-inset-bottom)); }
+  .is-staged .tw-card { padding: 18px; }
+  .is-staged .tw-giant { top: calc(var(--nav-h) + 4vh); }
+  .is-staged .tw-globe { top: 50%; width: min(88vw, 52vh); }
+  .is-staged .tw-world-foot { bottom: max(22px, env(safe-area-inset-bottom)); }
+  .is-staged .tw-pass { align-items: flex-start; padding: calc(var(--nav-h) + 6px) var(--gutter) 0; }
+  .is-staged .tw-stub { display: none; }
+  .is-staged .tw-ticket-body { padding: 18px; }
+  .is-staged .tw-ticket-body > div { margin-top: 12px; padding-bottom: 12px; }
+  .is-staged .tw-ticket-body ol { margin-top: 12px; gap: 12px; }
+  .is-staged [data-step] [data-type] { font-size: 1.9rem; }
+  .is-staged [data-step] p:last-child { margin-top: 4px; font-size: 12.5px; }
+  .is-staged .tw-ticket-body > div:first-of-type { display: none; }
+  .is-staged .tw-ticket-body ol { margin-top: 14px; }
+  .is-staged .tw-pass-cta { position: relative; right: auto; top: auto; translate: none; margin-top: 16px; }
+  .is-staged .tw-pass-cta > p { margin-top: 6px; font-size: 12px; max-width: 18rem; }
+  .is-staged .tw-night { padding: 0; }
+  .is-staged .tw-night-head { inset: calc(var(--nav-h) + 2px) 0 auto; }
+  .is-staged .tw-night-head .tw-hero { font-size: clamp(28px, 8.4vw, 40px); }
+  .is-staged .tw-night-head .tw-lead { font-size: 14px; margin-top: 6px; }
+  .is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 112px) 0 auto; height: 14vh; gap: 10px; }
+  .is-staged .tw-night .tw-win { width: min(20vw, 11vh); }
+  .is-staged .tw-night-form { bottom: max(10px, env(safe-area-inset-bottom)); }
+  .is-staged .tw-form { padding: 14px; border-radius: 20px; }
+  .is-staged .tw-form > p:first-child { margin-bottom: 10px; padding: 6px 10px; font-size: 12px; }
+  .is-staged .tw-form-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  .is-staged .tw-field input, .is-staged .tw-field select { width: 100%; min-width: 0; }
+  .is-staged .tw-field { gap: 4px; font-size: 10px; }
+  .is-staged .tw-field input, .is-staged .tw-field select { height: 42px; border-radius: 12px; padding-inline: 12px; }
+  .is-staged .tw-form-send { grid-column: 1 / -1; height: 46px; }
+  .is-staged .tw-chips { flex-wrap: nowrap; overflow-x: auto; margin-top: 10px; scrollbar-width: none; }
+  .is-staged .tw-chips legend { display: none; }
+  .is-staged .tw-chips label span { height: 34px; white-space: nowrap; font-size: 13px; padding-inline: 12px; }
+  .is-staged .tw-form [role=status] { margin-top: 6px; min-height: 0; }
+}
+/* Short phones (iPhone SE and the like): trim the extras so each frame still fits. */
+@media (max-width: 767px) and (max-height: 620px) {
+  .is-staged .tw-open-head .tw-hero { font-size: 34px; }
+  .is-staged .tw-open-head .tw-lead { display: none; }
+  .is-staged .tw-ticket-body > header h2 { font-size: 18px; }
+  .is-staged [data-step] [data-type] { font-size: 1.5rem; }
+  .is-staged [data-step] p:last-child { font-size: 11.5px; line-height: 1.3; }
+  .is-staged .tw-ticket-body ol { gap: 8px; margin-top: 8px; }
+  .is-staged .tw-pass-cta { margin-top: 10px; }
+  .is-staged .tw-pass-cta > p { display: none; }
+  .is-staged .tw-night-head .tw-lead { display: none; }
+  .is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 72px) 0 auto; height: 11vh; }
+  .is-staged .tw-night .tw-win { width: min(16vw, 9vh); }
+  .is-staged .tw-form > p:first-child { margin-bottom: 8px; padding: 5px 9px; font-size: 11px; }
+  .is-staged .tw-field input, .is-staged .tw-field select { height: 38px; }
+  .is-staged .tw-form-send { height: 42px; }
+}
 
 @media (prefers-reduced-motion: no-preference) {
   .tt-menu-in { animation: tt-menu-in .7s var(--ease) both; }
