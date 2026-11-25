@@ -92,8 +92,11 @@ function Logo({ src, size = "size-10" }: { src?: string; size?: string }) {
   );
 }
 
-/** A full-bleed Costa Rica photo. */
-function Shot({ s, j, className = "", eager, sizes = "100vw" }: { s: Scenery; j?: string; className?: string; eager?: boolean; sizes?: string }) {
+/** A full-bleed Costa Rica photo: an Unsplash scene, or the business's own photo when `src` is given. */
+function Shot({ s, src, alt = "", j, className = "", eager, sizes = "100vw" }: { s: Scenery; src?: string; alt?: string; j?: string; className?: string; eager?: boolean; sizes?: string }) {
+  if (src) {
+    return <img data-j={j} src={src} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async" className={`absolute inset-0 size-full object-cover ${className}`} />;
+  }
   return (
     <img
       data-j={j}
@@ -157,6 +160,7 @@ function Nav({ template, t, lang, trip, setLang, onJump }: Site & { setLang: (l:
   const { brand } = template;
   const links = [
     { href: "#tours", label: t.nav.services },
+    { href: "#captain", label: t.nav.why },
     { href: "#world", label: pick(lang, "Getting here", "Cómo llegar") },
     { href: "#booking", label: t.nav.process },
     { href: "#contact", label: t.nav.contact },
@@ -208,11 +212,11 @@ function Nav({ template, t, lang, trip, setLang, onJump }: Site & { setLang: (l:
 /* The journey.                                                        */
 
 /** One airplane window: a cream bezel, the glass, a half-drawn blind and a glare. */
-function Window({ s, clouds, seed = 1, night }: { s: Scenery; clouds?: boolean; seed?: number; night?: boolean }) {
+function Window({ s, src, clouds, seed = 1, night }: { s: Scenery; src?: string; clouds?: boolean; seed?: number; night?: boolean }) {
   return (
     <div className={`tw-win ${night ? "is-night" : ""}`}>
       <div className="tw-glass">
-        <Shot s={s} sizes="(min-width: 768px) 30vw, 70vw" className={night ? "tw-night-img" : ""} eager={!night} />
+        <Shot s={s} src={src} sizes="(min-width: 768px) 30vw, 70vw" className={night ? "tw-night-img" : ""} eager={!night} />
         {clouds && <Clouds seed={seed} top={0.72} density={0.45} tint={night ? "150,165,195" : undefined} shade={night ? "40,52,80" : undefined} className="absolute inset-x-0 bottom-0 h-2/5 w-full" />}
         {night && <span aria-hidden className="tw-moon" />}
         <span aria-hidden className="tw-blind" />
@@ -227,7 +231,7 @@ function OpenScene({ template, t, lang, trip }: Site) {
     <div data-scene="open" className="tw-scene tw-open">
       <div data-j="windows" className="tw-windows">
         <Window s={SCENERY.shore} clouds seed={3} />
-        <Window s={SCENERY.bay} />
+        <Window s={SCENERY.bay} src={template.media?.hero} />
         <Window s={SCENERY.beach} clouds seed={9} />
       </div>
       <div data-j="head" className="tw-open-head">
@@ -246,10 +250,10 @@ function OpenScene({ template, t, lang, trip }: Site) {
   );
 }
 
-function FlyScene({ t }: Site) {
+function FlyScene({ template, t }: Site) {
   return (
     <div data-scene="fly" className="tw-scene tw-fly">
-      <div data-j="bay" className="tw-layer"><Shot s={SCENERY.bay} /></div>
+      <div data-j="bay" className="tw-layer"><Shot s={SCENERY.bay} src={template.media?.hero} /></div>
       <div data-j="above" className="tw-layer tw-above"><Shot s={SCENERY.above} /></div>
       <div data-j="cloud-back" className="tw-cloud-back" aria-hidden><Clouds seed={21} top={0.5} className="size-full" /></div>
       <div data-j="fly-copy" className="tw-fly-copy tw-gutter">
@@ -266,7 +270,7 @@ function FlyScene({ t }: Site) {
 function TourCard({ lang, trip, tour, i }: Site & { tour: TourOffer; i: number }) {
   return (
     <article data-card className="tw-card">
-      <div className="tw-card-photo"><Shot s={tourScenery(tour.title.en, i)} /></div>
+      <div className="tw-card-photo"><Shot s={tourScenery(tour.title.en, i)} src={tour.image} alt={pick(lang, `${tour.title.en}: a photo from the tour`, `${tour.title.es}: una foto del tour`)} /></div>
       <div aria-hidden className="tw-card-shade" />
       <div aria-hidden className="tw-card-dim" />
       <div className="tw-card-text">
@@ -278,7 +282,6 @@ function TourCard({ lang, trip, tour, i }: Site & { tour: TourOffer; i: number }
           <p className="tw-title text-[clamp(1.5rem,2.3vw,2.25rem)] leading-none">
             {tour.guests !== undefined ? pick(lang, `Up to ${tour.guests}`, `Hasta ${tour.guests}`) : pick(lang, "Your plan", "A su medida")}
           </p>
-          {tour.image && <img src={tour.image} alt={pick(lang, `The business's own photo of ${tour.title.en}`, `Foto del negocio: ${tour.title.es}`)} loading="lazy" className="size-11 shrink-0 rounded-full object-cover ring-2 ring-(--claro)/40" />}
         </div>
         <p className="mt-2 text-[14px] text-(--claro)/80">{pick(lang, `from ${usd(tour.priceUsd, lang)}, the whole boat`, `desde ${usd(tour.priceUsd, lang)}, el bote completo`)}</p>
         <button type="button" onClick={() => trip.openQuote(i)} className="tw-card-go">
@@ -333,6 +336,46 @@ function WorldScene({ template, lang, trip }: Site) {
           ))}
         </p>
       </div>
+    </div>
+  );
+}
+
+/** Captain Willy: his portrait, his years on these waters, and a strip of real days on his boat (all the business's own photos). */
+function CaptainScene({ template, lang, trip }: Site) {
+  const portrait = template.media?.teamPortrait;
+  if (!portrait) return null;
+  const years = template.facts?.stats?.find((s) => /years/i.test(s.labelEn))?.value ?? "26";
+  const gallery = template.media?.gallery ?? [];
+  const captions = template.galleryCaptions?.[lang] ?? [];
+  const points = lang === "es"
+    ? ["Pesca y actividades en el agua", "Bote privado para su grupo", "Planes a la medida, confirmados por Willy", "Tripulación a bordo para ayudarle"]
+    : ["Fishing and water activities", "A private boat for your group", "Custom plans confirmed by Willy", "Crew on board to help you"];
+  return (
+    <div id="captain" data-scene="captain" className="tw-scene tw-captain">
+      <div data-j="cap-frame" className="tw-cap-frame">
+        <img src={portrait} alt={pick(lang, "Captain Willy Vega on his boat in Tamarindo", "El Capitán Willy Vega en su bote en Tamarindo")} loading="lazy" decoding="async" />
+        <span className="tw-cap-tag">🇨🇷 Willy Vega</span>
+      </div>
+      <div className="tw-cap-text">
+        <p data-rise className="tw-label text-(--acento)">{pick(lang, "Your captain", "Su capitán")}</p>
+        <h2 className="tw-title tw-h2 mt-3"><Words text={pick(lang, "Captain Willy", "Capitán Willy")} /></h2>
+        <p data-rise className="tw-cap-years mt-5"><span>{years}</span> {pick(lang, "years on the water in Guanacaste", "años en el agua en Guanacaste")}</p>
+        <p data-rise className="tw-lead mt-5 max-w-xl text-(--claro)/80">{pick(lang,
+          "Willy leads private fishing, snorkeling, tubing and beach tours from Tamarindo. Tell him what you'd like to do and who is coming; he confirms the plan and the logistics for your group.",
+          "Willy dirige tours privados de pesca, snorkel, tubo y playas desde Tamarindo. Cuéntele qué quieren hacer y quiénes vienen; él confirma el plan y la logística para su grupo.")}</p>
+        <ul data-rise className="tw-cap-list mt-6">
+          {points.map((x) => <li key={x}><Check className="size-4 shrink-0 text-(--acento)" /> {x}</li>)}
+        </ul>
+        <div data-rise className="mt-7 flex items-center gap-3">
+          <Pill onClick={() => trip.openQuote()}>{pick(lang, "Plan a day with Willy", "Planee un día con Willy")}</Pill>
+          <BoatButton template={template} lang={lang} />
+        </div>
+      </div>
+      {gallery.length > 0 && (
+        <ul data-j="cap-strip" className="tw-cap-strip" aria-label={pick(lang, "Days on Willy's boat", "Días en el bote de Willy")}>
+          {gallery.map((src, i) => <li key={src}><img src={src} alt={captions[i] ?? ""} loading="lazy" decoding="async" /></li>)}
+        </ul>
+      )}
     </div>
   );
 }
@@ -456,7 +499,7 @@ function NightScene(site: Site) {
       </div>
       <div className="tw-night-form tw-gutter"><RequestForm {...site} /></div>
       <div data-j="land" aria-hidden className="tw-layer tw-land">
-        <Shot s={SCENERY.bay} />
+        <Shot s={SCENERY.bay} src={site.template.media?.hero} />
         <div data-j="land-clouds" className="tw-land-clouds"><Clouds seed={29} top={0.05} density={1.6} className="size-full" /></div>
       </div>
     </div>
@@ -470,6 +513,7 @@ function Journey(site: Site) {
       <FlyScene {...site} />
       <ToursScene {...site} />
       <WorldScene {...site} />
+      <CaptainScene {...site} />
       <PassScene {...site} />
       <NightScene {...site} />
     </section>
@@ -903,6 +947,25 @@ const CSS = `
 .is-staged .tw-night .tw-windows { inset: calc(var(--nav-h) + 4vh + 70px) 0 0; align-items: flex-start; }
 .is-staged .tw-night .tw-win { width: min(29vw, 62vh * 33 / 42); }
 .is-staged .tw-night-form { position: absolute; inset: auto 0 20px; }
+/* Captain Willy. */
+.tw-captain { background: var(--parede); display: grid; gap: 28px; padding: calc(var(--nav-h) + 24px) var(--gutter) 40px; align-content: start; }
+@media (min-width: 900px) { .tw-captain { grid-template-columns: minmax(0, .95fr) minmax(0, 1fr); align-items: center; column-gap: clamp(28px, 4vw, 72px); } }
+.tw-cap-frame { position: relative; overflow: hidden; border-radius: 28px; aspect-ratio: 3 / 2; background: #20262f; }
+.tw-cap-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
+.tw-cap-tag { position: absolute; left: 16px; bottom: 16px; padding: 8px 14px; border-radius: 999px; background: rgba(16,20,28,.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: 13px; font-weight: 650; letter-spacing: .04em; }
+.tw-cap-years { font-size: clamp(16px, 1.3vw, 20px); color: var(--claro-2); }
+.tw-cap-years span { display: block; font-family: "Archivo", system-ui, sans-serif; font-weight: 700; font-size: clamp(72px, min(9vw, 15vh), 160px); line-height: .82; letter-spacing: -0.05em; color: var(--acento); }
+.tw-cap-list { display: grid; gap: 10px; font-size: 15px; }
+.tw-cap-list li { display: flex; align-items: center; gap: 10px; }
+@media (min-width: 640px) { .tw-cap-list { grid-template-columns: 1fr 1fr; column-gap: 24px; } }
+.tw-cap-strip { grid-column: 1 / -1; display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none; }
+.tw-cap-strip li { flex-shrink: 0; }
+.tw-cap-strip img { display: block; height: clamp(120px, 18vh, 200px); aspect-ratio: 1; border-radius: 18px; object-fit: cover; }
+.is-staged .tw-captain { padding: calc(var(--nav-h) + 2vh) var(--gutter) 0; align-content: start; align-items: start; }
+.is-staged .tw-cap-frame { aspect-ratio: auto; height: calc(100vh - var(--nav-h) - 2vh - 16vh - 84px); }
+.is-staged .tw-cap-text { align-self: center; margin-top: -8vh; }
+.is-staged .tw-cap-strip { position: absolute; left: 0; bottom: 28px; padding-left: var(--gutter); overflow: visible; width: max-content; }
+.is-staged .tw-cap-strip img { height: 16vh; }
 /* The landing after the boat pass: the bay from above, through a last bank of cloud. */
 .tw-land { z-index: 4; }
 .tw-land-clouds { position: absolute; inset: -10% -10% -30%; background: radial-gradient(70% 60% at 50% 55%, rgba(236,241,247,.9), rgba(236,241,247,0) 75%); }
@@ -953,6 +1016,17 @@ const CSS = `
   .is-staged .tw-chips legend { display: none; }
   .is-staged .tw-chips label span { height: 34px; white-space: nowrap; font-size: 13px; padding-inline: 12px; }
   .is-staged .tw-form [role=status] { margin-top: 6px; min-height: 0; }
+  .is-staged .tw-captain { grid-template-columns: minmax(0, 1fr); gap: 14px; padding-top: calc(var(--nav-h) + 4px); }
+  .is-staged .tw-cap-frame { height: 22vh; }
+  .is-staged .tw-cap-text { margin-top: 0; }
+  .is-staged .tw-cap-text .tw-h2 { font-size: 34px; margin-top: 4px; }
+  .is-staged .tw-cap-years { margin-top: 8px; font-size: 14px; }
+  .is-staged .tw-cap-years span { font-size: 52px; }
+  .is-staged .tw-cap-text .tw-lead { margin-top: 8px; font-size: 13.5px; line-height: 1.4; }
+  .is-staged .tw-cap-list { display: none; }
+  .is-staged .tw-cap-text > div { margin-top: 12px; }
+  .is-staged .tw-cap-strip { bottom: max(16px, env(safe-area-inset-bottom)); gap: 10px; }
+  .is-staged .tw-cap-strip img { height: 11vh; border-radius: 14px; }
 }
 /* Short phones (iPhone SE and the like): trim the extras so each frame still fits. */
 @media (max-width: 767px) and (max-height: 620px) {
@@ -970,6 +1044,8 @@ const CSS = `
   .is-staged .tw-form > p:first-child { margin-bottom: 8px; padding: 5px 9px; font-size: 11px; }
   .is-staged .tw-field input, .is-staged .tw-field select { height: 38px; }
   .is-staged .tw-form-send { height: 42px; }
+  .is-staged .tw-cap-text .tw-lead { display: none; }
+  .is-staged .tw-cap-frame { height: 20vh; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
