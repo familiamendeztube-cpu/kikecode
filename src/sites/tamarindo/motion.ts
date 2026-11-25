@@ -2,16 +2,28 @@ import { useEffect, useLayoutEffect, type RefObject } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
+import { paintGlobe, type GlobeState } from "./canvas";
 
 gsap.registerPlugin(ScrollTrigger);
 
 /** The page's smooth scroller, while one runs (a mouse, and motion allowed). */
 let lenis: Lenis | null = null;
 
+/** Sections inside the pinned journey have no place of their own on the page while
+ *  it plays: each id maps to the scroll position where its scene is on screen. */
+const jumps = new Map<string, () => number>();
+
 /** Glide to an element: through Lenis when it runs, else the browser's own scrolling. */
 export function scrollToEl(target: HTMLElement) {
+  const at = jumps.get(target.id)?.();
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (at !== undefined) {
+    if (lenis) lenis.scrollTo(at, { duration: 1.8 });
+    else window.scrollTo({ top: at, behavior: reduce ? "auto" : "smooth" });
+    return;
+  }
   if (lenis) lenis.scrollTo(target, { duration: 1.5 });
-  else target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  else target.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
 }
 
 /** A full-screen dialog holds the page still behind it (Radix locks native scrolling, not Lenis). */
@@ -32,25 +44,30 @@ const OUT = "expo.out";
  * never rewrites their text (an editor change or a language switch would
  * otherwise leave stale words on screen).
  *
- *   data-hero, data-hero-img, data-hero-copy, data-hero-in   intro + scroll parallax
+ * THE JOURNEY ([data-journey]): on a laptop-sized screen or bigger, with motion
+ * allowed, everything above the FAQ is one pinned stage. The class
+ * `is-staged` lays its scenes ([data-scene]) on top of each other, and one
+ * scrubbed timeline plays them like a film as the visitor scrolls:
+ *
+ *   open   the headline lifts away; the camera flies into the middle window
+ *   fly    over the bay, then down through the clouds to the coast
+ *   tours  the coast shrinks into the first card; each scroll slides the next
+ *          card up over the stack
+ *   world  the cards fan out and fall into the globe, which turns to Costa
+ *          Rica while routes draw in to Tamarindo (canvas.tsx paints it)
+ *   pass   the boat pass slides in, its numbers type out, the stub tears off
+ *   night  the windows come back at night, and the request form rises
+ *
+ * Without the stage (phones, reduced motion, before this runs) the same scenes
+ * are ordinary sections, one after another, with everything in place.
+ *
+ * Elsewhere:
  *   data-words      words rise from behind their masks (spans rendered by <Words>)
- *   data-lit        a paragraph whose words light up as it scrolls by
  *   data-rise       fades up the first time it enters
- *   data-odometer   digit strips roll to their value the first time it enters
- *   data-pin, data-track-viewport, data-track, data-progress   pinned sideways tours
- *   data-clip       a photo frame that opens as it scrolls in
- *   data-draw       an SVG path that draws itself as its section scrolls by
- *   data-speed="-8" parallax drift, in % of the element's height (wide screens)
- *   data-marquee    an endless band that speeds up with the scroll
  *   data-magnetic   a button that leans toward the pointer (mouse only)
  *
- * With a mouse, Lenis smooths the page's scrolling (touch scrolling is already
- * smooth). Nested scroll areas (the chat, dialogs, the editor's panels) keep
- * their own native scrolling (allowNestedScroll).
- *
- * Nothing is hidden by CSS: with reduced motion, or before this runs, every
- * element sits in its final place. `key` re-runs the setup when the language
- * or the number of tours or photos changes; the old setup is reverted first.
+ * `key` re-runs the setup when the language or the number of tours or photos
+ * changes; the old setup is reverted first.
  */
 export function useSiteMotion(root: RefObject<HTMLElement | null>, key: string) {
   useLayoutEffect(() => {
@@ -61,18 +78,17 @@ export function useSiteMotion(root: RefObject<HTMLElement | null>, key: string) 
     mm.add(
       {
         motion: "(prefers-reduced-motion: no-preference)",
-        // The sideways tours need room: a laptop-sized screen or bigger.
-        wide: "(min-width: 1024px) and (min-height: 700px)",
+        stage: "(min-width: 768px) and (min-height: 600px)",
         mouse: "(pointer: fine)",
       },
       (ctx) => {
-        const { motion, wide, mouse } = ctx.conditions as Record<"motion" | "wide" | "mouse", boolean>;
+        const { motion, stage: canStage, mouse } = ctx.conditions as Record<"motion" | "stage" | "mouse", boolean>;
         if (!motion) return;
         const q = gsap.utils.selector(el);
         const cleanups: (() => void)[] = [];
 
         if (mouse) {
-          const smooth = new Lenis({ autoRaf: false, allowNestedScroll: true, lerp: 0.09 });
+          const smooth = new Lenis({ autoRaf: false, allowNestedScroll: true, lerp: 0.07, wheelMultiplier: 0.9, smoothWheel: true });
           lenis = smooth;
           smooth.on("scroll", ScrollTrigger.update);
           const tick = (time: number) => smooth.raf(time * 1000);
@@ -86,35 +102,16 @@ export function useSiteMotion(root: RefObject<HTMLElement | null>, key: string) 
           });
         }
 
-        // The pin goes first: every trigger below it measures with its spacer in place.
-        const pin = q("[data-pin]")[0] as HTMLElement | undefined;
-        const viewport = pin?.querySelector<HTMLElement>("[data-track-viewport]");
-        const track = pin?.querySelector<HTMLElement>("[data-track]");
-        if (wide && pin && viewport && track) {
-          viewport.scrollLeft = 0;
-          gsap.set(viewport, { overflow: "hidden" });
-          const distance = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
-          gsap.timeline({
-            scrollTrigger: {
-              trigger: pin, start: "top top", end: () => `+=${distance()}`,
-              pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true,
-            },
-          })
-            .to(track, { x: () => -distance(), ease: "none" }, 0)
-            .fromTo(pin.querySelector("[data-progress]"), { scaleX: 0 }, { scaleX: 1, ease: "none" }, 0);
-        }
-
-        // Hero: the photo settles, the headline rises word by word, then the rest.
-        const hero = q("[data-hero]")[0] as HTMLElement | undefined;
-        if (hero) {
-          const img = hero.querySelector("[data-hero-img]");
-          gsap.timeline({ defaults: { ease: OUT } })
-            .from(img, { scale: 1.18, duration: 2.6, ease: "power3.out" }, 0)
-            .from(hero.querySelectorAll("[data-words] .w > span"), { yPercent: 115, duration: 1.3, stagger: 0.07 }, 0.25)
-            .from(hero.querySelectorAll("[data-hero-in]"), { y: 28, autoAlpha: 0, duration: 1.1, stagger: 0.09 }, 0.7);
-          const out = { trigger: hero, start: "top top", end: "bottom top", scrub: true };
-          gsap.to(img, { yPercent: 16, ease: "none", scrollTrigger: out });
-          gsap.to(hero.querySelector("[data-hero-copy]"), { y: -90, autoAlpha: 0.1, ease: "none", scrollTrigger: { ...out, end: "75% top" } });
+        const stage = q("[data-journey]")[0] as HTMLElement | undefined;
+        const staged = !!(stage && canStage);
+        const inStage = (n: Element) => staged && !!stage?.contains(n);
+        if (staged && stage) {
+          stage.classList.add("is-staged");
+          cleanups.push(() => stage.classList.remove("is-staged"));
+          journey(stage, cleanups, mouse);
+        } else if (stage) {
+          // Stacked scenes: the opening still plays its intro.
+          intro(stage);
         }
 
         // Reveals fire on enter; on a jump past (an anchor link), onLeave reveals too.
@@ -122,68 +119,16 @@ export function useSiteMotion(root: RefObject<HTMLElement | null>, key: string) 
           ScrollTrigger.create({ trigger, start: "top 88%", once: true, onEnter: play, onLeave: play });
 
         for (const h of q("[data-words]")) {
-          if (hero?.contains(h)) continue;
+          if (inStage(h) || h.closest("[data-scene='open']")) continue;
           const words = h.querySelectorAll(".w > span");
           gsap.set(words, { yPercent: 115 });
           once(h, () => gsap.to(words, { yPercent: 0, duration: 1.2, ease: OUT, stagger: 0.05, overwrite: true }));
         }
 
         for (const r of q("[data-rise]")) {
+          if (inStage(r) || r.closest("[data-scene='open']")) continue;
           gsap.set(r, { y: 36, autoAlpha: 0 });
           once(r, () => gsap.to(r, { y: 0, autoAlpha: 1, duration: 1.1, ease: OUT, overwrite: true }));
-        }
-
-        for (const o of q("[data-odometer]")) {
-          const strips = o.querySelectorAll("[data-digit]");
-          // From the 0 row to the value React drew. GSAP reads React's translateY(%) back as
-          // pixels in `y`, so both go to 0; reverting hands the strips back as React left them.
-          gsap.set(strips, { y: 0, yPercent: 0 });
-          once(o, () => gsap.to(strips, { yPercent: (_i, s: HTMLElement) => -10 * Number(s.dataset.digit), duration: 2.2, ease: "power3.out", stagger: 0.12, overwrite: true }));
-        }
-
-        for (const p of q("[data-lit]")) {
-          gsap.fromTo(p.querySelectorAll(".lw"), { opacity: 0.16 }, {
-            opacity: 1, stagger: 0.12, ease: "none",
-            scrollTrigger: { trigger: p, start: "top 80%", end: "bottom 50%", scrub: true },
-          });
-        }
-
-        for (const c of q("[data-clip]")) {
-          const st = { trigger: c, start: "top 90%", end: "top 30%", scrub: true };
-          gsap.fromTo(c, { clipPath: "inset(14% 10% 14% 10% round 24px)" }, { clipPath: "inset(0% 0% 0% 0% round 24px)", ease: "none", scrollTrigger: st });
-          gsap.fromTo(c.querySelector("img"), { scale: 1.25 }, { scale: 1, ease: "none", scrollTrigger: st });
-        }
-
-        for (const path of el.querySelectorAll<SVGPathElement>("[data-draw]")) {
-          const len = path.getTotalLength();
-          gsap.fromTo(path, { strokeDasharray: len, strokeDashoffset: len }, {
-            strokeDashoffset: 0, ease: "none",
-            scrollTrigger: { trigger: path.closest("section"), start: "top 65%", end: "center 45%", scrub: true },
-          });
-        }
-
-        if (wide) {
-          for (const s of q("[data-speed]")) {
-            gsap.fromTo(s, { yPercent: 0 }, {
-              yPercent: Number((s as HTMLElement).dataset.speed), ease: "none",
-              scrollTrigger: { trigger: s.parentElement, start: "top bottom", end: "bottom top", scrub: true },
-            });
-          }
-        }
-
-        // The band loops on its own and runs faster while the page scrolls; it rests off screen.
-        const band = q("[data-marquee]")[0];
-        if (band) {
-          const loop = gsap.to(band, { xPercent: -50, duration: 42, ease: "none", repeat: -1 });
-          ScrollTrigger.create({
-            trigger: band, start: "top bottom", end: "bottom top",
-            onToggle: (self) => (self.isActive ? loop.play() : loop.pause()),
-            onUpdate: (self) => {
-              const boost = gsap.utils.clamp(1, 6, 1 + Math.abs(self.getVelocity()) / 350);
-              gsap.to(loop, { timeScale: boost, duration: 0.25, overwrite: true })
-                .then(() => gsap.to(loop, { timeScale: 1, duration: 1.4, ease: "power2.out", overwrite: true }));
-            },
-          });
         }
 
         if (mouse) {
@@ -211,4 +156,195 @@ export function useSiteMotion(root: RefObject<HTMLElement | null>, key: string) 
 
     return () => mm.revert();
   }, [root, key]);
+}
+
+/** The opening's entrance, played once on load (both layouts). */
+function intro(stage: HTMLElement) {
+  const open = stage.querySelector("[data-scene='open']");
+  if (!open) return;
+  gsap.timeline({ defaults: { ease: OUT } })
+    .from(open.querySelectorAll(".tw-win"), { yPercent: 14, autoAlpha: 0, duration: 1.6, stagger: 0.12 }, 0.1)
+    .from(open.querySelectorAll("[data-words] .w > span"), { yPercent: 115, duration: 1.3, stagger: 0.07 }, 0.3)
+    .from(open.querySelectorAll("[data-rise]"), { y: 24, autoAlpha: 0, duration: 1.1, stagger: 0.08 }, 0.8);
+}
+
+/**
+ * Where a row of windows has to go for its middle window's glass to fill the
+ * screen: the glass's centre (the transform origin), the move that brings it
+ * to the screen's centre, and the scale that makes it cover the screen.
+ */
+function intoWindow(row: HTMLElement) {
+  const win = row.children[Math.floor(row.children.length / 2)] as HTMLElement | undefined;
+  const glass = win?.firstElementChild as HTMLElement | undefined;
+  if (!win || !glass) return { origin: "50% 50%", x: 0, y: 0, scale: 6 };
+  const cx = win.offsetLeft + glass.offsetLeft + glass.offsetWidth / 2;
+  const cy = win.offsetTop + glass.offsetTop + glass.offsetHeight / 2;
+  return {
+    origin: `${cx}px ${cy}px`,
+    x: window.innerWidth / 2 - (row.offsetLeft + cx),
+    y: window.innerHeight / 2 - (row.offsetTop + cy),
+    scale: Math.max(window.innerWidth / glass.offsetWidth, window.innerHeight / glass.offsetHeight) * 1.35,
+  };
+}
+
+/** The pinned film. Times are in "screens": one unit is a little under one screen of scrolling. */
+function journey(stage: HTMLElement, cleanups: (() => void)[], smoothed: boolean) {
+  const one = (sel: string, root: ParentNode = stage) => root.querySelector<HTMLElement>(sel) ?? undefined;
+  const scene = (name: string) => one(`[data-scene='${name}']`);
+  const words = (root?: Element) => root?.querySelectorAll("[data-words] .w > span") ?? [];
+  const rises = (root?: Element) => root?.querySelectorAll("[data-rise]") ?? [];
+
+  const open = scene("open"), fly = scene("fly"), tours = scene("tours"), world = scene("world"), pass = scene("pass"), night = scene("night");
+  gsap.set([fly, tours, world, pass, night].filter(Boolean), { autoAlpha: 0 });
+  intro(stage);
+
+  const tl = gsap.timeline({ defaults: { ease: "none", force3D: true } });
+  const at: Record<string, number> = { top: 0 };
+
+  // 1 · open: the words lift, the camera flies into the middle window.
+  const row = open && one("[data-j='windows']", open);
+  if (open && row) {
+    tl.to(open.querySelectorAll("[data-j='head'] [data-words] .w > span, [data-j='head'] [data-rise]"), { yPercent: -120, autoAlpha: 0, stagger: 0.02, duration: 0.45, ease: "power2.in" }, 0)
+      .to(one("[data-j='foot']", open) ?? [], { y: 60, autoAlpha: 0, duration: 0.45, ease: "power2.in" }, 0)
+      .fromTo(row, { x: 0, y: 0, scale: 1 }, {
+        x: () => intoWindow(row).x, y: () => intoWindow(row).y, scale: () => intoWindow(row).scale,
+        transformOrigin: () => intoWindow(row).origin, duration: 1.6, ease: "power2.in", immediateRender: false,
+      }, 0.1);
+  }
+
+  // 2 · fly: over the bay, the words, then down through the clouds to the coast.
+  let t = 1.2;
+  if (fly) {
+    const bay = one("[data-j='bay']", fly), above = one("[data-j='above']", fly);
+    const front = one("[data-j='cloud-front']", fly), back = one("[data-j='cloud-back']", fly);
+    tl.set(fly, { autoAlpha: 1 }, t)
+      .fromTo(fly, { opacity: 0 }, { opacity: 1, duration: 0.45 }, t)
+      .fromTo(bay?.querySelector("img") ?? [], { scale: 1.08 }, { scale: 1.2, duration: 1.4 }, t);
+    if (open) tl.set(open, { autoAlpha: 0 }, t + 0.5);
+    tl.from(words(fly), { yPercent: 115, stagger: 0.04, duration: 0.5, ease: "power2.out" }, t + 0.5)
+      .from(rises(fly), { y: 24, autoAlpha: 0, duration: 0.4 }, t + 0.7)
+      .to(one("[data-j='fly-copy']", fly) ?? [], { y: -80, autoAlpha: 0, duration: 0.5, ease: "power1.in" }, t + 1.5)
+      .to(bay?.querySelector("img") ?? [], { scale: 1.9, yPercent: 8, duration: 1.3, ease: "power1.in" }, t + 1.4)
+      .fromTo(back ?? [], { yPercent: 0 }, { yPercent: -70, scale: 1.4, autoAlpha: 0, duration: 1.3 }, t + 1.4)
+      .fromTo(front ?? [], { yPercent: 90, autoAlpha: 0 }, { yPercent: -10, autoAlpha: 1, duration: 1.0, ease: "power1.out" }, t + 1.6)
+      .fromTo(above ?? [], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 }, t + 2.4)
+      .fromTo(above?.querySelector("img") ?? [], { scale: 1.6 }, { scale: 1, duration: 1.4, ease: "power2.out" }, t + 2.4)
+      .to(front ?? [], { yPercent: -130, scale: 1.3, autoAlpha: 0, duration: 1.1, ease: "power1.in" }, t + 2.6)
+      .set(bay ?? [], { autoAlpha: 0 }, t + 2.6);
+    t += 4.1;
+  }
+
+  // 3 · tours: the coast shrinks into the first card's frame, the cards deal up.
+  const CARD = 1.15; // screens per card: time to read one before the next deals up
+  const deck = tours && one("[data-j='deck']", tours);
+  const cards = deck ? [...deck.querySelectorAll<HTMLElement>("[data-card]")] : [];
+  if (tours && deck && cards.length) {
+    const above = fly && one("[data-j='above']", fly);
+    const frame = () => {
+      const r = deck.getBoundingClientRect();
+      return `inset(${r.top}px ${window.innerWidth - r.right}px ${window.innerHeight - r.bottom}px ${r.left}px round 28px)`;
+    };
+    at.tours = t + 0.4;
+    if (above) tl.fromTo(above, { clipPath: "inset(0px 0px 0px 0px round 0px)" }, { clipPath: frame, duration: 0.7, ease: "power2.inOut", immediateRender: false }, t);
+    tl.set(tours, { autoAlpha: 1 }, t + 0.5)
+      .fromTo(cards[0], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, immediateRender: false }, t + 0.5)
+      .from(cards[0].querySelectorAll(".tw-card-text > *, .tw-card-glass"), { y: 40, autoAlpha: 0, stagger: 0.08, duration: 0.4, ease: "power2.out" }, t + 0.7);
+    if (fly) tl.set(fly, { autoAlpha: 0 }, t + 0.9);
+    cards.slice(1).forEach((card, j) => {
+      const i = j + 1;
+      const when = t + 1.3 + j * CARD;
+      tl.from(card, { yPercent: 108, duration: 0.85, ease: "power2.out" }, when)
+        .from(card.querySelectorAll(".tw-card-text > *, .tw-card-glass"), { y: 50, autoAlpha: 0, stagger: 0.06, duration: 0.45, ease: "power2.out" }, when + 0.35);
+      for (let k = Math.max(0, i - 4); k < i; k++) {
+        const depth = i - k;
+        tl.to(cards[k], { scale: 1 - depth * 0.045, y: -depth * 16, autoAlpha: depth > 3 ? 0 : 1, duration: 0.85, ease: "power2.out" }, when)
+          .to(cards[k].querySelector(".tw-card-dim") ?? [], { opacity: Math.min(0.7, depth * 0.25), duration: 0.85, ease: "power2.out" }, when);
+      }
+    });
+    t += 1.3 + (cards.length - 1) * CARD + 0.6;
+  }
+
+  // 4 · world: the cards fan out and fall into the globe; it turns to Costa Rica; routes draw in.
+  if (world) {
+    const globe = one("[data-j='globe']", world);
+    const canvas = globe?.querySelector("canvas");
+    const g: GlobeState = { lon: -10, lat: 8, arcs: 0, alpha: 1 };
+    const paint = () => paintGlobe(canvas, g);
+    paint();
+    at.world = t + 2.2;
+    tl.set(world, { autoAlpha: 1 }, t)
+      .fromTo(world, { opacity: 0 }, { opacity: 1, duration: 0.4 }, t)
+      .from(one("[data-j='giant']", world) ?? [], { yPercent: 30, autoAlpha: 0, duration: 0.7, ease: "power2.out" }, t + 0.1)
+      .from(globe ?? [], { yPercent: 55, scale: 0.7, autoAlpha: 0, duration: 1.0, ease: "power2.out" }, t + 0.3)
+      .to(g, { lon: -84, lat: 17, duration: 2.4, ease: "power1.inOut", onUpdate: paint }, t + 0.3)
+      .to(g, { arcs: 1, duration: 1.4, onUpdate: paint }, t + 1.7)
+      .from(rises(world), { y: 30, autoAlpha: 0, stagger: 0.1, duration: 0.45 }, t + 1.5);
+    if (tours && deck) {
+      tl.set(tours, { zIndex: 5 }, t);
+      cards.forEach((card, i) => {
+        const spread = i - (cards.length - 1) / 2;
+        tl.to(card, {
+          scale: 0.19, xPercent: spread * 115, y: 0, yPercent: 8, autoAlpha: 1, duration: 0.9, ease: "power2.inOut",
+        }, t)
+          .to(card.querySelector(".tw-card-dim") ?? [], { opacity: 0, duration: 0.6 }, t)
+          .to(card, { xPercent: spread * 20, yPercent: 30, scale: 0.04, autoAlpha: 0, duration: 0.6, ease: "power2.in" }, t + 1.0 + Math.abs(spread) * 0.06);
+      });
+      tl.set(tours, { autoAlpha: 0 }, t + 1.8);
+    }
+    t += 3.8;
+  }
+
+  // 5 · pass: the boat pass slides in, its numbers type out, the stub tears away.
+  if (pass) {
+    const stub = one("[data-j='stub']", pass), cta = one("[data-j='pass-cta']", pass);
+    at.booking = t + 1.6;
+    if (world) tl.to(world.querySelectorAll("[data-j='globe'], [data-j='giant'], .tw-world-foot"), { yPercent: -25, autoAlpha: 0, duration: 0.6, ease: "power1.in" }, t);
+    tl.set(pass, { autoAlpha: 1 }, t + 0.2)
+      .from(one("[data-j='ticket']", pass) ?? [], { yPercent: 45, rotate: -4, autoAlpha: 0, duration: 0.9, ease: "power3.out" }, t + 0.3)
+      .fromTo(pass.querySelectorAll("[data-type]"), { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "steps(10)", stagger: 0.3, duration: 0.5 }, t + 1.0)
+      .from(pass.querySelectorAll("[data-step] p:last-child"), { y: 14, autoAlpha: 0, stagger: 0.3, duration: 0.4 }, t + 1.2);
+    if (stub && window.matchMedia("(min-width: 900px)").matches) {
+      tl.to(stub, { rotate: 16, x: 70, yPercent: 62, duration: 0.9, ease: "power2.in" }, t + 2.3);
+    }
+    if (cta) tl.from(cta, { x: 30, autoAlpha: 0, duration: 0.5, ease: "power2.out" }, t + 2.8);
+    t += 3.9;
+  }
+
+  // 6 · night: back through the windows, after dark; the request form rises.
+  if (night) {
+    const nrow = one("[data-j='night-windows']", night), full = one("[data-j='night-full']", night);
+    at.contact = t + 2.2;
+    if (pass) tl.to(pass, { autoAlpha: 0, duration: 0.5 }, t);
+    tl.set(night, { autoAlpha: 1 }, t)
+      .fromTo(night, { opacity: 0 }, { opacity: 1, duration: 0.5 }, t);
+    if (nrow) {
+      tl.fromTo(nrow, {
+        x: () => intoWindow(nrow).x, y: () => intoWindow(nrow).y, scale: () => intoWindow(nrow).scale, transformOrigin: () => intoWindow(nrow).origin,
+      }, { x: 0, y: 0, scale: 1, duration: 1.5, ease: "power2.out", immediateRender: false }, t + 0.4);
+    }
+    if (full) tl.fromTo(full, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.4, immediateRender: false }, t + 0.5);
+    tl.from(words(night), { yPercent: 115, stagger: 0.05, duration: 0.5, ease: "power2.out" }, t + 1.5)
+      .from(rises(night), { y: 40, autoAlpha: 0, stagger: 0.12, duration: 0.5, ease: "power2.out" }, t + 1.7);
+    t += 3.2; // the last frame rests before the page lets go
+  }
+
+  const screens = t;
+  const st = ScrollTrigger.create({
+    trigger: stage,
+    start: "top top",
+    end: () => `+=${Math.round(window.innerHeight * screens * 0.85)}`,
+    pin: true,
+    // Lenis already glides the wheel, so the film follows it closely; touch
+    // scrolling gets the smoothing from the scrub instead.
+    scrub: smoothed ? 0.3 : 1,
+    anticipatePin: 1,
+    invalidateOnRefresh: true,
+    animation: tl,
+  });
+
+  // Nav links to scenes land where the scene has fully arrived.
+  for (const [id, time] of Object.entries(at)) {
+    jumps.set(id, () => st.start + (time / tl.duration()) * (st.end - st.start));
+  }
+  cleanups.push(() => jumps.clear());
 }
