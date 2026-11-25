@@ -18,7 +18,7 @@ export function siteVars(template: BusinessTemplate): CSSProperties {
     ["--teal" as never]: p.primary,
     ["--sun" as never]: p.accent,
     ["--sand" as never]: "#F6F1E9",
-    ["--ink" as never]: "#0A1A2A",
+    ["--ink" as never]: "#07131F",
   };
 }
 
