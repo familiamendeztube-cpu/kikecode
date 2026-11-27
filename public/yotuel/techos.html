@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yotuel Techos | Reparación de techos en Miami-Dade y Broward</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Reparación de techos en Miami-Dade y Broward. Sellado de filtraciones, detección de goteras, inspección y canaletas. Estimados gratis. 954-549-5176.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a cinematic scroll built from real footage. Video hero, then one pinned
+   full-bleed photo per service that zooms and wipes in while its card slides over,
+   a video interlude, process, company, FAQ, contact. One dark look on purpose. */
+:root{
+  --ink:#0a0b0d; --ink-2:#111317; --panel:rgba(14,15,18,.72); --line:rgba(255,244,225,.13);
+  --fg:#f5f0e8; --muted:#a8a298; --acc:#f2b705; --acc-2:#ffd54a; --acc-ink:#161104;
+  --display:"Manrope","Inter",system-ui,sans-serif; --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--ink)}
+body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,video{max-width:100%;display:block}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acc-2);outline-offset:3px;border-radius:8px}
+.g{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.k{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.035em;line-height:1.02;margin:0;text-wrap:balance}
+em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em;color:var(--acc-2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;cursor:pointer;border-radius:999px;padding:14px 24px;font-weight:600;font-size:15px;text-decoration:none;transition:transform .25s,box-shadow .25s,background .25s;white-space:nowrap}
+.btn:hover{transform:translateY(-2px)}
+.btn-acc{position:relative;overflow:hidden}
+.btn-acc::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.btn-acc:hover::after{transform:translateX(120%)}
+::selection{background:var(--acc);color:var(--acc-ink)}
+html{scrollbar-width:thin;scrollbar-color:rgba(255,244,225,.22) transparent}
+.btn-acc{background:linear-gradient(180deg,var(--acc-2),var(--acc));color:var(--acc-ink);box-shadow:0 14px 34px -14px var(--acc)}
+.btn-line{background:rgba(255,244,225,.06);box-shadow:0 0 0 1px rgba(255,244,225,.26) inset;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.btn svg{width:17px;height:17px;flex:none}
+
+/* intro curtain, progress line, film grain */
+.loader{position:fixed;inset:0;z-index:100;background:var(--ink);display:grid;place-items:center;animation:ldOut .9s cubic-bezier(.76,0,.24,1) 1.55s forwards}
+.loader .in{display:grid;justify-items:center;gap:18px}
+.loader svg{width:84px;height:84px;animation:ldPop .9s cubic-bezier(.2,.9,.2,1) both}
+.loader b{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:.34em;padding-left:.34em;animation:ldUp .8s .15s cubic-bezier(.2,.9,.2,1) both}
+.loader i{display:block;width:160px;height:1px;background:rgba(255,244,225,.14);position:relative;overflow:hidden}
+.loader i::after{content:"";position:absolute;inset:0;background:var(--acc);transform-origin:left;animation:ldBar 1.4s cubic-bezier(.6,0,.2,1) both}
+@keyframes ldPop{from{opacity:0;transform:scale(.7)}}
+@keyframes ldUp{from{opacity:0;transform:translateY(14px)}}
+@keyframes ldBar{from{transform:scaleX(0)}}
+@keyframes ldOut{to{clip-path:inset(0 0 100% 0);visibility:hidden}}
+.prog{position:fixed;left:0;top:0;height:2px;width:100%;z-index:60;background:linear-gradient(90deg,var(--acc),var(--acc-2));transform-origin:left;transform:scaleX(0);pointer-events:none}
+.grain{position:fixed;inset:-50%;z-index:55;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain 1.2s steps(6) infinite}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-4%,3%)}40%{transform:translate(3%,-5%)}60%{transform:translate(-6%,-2%)}80%{transform:translate(5%,4%)}100%{transform:translate(0,0)}}
+
+/* nav */
+.nav{position:fixed;inset:0 0 auto;z-index:30;display:flex;align-items:center;gap:14px;padding-top:calc(env(safe-area-inset-top,0px) + 14px);padding-bottom:14px;transition:background .4s,box-shadow .4s}
+.nav.solid{background:rgba(10,11,13,.78);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--line)}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;margin-right:auto}
+.brand svg{width:44px;height:44px;flex:none}
+.brand b{display:block;font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.14em;line-height:1}
+.brand small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-top:5px}
+.links{display:flex;gap:2px}
+.links a{padding:8px 13px;border-radius:999px;text-decoration:none;color:#d9d3c9;font-size:14px}
+.links a:hover{background:rgba(255,244,225,.08);color:var(--fg)}
+.lang{display:flex;padding:3px;border-radius:999px;box-shadow:0 0 0 1px var(--line) inset;background:rgba(10,11,13,.4)}
+.lang button{border:0;background:none;cursor:pointer;padding:6px 11px;border-radius:999px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--acc);color:var(--acc-ink)}
+.nav .btn{padding:11px 18px;font-size:14px}
+
+/* hero */
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate}
+.hero video,.hero .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;will-change:transform}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(120% 90% at 80% 20%,transparent 40%,rgba(10,11,13,.55) 100%),linear-gradient(180deg,rgba(10,11,13,.6) 0%,rgba(10,11,13,.12) 32%,rgba(10,11,13,.62) 72%,var(--ink) 100%),linear-gradient(90deg,rgba(10,11,13,.8),rgba(10,11,13,0) 68%)}
+.hero-in{width:100%;padding-top:140px;padding-bottom:clamp(40px,7vh,80px)}
+.hero h1{font-size:clamp(2.8rem,7.6vw,7rem);font-weight:800;max-width:13ch;margin:18px 0 0;text-shadow:0 2px 40px rgba(0,0,0,.35)}
+.hero h1 em{display:inline-block;padding-right:.08em}
+.cue{position:absolute;right:max(26px,5vw);bottom:112px;display:grid;justify-items:center;gap:10px;font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+.cue i{display:block;width:1px;height:44px;background:rgba(255,244,225,.2);position:relative;overflow:hidden}
+.cue i::after{content:"";position:absolute;left:0;top:0;width:100%;height:45%;background:var(--acc-2);animation:cue 1.9s cubic-bezier(.6,0,.3,1) infinite}
+@keyframes cue{from{transform:translateY(-110%)}to{transform:translateY(240%)}}
+.hero p.lead{font-size:clamp(1.05rem,1.5vw,1.25rem);color:#ddd6cb;max-width:52ch;margin:24px 0 32px}
+.ctas{display:flex;flex-wrap:wrap;gap:12px}
+.trust{display:flex;flex-wrap:wrap;gap:clamp(18px,4vw,48px);margin-top:clamp(36px,6vh,64px);padding-top:22px;border-top:1px solid var(--line)}
+.trust div{font-size:13.5px;color:var(--muted);max-width:22ch}
+.trust strong{display:block;color:var(--fg);font-family:var(--display);font-size:1.15rem;letter-spacing:-.02em}
+.trust div{position:relative;padding-left:16px}
+.trust div::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--acc)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc);margin-right:10px;vertical-align:middle;animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+/* marquee */
+.marq{overflow:hidden;border-block:1px solid var(--line);padding-block:18px;white-space:nowrap}
+.marq div{display:inline-flex;gap:48px;animation:marq 38s linear infinite;font-family:var(--display);font-weight:700;font-size:clamp(1.3rem,2.6vw,2rem);letter-spacing:-.02em}
+.marq span::after{content:"✦";color:var(--acc);margin-left:48px;font-size:.7em;vertical-align:middle}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* services film */
+.film{position:relative}
+.scene{position:relative;height:100svh;overflow:hidden}
+.scene .ph{position:absolute;inset:0;overflow:hidden;clip-path:inset(0 0 0 0)}
+.scene .ph img{width:100%;height:100%;object-fit:cover;transform:scale(1.18);will-change:transform}
+.scene .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,11,13,.82) 0%,rgba(10,11,13,.35) 50%,rgba(10,11,13,.1) 100%),linear-gradient(0deg,rgba(10,11,13,.55),transparent 40%)}
+.scene .card{position:absolute;left:max(20px,5vw);top:50%;transform:translateY(-50%);width:min(480px,calc(100% - 40px));padding:30px 30px 26px;border-radius:22px;background:var(--panel);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 0 0 1px var(--line),0 40px 90px -40px #000}
+.scene .num{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--acc-2);display:flex;align-items:center;gap:14px}
+.scene .num::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--acc-2) var(--p,0%),rgba(255,244,225,.16) var(--p,0%))}
+.scene .ghost{position:absolute;right:max(20px,5vw);top:150px;font-family:var(--display);font-weight:800;font-size:clamp(8rem,15vw,14rem);line-height:.8;letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.5px rgba(255,244,225,.42);pointer-events:none;user-select:none}
+.scene .card::before{content:"";position:absolute;left:30px;right:30px;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--acc-2),transparent);opacity:.7}
+.scene h2{font-size:clamp(2rem,3.6vw,3.1rem);font-weight:800;margin:14px 0 12px}
+.scene p{margin:0 0 18px;color:#d3ccc1}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.chips li{font-size:13px;padding:6px 12px;border-radius:999px;box-shadow:0 0 0 1px var(--line) inset;color:#e2dcd2}
+.scene .inset{position:absolute;right:max(20px,5vw);bottom:clamp(28px,8vh,80px);width:min(300px,30vw);aspect-ratio:4/5;border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,244,225,.22),0 0 0 7px rgba(10,11,13,.35),0 40px 80px -30px #000}
+.scene .inset img{width:100%;height:100%;object-fit:cover}
+.scene .tag{position:absolute;right:max(20px,5vw);top:110px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:8px 12px;border-radius:999px;background:var(--panel);box-shadow:0 0 0 1px var(--line)}
+.scene .tag::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc);margin-right:8px;vertical-align:1px}
+
+/* video interlude */
+.inter{position:relative;height:110svh;overflow:hidden;display:grid;place-items:center;text-align:center;isolation:isolate}
+.inter video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.inter::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(60% 60% at 50% 50%,rgba(10,11,13,.35),rgba(10,11,13,.85))}
+.inter h2{font-size:clamp(3rem,10vw,9rem);font-weight:800;line-height:.92}
+.inter p{max-width:46ch;margin:24px auto 0;color:#e2dcd2;font-size:1.1rem}
+
+/* sections */
+section.blk{padding-block:clamp(72px,11vw,140px)}
+.wrap{max-width:1200px;margin:0 auto}
+.sh{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:end;margin-bottom:48px}
+.sh h2{font-size:clamp(2.2rem,4.8vw,3.8rem);font-weight:800}
+.sh p{color:var(--muted);margin:0;max-width:46ch}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.step .im{aspect-ratio:4/5;border-radius:18px;overflow:hidden;margin-bottom:18px;box-shadow:0 0 0 1px var(--line)}
+.step .im img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.step:hover .im img{transform:scale(1.06)}
+.step .n{font-family:var(--mono);font-size:12px;color:var(--acc-2);letter-spacing:.2em}
+.step h3{font-size:1.3rem;margin:8px 0 6px;letter-spacing:-.02em}
+.step .im{position:relative}
+.step .im::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,11,13,.5),transparent 45%);pointer-events:none}
+.step p{margin:0;color:var(--muted);font-size:15px}
+.nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid var(--line)}
+.nums div{padding:34px 24px;border-left:1px solid var(--line)}
+.nums div:first-child{border-left:0}
+.nums strong{display:block;font-family:var(--display);font-size:clamp(2.4rem,4.6vw,3.8rem);letter-spacing:-.04em;line-height:1}
+.nums span{color:var(--muted);font-size:14px}
+.nums div{transition:background .4s}
+.nums div:hover{background:rgba(255,244,225,.03)}
+.nums strong{margin-bottom:10px}
+.about{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(32px,6vw,80px);align-items:center}
+.about .pic{position:relative;aspect-ratio:4/5;border-radius:22px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
+.about .pic img{width:100%;height:100%;object-fit:cover}
+.about h2{font-size:clamp(2.2rem,4.6vw,3.6rem);font-weight:800;margin:14px 0 20px}
+.about p{color:#d3ccc1;margin:0 0 16px;max-width:52ch}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-radius:16px;overflow:hidden;margin-top:28px}
+.facts div{background:var(--ink-2);padding:16px 18px}
+.facts small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.facts b{font-weight:600}
+.areas{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;padding:0;list-style:none}
+.areas li{font-size:13px;padding:6px 12px;border-radius:999px;background:rgba(255,244,225,.05);box-shadow:0 0 0 1px var(--line) inset}
+.faq{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(32px,6vw,80px)}
+.faq h2{font-size:clamp(2.2rem,4.6vw,3.6rem);font-weight:800}
+details{border-bottom:1px solid var(--line);padding:20px 0}
+summary:hover{color:var(--acc-2)}
+summary{transition:color .25s;cursor:pointer;list-style:none;font-weight:600;font-size:1.08rem;display:flex;justify-content:space-between;gap:20px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:var(--mono);color:var(--acc-2);font-size:20px;line-height:1;transition:transform .3s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--muted);margin:12px 0 0}
+.contact{position:relative;overflow:hidden;isolation:isolate}
+.contact .bg{position:absolute;inset:0;z-index:-2}
+.contact .bg img,.contact .bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.contact::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(10,11,13,.92) 0%,rgba(10,11,13,.7) 55%,rgba(10,11,13,.45))}
+.contact .in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:clamp(32px,6vw,80px);align-items:center}
+.contact h2{font-size:clamp(2.4rem,5vw,4.2rem);font-weight:800;margin:14px 0 18px}
+.contact p{color:#d8d1c6;max-width:44ch}
+.bignum{font-family:var(--display);font-weight:800;font-size:clamp(2rem,4.4vw,3.4rem);letter-spacing:-.03em;margin:20px 0 6px;user-select:all}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:28px;border-radius:22px;background:var(--panel);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 0 0 1px var(--line)}
+.form label{display:grid;gap:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.form .full{grid-column:1/-1}
+.form input,.form select,.form textarea{font-family:var(--body);font-size:15px;letter-spacing:0;text-transform:none;padding:13px 14px;border-radius:12px;border:0;background:rgba(0,0,0,.35);box-shadow:0 0 0 1px var(--line) inset;color:var(--fg)}
+.form textarea{min-height:84px;resize:vertical}
+.form input:focus,.form select:focus,.form textarea:focus{outline:none;box-shadow:0 0 0 1.5px var(--acc-2) inset}
+.form-msg{grid-column:1/-1;margin:0;min-height:1.2em;font-size:14px;color:var(--muted)}
+footer{padding-block:56px 40px;border-top:1px solid var(--line)}
+footer .row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px;align-items:flex-start}
+footer .giant{font-family:var(--display);font-weight:800;font-size:clamp(4rem,17vw,15rem);letter-spacing:-.05em;line-height:.85;margin:40px 0 24px;background:linear-gradient(180deg,rgba(255,244,225,.3),rgba(255,244,225,.02));-webkit-background-clip:text;background-clip:text;color:transparent}
+footer .fine{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;color:var(--muted);font-size:13px}
+.demo-tag{position:fixed;z-index:25;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 16px);font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:8px 12px;border-radius:999px;background:var(--panel);box-shadow:0 0 0 1px var(--line);text-decoration:none;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+
+/* AI assistant */
+.ai-fab{position:fixed;z-index:40;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;align-items:center;gap:12px;padding:8px 18px 8px 8px;border-radius:999px;border:0;cursor:pointer;background:var(--fg);color:var(--ink);box-shadow:0 20px 50px -18px rgba(0,0,0,.8);font-weight:600}
+.ai-fab .av{width:42px;height:42px;border-radius:50%;background:var(--ink);display:grid;place-items:center;position:relative}
+.ai-fab .av svg{width:30px;height:30px}
+.ai-fab .av::after{content:"";position:absolute;right:0;bottom:2px;width:11px;height:11px;border-radius:50%;background:#33d17a;box-shadow:0 0 0 2px var(--fg)}
+.ai-fab small{display:block;font-weight:500;font-size:12px;color:#57524b}
+.ai-fab{transition:transform .3s cubic-bezier(.2,.9,.2,1),box-shadow .3s}
+.ai-fab:hover{transform:translateY(-3px)}
+.ai-fab .av::before{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--acc);opacity:0;animation:ring 2.8s ease-out infinite}
+@keyframes ring{0%{opacity:.8;transform:scale(.9)}70%,100%{opacity:0;transform:scale(1.45)}}
+.ai:not([hidden]){animation:aiIn .45s cubic-bezier(.2,.9,.2,1)}
+@keyframes aiIn{from{opacity:0;transform:translateY(18px) scale(.96)}}
+.msg{animation:msgIn .35s cubic-bezier(.2,.9,.2,1)}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}}
+.ai{position:fixed;z-index:41;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 16px);width:min(400px,calc(100vw - 32px));height:min(620px,calc(100svh - 110px));display:flex;flex-direction:column;border-radius:24px;overflow:hidden;background:#121418;box-shadow:0 0 0 1px var(--line),0 40px 100px -30px #000;transform-origin:bottom right;transition:opacity .35s,transform .35s}
+.ai[hidden]{display:none!important}
+.ai header{display:flex;align-items:center;gap:12px;padding:14px 14px 14px 16px;background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,0));border-bottom:1px solid var(--line)}
+.ai header .av{width:40px;height:40px;border-radius:50%;background:var(--ink);display:grid;place-items:center;box-shadow:0 0 0 1px var(--line)}
+.ai header .av svg{width:28px;height:28px}
+.ai header b{display:block;font-size:15px}
+.ai header small{display:block;font-size:12px;color:var(--muted)}
+.ai header .sp{margin-left:auto;display:flex;gap:6px}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;background:rgba(255,244,225,.06);color:var(--fg)}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn[aria-pressed="true"]{background:var(--acc);color:var(--acc-ink)}
+.ai .log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:86%;padding:11px 14px;border-radius:18px;font-size:14.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.msg.bot{background:rgba(255,244,225,.07);border-bottom-left-radius:6px}
+.msg.you{align-self:flex-end;background:var(--acc);color:var(--acc-ink);border-bottom-right-radius:6px}
+.msg.typing{color:var(--muted)}
+.msg .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.msg .acts a{font-size:13px;padding:7px 12px;border-radius:999px;text-decoration:none;background:var(--acc);color:var(--acc-ink);font-weight:600}
+.msg .acts a.alt{background:rgba(255,244,225,.1);color:var(--fg)}
+.sugs{display:flex;gap:8px;overflow-x:auto;padding:0 16px 10px;scrollbar-width:none}
+.sugs button{flex:none;border:0;cursor:pointer;font-size:13px;padding:8px 12px;border-radius:999px;background:rgba(255,244,225,.06);box-shadow:0 0 0 1px var(--line) inset;color:#e2dcd2}
+.ai form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.ai form input{flex:1;min-width:0;padding:12px 14px;border-radius:999px;border:0;background:rgba(0,0,0,.35);box-shadow:0 0 0 1px var(--line) inset;color:var(--fg);font-size:15px}
+.ai form input:focus{outline:none;box-shadow:0 0 0 1.5px var(--acc-2) inset}
+.send{background:var(--acc)!important;color:var(--acc-ink)!important}
+.wave{display:inline-flex;gap:2px;align-items:center;height:12px;margin-left:6px;vertical-align:middle}
+.wave i{width:2px;height:100%;background:var(--acc);animation:wv .9s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}
+@keyframes wv{50%{transform:scaleY(.3)}}
+
+@media (max-width:900px){
+  .links{display:none}
+  .cue{display:none}
+  .sh,.about,.faq,.contact .in{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .nums{grid-template-columns:1fr 1fr}
+  .nums div:nth-child(3){border-left:0}
+  .nums div{border-top:1px solid var(--line)}
+  .scene .inset{display:none}
+  .scene .card{top:auto;bottom:90px;transform:none}
+  .scene .tag{top:90px}
+}
+@media (max-width:560px){
+  .nav .btn span{display:none}
+  .brand small{display:none}
+  .form{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .ai-fab>span:last-child{display:none}
+  .ai-fab{padding:8px}
+  .ai-fab .av{width:46px;height:46px}
+  .demo-tag{bottom:calc(env(safe-area-inset-bottom,0px) + 29px)}
+  .cue{display:none}
+  .hero-in{padding-top:110px;padding-bottom:96px}
+  .hero h1{font-size:clamp(2.5rem,11.5vw,3.4rem)}
+  .trust{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:28px;padding-top:18px}
+  .trust span{display:none}
+  .trust strong{font-size:.86rem;line-height:1.25}
+  .trust div{padding-left:12px}
+  .trust div::before{top:6px;width:5px;height:5px}
+  .scene .ghost{top:96px;font-size:7.5rem;right:14px}
+  .scene .tag{display:none}
+  .scene .card{padding:24px 22px 22px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.loader{display:none}.grain{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd54a"/><stop offset="1" stop-color="#f2b705"/></linearGradient>
+<symbol id="logo" viewBox="0 0 64 64"><rect x="1.5" y="1.5" width="61" height="61" rx="16" fill="#101113" stroke="url(#lg)" stroke-opacity=".5" stroke-width="1.5"/><path d="M10 31L32 12l22 19" fill="none" stroke="url(#lg)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 30l10 11 10-11M32 41v12" fill="none" stroke="#f5f0e8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><rect x="41" y="14" width="5" height="9" rx="1" fill="url(#lg)"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z" fill="currentColor"/></symbol>
+<symbol id="i-sms" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 6.5a1.5 1.5 0 1 0 0 .01zm5 0a1.5 1.5 0 1 0 0 .01zm5 0a1.5 1.5 0 1 0 0 .01z" fill="currentColor"/></symbol>
+<symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-2.1a7 7 0 0 0 6-6.9z" fill="currentColor"/></symbol>
+<symbol id="i-spk" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z" fill="currentColor"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<div class="loader" aria-hidden="true"><div class="in"><svg><use href="#logo"/></svg><b>YOTUEL</b><i></i></div></div>
+<div class="prog" id="prog"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav g" id="nav">
+  <a class="brand" href="#top" aria-label="Yotuel"><svg aria-hidden="true"><use href="#logo"/></svg><span><b>YOTUEL</b><small data-i="sub">Techos · Roofing</small></span></a>
+  <nav class="links" aria-label="Secciones">
+    <a href="#servicios" data-i="nav1">Servicios</a><a href="#proceso" data-i="nav2">Proceso</a><a href="#nosotros" data-i="nav3">Nosotros</a><a href="#faq" data-i="nav4">Preguntas</a>
+  </nav>
+  <div class="lang" role="group" aria-label="Idioma / Language"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+  <a class="btn btn-acc" href="tel:+19545495176"><svg aria-hidden="true"><use href="#i-phone"/></svg><span data-i="call">Llamar</span></a>
+</header>
+
+<main id="top">
+<section class="hero">
+  <img class="poster" src="https://images.unsplash.com/photo-1635424824849-1b09bdcc55b1?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="">
+  <video autoplay muted loop playsinline preload="auto" poster="https://images.unsplash.com/photo-1635424824849-1b09bdcc55b1?auto=format&amp;fit=crop&amp;w=1600&amp;q=75"><source src="https://videos.pexels.com/video-files/4198812/4198812-hd_1280_720_24fps.mp4" type="video/mp4"></video>
+  <div class="hero-in g"><div class="wrap">
+    <p class="k"><span class="dot"></span><span data-i="kicker"></span></p>
+    <h1 data-i="h1" data-html></h1>
+    <p class="lead" data-i="lead"></p>
+    <div class="ctas">
+      <a class="btn btn-acc" href="tel:+19545495176"><svg aria-hidden="true"><use href="#i-phone"/></svg>954-549-5176</a>
+      <a class="btn btn-line" href="sms:+19545495176" id="sms-hero"><svg aria-hidden="true"><use href="#i-sms"/></svg><span data-i="text">Enviar texto</span></a>
+      <button class="btn btn-line" type="button" data-open-ai><span data-i="askai">Pregúntele a la IA</span></button>
+    </div>
+    <div class="trust"><div><strong data-i="tr0a"></strong><span data-i="tr0b"></span></div><div><strong data-i="tr1a"></strong><span data-i="tr1b"></span></div><div><strong data-i="tr2a"></strong><span data-i="tr2b"></span></div></div>
+  </div></div>
+  <div class="cue" aria-hidden="true"><span data-i="cue"></span><i></i></div>
+</section>
+
+<div class="marq" aria-hidden="true"><div><span>Reparación de techos</span><span>Roof repair</span><span>Sellado de filtraciones</span><span>Leak sealing</span><span>Inspección</span><span>Inspection</span><span>Canaletas</span><span>Gutters</span><span>Estimados gratis</span><span>Free estimates</span><span>Reparación de techos</span><span>Roof repair</span><span>Sellado de filtraciones</span><span>Leak sealing</span><span>Inspección</span><span>Inspection</span><span>Canaletas</span><span>Gutters</span><span>Estimados gratis</span><span>Free estimates</span></div></div>
+
+<div class="film" id="servicios"><section class="scene" aria-labelledby="s0h"><div class="ph"><img src="https://images.unsplash.com/photo-1632759145351-1d592919f522?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="eager"></div><span class="ghost" aria-hidden="true">01</span><p class="tag" data-i="s0tag"></p><article class="card"><p class="num">01 / 04</p><h2 id="s0h" data-i="s0h" data-html></h2><p data-i="s0p"></p><ul class="chips"><li data-i="s0c0"></li><li data-i="s0c1"></li><li data-i="s0c2"></li><li data-i="s0c3"></li></ul></article><div class="inset"><img src="https://images.unsplash.com/photo-1495774539583-885e02cca8c2?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div></section><section class="scene" aria-labelledby="s1h"><div class="ph"><img src="https://images.unsplash.com/photo-1635424824800-692767998d07?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div><span class="ghost" aria-hidden="true">02</span><p class="tag" data-i="s1tag"></p><article class="card"><p class="num">02 / 04</p><h2 id="s1h" data-i="s1h" data-html></h2><p data-i="s1p"></p><ul class="chips"><li data-i="s1c0"></li><li data-i="s1c1"></li><li data-i="s1c2"></li><li data-i="s1c3"></li></ul></article><div class="inset"><img src="https://images.unsplash.com/photo-1635424824849-1b09bdcc55b1?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div></section><section class="scene" aria-labelledby="s2h"><div class="ph"><img src="https://images.unsplash.com/photo-1777734794947-32846dadddeb?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div><span class="ghost" aria-hidden="true">03</span><p class="tag" data-i="s2tag"></p><article class="card"><p class="num">03 / 04</p><h2 id="s2h" data-i="s2h" data-html></h2><p data-i="s2p"></p><ul class="chips"><li data-i="s2c0"></li><li data-i="s2c1"></li><li data-i="s2c2"></li><li data-i="s2c3"></li></ul></article><div class="inset"><img src="https://images.unsplash.com/photo-1635424825057-7fb6dcd651ef?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div></section><section class="scene" aria-labelledby="s3h"><div class="ph"><img src="https://images.unsplash.com/photo-1744044155829-610dded4cead?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div><span class="ghost" aria-hidden="true">04</span><p class="tag" data-i="s3tag"></p><article class="card"><p class="num">04 / 04</p><h2 id="s3h" data-i="s3h" data-html></h2><p data-i="s3p"></p><ul class="chips"><li data-i="s3c0"></li><li data-i="s3c1"></li><li data-i="s3c2"></li><li data-i="s3c3"></li></ul></article><div class="inset"><img src="https://images.unsplash.com/photo-1633375310031-2de09e3974a6?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div></section></div>
+
+<section class="inter">
+  <video autoplay muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1633375310031-2de09e3974a6?auto=format&amp;fit=crop&amp;w=1600&amp;q=75"><source src="https://assets.mixkit.co/videos/2716/2716-720.mp4" type="video/mp4"></video>
+  <div class="g"><h2 data-i="interH" data-html></h2><p data-i="interP"></p></div>
+</section>
+
+<section class="blk g" id="proceso"><div class="wrap">
+  <div class="sh"><div><p class="k" data-i="procK"></p><h2 data-i="procH" data-html></h2></div><p data-i="procP"></p></div>
+  <div class="steps"><article class="step"><div class="im"><img src="https://images.unsplash.com/photo-1632759145351-1d592919f522?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div><span class="n">01</span><h3 data-i="st0h"></h3><p data-i="st0p"></p></article><article class="step"><div class="im"><img src="https://images.unsplash.com/photo-1495774539583-885e02cca8c2?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div><span class="n">02</span><h3 data-i="st1h"></h3><p data-i="st1p"></p></article><article class="step"><div class="im"><img src="https://images.unsplash.com/photo-1635424825057-7fb6dcd651ef?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div><span class="n">03</span><h3 data-i="st2h"></h3><p data-i="st2p"></p></article><article class="step"><div class="im"><img src="https://images.unsplash.com/photo-1561831710-3a8abd9657cf?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div><span class="n">04</span><h3 data-i="st3h"></h3><p data-i="st3p"></p></article></div>
+</div></section>
+
+<div class="g"><div class="wrap nums"><div><strong data-i="n0a" data-html></strong><span data-i="n0b"></span></div><div><strong data-i="n1a" data-html></strong><span data-i="n1b"></span></div><div><strong data-i="n2a" data-html></strong><span data-i="n2b"></span></div><div><strong data-i="n3a" data-html></strong><span data-i="n3b"></span></div></div></div>
+
+<section class="blk g" id="nosotros"><div class="wrap about">
+  <div class="pic"><img src="https://images.unsplash.com/photo-1561831710-3a8abd9657cf?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"></div>
+  <div>
+    <p class="k" data-i="aboutK"></p>
+    <h2 data-i="aboutH" data-html></h2>
+    <p data-i="aboutP1"></p><p data-i="aboutP2"></p>
+    <div class="facts">
+      <div><small data-i="f1k"></small><b data-i="f1v"></b></div>
+      <div><small data-i="f2k"></small><b data-i="f2v"></b></div>
+      <div><small data-i="f3k"></small><b>954-549-5176</b></div>
+      <div><small data-i="f4k"></small><b data-i="f4v"></b></div>
+    </div>
+    <ul class="areas"><li>Miami</li><li>Hialeah</li><li>Doral</li><li>Kendall</li><li>Miami Gardens</li><li>Homestead</li><li>Fort Lauderdale</li><li>Hollywood</li><li>Pembroke Pines</li><li>Miramar</li><li>Davie</li><li>Coral Springs</li></ul>
+  </div>
+</div></section>
+
+<section class="blk g" id="faq"><div class="wrap faq">
+  <div><p class="k" data-i="faqK"></p><h2 data-i="faqH" data-html></h2></div>
+  <div><details open><summary data-i="q0"></summary><p data-i="a0"></p></details><details><summary data-i="q1"></summary><p data-i="a1"></p></details><details><summary data-i="q2"></summary><p data-i="a2"></p></details><details><summary data-i="q3"></summary><p data-i="a3"></p></details></div>
+</div></section>
+
+<section class="blk g contact" id="contacto">
+  <div class="bg"><img src="https://images.unsplash.com/photo-1633375310031-2de09e3974a6?auto=format&amp;fit=crop&amp;w=1600&amp;q=75" alt="" loading="lazy"><video autoplay muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1633375310031-2de09e3974a6?auto=format&amp;fit=crop&amp;w=1600&amp;q=75"><source src="https://assets.mixkit.co/videos/42337/42337-720.mp4" type="video/mp4"></video></div>
+  <div class="wrap in">
+    <div>
+      <p class="k" data-i="ctK"></p>
+      <h2 data-i="ctH" data-html></h2>
+      <p data-i="ctP"></p>
+      <p class="bignum">954-549-5176</p>
+      <div class="ctas"><a class="btn btn-acc" href="tel:+19545495176"><svg aria-hidden="true"><use href="#i-phone"/></svg><span data-i="call">Llamar</span></a><a class="btn btn-line" href="sms:+19545495176"><svg aria-hidden="true"><use href="#i-sms"/></svg><span data-i="text">Enviar texto</span></a></div>
+    </div>
+    <form class="form" id="form" novalidate>
+      <label><span data-i="fName"></span><input id="f-name" autocomplete="name"></label>
+      <label><span data-i="fPhone"></span><input id="f-phone" type="tel" autocomplete="tel"></label>
+      <label class="full"><span data-i="fJob"></span><select id="f-job"><option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option><option value="5"></option></select></label>
+      <label class="full"><span data-i="fNotes"></span><textarea id="f-notes"></textarea></label>
+      <button class="btn btn-acc full" type="submit"><svg aria-hidden="true"><use href="#i-sms"/></svg><span data-i="fSend"></span></button>
+      <p class="form-msg" id="form-msg" role="status"></p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer class="g"><div class="wrap">
+  <div class="row">
+    <a class="brand" href="#top"><svg aria-hidden="true"><use href="#logo"/></svg><span><b>YOTUEL</b><small data-i="sub">Techos · Roofing</small></span></a>
+    <div class="k" style="text-align:right">954-549-5176<br><span data-i="footArea"></span></div>
+  </div>
+  <p class="giant" aria-hidden="true">YOTUEL</p>
+  <div class="fine"><span>© 2026 Yotuel</span><span data-i="footFine"></span></div>
+</div></footer>
+
+<a class="demo-tag" href="index.html" data-i="demo">← Propuesta para Yotuel</a>
+
+<button class="ai-fab" type="button" data-open-ai aria-controls="ai"><span class="av"><svg aria-hidden="true"><use href="#logo"/></svg></span><span><span data-i="aiName"></span><small data-i="aiSub"></small></span></button>
+<div class="ai" id="ai" hidden role="dialog" aria-label="Asistente">
+  <header>
+    <span class="av"><svg aria-hidden="true"><use href="#logo"/></svg></span>
+    <div><b data-i="aiName"></b><small id="ai-state" data-i="aiOnline"></small></div>
+    <div class="sp">
+      <button class="icon-btn" type="button" id="ai-voice" aria-pressed="true" title="Voz / Voice"><svg aria-hidden="true"><use href="#i-spk"/></svg></button>
+      <button class="icon-btn" type="button" id="ai-close" title="Cerrar / Close"><svg aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+  </header>
+  <div class="log" id="ai-log" aria-live="polite"></div>
+  <div class="sugs" id="ai-sugs"></div>
+  <form id="ai-form">
+    <button class="icon-btn" type="button" id="ai-mic" title="Hablar / Speak" hidden><svg aria-hidden="true"><use href="#i-mic"/></svg></button>
+    <input id="ai-in" autocomplete="off">
+    <button class="icon-btn send" type="submit" title="Enviar / Send"><svg aria-hidden="true"><use href="#i-up"/></svg></button>
+  </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+const I18N = {"es": {"nav1": "Servicios", "nav2": "Proceso", "nav3": "Nosotros", "nav4": "Preguntas", "call": "Llamar", "askai": "Pregúntele a la IA", "cue": "Baje", "fName": "Nombre", "fPhone": "Teléfono", "fJob": "¿Qué necesita?", "fNotes": "Detalles (opcional)", "fSend": "Enviar mensaje de texto", "text": "Enviar texto", "fNamePh": "María González", "fErr": "Escriba su nombre y teléfono para poder contactarle.", "fOk": "Abrir su mensaje de texto →", "waHello": "Hola Yotuel,", "waIam": "soy", "f1k": "Licencia", "f1v": "Licenciado y asegurado", "f2k": "Horario", "f3k": "Teléfono", "f4k": "Área", "demo": "← Propuesta para Yotuel", "aiOnline": "En línea · responde al instante", "aiSpeaking": "Hablando", "aiTyping": "Escribiendo…", "aiPh": "Escriba su pregunta…", "footFine": "Diseño de muestra preparado para Yotuel.", "footArea": "Miami-Dade · Broward", "faqK": "Antes de llamar", "procK": "Cómo trabajamos", "title": "Yotuel Techos | Reparación de techos en Miami-Dade y Broward", "desc": "Reparación de techos en Miami-Dade y Broward. Sellado de filtraciones, detección de goteras, inspección y canaletas. Estimados gratis. 954-549-5176.", "sub": "Techos · Roofing", "kicker": "Estimados gratis · Servicio 24 horas", "h1": "Un techo que \u003cem>aguanta el aguacero.\u003c/em>", "lead": "Reparación de techos en Miami-Dade y Broward. Sellamos filtraciones, detectamos goteras e inspeccionamos su techo antes de que la lluvia entre a su casa.", "interH": "Que llueva.\u003cbr>\u003cem>Su techo está listo.\u003c/em>", "interP": "Temporada de huracanes, aguaceros de tarde y sol todo el año. Hacemos techos para el clima de la Florida.", "procH": "Del primer llamado \u003cem>al techo seco.\u003c/em>", "procP": "Cuatro pasos claros, con fotos y precio antes de empezar.", "aboutK": "Quiénes somos", "aboutH": "Techos hechos para \u003cem>la Florida.\u003c/em>", "aboutP1": "Yotuel repara techos en Miami-Dade y Broward con un solo objetivo: que el agua se quede afuera. Casas, apartamentos y negocios.", "aboutP2": "Arreglos y reparaciones de techos, todo tipo de goteras. Inspección, sellado, reemplazo de tejas, aislamiento y limpieza de canaletas.", "f2v": "Servicio 24 horas", "f4v": "Miami-Dade · Broward", "faqH": "Preguntas \u003cem>frecuentes\u003c/em>", "ctK": "Estimado gratis", "ctH": "¿Dónde está \u003cem>la gotera?\u003c/em>", "ctP": "Llame, envíe un texto o mande el formulario. Le respondemos con una cita para revisar su techo sin costo.", "fNotesPh": "Cae agua en la sala cuando llueve fuerte", "aiName": "Asistente Yotuel", "aiSub": "Pregunte por su techo", "aiHello": "¡Hola! Soy el asistente de Yotuel Techos. ¿Tiene una gotera, quiere una inspección o un estimado gratis? Pregúnteme lo que quiera.", "aiFallback": "Buena pregunta. Para eso lo mejor es que Yotuel lo vea en persona: el estimado es gratis. Llame o envíe un texto al 954-549-5176.", "aiSystem": "Eres el asistente virtual de Yotuel Techos, una compañía de reparación de techos en Miami-Dade y Broward (Florida). Servicios: sellado de filtraciones, detección de goteras, inspección de techos, reparación e instalación de techos (shingles, tejas, techos planos), aislamiento y limpieza de canaletas. Estimados gratis, licencia y seguro, servicio 24 horas. Teléfono y textos: 954-549-5176. Tu meta es ayudar y que el cliente agende su estimado gratis.", "tr0a": "Estimado gratis", "tr0b": "Revisamos su techo sin costo", "tr1a": "Licencia y seguro", "tr1b": "Su casa queda protegida", "tr2a": "24 horas", "tr2b": "Para goteras que no esperan", "s0tag": "Inspección", "s0h": "Detección \u003cem>de goteras\u003c/em>", "s0p": "Una mancha en el techo de la sala casi nunca está donde está la gotera. Subimos, revisamos y encontramos el origen exacto antes de tocar una teja.", "s0c0": "Inspección de techos", "s0c1": "Detección de goteras", "s0c2": "Fotos del daño", "s0c3": "Reporte para el seguro", "s1tag": "Filtraciones", "s1h": "Sellado \u003cem>de filtraciones\u003c/em>", "s1p": "Tubos de ventilación, claraboyas, chimeneas y bordes: ahí entra el agua primero. Quitamos el sellador viejo y sellamos con material hecho para el sol y la lluvia de la Florida.", "s1c0": "Flashing", "s1c1": "Tubos de ventilación", "s1c2": "Claraboyas", "s1c3": "Techos planos", "s2tag": "Reparación", "s2h": "Reparación \u003cem>e instalación\u003c/em>", "s2p": "Tejas levantadas por el viento, madera podrida o felt expuesto. Reemplazamos lo dañado del mismo color, o instalamos el techo completo según el código de la Florida.", "s2c0": "Shingles", "s2c1": "Tejas de barro", "s2c2": "Techos planos", "s2c3": "Techo nuevo", "s3tag": "Canaletas", "s3h": "Limpieza \u003cem>de canaletas\u003c/em>", "s3p": "Una canaleta llena de hojas devuelve el agua al techo y a la pared. La limpiamos, revisamos las bajantes y dejamos que el agua salga lejos de su casa.", "s3c0": "Canaletas", "s3c1": "Bajantes", "s3c2": "Aislamiento", "s3c3": "Mantenimiento", "st0h": "Inspección gratis", "st0p": "Subimos al techo y tomamos fotos de todo lo que vemos.", "st1h": "Diagnóstico", "st1p": "Le mostramos el origen de la gotera y le explicamos el arreglo.", "st2h": "Reparación", "st2p": "Trabajo limpio, materiales de calidad y según el código.", "st3h": "Garantía", "st3p": "Revisamos con usted y dejamos el área limpia.", "n0a": "$0", "n0b": "Por la inspección y el estimado", "n1a": "24\u003cem>/7\u003c/em>", "n1b": "Servicio para emergencias", "n2a": "2", "n2b": "Condados: Miami-Dade y Broward", "n3a": "100\u003cem>%\u003c/em>", "n3b": "Con licencia y seguro", "q0": "¿El estimado tiene costo?", "a0": "No. Subimos al techo, revisamos y le damos el estimado gratis. Llame al 954-549-5176.", "q1": "Tengo una mancha en el techo de adentro. ¿Es el techo?", "a1": "Muchas veces sí, pero no siempre. Revisamos por arriba y por abajo para encontrar el origen.", "q2": "¿Tienen licencia y seguro?", "a2": "Sí, trabajamos con licencia y seguro en Miami-Dade y Broward.", "q3": "¿Qué hago si está entrando agua ahora?", "a3": "Ponga un cubo, mueva los muebles y llame. Con servicio 24 horas podemos tapar el área hasta la reparación.", "opt0": "Gotera o filtración", "opt1": "Inspección de techo", "opt2": "Tejas dañadas", "opt3": "Techo nuevo", "opt4": "Limpieza de canaletas", "opt5": "Otro trabajo", "sugs": ["¿El estimado es gratis?", "Tengo una gotera", "¿Qué áreas cubren?", "¿Trabajan de emergencia?"]}, "en": {"nav1": "Services", "nav2": "Process", "nav3": "About", "nav4": "FAQ", "call": "Call", "askai": "Ask the AI", "cue": "Scroll", "fName": "Name", "fPhone": "Phone", "fJob": "What do you need?", "fNotes": "Details (optional)", "fSend": "Send a text message", "text": "Text us", "fNamePh": "Maria Gonzalez", "fErr": "Add your name and phone so we can reach you.", "fOk": "Open your text message →", "waHello": "Hi Yotuel,", "waIam": "I'm", "f1k": "License", "f1v": "Licensed and insured", "f2k": "Hours", "f3k": "Phone", "f4k": "Area", "demo": "← Proposal for Yotuel", "aiOnline": "Online · instant answers", "aiSpeaking": "Speaking", "aiTyping": "Typing…", "aiPh": "Type your question…", "footFine": "Sample design prepared for Yotuel.", "footArea": "Miami-Dade · Broward", "faqK": "Before you call", "procK": "How we work", "title": "Yotuel Roofing | Roof repair in Miami-Dade and Broward", "sub": "Roofing · Techos", "kicker": "Free estimates · 24-hour service", "h1": "A roof that \u003cem>takes the downpour.\u003c/em>", "lead": "Roof repair across Miami-Dade and Broward. We seal leaks, track down drips and inspect your roof before the rain gets inside.", "interH": "Let it rain.\u003cbr>\u003cem>Your roof is ready.\u003c/em>", "interP": "Hurricane season, afternoon storms and sun all year. We build roofs for Florida weather.", "procH": "From the first call \u003cem>to a dry roof.\u003c/em>", "procP": "Four clear steps, with photos and a price before we start.", "aboutK": "About us", "aboutH": "Roofs built for \u003cem>Florida.\u003c/em>", "aboutP1": "Yotuel repairs roofs in Miami-Dade and Broward with one goal: keep the water out. Homes, apartments and businesses.", "aboutP2": "Roof repairs of every kind and every type of leak. Inspection, sealing, shingle replacement, insulation and gutter cleaning.", "f2v": "24-hour service", "f4v": "Miami-Dade · Broward", "faqH": "Common \u003cem>questions\u003c/em>", "ctK": "Free estimate", "ctH": "Where is \u003cem>the leak?\u003c/em>", "ctP": "Call, text or send the form. We reply with a time to inspect your roof for free.", "fNotesPh": "Water drips in the living room when it pours", "aiName": "Yotuel Assistant", "aiSub": "Ask about your roof", "aiHello": "Hi! I'm the Yotuel Roofing assistant. Got a leak, need an inspection or a free estimate? Ask me anything.", "aiFallback": "Good question. The best way is for Yotuel to see it in person, and the estimate is free. Call or text 954-549-5176.", "tr0a": "Free estimate", "tr0b": "We inspect your roof at no cost", "tr1a": "Licensed & insured", "tr1b": "Your home stays protected", "tr2a": "24 hours", "tr2b": "For leaks that can't wait", "s0tag": "Inspection", "s0h": "Leak \u003cem>detection\u003c/em>", "s0p": "A stain on your living-room ceiling is rarely right under the leak. We go up, inspect, and find the real source before we touch a single shingle.", "s0c0": "Roof inspection", "s0c1": "Leak detection", "s0c2": "Damage photos", "s0c3": "Insurance report", "s1tag": "Leaks", "s1h": "Leak \u003cem>sealing\u003c/em>", "s1p": "Vent pipes, skylights, chimneys and edges are where water gets in first. We strip the old sealant and reseal with material made for Florida sun and rain.", "s1c0": "Flashing", "s1c1": "Vent pipes", "s1c2": "Skylights", "s1c3": "Flat roofs", "s2tag": "Repair", "s2h": "Repair \u003cem>& installation\u003c/em>", "s2p": "Shingles lifted by wind, rotted decking, exposed felt. We match and replace what is damaged, or install a full new roof to Florida code.", "s2c0": "Shingles", "s2c1": "Clay tile", "s2c2": "Flat roofs", "s2c3": "New roofs", "s3tag": "Gutters", "s3h": "Gutter \u003cem>cleaning\u003c/em>", "s3p": "A gutter packed with leaves pushes water back onto your roof and walls. We clear it, check the downspouts and send the water away from your home.", "s3c0": "Gutters", "s3c1": "Downspouts", "s3c2": "Insulation", "s3c3": "Maintenance", "st0h": "Free inspection", "st0p": "We go up and photograph everything we find.", "st1h": "Diagnosis", "st1p": "We show you where the leak starts and explain the fix.", "st2h": "Repair", "st2p": "Clean work, quality materials, built to code.", "st3h": "Warranty", "st3p": "We walk it with you and leave the site clean.", "n0a": "$0", "n0b": "For the inspection and estimate", "n1a": "24\u003cem>/7\u003c/em>", "n1b": "Emergency service", "n2a": "2", "n2b": "Counties: Miami-Dade & Broward", "n3a": "100\u003cem>%\u003c/em>", "n3b": "Licensed and insured", "q0": "Is the estimate free?", "a0": "Yes. We go up, inspect, and give you a free estimate. Call 954-549-5176.", "q1": "I have a stain on my ceiling. Is it the roof?", "a1": "Often, but not always. We check above and below to find the real source.", "q2": "Are you licensed and insured?", "a2": "Yes, licensed and insured in Miami-Dade and Broward.", "q3": "What if water is coming in right now?", "a3": "Put down a bucket, move furniture and call. With 24-hour service we can tarp the area until the repair.", "opt0": "Leak", "opt1": "Roof inspection", "opt2": "Damaged shingles", "opt3": "New roof", "opt4": "Gutter cleaning", "opt5": "Something else", "sugs": ["Is the estimate free?", "I have a leak", "What areas do you cover?", "Do you do emergencies?"]}};
+const KB = [{"k": ["gratis", "free", "costo", "cost", "precio", "price", "cuanto", "how much", "estimad", "estimate", "cotiz", "quote"], "es": "El estimado es gratis: Yotuel sube, revisa su techo y le da el precio antes de empezar. Llame o envíe un texto al 954-549-5176.", "en": "The estimate is free: Yotuel inspects your roof and gives you a price before starting. Call or text 954-549-5176."}, {"k": ["gotera", "leak", "filtra", "agua", "water", "mancha", "stain", "humedad", "moist", "drip"], "es": "Para una gotera primero encontramos el origen, que casi nunca está justo arriba de la mancha. Luego sellamos o reparamos. Si está entrando agua ahora, llame al 954-549-5176: hay servicio 24 horas.", "en": "For a leak we first find the source, which is rarely right above the stain, then seal or repair it. If water is coming in now, call 954-549-5176: 24-hour service."}, {"k": ["area", "zona", "donde", "where", "miami", "broward", "hialeah", "lauderdale", "condado", "county", "cubren", "cover"], "es": "Trabajamos en Miami-Dade y Broward: Miami, Hialeah, Doral, Kendall, Fort Lauderdale, Hollywood, Pembroke Pines, Miramar y más.", "en": "We cover Miami-Dade and Broward: Miami, Hialeah, Doral, Kendall, Fort Lauderdale, Hollywood, Pembroke Pines, Miramar and more."}, {"k": ["emergencia", "emergency", "24", "noche", "night", "urgente", "urgent", "ahora", "now", "huracan", "hurricane", "tormenta", "storm"], "es": "Sí, hay servicio 24 horas para emergencias. Llame al 954-549-5176 y le ayudamos a proteger su casa hasta hacer la reparación.", "en": "Yes, there is 24-hour emergency service. Call 954-549-5176 and we will help protect your home until the repair."}, {"k": ["licencia", "license", "seguro", "insur", "certific"], "es": "Sí, Yotuel trabaja con licencia y seguro.", "en": "Yes, Yotuel is licensed and insured."}, {"k": ["canaleta", "gutter", "hojas", "leaves", "bajante", "downspout"], "es": "Limpiamos canaletas y bajantes para que el agua salga lejos de la casa y no regrese al techo.", "en": "We clean gutters and downspouts so water drains away from the house instead of back onto the roof."}, {"k": ["teja", "shingle", "tile", "nuevo", "new roof", "instal", "reemplaz", "replace", "plano", "flat"], "es": "Reparamos e instalamos shingles, tejas de barro y techos planos, del mismo color y según el código de la Florida.", "en": "We repair and install shingles, clay tile and flat roofs, color-matched and built to Florida code."}, {"k": ["inspec", "revis", "check", "seguro de casa", "insurance", "reporte", "report", "foto", "photo"], "es": "La inspección incluye fotos del daño, y le preparamos un reporte que puede usar con su seguro.", "en": "The inspection includes damage photos and a report you can use with your insurance."}, {"k": ["hola", "hello", "hi", "buenas", "buenos"], "es": "¡Hola! ¿En qué le puedo ayudar con su techo hoy?", "en": "Hi! How can I help with your roof today?"}, {"k": ["plomer", "plumb", "tuberia", "pipe", "destup", "clog", "calentador", "heater"], "es": "Yotuel también hace plomería: destupiciones, filtraciones y calentadores de agua, 24 horas. Mismo número: 954-549-5176.", "en": "Yotuel also does plumbing: drain unclogging, leaks and water heaters, 24 hours. Same number: 954-549-5176."}];
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  let lang = "es";
+  try { const s = localStorage.getItem("yotuel-lang"); if (s === "en" || s === "es") lang = s; } catch (e) {}
+  const t = (k) => (I18N[lang] && I18N[lang][k]) ?? I18N.es[k] ?? "";
+  function apply() {
+    document.documentElement.lang = lang;
+    $$("[data-i]").forEach((el) => { const v = t(el.dataset.i); if (el.hasAttribute("data-html")) el.innerHTML = v; else el.textContent = v; });
+    $$("[data-ph]").forEach((el) => el.placeholder = t(el.dataset.ph));
+    $$(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+    $("#f-name").placeholder = t("fNamePh"); $("#f-phone").placeholder = "(305) 000-0000"; $("#f-notes").placeholder = t("fNotesPh");
+    $$("#f-job option").forEach((o, i) => o.textContent = t("opt" + i));
+    $("#ai-in").placeholder = t("aiPh");
+    $("#sms-hero").href = "sms:+19545495176?&body=" + encodeURIComponent(t("waHello"));
+    document.title = t("title");
+    renderSugs();
+  }
+  $$(".lang button").forEach((b) => b.addEventListener("click", () => { lang = b.dataset.lang; try { localStorage.setItem("yotuel-lang", lang); } catch (e) {} apply(); }));
+
+  // nav background after the hero
+  const nav = $("#nav"), prog = $("#prog"); const onScroll = () => { nav.classList.toggle("solid", scrollY > 60); const m = document.documentElement.scrollHeight - innerHeight; prog.style.transform = "scaleX(" + (m > 0 ? Math.min(1, scrollY / m) : 0) + ")"; }; addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  // contact form -> text message
+  $("#form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("#f-name").value.trim(), phone = $("#f-phone").value.trim(), msg = $("#form-msg");
+    if (!name || !phone) { msg.textContent = t("fErr"); return; }
+    const txt = `${t("waHello")} ${t("waIam")} ${name} (${phone}). ${$("#f-job").selectedOptions[0].textContent}. ${$("#f-notes").value.trim()}`;
+    const url = "sms:+19545495176?&body=" + encodeURIComponent(txt);
+    msg.innerHTML = ""; const a = document.createElement("a"); a.href = url; a.textContent = t("fOk"); msg.append(a);
+    location.href = url;
+  });
+
+  // ---------- scroll film ----------
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce && window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    if (window.Lenis) { const lenis = new Lenis({ lerp: 0.09 }); lenis.on("scroll", ScrollTrigger.update); gsap.ticker.add((tt) => lenis.raf(tt * 1000)); gsap.ticker.lagSmoothing(0); }
+    gsap.from(".hero-in .wrap > *", { y: 46, opacity: 0, duration: 1.4, ease: "expo.out", stagger: 0.1, delay: 1.75, clearProps: "all" });
+    gsap.from(".hero video,.hero .poster", { scale: 1.16, duration: 2.6, ease: "power3.out", delay: 1.3 });
+    gsap.from(".nav > *", { y: -24, opacity: 0, duration: 1, ease: "expo.out", stagger: 0.06, delay: 1.9, clearProps: "all" });
+    gsap.to(".hero-in", { yPercent: -12, opacity: 0.15, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+    gsap.to(".hero video,.hero .poster", { yPercent: 12, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+    $$(".scene").forEach((sc) => {
+      const tl = gsap.timeline({ scrollTrigger: { trigger: sc, start: "top top", end: "+=140%", pin: true, scrub: 0.6 } });
+      tl.fromTo(sc.querySelector(".ph"), { clipPath: "inset(12% 10% 12% 10% round 28px)" }, { clipPath: "inset(0% 0% 0% 0% round 0px)", duration: 1, ease: "power2.out" }, 0)
+        .fromTo(sc.querySelector(".ph img"), { scale: 1.3 }, { scale: 1.02, duration: 3, ease: "none" }, 0)
+        .fromTo(sc.querySelector(".card"), { autoAlpha: 0, y: 70 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, 0.45)
+        .fromTo(sc.querySelector(".tag"), { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.6 }, 0.7)
+        .fromTo(sc.querySelector(".ghost"), { autoAlpha: 0, yPercent: 30 }, { autoAlpha: 1, yPercent: -18, duration: 2.6, ease: "none" }, 0.4)
+        .fromTo(sc.querySelector(".num"), { "--p": "0%" }, { "--p": "100%", duration: 2.4, ease: "none" }, 0.6)
+        .fromTo(sc.querySelectorAll(".chips li"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.08 }, 0.95)
+        .fromTo(sc.querySelector(".inset"), { autoAlpha: 0, y: 90, rotate: 4 }, { autoAlpha: 1, y: 0, rotate: 0, duration: 0.9, ease: "power3.out" }, 0.9)
+        .to({}, { duration: 0.6 });
+    });
+    gsap.fromTo(".inter h2", { scale: 0.86, opacity: 0.2 }, { scale: 1, opacity: 1, ease: "none", scrollTrigger: { trigger: ".inter", start: "top 80%", end: "center center", scrub: true } });
+    $$(".sh > *,.step,.nums div,.about .pic,.about > div > *,.faq > div:first-child,details,.contact .in > *,footer .giant").forEach((el) => gsap.from(el, { y: 40, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 88%" } }));
+    gsap.fromTo(".about .pic img", { scale: 1.2 }, { scale: 1, ease: "none", scrollTrigger: { trigger: ".about", start: "top bottom", end: "bottom top", scrub: true } });
+  }
+
+  // ---------- AI assistant ----------
+  const panel = $("#ai"), log = $("#ai-log"), input = $("#ai-in"), sugBox = $("#ai-sugs"), stateEl = $("#ai-state");
+  const history = []; let voiceOn = true, busy = false, greeted = false;
+  let sampleP = null, ttsP = null, dictP = null, dict = null, said = "", wired = false;
+  const capa = (n) => (window.claude && typeof window.claude.use === "function") ? window.claude.use(n).catch(() => null) : Promise.resolve(null);
+  function open() { panel.hidden = false; $(".ai-fab").hidden = true; if (!sampleP) { sampleP = capa("sample"); ttsP = capa("tts"); dictP = capa("dictation"); dictP.then((d) => { if (d) { dict = d; $("#ai-mic").hidden = false; } }); } if (!greeted) { greeted = true; bot(t("aiHello"), true); } setTimeout(() => input.focus(), 50); }
+  function close() { panel.hidden = true; $(".ai-fab").hidden = false; stopVoice(); }
+  $$("[data-open-ai]").forEach((b) => b.addEventListener("click", open));
+  $("#ai-close").addEventListener("click", close);
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) close(); });
+  $("#ai-voice").addEventListener("click", (e) => { voiceOn = !voiceOn; e.currentTarget.setAttribute("aria-pressed", String(voiceOn)); if (!voiceOn) stopVoice(); });
+  function renderSugs() { sugBox.innerHTML = ""; (I18N[lang].sugs || []).forEach((s) => { const b = document.createElement("button"); b.type = "button"; b.textContent = s; b.addEventListener("click", () => ask(s)); sugBox.append(b); }); }
+  function add(cls, text) { const d = document.createElement("div"); d.className = "msg " + cls; d.textContent = text; log.append(d); log.scrollTop = log.scrollHeight; return d; }
+  function withActions(d) { const acts = document.createElement("div"); acts.className = "acts"; const a = document.createElement("a"); a.href = "tel:+19545495176"; a.textContent = t("call") + " 954-549-5176"; const b = document.createElement("a"); b.href = "sms:+19545495176"; b.textContent = t("text"); b.className = "alt"; acts.append(a, b); d.append(acts); }
+  function bot(text, speakIt) { const d = add("bot", text); if (/954|texto|text|llam|call|estimad|estimate|cita|book/i.test(text)) withActions(d); history.push({ role: "assistant", content: text }); if (speakIt) speak(text); return d; }
+  // voice: Claude voice when the viewer has it, else the browser's own speech
+  async function speak(text) {
+    if (!voiceOn) return;
+    const clean = text.replace(/\s+/g, " ").slice(0, 600);
+    const tts = ttsP ? await ttsP : null;
+    if (tts) { try { stateEl.innerHTML = ""; stateEl.append(t("aiSpeaking")); stateEl.insertAdjacentHTML("beforeend", '<span class="wave"><i></i><i></i><i></i></span>'); await tts.speak(clean, { language: lang === "es" ? "es" : "en" }); } catch (e) { browserSpeak(clean); } finally { stateEl.textContent = t("aiOnline"); } return; }
+    browserSpeak(clean);
+  }
+  function browserSpeak(text) {
+    if (!("speechSynthesis" in window)) return;
+    try {
+      speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = lang === "es" ? "es-US" : "en-US"; u.rate = 1.02;
+      const vs = speechSynthesis.getVoices(); const v = vs.find((x) => x.lang && x.lang.toLowerCase().startsWith(lang) && /natural|premium|enhanced|google|paulina|m[oó]nica|samantha|ava/i.test(x.name)) || vs.find((x) => x.lang && x.lang.toLowerCase().startsWith(lang)); if (v) u.voice = v;
+      u.onstart = () => { stateEl.textContent = t("aiSpeaking"); stateEl.insertAdjacentHTML("beforeend", '<span class="wave"><i></i><i></i><i></i></span>'); };
+      u.onend = u.onerror = () => { stateEl.textContent = t("aiOnline"); };
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function stopVoice() { try { speechSynthesis.cancel(); } catch (e) {} if (ttsP) ttsP.then((x) => { try { x && x.stop(); } catch (e) {} }); }
+  // the local brain: answers from the business facts when Claude is not available to this viewer
+  function local(q) {
+    const s = q.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    let best = null, score = 0;
+    for (const item of KB) { let sc = 0; for (const w of item.k) if (s.includes(w)) sc += w.length > 4 ? 2 : 1; if (sc > score) { score = sc; best = item; } }
+    return best && score > 0 ? best[lang] : t("aiFallback");
+  }
+  async function ask(q) {
+    q = q.trim(); if (!q || busy) return; busy = true; add("you", q); history.push({ role: "user", content: q }); input.value = "";
+    const typing = add("bot typing", t("aiTyping"));
+    const sample = sampleP ? await sampleP : null;
+    let answer = null;
+    if (sample) {
+      try {
+        const sys = I18N.es.aiSystem + "\n\nResponde en " + (lang === "es" ? "español" : "English") + ". Máximo 3 frases cortas, tono cálido de Miami. No inventes precios exactos; ofrece el estimado gratis y llamar o enviar un texto al 954-549-5176. Nunca menciones WhatsApp.\n\nDatos del negocio:\n" + KB.map((x) => "- " + x.es).join("\n");
+        const msgs = [{ role: "user", content: sys + "\n\n(Conversación sigue.)" }, { role: "assistant", content: "Entendido." }, ...history.slice(-10)];
+        const r = await sample(msgs, { modelTier: "quick", cache: false, onText: ({ text }) => { typing.classList.remove("typing"); typing.textContent = text; log.scrollTop = log.scrollHeight; } });
+        answer = (r && r.text || "").trim() || null;
+      } catch (e) { answer = null; }
+    }
+    if (!answer) { await new Promise((r) => setTimeout(r, 450)); answer = local(q); }
+    typing.remove(); bot(answer, true); busy = false;
+  }
+  $("#ai-form").addEventListener("submit", (e) => { e.preventDefault(); ask(input.value); });
+  $("#ai-mic").addEventListener("click", () => {
+    const btn = $("#ai-mic"), d = dict; if (!d) return;
+    if (btn.getAttribute("aria-pressed") === "true") { d.stop().catch(() => {}); return; }
+    said = "";
+    d.start().catch(() => { btn.hidden = true; });
+    if (!wired) {
+      wired = true;
+      d.onPartial(({ text }) => { input.value = (said + " " + text).trim(); });
+      d.onFinal(({ text }) => { said = (said + " " + text).trim(); input.value = said; });
+      d.onState(({ state }) => { btn.setAttribute("aria-pressed", String(state === "listening")); if (state === "idle" && said) { const q = said; said = ""; ask(q); } });
+    }
+  });
+  apply();
+})();
+</script>
+</body>
+</html>
