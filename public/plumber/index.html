@@ -521,7 +521,10 @@ const el = $(`[data-lock="${k}"]`), img = el.parentElement.querySelector("img");
 const nw = img.naturalWidth || 3, nh = img.naturalHeight || 2;
 const s = Math.max(vw / nw, vh / nh), dw = nw * s, dh = nh * s, ox = (vw - dw) / 2, oy = (vh - dh) / 2;
 const [x1, y1, x2, y2] = L.box;
-Object.assign(el.style, { left: ox + x1 * dw + "px", top: oy + y1 * dh + "px", width: (x2 - x1) * dw + "px", height: (y2 - y1) * dh + "px" });
+let w = Math.min((x2 - x1) * dw, vw * (vw < 821 ? 0.6 : 0.26)), h = Math.min((y2 - y1) * dh, vh * (vw < 821 ? 0.3 : 0.42));
+const cx = ox + (x1 + x2) / 2 * dw, cy = oy + (y1 + y2) / 2 * dh, xmax = vw < 821 ? vw * 0.94 : vw * 0.6, ymax = vw < 821 ? vh * 0.5 : vh * 0.84;
+const l = Math.max(vw * 0.06, Math.min(cx - w / 2, xmax - w)), t = Math.max(vh * 0.16, Math.min(cy - h / 2, ymax - h));
+Object.assign(el.style, { left: l + "px", top: t + "px", width: w + "px", height: h + "px" });
 }
 }
 $$(".shot img").forEach((im) => im.addEventListener("load", placeLocks));
