@@ -2,640 +2,1435 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PLW Plumbing Co. | Pipe, Leak &amp; Water</title>
 <meta name="description" content="PLW Plumbing Co. Licensed plumbers and handymen since 2009. Leaks, drains, water heaters and home repairs, with a flat price before work starts.">
-<link rel="preconnect" href="https://images.unsplash.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <style>
-/* One pinned film of real photographs, scrubbed by scroll like a keynote. Copper for the brand, ice blue for water and the scanner. */
+/* Layout: one pinned film. A cut-away luxury home at night pans behind Rico, a
+   tradesman who walks room to room; an x-ray scan reveals the pipes behind each wall.
+   Single dark look on purpose: warm interior light, copper for the crew, ice blue for water. */
 :root{
---ink:#070708;--ink2:#0d0d0f;--panel:rgba(14,14,16,.58);--hair:rgba(255,240,225,.13);
---fg:#f5f0e8;--muted:#a59f96;--copper:#d9783e;--copper2:#f2a46c;--ice:#86dcff;--ok:#8cf0bd;
---display:"Manrope",system-ui,sans-serif;--serif:"Instrument Serif",Georgia,serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
-color-scheme:dark}
-*{box-sizing:border-box}
+  --ink:#08090b; --ink-2:#0e1013; --panel:rgba(18,19,22,.66); --hair:rgba(255,240,220,.12);
+  --fg:#f4efe7; --muted:#a39d94; --copper:#e2894b; --copper-2:#f3a66f; --ice:#7fdcff; --ok:#86f0b9;
+  --display:"Manrope","Inter",system-ui,sans-serif;
+  --serif:"Instrument Serif","Times New Roman",Georgia,serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
 html{background:var(--ink)}
-body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--display);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-a{color:inherit;text-decoration:none}
+body{background:var(--ink);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
 button,input,select,textarea{font:inherit;color:inherit}
-img{display:block;max-width:100%}
-:focus-visible{outline:2px solid var(--copper2);outline-offset:3px;border-radius:6px}
-.wrap{max-width:1240px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
-.eyebrow{white-space:nowrap;font-family:var(--mono);font-size:11.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:12px;margin:0}
-.eyebrow::before{content:"";width:28px;height:1px;background:var(--copper2)}
-.serif{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--copper2);letter-spacing:-.005em}
-.grain{position:fixed;inset:-50%;z-index:60;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
-background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");animation:grain 1.1s steps(6) infinite}
-@keyframes grain{0%,100%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}}
+:focus-visible{outline:2px solid var(--copper-2);outline-offset:3px;border-radius:8px}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* film grain over everything */
+.grain{position:fixed;inset:-50%;z-index:40;pointer-events:none;opacity:.075;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation:grain 1.2s steps(6) infinite}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}100%{transform:translate(0,0)}}
+
 /* intro */
-.intro{position:fixed;inset:0;z-index:80;background:var(--ink);display:grid;place-items:center;transition:opacity .9s ease,visibility .9s}
-.intro.done{opacity:0;visibility:hidden}
-.intro-in{display:grid;justify-items:center;gap:22px}
-.intro .mark{width:96px;height:96px}
-.intro .mark .pipe{stroke-dasharray:180;stroke-dashoffset:180;animation:draw 1.6s cubic-bezier(.7,0,.2,1) .2s forwards}
-.intro .mark .drop{opacity:0;transform:translateY(-8px);animation:dropin .6s ease 1.5s forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-@keyframes dropin{to{opacity:1;transform:none}}
-.intro-word{font-weight:800;font-size:30px;letter-spacing:.32em;padding-left:.32em}
-.intro-bar{width:200px;height:1px;background:rgba(255,240,225,.14);position:relative;overflow:hidden}
-.intro-bar i{position:absolute;inset:0;background:var(--copper2);transform-origin:left;transform:scaleX(0);transition:transform .4s ease}
-.intro small{font-family:var(--mono);font-size:10.5px;letter-spacing:.32em;color:var(--muted)}
+.intro{position:fixed;inset:0;z-index:50;background:var(--ink);display:grid;place-items:center;animation:introOut .8s ease 2.6s forwards}
+.intro div{display:grid;gap:14px;justify-items:center}
+.intro b{font-family:var(--display);font-weight:800;font-size:44px;letter-spacing:.14em}
+.intro i{display:block;width:160px;height:1px;background:rgba(255,240,220,.15);overflow:hidden;position:relative}
+.intro i::after{content:"";position:absolute;inset:0;background:var(--copper);transform-origin:left;animation:load 1.3s cubic-bezier(.7,0,.2,1) forwards}
+.intro small{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
+.intro.done{animation:introOut .7s ease forwards}
+@keyframes load{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes introOut{to{opacity:0;visibility:hidden}}
+
 /* nav */
-.nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;gap:20px;padding:calc(env(safe-area-inset-top,0px) + 18px) max(26px,env(safe-area-inset-right,0px)) 18px max(26px,env(safe-area-inset-left,0px));transition:background .4s,backdrop-filter .4s,padding .4s}
-.nav.solid{background:rgba(7,7,8,.72);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding-top:calc(env(safe-area-inset-top,0px) + 12px);padding-bottom:12px;box-shadow:0 1px 0 var(--hair)}
-.logo{display:flex;align-items:center;gap:12px}
-.logo svg{width:40px;height:40px;flex:none}
-.logo b{display:block;font-weight:800;font-size:19px;letter-spacing:.2em;line-height:1}
-.logo small{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.3em;color:var(--muted);margin-top:5px}
-.links{margin:0 auto;display:flex;gap:4px}
-.links button,.links a{background:none;border:0;cursor:pointer;padding:9px 15px;border-radius:999px;color:#cfc8be;font-size:14px;transition:background .2s,color .2s}
-.links button:hover,.links a:hover{background:rgba(255,240,225,.08);color:var(--fg)}
-.nav-phone{font-family:var(--mono);font-size:13px;color:var(--fg);letter-spacing:.04em}
-.btn{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;cursor:pointer;border-radius:999px;padding:14px 24px;font-weight:700;font-size:15px;transition:transform .25s,box-shadow .25s,background .25s}
-.btn svg{transition:transform .25s}.btn:hover svg{transform:translateX(3px)}
-.btn-cu{background:linear-gradient(180deg,#f3a86f,#d26f33);color:#1a0b03;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 14px 34px -12px rgba(217,120,62,.95)}
-.btn-cu:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 20px 40px -12px rgba(217,120,62,1)}
-.btn-ghost{background:rgba(255,240,225,.06);box-shadow:0 0 0 1px rgba(255,240,225,.25) inset;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.btn-ghost:hover{background:rgba(255,240,225,.12)}
-.nav .btn{padding:11px 19px;font-size:14px}
-@media (max-width:980px){.links,.nav-phone{display:none}.nav .btn{margin-left:auto}}
-/* film */
-.film{position:relative;height:100vh;height:100svh;min-height:540px;overflow:hidden;background:#000;isolation:isolate}
-.shot{position:absolute;inset:0;overflow:hidden;opacity:0;visibility:hidden}
-.shot .sc{position:absolute;inset:0;will-change:transform}
-.shot img{width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
-.shot[data-s="hero"]{opacity:1;visibility:visible}
-.grade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(7,7,8,.78) 0%,rgba(7,7,8,.15) 26%,rgba(7,7,8,.1) 60%,rgba(7,7,8,.88) 100%),radial-gradient(120% 90% at 50% 50%,transparent 50%,rgba(0,0,0,.6) 100%)}
-.tint{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(115deg,rgba(217,120,62,.16),rgba(20,60,90,.18));mix-blend-mode:soft-light}
-.side{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(7,7,8,.85) 0%,rgba(7,7,8,.45) 35%,transparent 60%)}
-.bars i{position:absolute;left:0;right:0;height:0;background:#000;z-index:3}
-.bars i:first-child{top:0}.bars i:last-child{bottom:0}
-.flash{position:absolute;inset:0;z-index:4;background:#fff;opacity:0;pointer-events:none;mix-blend-mode:overlay}
-.lock{position:absolute;z-index:1;pointer-events:none;opacity:0;visibility:hidden}
-.lock svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.lock .scan{position:absolute;top:0;bottom:0;left:0;width:22%;background:linear-gradient(90deg,rgba(134,220,255,0),rgba(134,220,255,.28) 80%,rgba(230,250,255,.9));opacity:0}
-.lock .tag{position:absolute;left:0;bottom:calc(100% + 12px);white-space:nowrap;font-family:var(--mono);font-size:12px;letter-spacing:.12em;padding:7px 12px 7px 26px;border-radius:999px;background:rgba(7,7,8,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.lock .tag::before{content:"";position:absolute;left:11px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
-.lock .ta{color:var(--copper2);box-shadow:0 0 0 1px rgba(242,164,108,.55) inset}
-.lock .tb{color:var(--ok);box-shadow:0 0 0 1px rgba(140,240,189,.55) inset;opacity:0}
-.lock .pa{stroke:var(--copper2)}.lock .pb{stroke:var(--ok);opacity:0}
-/* film text */
-.hero{position:absolute;z-index:6;left:max(28px,6vw);bottom:max(70px,12vh);width:min(760px,62vw)}
-.hero h1{font-weight:700;font-size:clamp(2.9rem,6.4vw,6.6rem);line-height:.94;letter-spacing:-.045em;margin:22px 0 22px;text-wrap:balance}
-.hero h1 .serif{display:block;font-size:1.04em}
-.hero p{color:#d4ccc1;font-size:clamp(15px,1.25vw,18px);max-width:46ch;margin:0 0 30px}
-.hero-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.hero-facts{position:absolute;z-index:6;right:max(28px,5vw);bottom:max(70px,12vh);display:grid;gap:18px;text-align:right}
-.hero-facts div{font-size:12.5px;color:var(--muted);line-height:1.35}
-.hero-facts strong{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--fg)}
-.cue{position:absolute;z-index:6;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font-family:var(--mono);font-size:10px;letter-spacing:.32em;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px}
-.cue i{width:1px;height:40px;background:linear-gradient(var(--copper2),transparent);animation:cue 2s ease-in-out infinite;transform-origin:top}
-@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
-.chap{position:absolute;z-index:6;left:max(28px,6vw);top:50%;transform:translateY(-50%);pointer-events:none;opacity:0;visibility:hidden}
-.chap .num{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--copper2);margin-bottom:18px}
-.chap h2{margin:0;font-weight:800;font-size:clamp(3.2rem,9.5vw,10rem);line-height:.86;letter-spacing:-.055em}
-.chap h2 .serif{font-weight:400;display:block;font-size:.92em;letter-spacing:-.02em}
-.chap .ln{display:block;overflow:hidden;padding-bottom:.06em}
-.chap .ln > span{display:block}
-.card{position:absolute;z-index:7;right:max(28px,5vw);top:50%;transform:translateY(-50%);width:min(420px,34vw);padding:28px;border-radius:22px;background:var(--panel);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);box-shadow:0 0 0 1px var(--hair) inset,0 1px 0 rgba(255,255,255,.07) inset,0 50px 100px -30px rgba(0,0,0,.9);opacity:0;visibility:hidden}
-.card .k{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0}
-.card .k b{color:var(--copper2);font-weight:500}
-.card .k::after{content:"";flex:1;height:1px;background:var(--hair)}
-.card h3{font-weight:700;font-size:clamp(1.7rem,2.5vw,2.3rem);line-height:1.02;letter-spacing:-.035em;margin:16px 0 12px}
-.card p{margin:0 0 18px;color:#d2cbc1;font-size:15px}
-.card ul{list-style:none;padding:0;margin:0 0 20px;display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
-.card li{font-size:13.5px;color:#e2dbd0;display:flex;gap:8px;align-items:baseline}
-.card li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--copper2);flex:none;transform:translateY(-2px)}
-.card .meta{display:flex;justify-content:space-between;gap:12px;padding-top:16px;border-top:1px solid var(--hair);font-size:12.5px;color:var(--muted)}
-.card .meta strong{display:block;font-size:17px;color:var(--fg);letter-spacing:-.01em}
-.status{position:relative;height:42px;margin-bottom:18px;border-radius:12px;background:rgba(0,0,0,.35);box-shadow:0 0 0 1px rgba(255,240,225,.07) inset;font-family:var(--mono);font-size:12px;letter-spacing:.06em;overflow:hidden}
+.nav{position:fixed;inset:0 0 auto;z-index:20;display:flex;align-items:center;gap:16px;padding-top:calc(env(safe-area-inset-top,0px) + 16px);padding-bottom:16px;
+  padding-left:max(22px,env(safe-area-inset-left,0px));padding-right:max(22px,env(safe-area-inset-right,0px));pointer-events:none}
+.nav > *{pointer-events:auto}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+.brand b{font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.12em;display:block;line-height:1}
+.brand small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase;margin-top:4px}
+.pill{margin:0 auto;display:flex;gap:2px;padding:5px;border-radius:999px;background:rgba(20,21,24,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 0 0 1px var(--hair) inset}
+.pill button,.pill a{background:none;border:0;cursor:pointer;padding:8px 16px;border-radius:999px;color:var(--muted);font-size:13.5px;text-decoration:none;transition:color .2s,background .2s}
+.pill button:hover,.pill a:hover{color:var(--fg);background:rgba(255,240,220,.07)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;cursor:pointer;border-radius:999px;padding:13px 22px;font-weight:600;font-size:15px;text-decoration:none;transition:transform .25s,box-shadow .25s,background .25s}
+.btn svg{transition:transform .25s}
+.btn:hover svg{transform:translateX(3px)}
+.btn-copper{background:linear-gradient(180deg,#f0a066,#d9773a);color:#1c0e05;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 12px 30px -12px rgba(226,137,75,.9)}
+.btn-copper:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 18px 36px -12px rgba(226,137,75,1)}
+.btn-line{background:rgba(255,240,220,.04);color:var(--fg);box-shadow:0 0 0 1px rgba(255,240,220,.22) inset}
+.btn-line:hover{background:rgba(255,240,220,.1)}
+.nav .btn{padding:10px 18px;font-size:14px}
+@media (max-width:860px){.pill{display:none}.nav .btn{margin-left:auto}}
+
+/* stage */
+.journey{position:relative}
+.stage{position:relative;height:100vh;height:100svh;min-height:520px;overflow:hidden;background:var(--ink);isolation:isolate}
+.sky{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(60% 45% at 72% 30%,rgba(127,160,220,.16),transparent 70%),
+  radial-gradient(50% 40% at 15% 90%,rgba(226,137,75,.10),transparent 70%),
+  linear-gradient(#07090d,#0b0e13 60%,#08090b)}
+.sky::before{content:"";position:absolute;inset:0;opacity:.6;background-image:
+  radial-gradient(1px 1px at 12% 18%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 28% 8%,#fff 50%,transparent 51%),radial-gradient(1.4px 1.4px at 46% 22%,#fff 50%,transparent 51%),
+  radial-gradient(1px 1px at 63% 12%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 81% 26%,#fff 50%,transparent 51%),radial-gradient(1.3px 1.3px at 92% 9%,#fff 50%,transparent 51%),
+  radial-gradient(1px 1px at 6% 40%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 37% 35%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 74% 41%,#fff 50%,transparent 51%)}
+.fg{position:absolute;inset:0;z-index:4;pointer-events:none}
+.fg i{position:absolute;top:-10%;height:120%;width:7vw;min-width:46px;background:linear-gradient(90deg,#050506,#141210 45%,#050506);filter:blur(10px);opacity:0}
+.shade{position:absolute;inset:0;z-index:5;pointer-events:none;background:
+  linear-gradient(var(--ink) 0,rgba(8,9,11,0) 14%,rgba(8,9,11,0) 82%,var(--ink) 100%),
+  radial-gradient(120% 90% at 50% 50%,transparent 55%,rgba(0,0,0,.55) 100%)}
+
+/* hero copy */
+.hero-copy{position:absolute;z-index:6;left:max(28px,6.5vw);top:50%;transform:translateY(-44%);width:min(620px,48vw)}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:12px;margin:0}
+.kicker::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px var(--ok);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.hero-copy h1{font-family:var(--display);font-weight:700;font-size:clamp(2.7rem,5.6vw,5.6rem);line-height:.95;letter-spacing:-.035em;margin:22px 0 22px;text-wrap:balance}
+.hero-copy h1 em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em;color:var(--copper-2);display:block}
+.hero-copy p{color:var(--muted);font-size:clamp(15px,1.2vw,17.5px);max-width:44ch;margin:0 0 30px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.phone{font-family:var(--mono);font-size:13.5px;color:var(--fg);user-select:all;letter-spacing:.04em}
+.hero-meta{display:flex;gap:28px;margin-top:40px;padding-top:22px;border-top:1px solid var(--hair);max-width:520px}
+.hero-meta div{font-size:12.5px;color:var(--muted);line-height:1.4}
+.hero-meta strong{display:block;font-family:var(--display);font-size:20px;color:var(--fg);letter-spacing:-.01em;margin-bottom:2px}
+.scroll-hint{position:absolute;z-index:6;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font-family:var(--mono);font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px}
+.scroll-hint i{width:1px;height:44px;background:linear-gradient(var(--copper),transparent);animation:drop 2s ease-in-out infinite;transform-origin:top}
+@keyframes drop{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* job cards */
+.card{position:absolute;z-index:7;right:max(28px,5vw);top:50%;margin-top:-215px;width:min(410px,33vw);padding:28px 28px 22px;border-radius:20px;background:var(--panel);
+  -webkit-backdrop-filter:blur(22px) saturate(1.2);backdrop-filter:blur(22px) saturate(1.2);box-shadow:0 0 0 1px var(--hair) inset,0 1px 0 rgba(255,255,255,.06) inset,0 40px 90px -30px rgba(0,0,0,.85);opacity:0;visibility:hidden}
+.card-k{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);display:flex;gap:12px;align-items:center;margin:0}
+.card-k b{color:var(--copper-2);font-weight:500}
+.card-k::after{content:"";flex:1;height:1px;background:var(--hair)}
+.card h2{font-family:var(--display);font-weight:700;font-size:clamp(1.8rem,2.7vw,2.5rem);line-height:1.02;letter-spacing:-.03em;margin:16px 0 12px;text-wrap:balance}
+.card h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--copper-2)}
+.card p.d{margin:0 0 18px;color:#cfc8be;font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:0 0 20px}
+.chips li{font-size:12.5px;padding:5px 11px;border-radius:999px;box-shadow:0 0 0 1px rgba(255,240,220,.16) inset;color:#ddd5ca}
+.status{position:relative;height:40px;border-radius:12px;background:rgba(0,0,0,.32);box-shadow:0 0 0 1px rgba(255,240,220,.06) inset;font-family:var(--mono);font-size:12px;letter-spacing:.04em;overflow:hidden}
 .status span{position:absolute;inset:0;display:flex;align-items:center;gap:10px;padding:0 14px}
-.status span::before{content:"";width:7px;height:7px;border-radius:50%;flex:none;background:currentColor;box-shadow:0 0 10px currentColor}
-.status .sa{color:var(--copper2)}.status .sb{color:var(--ok);opacity:0}
-.status .sa::before{animation:blink 1s infinite}
-@keyframes blink{50%{opacity:.3}}
-.rail{position:absolute;z-index:8;left:max(18px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:2px;opacity:0;visibility:hidden}
-.rail::before{content:"";position:absolute;left:4px;top:12px;bottom:12px;width:1px;background:rgba(255,240,225,.18)}
-.rail .fill{position:absolute;left:4px;top:12px;width:1px;height:0;background:var(--copper2)}
-.rail button{position:relative;display:flex;align-items:center;gap:12px;background:none;border:0;padding:7px 0;cursor:pointer;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase}
-.rail button::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 1px rgba(255,240,225,.45) inset;transition:.3s}
-.rail button.on{color:var(--fg)}.rail button.on::before{background:var(--copper2);box-shadow:0 0 12px var(--copper)}
+.status span::before{content:"";width:7px;height:7px;border-radius:50%;flex:none}
+.status .sa{color:#f6b98e}.status .sa::before{background:var(--copper);box-shadow:0 0 10px var(--copper);animation:pulse 1s infinite}
+.status .sb{color:var(--ok);opacity:0}.status .sb::before{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin:6px 0 18px;background:var(--hair);border-radius:14px;overflow:hidden}
+.stats div{padding:14px 14px 12px;background:rgba(14,15,18,.92)}
+.stats strong{display:block;font-family:var(--display);font-size:17px;letter-spacing:-.01em;line-height:1.15}
+.stats small{color:var(--muted);font-size:12.5px;line-height:1.35;display:block;margin-top:4px}
+
+/* HUD */
+.rail{position:absolute;z-index:8;left:max(20px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;opacity:0;visibility:hidden}
+.rail::before{content:"";position:absolute;left:4px;top:10px;bottom:10px;width:1px;background:rgba(255,240,220,.16)}
+.rail .fill{position:absolute;left:4px;top:10px;width:1px;height:0;background:var(--copper-2)}
+.rail button{position:relative;display:flex;align-items:center;gap:12px;background:none;border:0;padding:6px 0;cursor:pointer;color:var(--muted);font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase}
+.rail button::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 1px rgba(255,240,220,.4) inset;transition:.3s}
+.rail button.on{color:var(--fg)}
+.rail button.on::before{background:var(--copper-2);box-shadow:0 0 12px var(--copper)}
 .rail button span{opacity:0;transform:translateX(-6px);transition:.3s}
 .rail button.on span,.rail:hover button span{opacity:1;transform:none}
-.readout{position:absolute;z-index:8;left:max(28px,6vw);bottom:calc(24px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:#ddd5ca;opacity:0;visibility:hidden}
-.readout i{width:26px;height:1px;background:var(--copper2)}
-.tc{position:absolute;z-index:8;right:max(28px,5vw);bottom:calc(22px + env(safe-area-inset-bottom,0px));font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);opacity:0;visibility:hidden}
-.tc b{color:var(--fg);font-weight:500}
-.gauge{position:absolute;z-index:7;left:max(28px,6vw);top:50%;transform:translateY(-50%);opacity:0;visibility:hidden;font-family:var(--mono);pointer-events:none}
-.gauge strong{display:block;font-family:var(--display);font-weight:700;font-size:clamp(3rem,6vw,5.4rem);letter-spacing:-.05em;line-height:1;color:var(--ice);text-shadow:0 0 40px rgba(134,220,255,.45)}
-.gauge small{font-size:11px;letter-spacing:.26em;color:#d9e8ef}
-/* sections after the film */
-section.block{padding:clamp(90px,12vw,150px) 0}
-.h2{font-weight:700;font-size:clamp(2.3rem,4.6vw,4.4rem);line-height:.98;letter-spacing:-.045em;margin:18px 0 0;text-wrap:balance}
-.lede{color:var(--muted);font-size:clamp(15.5px,1.2vw,18px);max-width:52ch;margin:22px 0 0}
-.numbers{position:relative;overflow:hidden;border-block:1px solid var(--hair)}
-.numbers .bg{position:absolute;inset:-10% 0;z-index:0}
-.numbers .bg img{width:100%;height:100%;object-fit:cover;opacity:.32}
-.numbers .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--ink) 10%,rgba(7,7,8,.6) 60%,rgba(7,7,8,.85))}
-.numbers .wrap{position:relative;z-index:1}
-.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin-top:60px;background:var(--hair);border-radius:20px;overflow:hidden}
-.stat-grid div{padding:30px 26px;background:rgba(10,10,12,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.stat-grid strong{display:block;font-size:clamp(2.3rem,3.6vw,3.4rem);font-weight:700;letter-spacing:-.05em;line-height:1}
-.stat-grid strong em{font-style:normal;color:var(--copper2)}
-.stat-grid small{display:block;color:var(--muted);font-size:14px;margin-top:10px}
-.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:64px}
-.step{position:relative;border-radius:20px;overflow:hidden;min-height:440px;display:flex;flex-direction:column;justify-content:flex-end;padding:26px;box-shadow:0 0 0 1px var(--hair) inset}
-.step .ph{position:absolute;inset:0;z-index:0}
-.step .ph img{width:100%;height:100%;object-fit:cover;transform:scale(1.08);transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
-.step:hover .ph img{transform:scale(1.14)}
-.step .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,7,8,.1) 20%,rgba(7,7,8,.92) 85%)}
-.step > *:not(.ph){position:relative;z-index:1}
-.step .n{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--copper2)}
-.step h3{font-size:24px;letter-spacing:-.03em;margin:10px 0 8px;line-height:1.1}
-.step p{color:#cfc8be;font-size:14.5px;margin:0}
-.about{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(40px,6vw,90px);align-items:center}
-.about-ph{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/5;box-shadow:0 0 0 1px var(--hair) inset}
-.about-ph img{width:100%;height:118%;object-fit:cover}
-.about-ph .badge{position:absolute;left:20px;bottom:20px;right:20px;display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:16px;background:rgba(10,10,12,.66);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 0 0 1px var(--hair) inset}
-.about-ph .badge svg{width:42px;height:42px;flex:none}
-.about-ph .badge b{display:block;font-size:15px}.about-ph .badge small{color:var(--muted);font-size:12.5px}
-.facts{margin-top:36px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--hair);border-radius:18px;overflow:hidden}
-.facts div{background:var(--ink2);padding:18px 20px}
-.facts small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-.facts b{display:block;font-size:16px;margin-top:6px;letter-spacing:-.01em}
-.promise{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:60px}
-.promise div{padding:30px;border-radius:20px;background:linear-gradient(180deg,rgba(255,240,225,.05),rgba(255,240,225,.01));box-shadow:0 0 0 1px var(--hair) inset}
-.promise svg{width:30px;height:30px;color:var(--copper2)}
-.promise h3{font-size:21px;letter-spacing:-.025em;margin:18px 0 8px}
-.promise p{color:var(--muted);margin:0;font-size:15px}
-.book{position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center}
-.book .bg{position:absolute;inset:-8% 0;z-index:0}
-.book .bg img{width:100%;height:100%;object-fit:cover}
-.book .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,7,8,.92) 0%,rgba(7,7,8,.7) 45%,rgba(7,7,8,.35) 100%)}
-.book .wrap{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:60px;align-items:center;width:100%}
-.contact{margin-top:34px;display:grid;gap:14px;font-size:15px;color:#d8d0c5}
-.contact div{display:flex;gap:14px;align-items:center}
-.contact svg{width:18px;height:18px;color:var(--copper2);flex:none}
-.form{padding:32px;border-radius:24px;background:var(--panel);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);box-shadow:0 0 0 1px var(--hair) inset,0 50px 100px -30px rgba(0,0,0,.9);display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form h3{grid-column:1/-1;margin:0 0 6px;font-size:24px;letter-spacing:-.03em}
-.form label{display:grid;gap:7px;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);min-width:0}
+.readout{position:absolute;z-index:8;left:max(28px,6.5vw);bottom:calc(26px + env(safe-area-inset-bottom,0px));font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:#d8d1c6;display:flex;gap:12px;align-items:center;opacity:0;visibility:hidden}
+.readout i{width:24px;height:1px;background:var(--copper-2)}
+.count{position:absolute;z-index:8;right:max(28px,5vw);bottom:calc(22px + env(safe-area-inset-bottom,0px));font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.1em;color:var(--muted);opacity:0;visibility:hidden}
+.count b{color:var(--fg);font-size:22px;letter-spacing:-.02em;margin-right:4px}
+
+/* finale */
+.finale{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:flex-end;padding:96px max(28px,6vw) 40px;pointer-events:none}
+.book{pointer-events:auto;width:min(480px,100%);padding:32px;border-radius:22px;background:var(--panel);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);box-shadow:0 0 0 1px var(--hair) inset,0 1px 0 rgba(255,255,255,.06) inset,0 50px 100px -30px rgba(0,0,0,.9);opacity:0;visibility:hidden}
+.book h2{font-family:var(--display);font-weight:700;font-size:clamp(2rem,3.1vw,2.8rem);line-height:1;letter-spacing:-.035em;margin:14px 0 10px;text-wrap:balance}
+.book h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--copper-2)}
+.book > p{color:var(--muted);margin:0 0 22px;font-size:15px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form label{display:grid;gap:7px;font-size:10.5px;font-family:var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);min-width:0}
 .form .full{grid-column:1/-1}
-.form input,.form select,.form textarea{width:100%;border:0;border-radius:12px;padding:13px 14px;background:rgba(0,0,0,.4);box-shadow:0 0 0 1px rgba(255,240,225,.15) inset;font-family:var(--display);font-size:15px;letter-spacing:0;text-transform:none;color:var(--fg)}
-.form textarea{min-height:84px;resize:vertical}
-.form input:focus,.form select:focus,.form textarea:focus{outline:none;box-shadow:0 0 0 1.5px var(--copper2) inset,0 0 0 4px rgba(217,120,62,.16)}
-.form-msg{grid-column:1/-1;margin:0;min-height:1.3em;font-size:14px;color:var(--ok)}
-.faq{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:60px}
-.faq details{border-top:1px solid var(--hair);padding:22px 0}
+.form input,.form select,.form textarea{width:100%;box-sizing:border-box;background:rgba(0,0,0,.35);border:0;border-radius:12px;padding:13px 14px;box-shadow:0 0 0 1px rgba(255,240,220,.14) inset;font-family:var(--body);font-size:15px;letter-spacing:0;text-transform:none;color:var(--fg)}
+.form textarea{resize:vertical;min-height:70px}
+.form input:focus,.form select:focus,.form textarea:focus{outline:none;box-shadow:0 0 0 1.5px var(--copper-2) inset,0 0 0 4px rgba(226,137,75,.14)}
+.form-msg{grid-column:1/-1;margin:0;font-size:14px;color:var(--ok);min-height:1.2em}
+
+/* after the film */
+.faq{padding-block:130px 100px;max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:56px}
+.faq h2{font-family:var(--display);font-weight:700;font-size:clamp(2.1rem,3.6vw,3.3rem);line-height:1;letter-spacing:-.035em;margin:16px 0 0;text-wrap:balance}
+.faq h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--copper-2)}
+.faq details{border-top:1px solid var(--hair);padding:20px 0}
 .faq details:last-child{border-bottom:1px solid var(--hair)}
-.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px;font-weight:600;font-size:18px}
+.faq summary{cursor:pointer;font-weight:600;font-size:17px;list-style:none;display:flex;justify-content:space-between;gap:16px}
 .faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"+";font-family:var(--mono);font-size:22px;line-height:1;color:var(--copper2);transition:transform .3s}
+.faq summary::after{content:"+";font-family:var(--mono);color:var(--copper-2);font-size:20px;line-height:1;transition:transform .3s}
 .faq details[open] summary::after{transform:rotate(45deg)}
 .faq details p{color:var(--muted);margin:12px 0 0;max-width:62ch}
-footer{position:relative;overflow:hidden;border-top:1px solid var(--hair);padding:80px 0 calc(28px + env(safe-area-inset-bottom,0px));background:linear-gradient(var(--ink),#0b0a09)}
-.foot{display:grid;grid-template-columns:1.3fr repeat(3,minmax(0,1fr));gap:36px;font-size:14px;color:var(--muted)}
-.foot h4{margin:0 0 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--fg);font-weight:500}
-.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.foot p{margin:16px 0 0;max-width:32ch}
-.giant{display:flex;justify-content:center;margin:70px 0 0;user-select:none}
-.giant svg{width:min(1100px,100%);height:auto}
-.fine{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:26px;font-size:12px;color:var(--muted)}
-.rv{opacity:0;transform:translateY(40px)}
+footer{position:relative;overflow:hidden;padding-block:70px calc(30px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--hair);background:linear-gradient(var(--ink),var(--ink-2))}
+.foot-grid{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px;font-size:14px;color:var(--muted)}
+.foot-grid h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--fg);margin:0 0 12px;font-weight:500}
+.foot-grid ul{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+.giant{font-family:var(--display);font-weight:800;font-size:clamp(7rem,30vw,26rem);line-height:.78;letter-spacing:-.04em;text-align:center;margin:60px 0 0;color:transparent;
+  background:linear-gradient(180deg,rgba(243,166,111,.55),rgba(243,166,111,0) 75%);-webkit-background-clip:text;background-clip:text;user-select:none}
+.fine{max-width:1120px;margin:24px auto 0;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
 /* phones */
-@media (max-width:820px){
-.gauge{top:calc(env(safe-area-inset-top,0px) + 110px);transform:none}
-.nav .logo small{display:none}.eyebrow{white-space:normal}
-.hero{left:0;right:0;width:auto;bottom:auto;top:calc(env(safe-area-inset-top,0px) + 92px);padding:0 20px}
-.hero h1{font-size:clamp(2.5rem,12vw,3.6rem)}
-.hero p{font-size:15px;margin-bottom:22px}
-.hero-facts{left:20px;right:20px;bottom:calc(64px + env(safe-area-inset-bottom,0px));grid-template-columns:repeat(3,1fr);text-align:left;gap:10px}
-.hero-facts strong{font-size:19px}.hero-facts div{font-size:11px}
-.side{background:linear-gradient(180deg,rgba(7,7,8,.85) 0%,rgba(7,7,8,.4) 45%,rgba(7,7,8,.2) 60%,rgba(7,7,8,.9) 100%)}
-.chap{left:20px;right:20px;top:calc(env(safe-area-inset-top,0px) + 86px);transform:none}
-.chap h2{font-size:clamp(2.8rem,15vw,4.4rem)}
-.card{left:12px;right:12px;width:auto;top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:none;padding:20px;border-radius:18px}
-.card h3{font-size:1.5rem;margin:10px 0 8px}
-.card p{font-size:14px;margin-bottom:12px}
-.card ul{display:none}.card .meta{display:none}.status{margin-bottom:0}
-.rail,.tc,.cue{display:none}
-.readout{left:20px;bottom:auto;top:calc(env(safe-area-inset-top,0px) + 70px);font-size:9.5px}
-.stat-grid,.steps,.promise{grid-template-columns:1fr 1fr}
-.step{min-height:320px}
-.about,.book .wrap,.faq{grid-template-columns:1fr}
-.foot{grid-template-columns:1fr 1fr}
-.form{padding:22px}
+@media (max-width:767px){
+  .hero-copy{left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 86px);transform:none;width:auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+  .hero-copy h1{font-size:clamp(2.3rem,11vw,3.1rem);margin:14px 0}
+  .hero-copy p{font-size:14.5px;margin-bottom:18px;max-width:34ch}
+  .hero-meta{display:none}
+  .card{left:max(14px,env(safe-area-inset-left,0px));right:max(14px,env(safe-area-inset-right,0px));width:auto;top:calc(env(safe-area-inset-top,0px) + 72px);margin-top:0;padding:18px 18px 16px;border-radius:18px}
+  .card h2{font-size:1.6rem;margin:10px 0 8px}
+  .card p.d{font-size:14px;margin-bottom:12px}
+  .chips{margin-bottom:12px}.chips li{font-size:11.5px;padding:4px 9px}
+  .chips li:nth-child(n+4){display:none}
+  .stats div{padding:10px}.stats strong{font-size:14.5px}.stats small{display:none}
+  .rail,.scroll-hint,.count,.fg{display:none}
+  .readout{left:max(16px,env(safe-area-inset-left,0px));font-size:9.5px}
+  .finale{justify-content:center;align-items:flex-end;padding:76px max(12px,env(safe-area-inset-left,0px)) calc(14px + env(safe-area-inset-bottom,0px))}
+  .book{padding:22px}
+  .book > p{margin-bottom:14px}
+  .form{gap:10px}
+  .form textarea{min-height:52px}
+  .faq{grid-template-columns:1fr;gap:24px;padding-block:90px 70px}
+  .foot-grid{grid-template-columns:1fr}
 }
-@media (max-width:520px){.stat-grid,.steps,.promise,.facts{grid-template-columns:1fr}.hero-facts{display:none}.foot{grid-template-columns:1fr}}
-@media (max-width:820px) and (max-height:720px){.card p{display:none}}
-/* reduced motion: plain stacked story */
-.rm .film{height:auto;min-height:0;overflow:visible;display:grid;gap:0;background:var(--ink)}
-.rm .shot{position:relative;inset:auto;height:70vh;opacity:1;visibility:visible}
-.rm .grade,.rm .tint,.rm .side,.rm .bars,.rm .flash,.rm .rail,.rm .readout,.rm .tc,.rm .cue,.rm .chap,.rm .lock,.rm .gauge{display:none}
-.rm .hero,.rm .hero-facts{position:relative;inset:auto;width:auto;padding:40px 20px;text-align:left}
-.rm .card{position:relative;inset:auto;transform:none;width:auto;margin:20px;opacity:1;visibility:visible}
+@media (max-width:767px) and (max-height:700px){ .card p.d{display:none} .book > p{display:none} .form .opt{display:none} }
+
+/* reduced motion: the same content as plain sections */
+.rm .stage{height:auto;min-height:0;overflow:visible;display:flex;flex-direction:column;gap:18px;padding:110px max(16px,env(safe-area-inset-left,0px)) 40px}
+.rm #gl,.rm .locks,.rm .scroll-hint,.rm .rail,.rm .readout,.rm .count,.rm .fg,.rm .shade,.rm .intro{display:none}
+.rm .hero-copy{position:relative;left:auto;top:auto;transform:none;width:auto;max-width:640px}
+.rm .card,.rm .book{position:relative;inset:auto;margin:0;width:auto;max-width:640px;opacity:1;visibility:visible}
+.rm .finale{position:relative;inset:auto;padding:0;justify-content:flex-start}
 .rm .status .sa{opacity:0}.rm .status .sb{opacity:1}
-.rm .rv{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){.grain,.cue i,.status .sa::before{animation:none!important}}
+@media (prefers-reduced-motion:reduce){.kicker::before,.scroll-hint i,.grain{animation:none!important}.intro{display:none}}
+
+/* 3D canvas + lock brackets */
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
+.locks{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden}
+.lock{position:absolute;left:0;top:0;opacity:0;visibility:hidden;--c:#f3a66f;will-change:transform}
+.lock .lk{position:absolute;inset:0}
+.lock .lk i{position:absolute;width:22px;height:22px;border:2.5px solid var(--c);filter:drop-shadow(0 0 6px rgba(0,0,0,.6))}
+.lock .lk i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-top-left-radius:6px}
+.lock .lk i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-top-right-radius:6px}
+.lock .lk i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-bottom-left-radius:6px}
+.lock .lk i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-bottom-right-radius:6px}
+.lock .sweepw{position:absolute;inset:3px;overflow:hidden;border-radius:4px}
+.lock .sweep{position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(127,220,255,.22) 92%,rgba(127,220,255,.7) 100%);opacity:0}
+.lock .tg{position:absolute;left:0;bottom:calc(100% + 10px);white-space:nowrap;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;padding:6px 11px;border-radius:999px;background:rgba(8,9,11,.82);box-shadow:0 0 0 1.5px var(--c) inset;color:var(--c)}
+.lock .lb{opacity:0}
+/* logo */
+.brand svg{width:38px;height:38px;flex:none}
+.intro .mark{width:72px;height:72px}
+/* after the film */
+.numbers{max-width:1120px;margin:0 auto;padding-block:120px 20px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:linear-gradient(var(--hair),var(--hair)) 0 100%/100% 1px no-repeat}
+.numbers div{padding:0 22px 40px}
+.numbers strong{display:block;font-family:var(--display);font-weight:700;font-size:clamp(2.4rem,4.4vw,3.8rem);letter-spacing:-.04em;line-height:1}
+.numbers strong em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--copper-2)}
+.numbers span{display:block;color:var(--muted);font-size:14px;margin-top:10px;max-width:22ch}
+.about{max-width:1120px;margin:0 auto;padding-block:110px 10px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:56px;align-items:start}
+.about h2{font-family:var(--display);font-weight:700;font-size:clamp(2.1rem,3.6vw,3.3rem);line-height:1;letter-spacing:-.035em;margin:16px 0 18px;text-wrap:balance}
+.about h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--copper-2)}
+.about p{color:var(--muted);max-width:52ch;margin:0 0 14px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--hair);border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px var(--hair)}
+.facts div{background:var(--ink-2);padding:20px}
+.facts small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.facts b{display:block;font-family:var(--display);font-size:18px;margin-top:6px;letter-spacing:-.01em}
+@media (max-width:767px){.numbers{grid-template-columns:1fr 1fr;row-gap:30px;padding-top:80px}.numbers div{padding:0 6px 20px}.about{grid-template-columns:1fr;gap:28px;padding-top:70px}}
+.stage::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(8,9,11,.92) 0%,rgba(8,9,11,.78) 36%,rgba(8,9,11,.25) 55%,rgba(8,9,11,0) 66%);opacity:var(--scrim,1);transition:none}
+@media (max-width:767px){.stage::before{background:linear-gradient(180deg,rgba(8,9,11,.96) 0%,rgba(8,9,11,.9) 40%,rgba(8,9,11,.5) 55%,rgba(8,9,11,0) 68%)}.brand small{display:none}.nav .btn{white-space:nowrap;padding:9px 15px}}
+.btn{white-space:nowrap}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-<defs>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="cuG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7c08f"/><stop offset=".5" stop-color="#e08447"/><stop offset="1" stop-color="#a24c18"/></linearGradient>
 <linearGradient id="iceG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9f1ff"/><stop offset="1" stop-color="#5cc8f2"/></linearGradient>
-<symbol id="mark" viewBox="0 0 64 64">
-<rect x="1.5" y="1.5" width="61" height="61" rx="17" fill="#121214" stroke="url(#cuG)" stroke-width="1.5" stroke-opacity=".55"/>
-<path class="pipe" d="M22 50V18h12a10 10 0 0 1 0 20H22" fill="none" stroke="url(#cuG)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="17.5" y="22" width="9" height="4" rx="1.5" fill="#f7c08f"/><rect x="17.5" y="42" width="9" height="4" rx="1.5" fill="#f7c08f"/>
-<path class="drop" d="M44 41c2.6 3.4 4.2 5.6 4.2 7.6a4.2 4.2 0 0 1-8.4 0c0-2 1.6-4.2 4.2-7.6z" fill="url(#iceG)"/>
-</symbol>
-</defs>
-</svg>
-<div class="intro" id="intro" aria-hidden="true">
-<div class="intro-in">
-<svg class="mark" viewBox="0 0 64 64"><rect x="1.5" y="1.5" width="61" height="61" rx="17" fill="#121214" stroke="url(#cuG)" stroke-width="1.5" stroke-opacity=".55"/><path class="pipe" d="M22 50V18h12a10 10 0 0 1 0 20H22" fill="none" stroke="url(#cuG)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><path class="drop" d="M44 41c2.6 3.4 4.2 5.6 4.2 7.6a4.2 4.2 0 0 1-8.4 0c0-2 1.6-4.2 4.2-7.6z" fill="url(#iceG)"/></svg>
-<div class="intro-word">PLW</div>
-<div class="intro-bar"><i id="introBar"></i></div>
-<small>PIPE · LEAK · WATER</small>
-</div>
-</div>
+<symbol id="mark" viewBox="0 0 64 64"><rect x="1.5" y="1.5" width="61" height="61" rx="17" fill="#121214" stroke="url(#cuG)" stroke-width="1.5" stroke-opacity=".55"/><path d="M22 50V18h12a10 10 0 0 1 0 20H22" fill="none" stroke="url(#cuG)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="17.5" y="22" width="9" height="4" rx="1.5" fill="#f7c08f"/><rect x="17.5" y="42" width="9" height="4" rx="1.5" fill="#f7c08f"/><path d="M44 41c2.6 3.4 4.2 5.6 4.2 7.6a4.2 4.2 0 0 1-8.4 0c0-2 1.6-4.2 4.2-7.6z" fill="url(#iceG)"/></symbol>
+</defs></svg>
+<div class="intro" id="intro" aria-hidden="true"><div><svg class="mark"><use href="#mark"/></svg><b>PLW</b><i></i><small>Plumbing Co. · Est. 2009</small></div></div>
 <div class="grain" aria-hidden="true"></div>
-<header class="nav" id="nav">
-<a class="logo" href="#top" aria-label="PLW Plumbing Co., back to top"><svg aria-hidden="true"><use href="#mark"/></svg><span><b>PLW</b><small>PLUMBING CO. · EST 2009</small></span></a>
-<nav class="links" aria-label="Sections">
-<button type="button" data-go="8">Leaks</button>
-<button type="button" data-go="30">Drains</button>
-<button type="button" data-go="52">Water heaters</button>
-<button type="button" data-go="74">Handyman</button>
-<a href="#about">Company</a>
-</nav>
-<a class="nav-phone" href="tel:+15550104477">(555) 010-4477</a>
-<a class="btn btn-cu" href="#book">Book a visit</a>
+
+<header class="nav">
+  <a class="brand" href="#top" aria-label="PLW Plumbing Co., back to top"><svg aria-hidden="true"><use href="#mark"/></svg><span><b>PLW</b><small>Plumbing Co. · Est. 2009</small></span></a>
+  <nav class="pill" aria-label="Sections">
+    <button type="button" data-go="10">Leaks</button>
+    <button type="button" data-go="29.5">Drains</button>
+    <button type="button" data-go="49">Water heaters</button>
+    <button type="button" data-go="69">Handyman</button>
+    <a href="#about">Company</a>
+  </nav>
+  <button type="button" class="btn btn-copper" data-go="96">Book a visit</button>
 </header>
+
 <main id="top">
-<section class="film" id="film" aria-label="What we fix, room by room">
-<div class="shot" data-s="hero"><div class="sc"><img data-id="1676210134188-4c05dd172f89" alt="A PLW plumber repairing the pipes under a sink" fetchpriority="high"></div></div>
-<div class="shot" data-s="k1"><div class="sc"><img data-id="1778272617899-038ae0330471" alt="A dark modern kitchen with a black faucet"></div></div>
-<div class="shot" data-s="k2"><div class="sc"><img data-id="1676210134190-3f2c0d5cf58d" alt="Hands tightening a drain trap under a sink"><div class="lock" data-lock="k2"></div></div></div>
-<div class="shot" data-s="b1"><div class="sc"><img data-id="1782805153147-ae88914fb45d" alt="A bathroom with dark marble walls and a toilet"></div></div>
-<div class="shot" data-s="b2"><div class="sc"><img data-id="1676210134050-6f12c6898395" alt="A plumber in red gloves working on a toilet"><div class="lock" data-lock="b2"></div></div></div>
-<div class="shot" data-s="u1"><div class="sc"><img data-id="1594233078955-e1f73a02ebb2" alt="A copper water heater tank on a green wall"></div></div>
-<div class="shot" data-s="u2"><div class="sc"><img data-id="1774876549246-dfa8eae5d9f5" alt="A finger setting a digital thermostat"><div class="lock" data-lock="u2"></div></div></div>
-<div class="shot" data-s="w1"><div class="sc"><img data-id="1669024401193-1728ef303e8e" alt="A wall of hand tools in a workshop"></div></div>
-<div class="shot" data-s="w2"><div class="sc"><img data-id="1592054286113-649ba108e968" alt="A handyman drilling with a cordless drill"><div class="lock" data-lock="w2"></div></div></div>
-<div class="shot" data-s="all"><div class="sc"><img data-id="1550979967-5839959d4cbc" alt="Copper and steel pipes running across a wall"></div></div>
-<div class="side" id="side" aria-hidden="true"></div>
-<div class="tint" aria-hidden="true"></div>
-<div class="grade" aria-hidden="true"></div>
-<div class="bars" aria-hidden="true"><i></i><i></i></div>
-<div class="flash" id="flash" aria-hidden="true"></div>
-<div class="hero" id="hero">
-<p class="eyebrow">Licensed master plumbers · Since 2009</p>
-<h1>We fix what's behind <span class="serif">your walls.</span></h1>
-<p>Leaks, clogs, water heaters and the handyman list. One crew, a flat price before we start, and a clean floor when we leave.</p>
-<div class="hero-row">
-<a class="btn btn-cu" href="#book">Book a visit <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-<button class="btn btn-ghost" type="button" data-go="8">See how we work</button>
-</div>
-</div>
-<div class="hero-facts" id="heroFacts">
-<div><strong>60 min</strong>average arrival on emergencies</div>
-<div><strong>14,800+</strong>repairs since 2009</div>
-<div><strong>2-year</strong>warranty on our work</div>
-</div>
-<div class="cue" id="cue" aria-hidden="true">SCROLL<i></i></div>
-<div class="chap" data-chap="1"><span class="num">CHAPTER 01 · KITCHEN</span><h2><span class="ln"><span>Leaks &amp;</span></span><span class="ln"><span class="serif">drains.</span></span></h2></div>
-<div class="chap" data-chap="2"><span class="num">CHAPTER 02 · BATHROOM</span><h2><span class="ln"><span>Clogs &amp;</span></span><span class="ln"><span class="serif">toilets.</span></span></h2></div>
-<div class="chap" data-chap="3"><span class="num">CHAPTER 03 · UTILITY ROOM</span><h2><span class="ln"><span>Hot water,</span></span><span class="ln"><span class="serif">back today.</span></span></h2></div>
-<div class="chap" data-chap="4"><span class="num">CHAPTER 04 · AROUND THE HOUSE</span><h2><span class="ln"><span>The</span></span><span class="ln"><span class="serif">handyman list.</span></span></h2></div>
-<div class="chap" data-chap="5"><span class="num">THE WHOLE HOME</span><h2><span class="ln"><span>Every line.</span></span><span class="ln"><span class="serif">One crew.</span></span></h2></div>
-<article class="card" data-card="1">
-<p class="k"><b>01</b> Leaks &amp; drains</p>
-<h3>Found, sealed, tested.</h3>
-<div class="status"><span class="sa">Leak detected at the P-trap</span><span class="sb">Sealed · 0 PSI drop in 15 min</span></div>
-<p>Thermal and acoustic leak detection finds the drip without opening the wall. We fix it, then pressure-test the line before we pack up.</p>
-<ul><li>Faucets &amp; traps</li><li>Leak detection</li><li>Garbage disposals</li><li>Dishwasher hookups</li></ul>
-<div class="meta"><div><strong>From $129</strong>flat-rate visit</div><div><strong>Same day</strong>most calls</div></div>
-</article>
-<article class="card" data-card="2">
-<p class="k"><b>02</b> Clogs &amp; toilets</p>
-<h3>Clear lines, quiet tanks.</h3>
-<div class="status"><span class="sa">Blockage 3 ft into the line</span><span class="sb">Line clear · flow restored</span></div>
-<p>We camera-inspect the line first, then clear it with the right tool for the pipe, from auger to hydro-jet. Running toilets get rebuilt the same visit.</p>
-<ul><li>Drain cleaning</li><li>Camera inspection</li><li>Hydro-jetting</li><li>Toilet rebuilds</li></ul>
-<div class="meta"><div><strong>From $149</strong>drain clearing</div><div><strong>Video</strong>of every line</div></div>
-</article>
-<article class="card" data-card="3">
-<p class="k"><b>03</b> Water heaters</p>
-<h3>Repair or replace, same day.</h3>
-<div class="status"><span class="sa">No hot water · pilot out</span><span class="sb">Relit · holding at 140°F</span></div>
-<p>Tank and tankless, gas and electric. Most repairs happen on the first visit, and new units ship on our truck with haul-away included.</p>
-<ul><li>Tank heaters</li><li>Tankless units</li><li>Flush &amp; service</li><li>Expansion tanks</li></ul>
-<div class="meta"><div><strong>6-year</strong>parts warranty</div><div><strong>Haul-away</strong>included</div></div>
-</article>
-<article class="card" data-card="4">
-<p class="k"><b>04</b> Handyman</p>
-<h3>One visit, one invoice.</h3>
-<div class="status"><span class="sa">Stud found at 16 in · drilling</span><span class="sb">Mounted · level · cleaned up</span></div>
-<p>Add the punch list to your plumbing call. Shelves and TVs, drywall patches, sticky doors and light fixtures, done by the same crew.</p>
-<ul><li>Mounting</li><li>Drywall</li><li>Doors &amp; locks</li><li>Fixtures</li></ul>
-<div class="meta"><div><strong>$95/hr</strong>handyman rate</div><div><strong>No</strong>trip fee with plumbing</div></div>
-</article>
-<div class="gauge" id="gauge"><strong id="gaugeNum">92°F</strong><small>WATER TEMP</small></div>
-<nav class="rail" id="rail" aria-label="Jump to a chapter">
-<i class="fill"></i>
-<button type="button" data-go="0"><span>Start</span></button>
-<button type="button" data-go="8"><span>Leaks</span></button>
-<button type="button" data-go="30"><span>Drains</span></button>
-<button type="button" data-go="52"><span>Heaters</span></button>
-<button type="button" data-go="74"><span>Handyman</span></button>
-<button type="button" data-go="94"><span>Whole home</span></button>
-</nav>
-<div class="readout" id="readout" aria-hidden="true"><i></i><span>DISPATCH · READY</span></div>
-<div class="tc" id="tc" aria-hidden="true"><b id="tcN">01</b> / 05</div>
+<section class="journey" aria-label="A walk through the house">
+  <div class="stage" id="stage">
+    <canvas id="gl" aria-hidden="true"></canvas>
+    <div class="shade" aria-hidden="true"></div>
+    <div class="locks" aria-hidden="true">
+      <div class="lock" data-lock="1"><div class="lk"><i></i><i></i><i></i><i></i><div class="sweepw"><div class="sweep"></div></div><span class="tg la">LEAK · P-TRAP</span><span class="tg lb">SEALED · 0 PSI DROP</span></div></div>
+      <div class="lock" data-lock="2"><div class="lk"><i></i><i></i><i></i><i></i><div class="sweepw"><div class="sweep"></div></div><span class="tg la">CLOG · 3 FT IN</span><span class="tg lb">LINE CLEAR</span></div></div>
+      <div class="lock" data-lock="3"><div class="lk"><i></i><i></i><i></i><i></i><div class="sweepw"><div class="sweep"></div></div><span class="tg la">NO HOT WATER</span><span class="tg lb">140°F · HOLDING</span></div></div>
+      <div class="lock" data-lock="4"><div class="lk"><i></i><i></i><i></i><i></i><div class="sweepw"><div class="sweep"></div></div><span class="tg la">STUD @ 16 IN</span><span class="tg lb">MOUNTED · LEVEL</span></div></div>
+    </div>
+
+    <div class="hero-copy" id="hero">
+      <p class="kicker">Open now · 24/7 emergency line</p>
+      <h1>Your home, fixed <em>from the pipes up.</em></h1>
+      <p>PLW Plumbing Co. sends licensed plumbers and handymen who arrive on time, explain the fix before they start, and leave your home cleaner than they found it.</p>
+      <div class="hero-actions">
+        <button type="button" class="btn btn-copper" data-go="96">Book a visit <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span class="phone">(555) 010-4477</span>
+      </div>
+      <div class="hero-meta">
+        <div><strong>Same-day</strong>service on most calls</div>
+        <div><strong>Flat-rate</strong>price before work starts</div>
+        <div><strong>Since 2009</strong>licensed, bonded, insured</div>
+      </div>
+    </div>
+    <div class="scroll-hint" aria-hidden="true">Scroll<i></i></div>
+
+    <article class="card" data-card="1">
+      <p class="card-k"><b>01</b> Kitchen</p>
+      <h2>Leaks &amp; <em>drains</em></h2>
+      <p class="d">A dripping faucet, a slow sink, a puddle under the cabinet. We find the source, seal it, and pressure-test it before we pack up.</p>
+      <ul class="chips"><li>Faucets</li><li>P-traps</li><li>Disposals</li><li>Leak detection</li><li>Dishwasher hookups</li></ul>
+      <div class="status"><span class="sa">Leak found at the P-trap</span><span class="sb">Sealed and pressure-tested</span></div>
+    </article>
+    <article class="card" data-card="2">
+      <p class="card-k"><b>02</b> Bathroom</p>
+      <h2>Clogs &amp; <em>toilets</em></h2>
+      <p class="d">We clear the line with the right tool for the pipe, from a plunger to a camera and hydro-jet. Running or rocking toilets get rebuilt or replaced the same day.</p>
+      <ul class="chips"><li>Drain cleaning</li><li>Toilet repair</li><li>Shower valves</li><li>Camera inspection</li><li>Repiping</li></ul>
+      <div class="status"><span class="sa">Clog in the toilet line</span><span class="sb">Line clear, water flowing</span></div>
+    </article>
+    <article class="card" data-card="3">
+      <p class="card-k"><b>03</b> Utility room</p>
+      <h2>Water <em>heaters</em></h2>
+      <p class="d">Cold shower this morning? We repair and install tank and tankless heaters, gas or electric, and haul the old one away.</p>
+      <ul class="chips"><li>Tank</li><li>Tankless</li><li>Flush &amp; service</li><li>Pilot &amp; thermostat</li><li>Expansion tanks</li></ul>
+      <div class="status"><span class="sa">No hot water · pilot out</span><span class="sb">Back to 140°F</span></div>
+    </article>
+    <article class="card" data-card="4">
+      <p class="card-k"><b>04</b> Around the house</p>
+      <h2>Handyman <em>jobs</em></h2>
+      <p class="d">The list that keeps growing: shelves and TVs, drywall patches, sticky doors, flickering fixtures. One visit, one invoice.</p>
+      <ul class="chips"><li>Mounting</li><li>Drywall</li><li>Doors &amp; locks</li><li>Light fixtures</li><li>Caulk &amp; tile</li></ul>
+      <div class="status"><span class="sa">Stud found, drilling</span><span class="sb">Shelf mounted and level</span></div>
+    </article>
+    <article class="card" data-card="5">
+      <p class="card-k"><b>✓</b> Whole-home check</p>
+      <h2>Four rooms. <em>One crew.</em></h2>
+      <div class="stats">
+        <div><strong>Same-day</strong><small>Most calls booked before noon are fixed today.</small></div>
+        <div><strong>Upfront price</strong><small>You approve a flat quote before we touch a tool.</small></div>
+        <div><strong>Licensed &amp; insured</strong><small>Master Plumber License MP-40219.</small></div>
+        <div><strong>Clean-up included</strong><small>Drop cloths down, debris out, floors wiped.</small></div>
+      </div>
+      <div class="status"><span class="sb" style="opacity:1">All systems normal</span></div>
+    </article>
+
+    <nav class="rail" id="rail" aria-label="Jump to a room">
+      <i class="fill"></i>
+      <button type="button" data-go="0"><span>Start</span></button>
+      <button type="button" data-go="10"><span>Kitchen</span></button>
+      <button type="button" data-go="29.5"><span>Bathroom</span></button>
+      <button type="button" data-go="49"><span>Utility</span></button>
+      <button type="button" data-go="69"><span>Workshop</span></button>
+      <button type="button" data-go="84"><span>Why us</span></button>
+      <button type="button" data-go="96"><span>Book</span></button>
+    </nav>
+    <div class="readout" id="readout" aria-hidden="true"><i></i><span>STANDBY</span></div>
+    <div class="count" id="count" aria-hidden="true"><b>01</b>/ 04</div>
+
+    <div class="finale" id="book">
+      <div class="book">
+        <p class="kicker">Next opening today</p>
+        <h2>Tell us what's <em>dripping.</em></h2>
+        <p>Send the basics and a dispatcher calls you back within 15 minutes with an arrival window and a price range.</p>
+        <form class="form" id="form" novalidate>
+          <label>Name<input id="f-name" name="name" autocomplete="name" required placeholder="Alex Rivera"></label>
+          <label>Phone<input id="f-phone" name="phone" type="tel" autocomplete="tel" required placeholder="(555) 010-2030"></label>
+          <label class="full">What needs fixing<select id="f-job" name="job"><option>Leak or drip</option><option>Clogged drain or toilet</option><option>Water heater</option><option>Handyman job</option><option>Something else</option></select></label>
+          <label class="full opt">Details (optional)<textarea id="f-notes" name="notes" placeholder="Water under the kitchen sink since last night"></textarea></label>
+          <button class="btn btn-copper full" type="submit">Request a visit</button>
+          <p class="form-msg" id="form-msg" role="status"></p>
+        </form>
+      </div>
+    </div>
+  </div>
 </section>
-<section class="block numbers" id="numbers">
-<div class="bg"><img data-id="1584774354932-62ceb99e6053" alt="" loading="lazy"></div>
-<div class="wrap">
-<p class="eyebrow rv">PLW by the numbers</p>
-<h2 class="h2 rv">Seventeen years of <span class="serif">dry floors.</span></h2>
-<div class="stat-grid rv">
-<div><strong><span data-count="14800">0</span><em>+</em></strong><small>repairs and installs completed</small></div>
-<div><strong><span data-count="60">0</span><em> min</em></strong><small>average emergency arrival</small></div>
-<div><strong><span data-count="38">0</span></strong><small>licensed techs and handymen</small></div>
-<div><strong><span data-count="2">0</span><em> yr</em></strong><small>warranty on every repair</small></div>
-</div>
-</div>
+
+<section class="numbers gutter" aria-label="PLW in numbers">
+  <div><strong>17<em> yrs</em></strong><span>Serving the same neighborhoods since 2009.</span></div>
+  <div><strong>38</strong><span>Licensed plumbers and handymen on the crew.</span></div>
+  <div><strong>14,800<em>+</em></strong><span>Repairs closed out and pressure-tested.</span></div>
+  <div><strong>15<em> min</em></strong><span>Typical callback after you book.</span></div>
 </section>
-<section class="block" id="process">
-<div class="wrap">
-<p class="eyebrow rv">How a visit works</p>
-<h2 class="h2 rv">Four steps. <span class="serif">No surprises.</span></h2>
-<div class="steps">
-<article class="step rv"><div class="ph"><img data-id="1774876549246-dfa8eae5d9f5" alt="" loading="lazy"></div><span class="n">STEP 01</span><h3>Book in a minute</h3><p>Call, text or use the form. A dispatcher confirms a two-hour arrival window.</p></article>
-<article class="step rv"><div class="ph"><img data-id="1749532125405-70950966b0e5" alt="" loading="lazy"></div><span class="n">STEP 02</span><h3>Diagnose on site</h3><p>Your tech finds the cause, with a camera or leak detector when the problem is out of sight.</p></article>
-<article class="step rv"><div class="ph"><img data-id="1503789146722-cf137a3c0fea" alt="" loading="lazy"></div><span class="n">STEP 03</span><h3>Approve a flat price</h3><p>You see the price before any work starts. It doesn't change if the job runs long.</p></article>
-<article class="step rv"><div class="ph"><img data-id="1769376695235-d3253548a5d7" alt="" loading="lazy"></div><span class="n">STEP 04</span><h3>Fixed and tested</h3><p>We test the repair in front of you, clean up, and send photos with your invoice.</p></article>
-</div>
-</div>
+
+<section class="about gutter" id="about">
+  <div>
+    <p class="kicker">The company</p>
+    <h2>Pipe. Leak. Water. <em>Since 2009.</em></h2>
+    <p>PLW Plumbing Co. started as one van and a promise to show up when we said we would. Today it is a crew of 38 who handle the plumbing and the punch list in the same visit.</p>
+    <p>Every tech carries their license on the job, quotes a flat price before starting, and puts drop cloths down before a single tool comes out.</p>
+  </div>
+  <div class="facts">
+    <div><small>License</small><b>Master Plumber MP-40219</b></div>
+    <div><small>Hours</small><b>Mon–Sat · 7am–7pm</b></div>
+    <div><small>Emergency</small><b>24/7 · (555) 010-4477</b></div>
+    <div><small>Office</small><b>2140 Copperline Ave, Suite 6</b></div>
+  </div>
 </section>
-<section class="block" id="about" style="padding-top:0">
-<div class="wrap about">
-<div class="about-ph rv"><img data-id="1792799881226-e841c0f9c125" alt="A PLW technician connecting a water line" loading="lazy">
-<div class="badge"><svg aria-hidden="true"><use href="#mark"/></svg><div><b>Licensed · Bonded · Insured</b><small>Master Plumber License MP-40219</small></div></div>
-</div>
-<div>
-<p class="eyebrow rv">The company</p>
-<h2 class="h2 rv">A family shop that <span class="serif">grew up right.</span></h2>
-<p class="lede rv">PLW started in 2009 with one van and one rule: tell people the price before you pick up a tool. Today 38 technicians run the same playbook across the metro, with background-checked crews, stocked trucks and a dispatcher who answers at 3 a.m.</p>
-<div class="facts rv">
-<div><small>Founded</small><b>2009</b></div>
-<div><small>Headquarters</small><b>2140 Copperline Ave, Suite 6</b></div>
-<div><small>Service area</small><b>Metro area + 30 neighborhoods</b></div>
-<div><small>License</small><b>MP-40219 · fully insured</b></div>
-</div>
-</div>
-</div>
-<div class="wrap">
-<div class="promise">
-<div class="rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><h3>On time, or $50 off</h3><p>If we miss your arrival window, the first $50 is on us.</p></div>
-<div class="rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"/><path d="M17 15l2 2 3-4"/></svg><h3>Flat price, in writing</h3><p>The number you approve is the number on the invoice.</p></div>
-<div class="rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg><h3>Two-year warranty</h3><p>If our repair fails, we come back and fix it free.</p></div>
-</div>
-</div>
-</section>
-<section class="book" id="book">
-<div class="bg"><img data-id="1644421439741-712c7fde7e95" alt="" loading="lazy"></div>
-<div class="wrap">
-<div>
-<p class="eyebrow rv">Book a visit</p>
-<h2 class="h2 rv">Tell us what's <span class="serif">dripping.</span></h2>
-<p class="lede rv">A dispatcher calls back within 15 minutes with an arrival window and a price range. Emergencies go to the front of the line.</p>
-<div class="contact rv">
-<div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg><a href="tel:+15550104477">(555) 010-4477 · 24/7 emergency line</a></div>
-<div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><span>hello@plwplumbing.example</span></div>
-<div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg><span>2140 Copperline Ave, Suite 6</span></div>
-</div>
-</div>
-<form class="form rv" id="form" novalidate>
-<h3>Request a visit</h3>
-<label>Name<input id="f-name" name="name" autocomplete="name" required placeholder="Alex Rivera"></label>
-<label>Phone<input id="f-phone" name="phone" type="tel" autocomplete="tel" required placeholder="(555) 010-2030"></label>
-<label class="full">What needs fixing<select id="f-job" name="job"><option>Leak or drip</option><option>Clogged drain or toilet</option><option>Water heater</option><option>Handyman job</option><option>Something else</option></select></label>
-<label class="full">Details (optional)<textarea id="f-notes" name="notes" placeholder="Water under the kitchen sink since last night"></textarea></label>
-<button class="btn btn-cu full" type="submit">Send request</button>
-<p class="form-msg" id="form-msg" role="status"></p>
-</form>
-</div>
-</section>
-<section class="block" id="faq">
-<div class="wrap faq">
-<div><p class="eyebrow rv">Before you call</p><h2 class="h2 rv">Questions we hear <span class="serif">every week.</span></h2></div>
-<div class="rv">
-<details open><summary>How fast can someone get here?</summary><p>For emergencies like a burst pipe or no water, the dispatcher gives you an arrival window on the call, usually within the hour. Routine jobs are booked same day or next day.</p></details>
-<details><summary>Do I get a price before work starts?</summary><p>Yes. Your tech diagnoses the problem, gives you a flat price in writing, and starts only after you approve it.</p></details>
-<details><summary>Can one visit cover plumbing and handyman work?</summary><p>Yes. List everything when you book and we send a tech who can handle the pipes and the punch list in the same trip, with no second trip fee.</p></details>
-<details><summary>Should I shut off the water?</summary><p>If water is spreading, turn the main shut-off clockwise until it stops. It is usually where the water line enters the house, near the meter or the water heater.</p></details>
-</div>
-</div>
+
+<section class="faq gutter" id="faq">
+  <div><p class="kicker">Before you call</p><h2>Questions we hear <em>every week</em></h2></div>
+  <div>
+    <details open><summary>How fast can someone get here?</summary><p>For emergencies like a burst pipe or no water, the dispatcher gives you an arrival window on the call. Routine jobs are usually booked same day or next day.</p></details>
+    <details><summary>Do I get a price before work starts?</summary><p>Yes. The tech looks at the problem, gives you a flat price, and starts only after you approve it. No hourly surprises.</p></details>
+    <details><summary>Can one visit cover plumbing and handyman work?</summary><p>That is the point of the crew. List everything when you book, and we send someone who can handle the pipes and the punch list in the same trip.</p></details>
+    <details><summary>Should I shut off the water?</summary><p>If water is spreading, turn the main shut-off clockwise until it stops. It is usually where the water line enters the house, near the meter or the water heater.</p></details>
+  </div>
 </section>
 </main>
-<footer>
-<div class="wrap">
-<div class="foot">
-<div><a class="logo" href="#top"><svg aria-hidden="true"><use href="#mark"/></svg><span><b>PLW</b><small>PLUMBING CO. · EST 2009</small></span></a><p>Pipe, leak and water specialists, plus the handyman list. Licensed, bonded and insured.</p></div>
-<div><h4>Services</h4><ul><li>Leaks &amp; drains</li><li>Clogs &amp; toilets</li><li>Water heaters</li><li>Handyman</li></ul></div>
-<div><h4>Hours</h4><ul><li>Mon–Sat · 7 am – 7 pm</li><li>Emergency line · 24/7</li></ul></div>
-<div><h4>Contact</h4><ul><li><a href="tel:+15550104477">(555) 010-4477</a></li><li>hello@plwplumbing.example</li><li>2140 Copperline Ave, Suite 6</li></ul></div>
-</div>
-<div class="giant" aria-hidden="true"><svg viewBox="0 0 1100 300"><defs><linearGradient id="gG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2a46c" stop-opacity=".6"/><stop offset="1" stop-color="#f2a46c" stop-opacity="0"/></linearGradient></defs><text x="550" y="270" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="800" font-size="340" letter-spacing="-12" fill="url(#gG)">PLW</text></svg></div>
-<div class="fine"><span>© 2026 PLW Plumbing Co. · License MP-40219</span><span>Sample company: names, numbers, prices and address are placeholders. Photos from Unsplash.</span></div>
-</div>
+
+<footer class="gutter">
+  <div class="foot-grid">
+    <div><h3>Services</h3><ul><li>Leaks &amp; drains</li><li>Clogs &amp; toilets</li><li>Water heaters</li><li>Handyman jobs</li></ul></div>
+    <div><h3>Hours</h3><ul><li>Mon–Sat · 7 am – 7 pm</li><li>Emergency line · 24/7</li></ul></div>
+    <div><h3>Contact</h3><ul><li class="phone">(555) 010-4477</li><li>hello@plwplumbing.example</li><li>2140 Copperline Ave, Suite 6</li></ul></div>
+  </div>
+  <p class="giant" aria-hidden="true">PLW</p>
+  <div class="fine"><span>© 2026 PLW Plumbing Co.</span><span>Sample company: name, phone, address, license and numbers are placeholders.</span></div>
 </footer>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
 <script>
 (() => {
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const IMG = (id, w) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=78`;
-/* photos: film shots get big sizes, the rest stay modest */
-for (const img of $$("img[data-id]")) {
-const big = !!img.closest(".shot") || !!img.closest(".book") || !!img.closest(".numbers");
-const w = big ? [1200, 1800, 2600] : [600, 900, 1300];
-img.srcset = w.map((x) => `${IMG(img.dataset.id, x)} ${x}w`).join(", ");
-img.sizes = big ? "100vw" : "(max-width:820px) 100vw, 33vw";
-img.src = IMG(img.dataset.id, w[1]);
-img.decoding = "async";
-}
-const intro = $("#intro"), bar = $("#introBar");
-const shotImgs = $$(".shot img");
-let loaded = 0;
-const bump = () => { loaded++; bar.style.transform = `scaleX(${Math.min(1, loaded / 4)})`; };
-shotImgs.slice(0, 4).forEach((im) => { if (im.complete) bump(); else { im.addEventListener("load", bump, { once: true }); im.addEventListener("error", bump, { once: true }); } });
-const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const ready = new Promise((res) => { const t0 = performance.now(); const tick = () => { if ((loaded >= 2 && performance.now() - t0 > 1700) || performance.now() - t0 > 4200) res(); else requestAnimationFrame(tick); }; tick(); });
-ready.then(() => intro.classList.add("done"));
-/* nav background after the first screen */
-const nav = $("#nav");
-const onScroll = () => nav.classList.toggle("solid", window.scrollY > window.innerHeight * 0.6);
-window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
-/* form */
-const form = $("#form"), msg = $("#form-msg");
-form.addEventListener("submit", (e) => {
-e.preventDefault();
-const name = $("#f-name").value.trim(), phone = $("#f-phone").value.trim();
-if (!name || !phone) { msg.style.color = "#f2a46c"; msg.textContent = "Add your name and a phone number so we can call you back."; return; }
-msg.style.color = ""; msg.textContent = `Thanks, ${name.split(" ")[0]}. This is a demo site, so the request wasn't sent anywhere.`;
-});
-const hasGsap = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
-if (reduce || !hasGsap) { document.documentElement.classList.add("rm"); return; }
-gsap.registerPlugin(ScrollTrigger);
-let lenis = null;
-if (window.Lenis && window.matchMedia("(pointer: fine)").matches) {
-lenis = new Lenis({ lerp: 0.08, wheelMultiplier: 0.9, smoothWheel: true });
-lenis.on("scroll", ScrollTrigger.update);
-gsap.ticker.add((t) => lenis.raf(t * 1000));
-gsap.ticker.lagSmoothing(0);
-}
-/* scanner brackets placed on the real photo, in image coordinates */
-const LOCKS = {
-k2: { box: [0.18, 0.44, 0.5, 0.95], a: "LEAK · P-TRAP", b: "SEALED · 0 PSI DROP" },
-b2: { box: [0.3, 0.28, 0.66, 0.78], a: "CLOG · 3 FT IN", b: "LINE CLEAR" },
-u2: { box: [0.5, 0.18, 0.86, 0.8], a: "NO HOT WATER", b: "140°F · HOLDING" },
-w2: { box: [0.12, 0.08, 0.5, 0.52], a: "STUD @ 16 IN", b: "MOUNTED · LEVEL" },
-};
-const W = () => window.innerWidth, Hh = () => $("#film").clientHeight;
-for (const [k, L] of Object.entries(LOCKS)) {
-const el = $(`[data-lock="${k}"]`);
-el.innerHTML = `<div class="scan"></div><svg preserveAspectRatio="none" viewBox="0 0 100 100"><path class="pa" d="M0 22V0H22M78 0H100V22M100 78V100H78M22 100H0V78" fill="none" stroke-width="2" vector-effect="non-scaling-stroke" style="stroke-width:3px"/><path class="pb" d="M0 22V0H22M78 0H100V22M100 78V100H78M22 100H0V78" fill="none" vector-effect="non-scaling-stroke" style="stroke-width:3px"/></svg><span class="tag ta">${L.a}</span><span class="tag tb">${L.b}</span>`;
-}
-function placeLocks() {
-const vw = W(), vh = Hh();
-for (const [k, L] of Object.entries(LOCKS)) {
-const el = $(`[data-lock="${k}"]`), img = el.parentElement.querySelector("img");
-const nw = img.naturalWidth || 3, nh = img.naturalHeight || 2;
-const s = Math.max(vw / nw, vh / nh), dw = nw * s, dh = nh * s, ox = (vw - dw) / 2, oy = (vh - dh) / 2;
-const [x1, y1, x2, y2] = L.box;
-let w = Math.min((x2 - x1) * dw, vw * (vw < 821 ? 0.6 : 0.26)), h = Math.min((y2 - y1) * dh, vh * (vw < 821 ? 0.3 : 0.42));
-const cx = ox + (x1 + x2) / 2 * dw, cy = oy + (y1 + y2) / 2 * dh, xmax = vw < 821 ? vw * 0.94 : vw * 0.6, ymax = vw < 821 ? vh * 0.5 : vh * 0.84;
-const l = Math.max(vw * 0.06, Math.min(cx - w / 2, xmax - w)), t = Math.max(vh * 0.16, Math.min(cy - h / 2, ymax - h));
-Object.assign(el.style, { left: l + "px", top: t + "px", width: w + "px", height: h + "px" });
-}
-}
-$$(".shot img").forEach((im) => im.addEventListener("load", placeLocks));
-placeLocks();
-/* the film */
-const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.inOut" } });
-const S = (n) => `.shot[data-s="${n}"]`, SC = (n) => `.shot[data-s="${n}"] .sc`;
-const mobile = () => W() < 821;
-// hero: slow push, copy lifts away, bars close in like a lens
-tl.to("#hero", { autoAlpha: 0, y: -80, duration: 3, ease: "power2.in" }, 0)
-.to("#heroFacts", { autoAlpha: 0, y: -40, duration: 2.4, ease: "power2.in" }, 0.3)
-.to("#cue", { autoAlpha: 0, duration: 1 }, 0)
-.fromTo(SC("hero"), { scale: 1, xPercent: 0 }, { scale: 1.35, xPercent: -6, duration: 7, ease: "power1.in" }, 0)
-.to(".bars i", { height: () => (mobile() ? 0 : Hh() * 0.07), duration: 3 }, 2)
-.to(["#rail", "#readout", "#tc"], { autoAlpha: 1, duration: 2 }, 3)
-.to("#side", { opacity: 0.55, duration: 4 }, 2);
-const chapIn = (n, at) => tl.fromTo(`[data-chap="${n}"]`, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, at)
-.fromTo(`[data-chap="${n}"] .ln > span`, { yPercent: 110 }, { yPercent: 0, duration: 2, stagger: 0.25, ease: "expo.out" }, at)
-.fromTo(`[data-chap="${n}"] .num`, { autoAlpha: 0, x: -20 }, { autoAlpha: 1, x: 0, duration: 1.4 }, at + 0.2);
-const chapOut = (n, at) => tl.to(`[data-chap="${n}"] .ln > span`, { yPercent: -110, duration: 1.4, stagger: 0.12, ease: "power3.in" }, at)
-.to(`[data-chap="${n}"] .num`, { autoAlpha: 0, duration: 1 }, at)
-.set(`[data-chap="${n}"]`, { autoAlpha: 0 }, at + 1.8);
-const cardIn = (n, at) => tl.fromTo(`[data-card="${n}"]`, { autoAlpha: 0, y: 60, filter: "blur(12px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 2, ease: "power3.out" }, at);
-const cardOut = (n, at) => tl.to(`[data-card="${n}"]`, { autoAlpha: 0, y: -50, filter: "blur(12px)", duration: 1.6, ease: "power2.in" }, at);
-// reveal shapes: each chapter enters with a different cut
-const REVEALS = [
-["circle(0% at 62% 55%)", "circle(150% at 62% 55%)"],
-["inset(0 0 0 100%)", "inset(0 0 0 0%)"],
-["inset(100% 0 0 0)", "inset(0% 0 0 0)"],
-["polygon(50% 0,50% 0,50% 100%,50% 100%)", "polygon(0 0,100% 0,100% 100%,0 100%)"],
-];
-const lockIn = (k, at) => tl.fromTo(`[data-lock="${k}"]`, { autoAlpha: 0, scale: 1.25 }, { autoAlpha: 1, scale: 1, duration: 1.2, ease: "expo.out" }, at)
-.fromTo(`[data-lock="${k}"] .scan`, { opacity: 0, left: "0%" }, { opacity: 1, duration: 0.3 }, at)
-.to(`[data-lock="${k}"] .scan`, { left: "78%", duration: 2.2, ease: "power1.inOut" }, at)
-.to(`[data-lock="${k}"] .scan`, { opacity: 0, duration: 0.5 }, at + 2);
-const solve = (k, n, at) => tl.to(`[data-lock="${k}"] .ta, [data-lock="${k}"] .pa`, { opacity: 0, duration: 0.6 }, at)
-.to(`[data-lock="${k}"] .tb, [data-lock="${k}"] .pb`, { opacity: 1, duration: 0.6 }, at)
-.to(`[data-card="${n}"] .sa`, { autoAlpha: 0, duration: 0.6 }, at)
-.to(`[data-card="${n}"] .sb`, { opacity: 1, duration: 0.6 }, at)
-.fromTo("#flash", { opacity: 0 }, { opacity: 0.35, duration: 0.25, yoyo: true, repeat: 1, ease: "none" }, at);
-// wide shot (the room) -> push in -> zoom-through cut to the close-up (the repair)
-function chapter(n, t, wide, close, k, origin) {
-const [from, to] = REVEALS[n - 1];
-tl.set(S(wide), { autoAlpha: 1, clipPath: from }, t)
-.to(S(wide), { clipPath: to, duration: 3, ease: "power3.inOut" }, t)
-.fromTo(SC(wide), { scale: 1.3, transformOrigin: origin }, { scale: 1.02, duration: 4, ease: "power2.out" }, t)
-.to(SC(wide), { scale: 1.55, duration: 4.5, ease: "power2.in" }, t + 5.5);
-chapIn(n, t + 0.8); chapOut(n, t + 6.4);
-tl.set(S(close), { autoAlpha: 0, clipPath: "none" }, t + 8)
-.to(S(close), { autoAlpha: 1, duration: 1.4, ease: "power1.inOut" }, t + 8.4)
-.fromTo(SC(close), { scale: 1.45 }, { scale: 1.04, duration: 5, ease: "power3.out" }, t + 8.4)
-.to(SC(close), { scale: 1.12, duration: 8, ease: "none" }, t + 13.4)
-.set(S(wide), { autoAlpha: 0 }, t + 10);
-cardIn(n, t + 10);
-lockIn(k, t + 11);
-solve(k, n, t + 16);
-cardOut(n, t + 19.4);
-tl.to(`[data-lock="${k}"]`, { autoAlpha: 0, duration: 1 }, t + 19.6);
-}
-chapter(1, 4, "k1", "k2", "k2", "62% 55%");
-tl.set(S("hero"), { autoAlpha: 0 }, 8);
-chapter(2, 26, "b1", "b2", "b2", "75% 62%");
-tl.set(S("k2"), { autoAlpha: 0 }, 30);
-chapter(3, 48, "u1", "u2", "u2", "55% 45%");
-tl.set(S("b2"), { autoAlpha: 0 }, 52);
-tl.fromTo("#gauge", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 1.2 }, 60)
-.to({ v: 92 }, { v: 140, duration: 4.5, ease: "power1.inOut", onUpdate() { const v = Math.round(this.targets()[0].v); const g = $("#gaugeNum"); g.textContent = v + "°F"; g.style.color = v > 120 ? "#ffb27a" : "#86dcff"; } }, 60.4)
-.to("#gauge", { autoAlpha: 0, duration: 1 }, 67);
-chapter(4, 70, "w1", "w2", "w2", "50% 45%");
-tl.set(S("u2"), { autoAlpha: 0 }, 74);
-// whole home: copper pipe wall, final statement, then hand off to the page
-tl.set(S("all"), { autoAlpha: 1, clipPath: "circle(0% at 50% 50%)" }, 91)
-.to(S("all"), { clipPath: "circle(150% at 50% 50%)", duration: 3, ease: "power3.inOut" }, 91)
-.fromTo(SC("all"), { scale: 1.4 }, { scale: 1, duration: 8, ease: "power2.out" }, 91)
-.set(S("w2"), { autoAlpha: 0 }, 94);
-chapIn(5, 92);
-tl.to(".bars i", { height: 0, duration: 2 }, 95)
-.to(["#rail", "#readout", "#tc"], { autoAlpha: 0, duration: 1.5 }, 97)
-.to({}, { duration: 2 }, 99);
-const END = tl.duration();
-const st = ScrollTrigger.create({ trigger: "#film", start: "top top", end: () => "+=" + Math.round(Hh() * 12), pin: true, scrub: lenis ? true : 0.6, animation: tl, invalidateOnRefresh: true });
-// HUD: readout, chapter counter, rail
-const READ = [[0, "DISPATCH · READY"], [4, "CH 01 · KITCHEN · SCANNING"], [15, "CH 01 · LEAK AT P-TRAP · REPAIRING"], [20, "CH 01 · SEALED · TESTED"], [26, "CH 02 · BATHROOM · SCANNING"], [37, "CH 02 · BLOCKAGE · CLEARING"], [42, "CH 02 · FLOW RESTORED"], [48, "CH 03 · UTILITY · SCANNING"], [59, "CH 03 · RELIGHTING · HEATING"], [64, "CH 03 · 140°F · HOT WATER BACK"], [70, "CH 04 · WORKSHOP · STUD SCAN"], [81, "CH 04 · DRILLING · MOUNTING"], [86, "CH 04 · MOUNTED · LEVEL"], [91, "WHOLE HOME · ALL SYSTEMS NORMAL"]];
-const TCS = [[0, "01"], [26, "02"], [48, "03"], [70, "04"], [91, "05"]];
-const rs = $("#readout span"), tcN = $("#tcN"), rb = $$("#rail button"), rf = $("#rail .fill"), rail = $("#rail");
-let lr = "", lt = "", lo = -1;
-gsap.ticker.add(() => {
-const t = tl.time();
-let r = READ[0][1]; for (const [a, x] of READ) if (t >= a) r = x;
-if (r !== lr) { rs.textContent = r; lr = r; }
-let c = "01"; for (const [a, x] of TCS) if (t >= a) c = x;
-if (c !== lt) { tcN.textContent = c; lt = c; }
-let on = 0; rb.forEach((b, i) => { if (t + 0.6 >= +b.dataset.go) on = i; });
-if (on !== lo) { rb.forEach((b, i) => b.classList.toggle("on", i === on)); lo = on; }
-rf.style.height = (rail.clientHeight - 24) * tl.progress() + "px";
-});
-const goTo = (time) => { const y = st.start + (st.end - st.start) * Math.min(1, time / END); if (lenis) lenis.scrollTo(y, { duration: 2 }); else window.scrollTo({ top: y, behavior: "smooth" }); };
-$$("[data-go]").forEach((b) => b.addEventListener("click", () => goTo(+b.dataset.go)));
-$$('a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => { const id = a.getAttribute("href"); if (id.length < 2) return; const t = $(id); if (!t) return; e.preventDefault(); if (lenis) lenis.scrollTo(t, { duration: 1.6 }); else t.scrollIntoView({ behavior: "smooth" }); }));
-// hero entrance after the intro
-if (window.scrollY < 10) ready.then(() => gsap.from("#hero > *, #heroFacts > *", { y: 40, opacity: 0, duration: 1.3, ease: "expo.out", stagger: 0.07, clearProps: "opacity,transform" }));
-gsap.fromTo(S("hero") + " img", { scale: 1.12 }, { scale: 1, duration: 3.2, ease: "power2.out", delay: 1.4 });
-// page sections: reveals, parallax, counters
-$$(".rv").forEach((el) => gsap.to(el, { opacity: 1, y: 0, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } }));
-$$(".numbers .bg, .book .bg").forEach((el) => gsap.fromTo(el, { yPercent: -6 }, { yPercent: 6, ease: "none", scrollTrigger: { trigger: el.parentElement, start: "top bottom", end: "bottom top", scrub: true } }));
-gsap.fromTo(".about-ph img", { yPercent: -8 }, { yPercent: 0, ease: "none", scrollTrigger: { trigger: ".about-ph", start: "top bottom", end: "bottom top", scrub: true } });
-$$("[data-count]").forEach((el) => { const v = +el.dataset.count, o = { n: 0 }; gsap.to(o, { n: v, duration: 2.2, ease: "power2.out", scrollTrigger: { trigger: el, start: "top 90%" }, onUpdate: () => { el.textContent = Math.round(o.n).toLocaleString("en-US"); } }); });
-window.addEventListener("resize", () => { placeLocks(); });
-document.fonts?.ready.then(() => ScrollTrigger.refresh());
-window.addEventListener("load", () => { placeLocks(); ScrollTrigger.refresh(); });
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const form = $("#form"), msg = $("#form-msg");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("#f-name").value.trim(), phone = $("#f-phone").value.trim();
+    if (!name || !phone) { msg.style.color = "#f6b98e"; msg.textContent = "Add your name and a phone number so dispatch can call you back."; return; }
+    msg.style.color = ""; msg.textContent = `Thanks, ${name.split(" ")[0]}. This is a demo form, so nothing was sent. On the live site dispatch would call ${phone}.`;
+  });
+  const intro = $("#intro");
+  const hasGsap = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
+  if (reduce || !hasGsap) { document.documentElement.classList.add("rm"); intro.classList.add("done"); return; }
+  const start = () => { if (start.done) return; start.done = true; run(window.PLW3D); };
+  if (window.PLW3D) start(); else window.addEventListener("plw3d-ready", start);
+  // if 3D can't start (no WebGL), fall back to the plain layout
+  setTimeout(() => { if (!start.done) { document.documentElement.classList.add("rm"); intro.classList.add("done"); } }, 15000);
+
+  function run(G) {
+    intro.classList.add("done");
+    gsap.registerPlugin(ScrollTrigger);
+    const stage = $("#stage"), P = G.P;
+    let W = 0, H = 0, mobile = false;
+    const measure = () => { W = stage.clientWidth; H = stage.clientHeight; mobile = W < 768; G.setSize(W, H); G.mobile = mobile; };
+    measure();
+    let lenis = null;
+    if (typeof window.Lenis !== "undefined") {
+      lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9, smoothWheel: true });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((t) => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
+    if (window.scrollY < 10) gsap.from("#hero > *", { y: 34, opacity: 0, duration: 1.2, ease: "expo.out", stagger: 0.08, delay: 0.3, clearProps: "opacity,transform" });
+
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.inOut" } });
+    const to = (at, props, d = 2, ease) => tl.to(P, { ...props, duration: d, ...(ease ? { ease } : {}) }, at);
+    const cam = (at, c, d = 4, ease = "power3.inOut") => to(at, c, d, ease);
+    const STAND = { hipY: 0, lean: 0, twist: 0, headY: 0, headX: 0, hipL: 0, kneeL: 0, hipR: 0, kneeR: 0, ankleL: 0, ankleR: 0, shLx: 0, shLz: -0.04, elL: -0.12, shRx: 0, shRz: 0.04, elR: -0.12, wrR: 0, wrL: 0 };
+    // walk along a list of [x, z] points, turning to face each leg
+    const walk = (t0, t1, pts, camFollow) => {
+      let len = 0; const seg = [];
+      let px = pts[0][0], pz = pts[0][1];
+      for (const [x, z] of pts.slice(1)) { const l = Math.hypot(x - px, z - pz); seg.push([x, z, l, Math.atan2(x - px, z - pz)]); len += l; px = x; pz = z; }
+      let t = t0;
+      to(t0, { walk: 1 }, 0.9, "power1.out"); to(t1 - 0.9, { walk: 0 }, 0.9, "power1.in");
+      for (const [x, z, l, heading] of seg) {
+        const d = (t1 - t0) * l / len;
+        to(t, { x, z }, d, "none");
+        tl.to(P, { rot: heading, duration: Math.min(0.7, d), ease: "power2.out" }, t);
+        if (camFollow) tl.to(P, { cx: x + camFollow[0], cz: z + camFollow[2], cy: camFollow[1], tx: x + camFollow[3], ty: camFollow[4], tz: z + camFollow[5], duration: d, ease: "none" }, t);
+        t += d;
+      }
+    };
+    const cardIn = (n, at) => tl.fromTo(`[data-card="${n}"]`, { autoAlpha: 0, y: 50, filter: "blur(10px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 2, ease: "power3.out" }, at);
+    const cardOut = (n, at) => tl.to(`[data-card="${n}"]`, { autoAlpha: 0, y: -50, filter: "blur(10px)", duration: 1.8, ease: "power2.in" }, at);
+    const lockIn = (n, at) => tl.fromTo(`.lock[data-lock="${n}"]`, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, at).fromTo(`.lock[data-lock="${n}"] .lk`, { scale: 1.3 }, { scale: 1, duration: 1.2, ease: "expo.out" }, at)
+      .fromTo(`.lock[data-lock="${n}"] .lb`, { autoAlpha: 0 }, { autoAlpha: 0, duration: 0.01 }, at)
+      .fromTo(`.lock[data-lock="${n}"] .sweep`, { yPercent: -100, opacity: 1 }, { yPercent: 100, opacity: 0, duration: 2.2, ease: "power1.inOut" }, at + 0.3);
+    const solved = (n, at) => tl
+      .to(`.lock[data-lock="${n}"] .la`, { autoAlpha: 0, duration: 0.6 }, at)
+      .to(`.lock[data-lock="${n}"] .lb`, { autoAlpha: 1, duration: 0.6 }, at)
+      .to(`.lock[data-lock="${n}"]`, { "--c": "#86f0b9", duration: 0.6 }, at)
+      .to(`[data-card="${n}"] .sa`, { autoAlpha: 0, duration: 0.8 }, at)
+      .to(`[data-card="${n}"] .sb`, { opacity: 1, duration: 0.8 }, at);
+    const lockOut = (n, at) => tl.to(`.lock[data-lock="${n}"]`, { autoAlpha: 0, duration: 0.8 }, at);
+    const flow = (i, v, at, d = 1.5) => tl.to(P.flow, { [i]: v, duration: d }, at);
+
+    // 0 · hero close-up, then the whole house
+    tl.to("#hero", { autoAlpha: 0, y: -90, duration: 3, ease: "power2.in" }, 0)
+      .to(stage, { "--scrim": 0, duration: 3 }, 0.5)
+      .to(".scroll-hint", { autoAlpha: 0, duration: 1.2 }, 0)
+      .to(["#rail", "#readout", "#count"], { autoAlpha: 1, duration: 2 }, 5);
+    to(0, { carry: 1 }, 0.01);
+    cam(0.5, { cx: 12, cy: 5.6, cz: 28, tx: 12, ty: 0.9, tz: -0.2, fov: 30 }, 5.5, "power3.inOut");
+    to(1, { rot: 0.9 }, 1.5);
+    // 1 · kitchen: open the sink cabinet, kneel, wrench the trap
+    cam(6, { cx: 4.4, cy: 1.75, cz: 4.2, tx: 3.55, ty: 0.75, tz: -0.9, fov: 34 }, 4.5);
+    walk(6.5, 10, [[3.3, 0.6], [3.0, 0.2], [2.72, -0.72]]);
+    to(9.6, { rot: Math.PI - 0.35 }, 1.2);
+    lockIn(1, 9.5); cardIn(1, 10);
+    to(9.8, { doors: 1 }, 1.6);
+    to(10.5, { carry: 0, floorBox: 1, fbx: 2.05, fbz: -0.55 }, 0.01);
+    to(10.4, { hipY: -0.5, hipR: 1.5, kneeR: 1.55, ankleR: -0.05, hipL: 0.05, kneeL: 1.6, ankleL: 0.55, lean: 0.42, headX: 0.3, shRx: 1.15, shRz: 0.05, elR: -0.55, shLx: 0.75, shLz: -0.1, elL: -0.75, wrench: 1 }, 2.2);
+    flow(0, 1, 10.5);
+    tl.to(P, { work: 1, duration: 0.8, repeat: 5, yoyo: true, ease: "sine.inOut" }, 13);
+    to(16.5, { leak: 0 }, 1.5);
+    solved(1, 17.5);
+    to(18.8, { ...STAND, wrench: 0, work: 0 }, 2);
+    to(20.4, { doors: 0 }, 1.4);
+    to(20.6, { carry: 1, floorBox: 0 }, 0.01);
+    cardOut(1, 21); lockOut(1, 21.5); flow(0, 0, 21.5);
+
+    // 2 · bathroom: plunge the toilet
+    walk(22.5, 30, [[2.72, -0.72], [3.6, 0.45], [6, 0.5], [8.2, 0.2], [8.02, -1.22]], [1.6, 1.9, 5.0, 0.7, 0.95, -1.2]);
+    cam(28.5, { cx: 9.7, cy: 1.75, cz: 2.6, tx: 8.75, ty: 0.75, tz: -1.25, fov: 34 }, 3);
+    to(29.4, { rot: -Math.PI / 2 - 0.15 }, 1.2);
+    lockIn(2, 29); cardIn(2, 29.5); flow(1, 1, 29.5);
+    to(30, { carry: 0, floorBox: 1, fbx: 8.7, fbz: -0.55 }, 0.01);
+    to(30, { plunger: 1, lean: 0.38, headX: 0.35, shRx: 0.75, shRz: 0.22, elR: -0.5, shLx: 0.8, shLz: -0.25, elL: -0.55, hipL: 0.12, hipR: -0.1, kneeL: 0.2, kneeR: 0.12, hipY: -0.04 }, 1.8);
+    tl.to(P, { work: 1, duration: 0.6, repeat: 9, yoyo: true, ease: "sine.inOut" }, 32);
+    to(36.5, { bowl: 0.15 }, 1.2); to(37.8, { bowl: 1 }, 1.4);
+    solved(2, 38);
+    to(38.6, { ...STAND, plunger: 0, work: 0 }, 1.8);
+    to(40, { carry: 1, floorBox: 0 }, 0.01);
+    cardOut(2, 40.2); lockOut(2, 40.6); flow(1, 0, 40.6);
+
+    // 3 · utility: water heater from the tablet
+    walk(41, 49, [[8.02, -1.22], [9, 0.5], [12, 0.5], [13.6, 0.3], [14.05, -0.55]], [1.6, 1.9, 5.0, 0.7, 0.95, -1.1]);
+    cam(47.5, { cx: 15.6, cy: 1.75, cz: 3.1, tx: 14.75, ty: 0.95, tz: -1.0, fov: 34 }, 3);
+    to(48.4, { rot: Math.PI + 0.35 }, 1.2);
+    lockIn(3, 48); cardIn(3, 48.5); flow(2, 1, 48.5);
+    to(49, { carry: 0, floorBox: 1, fbx: 13.4, fbz: -0.35 }, 0.01);
+    to(49, { tablet: 1, shLx: 0.95, shLz: 0.05, elL: -1.25, wrL: 0.1, shRx: 0.55, shRz: 0.12, elR: -1.0, headX: 0.38, headY: 0.12, lean: 0.06 }, 1.8);
+    to(51.5, { flame: 1 }, 1);
+    to(51.5, { gauge: 1 }, 6, "power1.inOut");
+    tl.to(P, { work: 1, duration: 0.5, repeat: 5, yoyo: true, ease: "sine.inOut" }, 51.5);
+    to(54, { headX: 0.05, headY: -0.15 }, 1.2); to(56, { headX: 0.38, headY: 0.12 }, 1.2);
+    solved(3, 57.5);
+    to(58, { ...STAND, tablet: 0, work: 0 }, 1.8);
+    to(59.4, { carry: 1, floorBox: 0 }, 0.01);
+    cardOut(3, 59.6); lockOut(3, 60); flow(2, 0, 60);
+
+    // 4 · workshop: drill + mount the shelf
+    walk(60.5, 69, [[14.05, -0.55], [15, 0.5], [18, 0.5], [21.6, 0.3], [22.48, -0.9]], [1.6, 1.95, 5.0, 0.7, 1.0, -1.1]);
+    cam(67.5, { cx: 24.1, cy: 1.95, cz: 2.9, tx: 23.15, ty: 1.15, tz: -1.1, fov: 34 }, 3);
+    to(68.4, { rot: Math.PI - 0.08 }, 1.2);
+    lockIn(4, 68); cardIn(4, 68.5); flow(3, 1, 68.5);
+    to(69, { carry: 0, floorBox: 1, fbx: 21.75, fbz: -0.6 }, 0.01);
+    to(69.2, { drill: 1, shRx: 1.45, shRz: 0.12, elR: -0.3, shLx: 1.25, shLz: -0.28, elL: -0.75, headX: 0.0, lean: 0.06 }, 2);
+    to(72.5, { work: 1, dust: 1 }, 0.4);
+    tl.to(P, { lean: 0.12, duration: 0.3, repeat: 7, yoyo: true, ease: "sine.inOut" }, 72.5);
+    to(75.4, { dust: 0, mark: 0 }, 0.6);
+    to(76, { ...STAND, drill: 0, work: 0 }, 1.6);
+    to(76.4, { shelf: 1 }, 1.6, "back.out(1.5)");
+    solved(4, 77.2);
+    to(78, { carry: 1, floorBox: 0 }, 0.01);
+    cardOut(4, 79); lockOut(4, 79.4); flow(3, 0, 80);
+
+    // 5 · the whole house, every line flowing
+    cam(79.5, { cx: 14.6, cy: 5.0, cz: 27.5, tx: 14.6, ty: 0.95, tz: -0.2, fov: 30 }, 6);
+    to(81, { flowAll: 1 }, 3);
+    tl.to("#count", { autoAlpha: 0, duration: 1 }, 81);
+    to(80.5, { rot: 0.25 }, 1.5);
+    cardIn(5, 84); cardOut(5, 90);
+
+    // 6 · book: back to him, he turns and waves
+    cam(89.5, { cx: 23.9, cy: 1.55, cz: 3.4, tx: 23.3, ty: 1.2, tz: -0.4, fov: 32 }, 5);
+    to(89.5, { flowAll: 0 }, 2);
+    walk(89.5, 93, [[22.48, -0.9], [22.7, 0.35]]);
+    to(92.6, { rot: 0.25 }, 1);
+    to(93.5, { carry: 0, floorBox: 1, fbx: 22.3, fbz: 0.55, wave: 1, shRx: 0.2, shRz: -1.3, elR: -0.1, headX: -0.05 }, 1.4);
+    tl.to(P, { work: 1, duration: 0.5, repeat: 3, yoyo: true, ease: "sine.inOut" }, 94.5);
+    tl.to(["#rail", "#readout"], { autoAlpha: 0, duration: 1.5 }, 90)
+      .fromTo(".book", { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 2.5, ease: "power3.out" }, 92)
+      .to({}, { duration: 3 }, 96);
+
+    const END = tl.duration();
+    const st = ScrollTrigger.create({ trigger: stage, start: "top top", end: () => "+=" + Math.round(H * 12), pin: true, scrub: lenis ? true : 0.6, animation: tl, invalidateOnRefresh: true });
+
+    const READ = [[0, "STANDBY · READY FOR DISPATCH"], [6, "EN ROUTE · KITCHEN"], [9.5, "ROOM 01 · SCANNING SINK CABINET"], [12, "ROOM 01 · LEAK AT P-TRAP · TIGHTENING"], [17.5, "ROOM 01 · SEALED · 0 PSI DROP"], [22.5, "EN ROUTE · BATHROOM"], [29, "ROOM 02 · CLOG IN TOILET LINE · CLEARING"], [38, "ROOM 02 · DRAIN FLOWING"], [41, "EN ROUTE · UTILITY"], [48, "ROOM 03 · WATER HEATER · RELIGHTING"], [57.5, "ROOM 03 · 140°F · HOT WATER BACK"], [60.5, "EN ROUTE · WORKSHOP"], [68, "ROOM 04 · STUD FOUND · DRILLING"], [77.2, "ROOM 04 · SHELF MOUNTED · LEVEL"], [80, "WHOLE-HOME CHECK · ALL SYSTEMS NORMAL"]];
+    const COUNTS = [[0, "01"], [22.5, "02"], [41, "03"], [60.5, "04"]];
+    const readSpan = $("#readout span"), railBtns = $$("#rail button"), railFill = $("#rail .fill"), railBox = $("#rail"), countEl = $("#count b");
+    const locks = $$(".lock");
+    let lastRead = "", lastOn = -1, lastCount = "";
+    function hud() {
+      const time = tl.time();
+      let r = READ[0][1]; for (const [at, txt] of READ) if (time >= at) r = txt;
+      if (r !== lastRead) { readSpan.textContent = r; lastRead = r; }
+      let c = "01"; for (const [at, txt] of COUNTS) if (time >= at) c = txt;
+      if (c !== lastCount) { countEl.textContent = c; lastCount = c; }
+      let on = 0; railBtns.forEach((b, i) => { if (time + 0.6 >= +b.dataset.go) on = i; });
+      if (on !== lastOn) { railBtns.forEach((b, i) => b.classList.toggle("on", i === on)); lastOn = on; }
+      railFill.style.height = (railBox.clientHeight - 20) * tl.progress() + "px";
+      for (const el of locks) {
+        if (getComputedStyle(el).visibility === "hidden") continue;
+        const [x0, y0, x1, y1] = G.rectOf(+el.dataset.lock); const pad = 14;
+        el.style.transform = `translate(${x0 - pad}px, ${y0 - pad}px)`; el.style.width = x1 - x0 + pad * 2 + "px"; el.style.height = y1 - y0 + pad * 2 + "px";
+      }
+    }
+    gsap.ticker.add(() => { G.render(performance.now()); hud(); });
+    addEventListener("resize", () => { measure(); });
+    const goTo = (time) => { const y = st.start + (st.end - st.start) * Math.min(1, time / END); if (lenis) lenis.scrollTo(y, { duration: 2 }); else scrollTo({ top: y, behavior: "smooth" }); };
+    $$("[data-go]").forEach((b) => b.addEventListener("click", () => goTo(+b.dataset.go)));
+    window.__tl = tl; window.__st = st;
+    document.fonts?.ready.then(() => ScrollTrigger.refresh());
+  }
 })();
+
+</script>
+<script type="module">
+/* PLW 3D: a cut-away house at night and a tradesman, built in three.js.
+   Exposes window.PLW3D = { P, setSize, render, lockRects } for the page script. */
+import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+
+const canvas = document.getElementById("gl");
+const lowPower = matchMedia("(max-width: 767px)").matches;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(devicePixelRatio, lowPower ? 1.5 : 1.75));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.92;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x06080b);
+scene.fog = new THREE.Fog(0x06080b, 30, 70);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+scene.environmentIntensity = 0.32;
+
+const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 200);
+
+/* ---------- procedural textures ---------- */
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+function canvasTex(w, h, draw, { repeat = [1, 1], color = true } = {}) {
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  draw(c.getContext("2d"), w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...repeat);
+  if (color) t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+function noise(x, w, h, amt, seed) {
+  const r = rng(seed), d = x.getImageData(0, 0, w, h), p = d.data;
+  for (let i = 0; i < p.length; i += 4) { const n = (r() - 0.5) * amt; p[i] += n; p[i + 1] += n; p[i + 2] += n; }
+  x.putImageData(d, 0, 0);
+}
+function blotch(x, w, h, n, col, rmax, seed) {
+  const r = rng(seed);
+  for (let i = 0; i < n; i++) {
+    const cx = r() * w, cy = r() * h, rad = 10 + r() * rmax;
+    const g = x.createRadialGradient(cx, cy, 0, cx, cy, rad); g.addColorStop(0, col); g.addColorStop(1, "rgba(0,0,0,0)");
+    x.fillStyle = g; x.fillRect(cx - rad, cy - rad, rad * 2, rad * 2);
+  }
+}
+const T = {};
+T.oak = canvasTex(1024, 1024, (x, w, h) => {
+  const r = rng(7); const rows = 8, pw = h / rows;
+  for (let j = 0; j < rows; j++) {
+    let off = -r() * 600;
+    while (off < w) {
+      const L = 380 + r() * 420, v = r() * 26;
+      x.fillStyle = `rgb(${128 + v},${88 + v * 0.8},${56 + v * 0.6})`; x.fillRect(off, j * pw, L, pw);
+      for (let k = 0; k < 14; k++) {
+        const y = j * pw + r() * pw; x.strokeStyle = `rgba(${60 + r() * 30},${36},${18},${0.08 + r() * 0.16})`; x.lineWidth = 0.6 + r() * 1.6;
+        x.beginPath(); x.moveTo(off, y); x.bezierCurveTo(off + L * 0.3, y + (r() - 0.5) * 10, off + L * 0.7, y + (r() - 0.5) * 10, off + L, y + (r() - 0.5) * 6); x.stroke();
+      }
+      x.fillStyle = "rgba(30,18,10,.55)"; x.fillRect(off, j * pw, 2, pw);
+      off += L;
+    }
+    x.fillStyle = "rgba(25,15,8,.6)"; x.fillRect(0, j * pw, w, 2);
+  }
+  noise(x, w, h, 14, 8);
+}, { repeat: [1.4, 1.4] });
+T.oakBump = canvasTex(512, 512, (x, w, h) => { x.fillStyle = "#808080"; x.fillRect(0, 0, w, h); const pw = h / 8; for (let j = 0; j < 8; j++) { x.fillStyle = "#303030"; x.fillRect(0, j * pw, w, 2); } noise(x, w, h, 30, 3); }, { repeat: [1.4, 1.4], color: false });
+T.plaster = canvasTex(512, 512, (x, w, h) => { x.fillStyle = "#cfc6b8"; x.fillRect(0, 0, w, h); blotch(x, w, h, 50, "rgba(120,100,80,.06)", 80, 11); blotch(x, w, h, 40, "rgba(255,255,255,.07)", 60, 12); noise(x, w, h, 10, 13); }, { repeat: [3, 2] });
+T.plasterBump = canvasTex(256, 256, (x, w, h) => { x.fillStyle = "#808080"; x.fillRect(0, 0, w, h); noise(x, w, h, 40, 5); }, { repeat: [6, 4], color: false });
+T.zellige = canvasTex(1024, 1024, (x, w, h) => {
+  const r = rng(21), n = 8, s = w / n; x.fillStyle = "#bdb6aa"; x.fillRect(0, 0, w, h);
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const v = r() * 26 - 13; const g = x.createLinearGradient(i * s, j * s, i * s + s, j * s + s);
+    g.addColorStop(0, `rgb(${70 + v},${104 + v},${98 + v})`); g.addColorStop(0.5, `rgb(${92 + v},${128 + v},${120 + v})`); g.addColorStop(1, `rgb(${62 + v},${94 + v},${90 + v})`);
+    x.fillStyle = g; x.fillRect(i * s + 3, j * s + 3, s - 6, s - 6);
+  }
+  noise(x, w, h, 12, 22);
+}, { repeat: [2.4, 1.6] });
+T.zelligeBump = canvasTex(512, 512, (x, w, h) => { const n = 8, s = w / n; x.fillStyle = "#303030"; x.fillRect(0, 0, w, h); for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const g = x.createRadialGradient(i * s + s / 2, j * s + s / 2, 4, i * s + s / 2, j * s + s / 2, s * 0.7); g.addColorStop(0, "#c8c8c8"); g.addColorStop(1, "#a0a0a0"); x.fillStyle = g; x.fillRect(i * s + 2, j * s + 2, s - 4, s - 4); } }, { repeat: [2.4, 1.6], color: false });
+T.stone = canvasTex(1024, 1024, (x, w, h) => { const n = 2, s = w / n; x.fillStyle = "#3d3a36"; x.fillRect(0, 0, w, h); const r = rng(31); for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const v = r() * 10; x.fillStyle = `rgb(${150 + v},${144 + v},${134 + v})`; x.fillRect(i * s + 3, j * s + 3, s - 6, s - 6); } blotch(x, w, h, 90, "rgba(90,80,70,.10)", 90, 32); noise(x, w, h, 16, 33); }, { repeat: [3, 2] });
+T.concrete = canvasTex(1024, 1024, (x, w, h) => { x.fillStyle = "#77736d"; x.fillRect(0, 0, w, h); blotch(x, w, h, 120, "rgba(0,0,0,.07)", 90, 41); blotch(x, w, h, 80, "rgba(255,255,255,.05)", 70, 42); noise(x, w, h, 22, 43); }, { repeat: [2, 1.4] });
+T.marble = canvasTex(1024, 512, (x, w, h) => {
+  x.fillStyle = "#ece8e1"; x.fillRect(0, 0, w, h); const r = rng(51);
+  for (let k = 0; k < 26; k++) { x.strokeStyle = `rgba(110,104,96,${0.05 + r() * 0.18})`; x.lineWidth = 0.5 + r() * 2.2; x.beginPath(); let px = r() * w, py = 0; x.moveTo(px, py); for (let s = 0; s < 12; s++) { px += (r() - 0.4) * 120; py += h / 11; x.lineTo(px, py); } x.stroke(); }
+  noise(x, w, h, 6, 52);
+}, { repeat: [1, 1] });
+T.walnut = canvasTex(512, 512, (x, w, h) => { x.fillStyle = "#5a3a22"; x.fillRect(0, 0, w, h); const r = rng(61); for (let k = 0; k < 90; k++) { const y = r() * h; x.strokeStyle = `rgba(${30 + r() * 40},${16},${6},${0.15 + r() * 0.3})`; x.lineWidth = 0.6 + r() * 2.5; x.beginPath(); x.moveTo(0, y); x.bezierCurveTo(w * 0.3, y + (r() - 0.5) * 30, w * 0.6, y + (r() - 0.5) * 30, w, y + (r() - 0.5) * 16); x.stroke(); } noise(x, w, h, 12, 62); }, { repeat: [1, 1] });
+T.fabric = canvasTex(256, 256, (x, w, h) => { x.fillStyle = "#808080"; x.fillRect(0, 0, w, h); for (let i = 0; i < w; i += 2) { x.fillStyle = i % 4 ? "rgba(0,0,0,.18)" : "rgba(255,255,255,.12)"; x.fillRect(i, 0, 1, h); x.fillRect(0, i, w, 1); } noise(x, w, h, 40, 71); }, { repeat: [8, 8], color: false });
+T.peg = canvasTex(256, 256, (x, w, h) => { x.fillStyle = "#a88a64"; x.fillRect(0, 0, w, h); noise(x, w, h, 18, 81); for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { x.fillStyle = "#2a1f14"; x.beginPath(); x.arc(i * 32 + 16, j * 32 + 16, 4.5, 0, 7); x.fill(); } }, { repeat: [6, 3] });
+T.night = canvasTex(256, 256, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#0d1c33"); g.addColorStop(0.75, "#1b3550"); g.addColorStop(1, "#2a4a56"); x.fillStyle = g; x.fillRect(0, 0, w, h); const r = rng(91); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(255,255,255,${0.3 + r() * 0.6})`; x.fillRect(r() * w, r() * h * 0.6, 1.2, 1.2); } x.fillStyle = "#0a1418"; x.beginPath(); x.moveTo(0, h); for (let i = 0; i <= 10; i++) x.lineTo(i * w / 10, h * 0.78 - rng(92 + i)() * 40); x.lineTo(w, h); x.fill(); });
+
+/* gauge display, redrawn when the temperature changes */
+const gaugeCanvas = document.createElement("canvas"); gaugeCanvas.width = 256; gaugeCanvas.height = 256;
+const gaugeTex = new THREE.CanvasTexture(gaugeCanvas); gaugeTex.colorSpace = THREE.SRGBColorSpace;
+let lastGauge = -1;
+function drawGauge(f) {
+  if (f === lastGauge) return; lastGauge = f;
+  const x = gaugeCanvas.getContext("2d"); x.fillStyle = "#0b0d10"; x.fillRect(0, 0, 256, 256);
+  const hot = (f - 92) / 48;
+  x.lineWidth = 14; x.strokeStyle = "#1d2228"; x.beginPath(); x.arc(128, 140, 84, Math.PI * 0.8, Math.PI * 2.2); x.stroke();
+  x.strokeStyle = `rgb(${Math.round(127 + hot * 128)},${Math.round(220 - hot * 82)},${Math.round(255 - hot * 194)})`;
+  x.beginPath(); x.arc(128, 140, 84, Math.PI * 0.8, Math.PI * (0.8 + 1.4 * Math.max(0.02, hot))); x.stroke();
+  x.fillStyle = "#f4efe7"; x.font = "600 64px Manrope, Inter, sans-serif"; x.textAlign = "center"; x.fillText(f + "°", 128, 160);
+  x.fillStyle = "#8e959d"; x.font = "500 20px 'JetBrains Mono', monospace"; x.fillText(hot > 0.98 ? "HEATING OK" : "LOW TEMP", 128, 200);
+  gaugeTex.needsUpdate = true;
+}
+drawGauge(92);
+/* tablet screen */
+const tabCanvas = document.createElement("canvas"); tabCanvas.width = 256; tabCanvas.height = 192;
+(() => { const x = tabCanvas.getContext("2d"); const g = x.createLinearGradient(0, 0, 0, 192); g.addColorStop(0, "#0e2a3a"); g.addColorStop(1, "#0a1520"); x.fillStyle = g; x.fillRect(0, 0, 256, 192); x.fillStyle = "#7fdcff"; x.fillRect(18, 22, 120, 10); x.fillStyle = "rgba(127,220,255,.35)"; for (let i = 0; i < 6; i++) x.fillRect(18 + i * 38, 150 - i * 16, 26, 20 + i * 16); x.fillStyle = "#f3a66f"; x.fillRect(18, 44, 70, 6); })();
+const tabTex = new THREE.CanvasTexture(tabCanvas); tabTex.colorSpace = THREE.SRGBColorSpace;
+/* shirt logo patch */
+const patchTex = canvasTex(256, 128, (x, w, h) => { x.fillStyle = "#1a2433"; x.fillRect(0, 0, w, h); x.strokeStyle = "#e2894b"; x.lineWidth = 10; x.lineCap = "round"; x.lineJoin = "round"; x.beginPath(); x.moveTo(40, 104); x.lineTo(40, 30); x.lineTo(64, 30); x.arc(64, 50, 20, -Math.PI / 2, Math.PI / 2); x.lineTo(40, 70); x.stroke(); x.fillStyle = "#f4efe7"; x.font = "800 44px Manrope, Inter, sans-serif"; x.fillText("PLW", 104, 78); }, { repeat: [1, 1] });
+const backTex = canvasTex(512, 128, (x, w, h) => { x.fillStyle = "#1a2433"; x.fillRect(0, 0, w, h); x.fillStyle = "#e2894b"; x.font = "800 64px Manrope, Inter, sans-serif"; x.textAlign = "center"; x.fillText("PLW", w / 2, 66); x.fillStyle = "#c9c2b7"; x.font = "600 26px Manrope, Inter, sans-serif"; x.fillText("PLUMBING CO.", w / 2, 106); }, { repeat: [1, 1] });
+
+/* ---------- materials ---------- */
+const M = {
+  plaster: new THREE.MeshStandardMaterial({ map: T.plaster, bumpMap: T.plasterBump, bumpScale: 0.6, roughness: 0.92, color: 0xf2e9dc }),
+  plasterDark: new THREE.MeshStandardMaterial({ map: T.plaster, bumpMap: T.plasterBump, bumpScale: 0.6, roughness: 0.95, color: 0x8b8780 }),
+  section: new THREE.MeshStandardMaterial({ color: 0x23201d, roughness: 0.9 }),
+  sectionCut: new THREE.MeshStandardMaterial({ color: 0x3a342e, roughness: 0.85 }),
+  oak: new THREE.MeshStandardMaterial({ map: T.oak, bumpMap: T.oakBump, bumpScale: 0.5, roughness: 0.42, color: 0xffffff }),
+  stone: new THREE.MeshStandardMaterial({ map: T.stone, roughness: 0.35, color: 0xffffff }),
+  concrete: new THREE.MeshStandardMaterial({ map: T.concrete, roughness: 0.8, color: 0xffffff }),
+  zellige: new THREE.MeshPhysicalMaterial({ map: T.zellige, bumpMap: T.zelligeBump, bumpScale: 1.4, roughness: 0.22, clearcoat: 0.8, clearcoatRoughness: 0.15 }),
+  marble: new THREE.MeshPhysicalMaterial({ map: T.marble, roughness: 0.18, clearcoat: 0.6, clearcoatRoughness: 0.12 }),
+  cab: new THREE.MeshStandardMaterial({ color: 0x24342e, roughness: 0.5 }),
+  cabIn: new THREE.MeshStandardMaterial({ color: 0x15110d, roughness: 0.9 }),
+  walnut: new THREE.MeshStandardMaterial({ map: T.walnut, roughness: 0.45 }),
+  brass: new THREE.MeshStandardMaterial({ color: 0xc89b5a, metalness: 1, roughness: 0.28 }),
+  copper: new THREE.MeshStandardMaterial({ color: 0xc8703f, metalness: 1, roughness: 0.32 }),
+  chrome: new THREE.MeshStandardMaterial({ color: 0xe6eaee, metalness: 1, roughness: 0.12 }),
+  steel: new THREE.MeshStandardMaterial({ color: 0xb6bcc2, metalness: 0.9, roughness: 0.3 }),
+  galv: new THREE.MeshStandardMaterial({ color: 0x9aa1a8, metalness: 0.8, roughness: 0.45 }),
+  black: new THREE.MeshStandardMaterial({ color: 0x141517, roughness: 0.45, metalness: 0.2 }),
+  matteBlack: new THREE.MeshStandardMaterial({ color: 0x1a1b1d, roughness: 0.8 }),
+  porcelain: new THREE.MeshPhysicalMaterial({ color: 0xf4f3f0, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05 }),
+  enamel: new THREE.MeshPhysicalMaterial({ color: 0xe9ebec, roughness: 0.3, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
+  pvc: new THREE.MeshStandardMaterial({ color: 0xdfe2e4, roughness: 0.45 }),
+  glass: new THREE.MeshPhysicalMaterial({ color: 0xdff4ff, roughness: 0.04, transmission: 0.92, thickness: 0.01, transparent: true, opacity: 0.35 }),
+  water: new THREE.MeshPhysicalMaterial({ color: 0x9ad8f0, roughness: 0.02, transmission: 0.6, transparent: true, opacity: 0.75, clearcoat: 1 }),
+  night: new THREE.MeshBasicMaterial({ map: T.night }),
+  warmGlow: new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0xffd7a0, emissiveIntensity: 3.2 }),
+  mirror: new THREE.MeshStandardMaterial({ color: 0x9aa3ab, metalness: 1, roughness: 0.04 }),
+  ground: new THREE.MeshStandardMaterial({ color: 0x0b0d0c, roughness: 1 }),
+  soil: new THREE.MeshStandardMaterial({ color: 0x1a1510, roughness: 1 }),
+  peg: new THREE.MeshStandardMaterial({ map: T.peg, roughness: 0.8 }),
+  white: new THREE.MeshStandardMaterial({ color: 0xf1f0ec, roughness: 0.35 }),
+  leaf: new THREE.MeshStandardMaterial({ color: 0x3f6b3c, roughness: 0.6, side: THREE.DoubleSide }),
+  pot: new THREE.MeshStandardMaterial({ color: 0xb8a48f, roughness: 0.85 }),
+  towel: new THREE.MeshStandardMaterial({ color: 0xd7cec1, roughness: 1, bumpMap: T.fabric, bumpScale: 2 }),
+  gauge: new THREE.MeshBasicMaterial({ map: gaugeTex }),
+  flame: new THREE.MeshBasicMaterial({ color: 0x4aa0ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }),
+  flow: new THREE.MeshBasicMaterial({ color: 0x7fdcff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }),
+  flowHot: new THREE.MeshBasicMaterial({ color: 0xff9b5c, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }),
+};
+// shared animated flow texture for the "x-ray" lines
+const flowTex = canvasTex(64, 8, (x, w, h) => { x.fillStyle = "#000"; x.fillRect(0, 0, w, h); const g = x.createLinearGradient(0, 0, w, 0); g.addColorStop(0, "#000"); g.addColorStop(0.6, "#fff"); g.addColorStop(0.75, "#000"); x.fillStyle = g; x.fillRect(0, 0, w, h); }, { repeat: [1, 1], color: false });
+M.flow.alphaMap = flowTex; M.flowHot.alphaMap = flowTex;
+
+/* ---------- helpers ---------- */
+const house = new THREE.Group(); scene.add(house);
+function add(mesh, parent = house, { cast = true, receive = true } = {}) { mesh.castShadow = cast; mesh.receiveShadow = receive; parent.add(mesh); return mesh; }
+function box(w, h, d, mat, x, y, z, parent, r = 0) {
+  const g = r > 0 ? new RoundedBoxGeometry(w, h, d, 3, r) : new THREE.BoxGeometry(w, h, d);
+  const m = new THREE.Mesh(g, mat); m.position.set(x, y, z); return add(m, parent);
+}
+function cyl(rt, rb, h, mat, x, y, z, parent, seg = 32) { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat); m.position.set(x, y, z); return add(m, parent); }
+function tube(points, r, mat, parent = house, closed = false) {
+  const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)), closed, "catmullrom", 0.02);
+  const m = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(24, points.length * 16), r, 16, closed), mat); return add(m, parent);
+}
+function pipeRun(pts, r, mat, parent = house) {
+  // straight runs with soft elbows (looks like real copper/PVC with fittings)
+  const path = new THREE.CurvePath();
+  const V = pts.map((p) => new THREE.Vector3(...p));
+  const rad = r * 3;
+  let prev = V[0].clone();
+  for (let i = 1; i < V.length; i++) {
+    const a = V[i - 1], b = V[i], c = V[i + 1];
+    if (!c) { path.add(new THREE.LineCurve3(prev, b)); break; }
+    const d1 = b.clone().sub(a).normalize(), d2 = c.clone().sub(b).normalize();
+    const p1 = b.clone().addScaledVector(d1, -rad), p2 = b.clone().addScaledVector(d2, rad);
+    path.add(new THREE.LineCurve3(prev, p1)); path.add(new THREE.QuadraticBezierCurve3(p1, b, p2)); prev = p2;
+  }
+  const m = new THREE.Mesh(new THREE.TubeGeometry(path, 200, r, 14, false), mat); add(m, parent);
+  // fittings at joints
+  for (let i = 1; i < V.length - 1; i++) { const f = new THREE.Mesh(new THREE.SphereGeometry(r * 1.32, 16, 12), mat); f.position.copy(V[i]); add(f, parent); }
+  return { mesh: m, path };
+}
+function lathe(profile, mat, seg = 40) { return new THREE.Mesh(new THREE.LatheGeometry(profile.map(([x, y]) => new THREE.Vector2(x, y)), seg), mat); }
+
+/* ---------- house shell ---------- */
+const ROOMS = 4, RW = 6, H = 3, ZB = -2, ZF = 2;
+const floorMats = [M.oak, M.stone, M.concrete, M.oak];
+for (let i = 0; i < ROOMS; i++) {
+  const x0 = i * RW;
+  const f = box(RW, 0.06, ZF - ZB, floorMats[i], x0 + RW / 2, -0.03, 0);
+  if (floorMats[i].map) { f.geometry = f.geometry.clone(); }
+  const wallMat = i === 2 ? M.plasterDark : M.plaster;
+  box(RW, H, 0.15, wallMat, x0 + RW / 2, H / 2, ZB - 0.075);
+  // skirting
+  box(RW, 0.1, 0.02, i === 2 ? M.matteBlack : M.white, x0 + RW / 2, 0.05, ZB + 0.01);
+}
+// partitions with door openings (z from -0.2 to 1.2)
+for (let i = 0; i <= ROOMS; i++) {
+  const x = i * RW, outer = i === 0 || i === ROOMS;
+  const t = outer ? 0.3 : 0.15, xo = i === 0 ? -t / 2 : i === ROOMS ? t / 2 : 0;
+  if (outer) { box(t, H + 0.36, ZF - ZB + 0.15, M.section, x + xo, (H - 0.36) / 2 + 0.0, -0.075); continue; }
+  box(t, H, -0.2 - ZB, M.plaster, x, H / 2, (ZB + -0.2) / 2);
+  box(t, H, ZF - 1.2, M.plaster, x, H / 2, (1.2 + ZF) / 2);
+  box(t, H - 2.2, 1.4, M.plaster, x, 2.2 + (H - 2.2) / 2, 0.5);
+  // cut faces facing camera, dark like an architectural section
+  box(t + 0.002, H, 0.01, M.section, x, H / 2, ZF + 0.005, house).castShadow = false;
+}
+// ceiling + roof slab
+box(RW * ROOMS + 0.6, 0.36, ZF - ZB + 0.15, M.section, RW * ROOMS / 2, H + 0.18, -0.075);
+box(RW * ROOMS, 0.02, ZF - ZB, M.white, RW * ROOMS / 2, H - 0.01, 0);
+// floor slab with an open service cavity in front (shows the pipes)
+box(RW * ROOMS + 0.6, 0.08, ZF - ZB + 0.15, M.sectionCut, RW * ROOMS / 2, -0.1, -0.075);
+box(RW * ROOMS + 0.6, 0.06, ZF - ZB + 0.15, M.section, RW * ROOMS / 2, -0.62, -0.075);
+for (let x = 0.4; x < RW * ROOMS; x += 1.2) box(0.06, 0.44, ZF - ZB, M.walnut, x, -0.36, 0);
+box(RW * ROOMS + 0.6, 0.44, 0.15, M.section, RW * ROOMS / 2, -0.36, ZB - 0.075);
+// ground and soil block
+const ground = box(200, 0.1, 120, M.ground, RW * ROOMS / 2, -0.7, -40); ground.castShadow = false;
+box(RW * ROOMS + 0.6, 1.4, 0.5, M.soil, RW * ROOMS / 2, -1.35, ZF - 0.2);
+
+/* service pipes under the floor + risers (the x-ray lines) */
+const FLOW = [];
+function service(pts, r, mat, kind, room) {
+  const run = pipeRun(pts, r, mat);
+  const glow = new THREE.Mesh(new THREE.TubeGeometry(run.path, 240, r * 1.9, 10, false), kind === "hot" ? M.flowHot.clone() : M.flow.clone());
+  glow.material.alphaMap = flowTex.clone(); glow.material.alphaMap.repeat.set(run.path.getLength() * 3, 1);
+  glow.renderOrder = 5; house.add(glow); FLOW.push({ glow, room });
+  return run;
+}
+service([[-0.1, -0.3, -1.6], [24.1, -0.3, -1.6]], 0.03, M.copper, "cold", -1);
+service([[-0.1, -0.22, -1.35], [24.1, -0.22, -1.35]], 0.026, M.copper, "hot", -1);
+service([[-0.1, -0.44, -0.9], [24.1, -0.44, -0.9]], 0.055, M.pvc, "drain", -1);
+
+/* ---------- lighting ---------- */
+scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x1a120a, 0.22));
+const key = new THREE.DirectionalLight(0xffe3c2, 0.9);
+key.position.set(10, 9, 14); key.target.position.set(12, 0, -1);
+key.castShadow = true; key.shadow.mapSize.set(lowPower ? 2048 : 4096, lowPower ? 2048 : 4096);
+Object.assign(key.shadow.camera, { left: -16, right: 16, top: 9, bottom: -6, near: 1, far: 40 });
+key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; key.shadow.radius = 4;
+scene.add(key, key.target);
+const moon = new THREE.DirectionalLight(0x8fb4ff, 0.35); moon.position.set(30, 14, -10); scene.add(moon);
+const ROOMLIGHTS = [];
+for (let i = 0; i < ROOMS; i++) {
+  const p = new THREE.PointLight(0xffc98f, 5, 9, 1.6); p.position.set(i * RW + 3, 2.55, 0.2); scene.add(p); ROOMLIGHTS.push(p);
+}
+
+/* ---------- KITCHEN (0..6) ---------- */
+const K = new THREE.Group(); house.add(K);
+// window
+box(1.5, 1.05, 0.02, M.night, 3, 1.85, ZB + 0.005, K).castShadow = false;
+box(1.62, 0.06, 0.12, M.matteBlack, 3, 1.3, ZB + 0.05, K); box(1.62, 0.06, 0.12, M.matteBlack, 3, 2.4, ZB + 0.05, K);
+box(0.06, 1.12, 0.12, M.matteBlack, 2.22, 1.85, ZB + 0.05, K); box(0.06, 1.12, 0.12, M.matteBlack, 3.78, 1.85, ZB + 0.05, K); box(0.03, 1.05, 0.06, M.matteBlack, 3, 1.85, ZB + 0.04, K);
+// base cabinets
+const CAB = { x0: 0.5, x1: 5.0, d: 0.62, h: 0.86 };
+box(CAB.x1 - CAB.x0, 0.1, CAB.d - 0.06, M.matteBlack, (CAB.x0 + CAB.x1) / 2, 0.05, ZB + CAB.d / 2 - 0.03, K);
+box(CAB.x1 - CAB.x0, CAB.h - 0.1, 0.02, M.cabIn, (CAB.x0 + CAB.x1) / 2, 0.1 + (CAB.h - 0.1) / 2, ZB + 0.01, K);
+box(CAB.x1 - CAB.x0, 0.02, CAB.d, M.cabIn, (CAB.x0 + CAB.x1) / 2, 0.11, ZB + CAB.d / 2, K);
+for (const x of [CAB.x0, 2.35, 3.45, CAB.x1]) box(0.02, CAB.h - 0.1, CAB.d, M.cab, x, 0.1 + (CAB.h - 0.1) / 2, ZB + CAB.d / 2, K);
+const doors = [];
+const doorXs = [[0.5, 1.12], [1.12, 1.74], [1.74, 2.35], [3.45, 4.22], [4.22, 5.0]];
+for (const [a, b] of doorXs) doors.push(box(b - a - 0.008, CAB.h - 0.13, 0.025, M.cab, (a + b) / 2, 0.11 + (CAB.h - 0.13) / 2 + 0.01, ZB + CAB.d + 0.0125, K, 0.006));
+for (const [a, b] of doorXs) box(0.012, 0.24, 0.02, M.brass, b - 0.06, 0.62, ZB + CAB.d + 0.04, K, 0.005);
+// the sink doors (hinged, they swing open)
+const sinkDoorL = new THREE.Group(); sinkDoorL.position.set(2.36, 0, ZB + CAB.d + 0.0125); K.add(sinkDoorL);
+box(0.54, CAB.h - 0.13, 0.025, M.cab, 0.27, 0.11 + (CAB.h - 0.13) / 2 + 0.01, 0, sinkDoorL, 0.006);
+box(0.012, 0.24, 0.02, M.brass, 0.5, 0.62, 0.025, sinkDoorL, 0.005);
+const sinkDoorR = new THREE.Group(); sinkDoorR.position.set(3.44, 0, ZB + CAB.d + 0.0125); K.add(sinkDoorR);
+box(0.54, CAB.h - 0.13, 0.025, M.cab, -0.27, 0.11 + (CAB.h - 0.13) / 2 + 0.01, 0, sinkDoorR, 0.006);
+box(0.012, 0.24, 0.02, M.brass, -0.5, 0.62, 0.025, sinkDoorR, 0.005);
+// counter with sink
+box(CAB.x1 - CAB.x0 + 0.06, 0.04, CAB.d + 0.04, M.marble, (CAB.x0 + CAB.x1) / 2, CAB.h + 0.02, ZB + (CAB.d + 0.04) / 2, K);
+box(0.66, 0.012, 0.4, M.black, 2.9, CAB.h + 0.041, ZB + 0.33, K);
+box(0.62, 0.2, 0.36, M.steel, 2.9, CAB.h - 0.1, ZB + 0.33, K, 0.03);
+// backsplash
+box(CAB.x1 - CAB.x0 + 0.06, 0.5, 0.015, M.marble, (CAB.x0 + CAB.x1) / 2, CAB.h + 0.29, ZB + 0.008, K);
+// faucet
+cyl(0.025, 0.03, 0.06, M.brass, 2.9, CAB.h + 0.07, ZB + 0.1, K);
+tube([[2.9, CAB.h + 0.08, ZB + 0.1], [2.9, CAB.h + 0.42, ZB + 0.1], [2.9, CAB.h + 0.5, ZB + 0.2], [2.9, CAB.h + 0.44, ZB + 0.3], [2.9, CAB.h + 0.36, ZB + 0.31]], 0.014, M.brass, K);
+// p-trap under the sink
+const TRAP = new THREE.Group(); K.add(TRAP);
+tube([[2.9, CAB.h - 0.2, ZB + 0.33], [2.9, 0.5, ZB + 0.33], [2.9, 0.38, ZB + 0.33], [2.9, 0.33, ZB + 0.27], [2.9, 0.38, ZB + 0.21], [2.9, 0.46, ZB + 0.18], [2.9, 0.46, ZB + 0.02]], 0.022, M.chrome, TRAP);
+const nut = cyl(0.032, 0.032, 0.03, M.chrome, 2.9, 0.5, ZB + 0.33, TRAP);
+// shutoff valves + supply lines
+for (const [dx, mat] of [[-0.12, M.copper], [0.12, M.copper]]) { tube([[2.9 + dx, 0.3, ZB + 0.02], [2.9 + dx, 0.3, ZB + 0.08], [2.9 + dx * 0.6, 0.6, ZB + 0.12], [2.9 + dx * 0.3, CAB.h - 0.08, ZB + 0.12]], 0.008, M.steel, K); cyl(0.018, 0.018, 0.05, M.chrome, 2.9 + dx, 0.3, ZB + 0.06, K).rotation.x = Math.PI / 2; }
+// water drops + puddle
+const drops = [];
+for (let i = 0; i < 3; i++) { const d = new THREE.Mesh(new THREE.SphereGeometry(0.012, 12, 10), M.water); d.scale.y = 1.4; d.position.set(2.9, 0.3, ZB + 0.3); K.add(d); drops.push(d); }
+const puddle = new THREE.Mesh(new THREE.CircleGeometry(0.22, 40), M.water); puddle.rotation.x = -Math.PI / 2; puddle.position.set(2.9, 0.122, ZB + 0.32); puddle.scale.set(1, 0.7, 1); K.add(puddle);
+// upper shelves + crockery
+for (const y of [1.55, 1.95]) for (const [a, b] of [[0.6, 2.0], [4.0, 5.0]]) {
+  box(b - a, 0.04, 0.26, M.walnut, (a + b) / 2, y, ZB + 0.13, K);
+  for (let k = 0; k < 5; k++) { const x = a + 0.15 + k * (b - a - 0.3) / 4; const r = rng(Math.floor(x * 100 + y * 10))(); if (r < 0.5) cyl(0.04, 0.035, 0.12 + r * 0.1, r < 0.25 ? M.white : M.matteBlack, x, y + 0.08 + r * 0.05, ZB + 0.12, K); else box(0.16, 0.02, 0.16, M.white, x, y + 0.03, ZB + 0.12, K, 0.008); }
+}
+// fridge
+box(0.86, 2.1, 0.7, M.steel, 5.5, 1.05, ZB + 0.36, K, 0.02);
+box(0.02, 0.6, 0.03, M.chrome, 5.12, 1.3, ZB + 0.73, K, 0.01);
+box(0.84, 0.006, 0.01, M.matteBlack, 5.5, 1.36, ZB + 0.715, K);
+// pendants
+for (const x of [1.9, 3.9]) {
+  cyl(0.004, 0.004, 1.0, M.black, x, 2.5, -1.0, K, 6);
+  const shade = lathe([[0, 0.16], [0.03, 0.16], [0.06, 0.12], [0.16, 0.0], [0.155, 0.0], [0.055, 0.115], [0.0, 0.14]], M.black); shade.position.set(x, 1.86, -1.0); add(shade, K);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), M.warmGlow); bulb.position.set(x, 1.9, -1.0); K.add(bulb);
+  const pl = new THREE.PointLight(0xffc68a, 2.5, 4, 2); pl.position.set(x, 1.8, -1.0); K.add(pl);
+}
+// rug, stool, plant
+const plant = (x, z, s = 1, parent = house) => {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); parent.add(g);
+  add(lathe([[0, 0], [0.14, 0], [0.17, 0.32], [0.16, 0.33], [0, 0.3]], M.pot), g);
+  const r = rng(Math.floor(x * 33));
+  for (let i = 0; i < 16; i++) {
+    const leaf = new THREE.Mesh(new THREE.PlaneGeometry(0.09, 0.42, 1, 4), M.leaf);
+    const pos = leaf.geometry.attributes.position; for (let k = 0; k < pos.count; k++) { const y = pos.getY(k); pos.setX(k, pos.getX(k) * (1 - Math.abs(y) * 1.8)); pos.setZ(k, (y + 0.21) ** 2 * 0.8); } leaf.geometry.computeVertexNormals();
+    leaf.position.set(0, 0.5, 0); leaf.rotation.set(-0.3 - r() * 0.7, r() * Math.PI * 2, 0, "YXZ"); leaf.translateY(0.12);
+    add(leaf, g);
+  }
+  return g;
+};
+
+
+/* ---------- BATH (6..12) ---------- */
+const B = new THREE.Group(); house.add(B);
+box(RW, 2.2, 0.012, M.zellige, 9, 1.1, ZB + 0.006, B).castShadow = false;
+// toilet
+const TOI = new THREE.Group(); TOI.position.set(7.5, 0, ZB + 0.02); B.add(TOI);
+box(0.46, 0.4, 0.17, M.porcelain, 0, 0.62, 0.1, TOI, 0.04);
+box(0.48, 0.035, 0.19, M.porcelain, 0, 0.83, 0.1, TOI, 0.012);
+box(0.05, 0.012, 0.02, M.chrome, -0.16, 0.76, 0.19, TOI, 0.004);
+const bowl = lathe([[0.0, 0.0], [0.13, 0.0], [0.15, 0.06], [0.14, 0.2], [0.19, 0.34], [0.205, 0.4], [0.18, 0.41], [0.1, 0.33], [0.0, 0.3]], M.porcelain, 48);
+bowl.scale.set(1, 1, 1.25); bowl.position.set(0, 0, 0.42); add(bowl, TOI);
+const seat = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.022, 14, 48), M.porcelain); seat.rotation.x = Math.PI / 2; seat.scale.set(1, 1.28, 1); seat.position.set(0, 0.425, 0.42); add(seat, TOI);
+const lid = box(0.4, 0.02, 0.48, M.porcelain, 0, 0.66, 0.2, TOI, 0.01); lid.rotation.x = -1.45; lid.position.set(0, 0.64, 0.25);
+const bowlWater = new THREE.Mesh(new THREE.CircleGeometry(0.15, 40), M.water); bowlWater.rotation.x = -Math.PI / 2; bowlWater.scale.set(1, 1.25, 1); bowlWater.position.set(0, 0.36, 0.44); TOI.add(bowlWater);
+// vanity
+box(1.3, 0.34, 0.48, M.walnut, 9.6, 0.68, ZB + 0.24, B, 0.01);
+box(1.36, 0.03, 0.52, M.marble, 9.6, 0.865, ZB + 0.26, B);
+const vessel = lathe([[0, 0], [0.12, 0], [0.2, 0.05], [0.23, 0.13], [0.225, 0.135], [0.19, 0.06], [0, 0.03]], M.porcelain, 48); vessel.scale.set(1, 1, 0.8); vessel.position.set(9.6, 0.88, ZB + 0.27); add(vessel, B);
+tube([[9.6, 0.88, ZB + 0.06], [9.6, 1.18, ZB + 0.06], [9.6, 1.22, ZB + 0.16], [9.6, 1.14, ZB + 0.2]], 0.012, M.black, B);
+// round mirror with back glow
+const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.02, 12, 64), M.warmGlow); ring.position.set(9.6, 1.75, ZB + 0.02); B.add(ring);
+const mir = new THREE.Mesh(new THREE.CircleGeometry(0.4, 64), M.mirror); mir.position.set(9.6, 1.75, ZB + 0.04); add(mir, B, { cast: false });
+const mpl = new THREE.PointLight(0xffd29a, 1.6, 2.4, 2); mpl.position.set(9.6, 1.75, ZB + 0.25); B.add(mpl);
+// shower
+const sg = box(0.012, 2.0, 1.3, M.glass, 10.75, 1.0, ZB + 0.65, B); sg.castShadow = false;
+box(0.03, 0.03, 1.3, M.black, 10.75, 2.0, ZB + 0.65, B);
+cyl(0.12, 0.12, 0.012, M.black, 11.4, 2.15, ZB + 0.45, B);
+tube([[11.4, 2.15, ZB + 0.45], [11.4, 2.3, ZB + 0.45], [11.4, 2.3, ZB + 0.02]], 0.01, M.black, B);
+box(0.9, 0.05, 1.3, M.stone, 11.4, 0.025, ZB + 0.65, B);
+// towel + plant
+box(0.5, 0.02, 0.02, M.black, 8.4, 1.25, ZB + 0.06, B);
+const tw = box(0.36, 0.55, 0.04, M.towel, 8.4, 1.0, ZB + 0.08, B, 0.015);
+plant(8.55, -1.65, 0.8, B);
+const sconce = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.18, 8, 16), M.warmGlow); sconce.position.set(8.9, 1.75, ZB + 0.08); B.add(sconce);
+
+/* ---------- UTILITY (12..18) ---------- */
+const U = new THREE.Group(); house.add(U);
+const HEATER = new THREE.Group(); HEATER.position.set(14.3, 0, ZB + 0.48); U.add(HEATER);
+add(cyl(0.32, 0.32, 1.42, M.enamel, 0, 0.83, 0, HEATER, 48), HEATER);
+const dome = new THREE.Mesh(new THREE.SphereGeometry(0.32, 48, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.enamel); dome.scale.y = 0.25; dome.position.y = 1.54; add(dome, HEATER);
+cyl(0.33, 0.33, 0.12, M.galv, 0, 0.12, 0, HEATER, 48);
+for (const y of [0.24, 1.48]) cyl(0.325, 0.325, 0.02, M.galv, 0, y, 0, HEATER, 48);
+// front panel + gauge display + burner window
+const gaugeMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.2), M.gauge); gaugeMesh.position.set(0, 0.42, 0.322); HEATER.add(gaugeMesh);
+box(0.24, 0.24, 0.01, M.black, 0, 0.42, 0.316, HEATER, 0.01);
+box(0.16, 0.08, 0.01, M.black, 0, 0.19, 0.33, HEATER, 0.005);
+const flame = new THREE.Mesh(new THREE.PlaneGeometry(0.13, 0.05), M.flame); flame.position.set(0, 0.19, 0.337); HEATER.add(flame);
+const flameLight = new THREE.PointLight(0x6aa8ff, 0, 1.8, 2); flameLight.position.set(0, 0.2, 0.55); HEATER.add(flameLight);
+// relief valve + pipes up
+cyl(0.02, 0.02, 0.1, M.brass, 0.26, 1.32, 0.18, HEATER).rotation.z = Math.PI / 2;
+service([[14.15, 1.6, ZB + 0.48], [14.15, 2.95, ZB + 0.48]], 0.022, M.copper, "cold", 2);
+service([[14.45, 1.6, ZB + 0.48], [14.45, 2.6, ZB + 0.48], [14.45, 2.6, ZB + 0.12], [16.5, 2.6, ZB + 0.12]], 0.022, M.copper, "hot", 2);
+tube([[14.3, 1.62, ZB + 0.48], [14.3, 2.2, ZB + 0.48], [14.3, 2.35, ZB + 0.3], [14.3, 3.0, ZB + 0.3]], 0.06, M.galv, U);
+// expansion tank
+cyl(0.11, 0.11, 0.32, M.steel, 14.95, 2.1, ZB + 0.18, U); cyl(0.02, 0.02, 0.3, M.brass, 14.95, 2.4, ZB + 0.18, U);
+// washer + dryer
+for (const [x, stack] of [[16.4, 0], [17.15, 0]]) {
+  box(0.68, 0.86, 0.64, M.white, x, 0.43, ZB + 0.34, U, 0.03);
+  const door = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.03, 16, 48), M.chrome); door.position.set(x, 0.42, ZB + 0.67); add(door, U);
+  const gl = new THREE.Mesh(new THREE.CircleGeometry(0.19, 40), M.black); gl.position.set(x, 0.42, ZB + 0.666); U.add(gl);
+  box(0.6, 0.08, 0.01, M.matteBlack, x, 0.78, ZB + 0.665, U);
+}
+box(1.5, 0.03, 0.3, M.walnut, 16.78, 1.5, ZB + 0.15, U);
+for (let i = 0; i < 4; i++) box(0.14, 0.22 + (i % 2) * 0.06, 0.12, [M.white, M.copper, M.matteBlack, M.white][i], 16.25 + i * 0.32, 1.63 + (i % 2) * 0.03, ZB + 0.14, U, 0.01);
+const batten = box(1.2, 0.04, 0.08, M.warmGlow, 15, 2.95, -0.3, U); batten.castShadow = false;
+// floor drain
+const fd = new THREE.Mesh(new THREE.CircleGeometry(0.08, 24), M.steel); fd.rotation.x = -Math.PI / 2; fd.position.set(15.2, 0.002, -0.9); U.add(fd);
+
+/* ---------- WORKSHOP (18..24) ---------- */
+const W = new THREE.Group(); house.add(W);
+box(2.4, 1.2, 0.02, M.peg, 19.9, 1.65, ZB + 0.01, W);
+box(2.5, 0.06, 0.66, M.walnut, 19.9, 0.92, ZB + 0.33, W);
+for (const x of [18.75, 21.05]) for (const z of [ZB + 0.06, ZB + 0.6]) box(0.06, 0.89, 0.06, M.matteBlack, x, 0.445, z, W);
+box(2.3, 0.03, 0.56, M.walnut, 19.9, 0.25, ZB + 0.33, W);
+// hanging tools
+const toolMat = M.matteBlack;
+(() => {
+  // hammer
+  const hm = new THREE.Group(); hm.position.set(18.95, 1.75, ZB + 0.05); W.add(hm);
+  box(0.03, 0.32, 0.03, M.walnut, 0, 0, 0, hm, 0.008); box(0.14, 0.04, 0.04, M.steel, 0, 0.17, 0, hm, 0.008);
+  // saw
+  const sw = new THREE.Group(); sw.position.set(19.45, 1.7, ZB + 0.04); W.add(sw);
+  const blade = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(-0.05, 0.2), new THREE.Vector2(0.05, 0.2), new THREE.Vector2(0.035, -0.3), new THREE.Vector2(-0.01, -0.3)])), M.steel); add(blade, sw);
+  box(0.12, 0.1, 0.03, M.copper, 0, 0.24, 0.005, sw, 0.02);
+  // wrenches
+  for (let i = 0; i < 4; i++) box(0.025, 0.16 + i * 0.04, 0.01, M.chrome, 19.9 + i * 0.08, 1.95 - i * 0.02, ZB + 0.04, W, 0.006);
+  // level
+  box(0.6, 0.05, 0.03, M.copper, 20.5, 1.35, ZB + 0.04, W, 0.008);
+  // tape + clamps on bench
+  box(0.1, 0.1, 0.05, new THREE.MeshStandardMaterial({ color: 0xe0b020, roughness: 0.5 }), 19.2, 0.99, ZB + 0.3, W, 0.02);
+  box(0.36, 0.2, 0.2, new THREE.MeshStandardMaterial({ color: 0x9c2f22, roughness: 0.45 }), 20.6, 1.05, ZB + 0.25, W, 0.02);
+})();
+const bulbW = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 12), M.warmGlow); bulbW.position.set(20, 2.6, -0.8); W.add(bulbW);
+cyl(0.004, 0.004, 0.4, M.black, 20, 2.8, -0.8, W, 6);
+// the mount target + the shelf that appears
+const TARGET = new THREE.Vector3(22.9, 1.55, ZB + 0.01);
+const marks = new THREE.Group(); W.add(marks);
+for (const dx of [-0.4, 0.4]) { const m = new THREE.Mesh(new THREE.RingGeometry(0.012, 0.02, 20), new THREE.MeshBasicMaterial({ color: 0x222222 })); m.position.set(TARGET.x + dx, TARGET.y, ZB + 0.002); marks.add(m); }
+const SHELF = new THREE.Group(); SHELF.position.set(TARGET.x, TARGET.y - 0.02, ZB); W.add(SHELF);
+box(1.1, 0.045, 0.26, M.walnut, 0, 0, 0.13, SHELF, 0.006);
+for (let i = 0; i < 6; i++) box(0.035, 0.2 + (i % 3) * 0.03, 0.16, [M.copper, M.matteBlack, M.white][i % 3], -0.45 + i * 0.045, 0.12 + (i % 3) * 0.015, 0.12, SHELF, 0.004);
+plant(TARGET.x + 0.3, 0.02, 0.45, SHELF).position.set(0.3, 0.02, 0.12);
+SHELF.visible = false;
+const dust = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: 0xffe8c8, size: 0.018, transparent: true, opacity: 0, depthWrite: false }));
+dust.geometry.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(60 * 3), 3)); W.add(dust);
+// sawhorse + bucket
+cyl(0.14, 0.12, 0.32, new THREE.MeshStandardMaterial({ color: 0xd9732f, roughness: 0.55 }), 23.4, 0.16, -1.2, W);
+
+/* ---------- the tradesman: one smooth sculpted body (signed distance field -> surface nets), skinned to a skeleton ---------- */
+// palette per region: pants, shirt, skin, glove, cuff, boot, beard, hair, sole, lips
+const PAL = [0x2c2e32, 0x1d2b3e, 0x93603f, 0x36383c, 0xd9732f, 0x5a3820, 0x2b1d14, 0x1c140e, 0x161310, 0x7a4a3a];
+const bodyMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, bumpMap: T.fabric, bumpScale: 0.5 });
+const capMat = new THREE.MeshStandardMaterial({ color: 0x1c2a3d, roughness: 0.88, bumpMap: T.fabric, bumpScale: 0.8 });
+const leather = new THREE.MeshStandardMaterial({ color: 0x4e311c, roughness: 0.5 });
+
+// skeleton (rest pose, metres, facing +z, +x is his left)
+const BONES = {
+  hips: [null, 0, 0.98, 0], spine: ["hips", 0, 1.08, 0], chest: ["spine", 0, 1.26, 0], neck: ["chest", 0, 1.45, -0.012], head: ["neck", 0, 1.56, 0],
+};
+for (const [s, n] of [[1, "L"], [-1, "R"]]) {
+  BONES["sh" + n] = ["chest", 0.188 * s, 1.415, -0.012]; BONES["el" + n] = ["sh" + n, 0.235 * s, 1.135, -0.03]; BONES["wr" + n] = ["el" + n, 0.262 * s, 0.885, 0.0];
+  BONES["hip" + n] = ["hips", 0.095 * s, 0.95, 0]; BONES["knee" + n] = ["hip" + n, 0.1 * s, 0.525, 0.008]; BONES["ankle" + n] = ["knee" + n, 0.1 * s, 0.105, -0.008];
+}
+const NB = {}; for (const [k, [p]] of Object.entries(BONES)) { NB[k] = NB[k] || new Set([k]); if (p) { NB[k].add(p); (NB[p] = NB[p] || new Set([p])).add(k); } }
+
+// SDF primitives
+const V = (x, y, z) => [x, y, z];
+function sdEll(p, c, r) { const x = (p[0] - c[0]) / r[0], y = (p[1] - c[1]) / r[1], z = (p[2] - c[2]) / r[2]; const k0 = Math.hypot(x, y, z); const k1 = Math.hypot(x / r[0], y / r[1], z / r[2]); return k1 === 0 ? -Math.min(...r) : k0 * (k0 - 1) / k1; }
+function sdCone(p, a, b, r1, r2) { // round cone between a and b
+  const bax = b[0] - a[0], bay = b[1] - a[1], baz = b[2] - a[2], pax = p[0] - a[0], pay = p[1] - a[1], paz = p[2] - a[2];
+  const l2 = bax * bax + bay * bay + baz * baz, rr = r1 - r2, a2 = l2 - rr * rr, il2 = 1 / l2;
+  const y = pax * bax + pay * bay + paz * baz, z = y - l2;
+  const xx = (pax * l2 - bax * y), xy = (pay * l2 - bay * y), xz = (paz * l2 - baz * y); const x2 = xx * xx + xy * xy + xz * xz;
+  const y2 = y * y * l2, z2 = z * z * l2, k = Math.sign(rr) * rr * rr * x2;
+  if (Math.sign(z) * a2 * z2 > k) return Math.sqrt(x2 + z2) * il2 - r2;
+  if (Math.sign(y) * a2 * y2 < k) return Math.sqrt(x2 + y2) * il2 - r1;
+  return (Math.sqrt(x2 * a2 * il2) + y * rr) * il2 - r1;
+}
+function sdRBox(p, c, h, r) { const qx = Math.abs(p[0] - c[0]) - h[0] + r, qy = Math.abs(p[1] - c[1]) - h[1] + r, qz = Math.abs(p[2] - c[2]) - h[2] + r; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, qy, qz), 0) - r; }
+const smin = (a, b, k) => { const h = Math.max(k - Math.abs(a - b), 0) / k; return Math.min(a, b) - h * h * k * 0.25; };
+const smax = (a, b, k) => -smin(-a, -b, k);
+
+// each primitive: [bone, label, fn, blend group]
+const PR = [];
+const HS = 1.1, HC = [0, 1.56, 0];
+const wrapH = (fn, g) => g !== 1 ? fn : (p) => fn([HC[0] + (p[0] - HC[0]) / HS, HC[1] + (p[1] - HC[1]) / HS, HC[2] + (p[2] - HC[2]) / HS]) * HS;
+const ell = (bone, lab, c, r, g = 0) => PR.push([bone, lab, wrapH((p) => sdEll(p, c, r), g), g]);
+const cone = (bone, lab, a, b, r1, r2, g = 0) => PR.push([bone, lab, wrapH((p) => sdCone(p, a, b, r1, r2), g), g]);
+const rbox = (bone, lab, c, h, r, g = 0) => PR.push([bone, lab, (p) => sdRBox(p, c, h, r), g]);
+// torso (group 0)
+ell("hips", 0, V(0, 0.965, 0), V(0.172, 0.12, 0.112));
+for (const s of [1, -1]) ell("hips", 0, V(0.072 * s, 0.915, -0.04), V(0.088, 0.095, 0.078));
+ell("spine", 1, V(0, 1.12, 0.0), V(0.158, 0.15, 0.1));
+ell("chest", 1, V(0, 1.3, 0.0), V(0.172, 0.165, 0.11));
+for (const s of [1, -1]) { ell("chest", 1, V(0.07 * s, 1.335, 0.03), V(0.078, 0.06, 0.07)); cone("chest", 1, V(0.05 * s, 1.462, -0.02), V(0.175 * s, 1.425, -0.012), 0.05, 0.046); ell("chest", 1, V(0.092 * s, 1.3, -0.058), V(0.075, 0.12, 0.058)); }
+PR.push(["chest", 1, (p) => { const x = p[0], y = p[1] - 1.452, z = p[2] - 0.004; return Math.hypot(Math.hypot(x, z * 1.15) - 0.07, y) - 0.016; }, 0]); // collar
+cone("neck", 2, V(0, 1.44, -0.012), V(0, 1.57, 0.0), 0.058, 0.05);
+// head (group 1, its own detail blend)
+ell("head", 2, V(0, 1.668, -0.008), V(0.084, 0.106, 0.098), 1);
+ell("head", 2, V(0, 1.603, 0.028), V(0.066, 0.062, 0.074), 1);
+for (const s of [1, -1]) { ell("head", 2, V(0.046 * s, 1.638, 0.058), V(0.032, 0.026, 0.03), 1); ell("head", 2, V(0.087 * s, 1.643, -0.004), V(0.013, 0.03, 0.022), 1); }
+cone("head", 2, V(-0.038, 1.679, 0.082), V(0.038, 1.679, 0.082), 0.017, 0.017, 1);
+cone("head", 2, V(0, 1.668, 0.094), V(0, 1.627, 0.112), 0.011, 0.0155, 1);
+for (const s of [1, -1]) ell("head", 2, V(0.011 * s, 1.626, 0.104), V(0.011, 0.009, 0.009), 1);
+ell("head", 6, V(0, 1.59, 0.036), V(0.07, 0.056, 0.07), 1); // short beard volume
+ell("head", 6, V(0, 1.562, 0.058), V(0.036, 0.026, 0.032), 1);
+cone("head", 9, V(-0.019, 1.6, 0.098), V(0.019, 1.6, 0.098), 0.0065, 0.0065, 1);
+// arms (group 2 + side)
+for (const [s, n] of [[1, "L"], [-1, "R"]]) {
+  const G = 2 + (s > 0 ? 0 : 1);
+  ell("sh" + n, 1, V(0.192 * s, 1.405, -0.012), V(0.062, 0.068, 0.062), G); // deltoid in sleeve
+  cone("sh" + n, 1, V(0.198 * s, 1.41, -0.012), V(0.222 * s, 1.265, -0.022), 0.064, 0.058, G); // sleeve
+  cone("sh" + n, 2, V(0.2 * s, 1.39, -0.012), V(0.235 * s, 1.135, -0.03), 0.05, 0.041, G);
+  ell("sh" + n, 2, V(0.222 * s, 1.24, 0.0), V(0.042, 0.07, 0.045), G); // biceps
+  cone("el" + n, 2, V(0.235 * s, 1.135, -0.03), V(0.262 * s, 0.9, 0.0), 0.042, 0.031, G);
+  ell("el" + n, 2, V(0.244 * s, 1.07, -0.018), V(0.044, 0.075, 0.043), G);
+  cone("wr" + n, 4, V(0.26 * s, 0.915, 0.0), V(0.264 * s, 0.87, 0.002), 0.038, 0.037, G);
+  ell("wr" + n, 3, V(0.268 * s, 0.825, 0.012), V(0.024, 0.052, 0.044), G);
+  cone("wr" + n, 3, V(0.27 * s, 0.795, 0.022), V(0.262 * s, 0.735, 0.04), 0.022, 0.019, G);
+  cone("wr" + n, 3, V(0.255 * s, 0.855, 0.045), V(0.25 * s, 0.81, 0.066), 0.014, 0.012, G);
+}
+// legs
+for (const [s, n] of [[1, "L"], [-1, "R"]]) {
+  const G = 4 + (s > 0 ? 0 : 1);
+  cone("hip" + n, 0, V(0.095 * s, 0.95, 0), V(0.1 * s, 0.53, 0.006), 0.094, 0.066, G);
+  ell("knee" + n, 0, V(0.1 * s, 0.53, 0.012), V(0.066, 0.072, 0.068), G);
+  cone("knee" + n, 0, V(0.1 * s, 0.52, 0.004), V(0.1 * s, 0.16, -0.006), 0.064, 0.061, G);
+  ell("knee" + n, 0, V(0.1 * s, 0.38, -0.022), V(0.058, 0.1, 0.058), G);
+  cone("ankle" + n, 5, V(0.1 * s, 0.165, -0.008), V(0.1 * s, 0.08, 0.0), 0.058, 0.06, G);
+  rbox("ankle" + n, 5, V(0.1 * s, 0.058, 0.038), V(0.058, 0.058, 0.125), 0.045, G);
+  ell("ankle" + n, 5, V(0.1 * s, 0.052, 0.13), V(0.058, 0.05, 0.068), G);
+}
+const NG = 6;
+const groupK = [0.05, 0.012, 0.035, 0.035, 0.035, 0.035];
+const sockets = [[0.033, 1.65, 0.098], [-0.033, 1.65, 0.098]];
+
+const dists = new Float32Array(PR.length);
+function field(p, wantDists) {
+  const gd = new Array(NG).fill(1e9);
+  for (let i = 0; i < PR.length; i++) { const d = PR[i][2](p); if (wantDists) dists[i] = d; const g = PR[i][3]; gd[g] = smin(gd[g], d, groupK[g]); }
+  // head detail group joins the neck/torso softly, eye sockets carved
+  let head = gd[1];
+  for (const c0 of sockets) { const c = [HC[0] + (c0[0] - HC[0]) * HS, HC[1] + (c0[1] - HC[1]) * HS, HC[2] + (c0[2] - HC[2]) * HS]; head = smax(head, -(Math.hypot(p[0] - c[0], p[1] - c[1], p[2] - c[2]) - 0.017 * HS), 0.008); }
+  let d = smin(gd[0], head, 0.03);
+  d = smin(d, gd[2], 0.035); d = smin(d, gd[3], 0.035);
+  d = smin(d, gd[4], 0.02); d = smin(d, gd[5], 0.02);
+  // a little fabric irregularity on clothes
+  return d;
+}
+
+function buildBody() {
+  const h = lowPower ? 0.0085 : 0.007;
+  const x0 = -0.36, y0 = -0.01, z0 = -0.19, nx = Math.ceil(0.72 / h) + 1, ny = Math.ceil(1.75 / h) + 1, nz = Math.ceil(0.4 / h) + 1;
+  const val = new Float32Array(nx * ny * nz);
+  const p = [0, 0, 0];
+  for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { p[0] = x0 + i * h; p[1] = y0 + j * h; p[2] = z0 + k * h; val[i + nx * (j + ny * k)] = field(p, false); }
+  const idx = (i, j, k) => i + nx * (j + ny * k);
+  const cellV = new Int32Array((nx - 1) * (ny - 1) * (nz - 1)).fill(-1);
+  const cid = (i, j, k) => i + (nx - 1) * (j + (ny - 1) * k);
+  const pos = [];
+  const E = [[0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3], [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]];
+  const cv = new Float32Array(8);
+  for (let k = 0; k < nz - 1; k++) for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) {
+    let m = 0;
+    for (let c = 0; c < 8; c++) { cv[c] = val[idx(i + (c & 1), j + ((c >> 1) & 1), k + ((c >> 2) & 1))]; if (cv[c] < 0) m |= 1 << c; }
+    if (m === 0 || m === 255) continue;
+    let sx = 0, sy = 0, sz = 0, n = 0;
+    for (const [a, b] of E) {
+      if ((cv[a] < 0) === (cv[b] < 0)) continue;
+      const t = cv[a] / (cv[a] - cv[b]);
+      const ax = a & 1, ay = (a >> 1) & 1, az = (a >> 2) & 1, bx = b & 1, by = (b >> 1) & 1, bz = (b >> 2) & 1;
+      sx += ax + (bx - ax) * t; sy += ay + (by - ay) * t; sz += az + (bz - az) * t; n++;
+    }
+    cellV[cid(i, j, k)] = pos.length / 3;
+    pos.push(x0 + (i + sx / n) * h, y0 + (j + sy / n) * h, z0 + (k + sz / n) * h);
+  }
+  const ind = [];
+  for (let k = 1; k < nz - 1; k++) for (let j = 1; j < ny - 1; j++) for (let i = 1; i < nx - 1; i++) {
+    const v0 = val[idx(i, j, k)];
+    for (let ax = 0; ax < 3; ax++) {
+      const v1 = ax === 0 ? val[idx(i + 1, j, k)] : ax === 1 ? val[idx(i, j + 1, k)] : val[idx(i, j, k + 1)];
+      if (i + 1 >= nx || (v0 < 0) === (v1 < 0)) continue;
+      let q;
+      if (ax === 0) q = [cid(i, j - 1, k - 1), cid(i, j, k - 1), cid(i, j, k), cid(i, j - 1, k)];
+      else if (ax === 1) q = [cid(i - 1, j, k - 1), cid(i - 1, j, k), cid(i, j, k), cid(i, j, k - 1)];
+      else q = [cid(i - 1, j - 1, k), cid(i, j - 1, k), cid(i, j, k), cid(i - 1, j, k)];
+      const vs = q.map((c) => cellV[c]); if (vs.some((v) => v < 0)) continue;
+      if (v0 < 0) ind.push(vs[0], vs[1], vs[2], vs[0], vs[2], vs[3]); else ind.push(vs[0], vs[2], vs[1], vs[0], vs[3], vs[2]);
+    }
+  }
+  const nv = pos.length / 3;
+  // one relaxation pass toward neighbours, then snap back on the surface along the gradient
+  const nrm = new Float32Array(nv * 3), q = [0, 0, 0], e = 0.0015;
+  const skinI = new Uint16Array(nv * 4), skinW = new Float32Array(nv * 4), region = new Uint8Array(nv);
+  const boneNames = Object.keys(BONES), boneIx = Object.fromEntries(boneNames.map((b, i) => [b, i]));
+  for (let v = 0; v < nv; v++) {
+    const P0 = [pos[v * 3], pos[v * 3 + 1], pos[v * 3 + 2]];
+    for (let it = 0; it < 2; it++) { // project onto the zero set
+      const d = field(P0, false);
+      const gx = field([P0[0] + e, P0[1], P0[2]], false) - field([P0[0] - e, P0[1], P0[2]], false);
+      const gy = field([P0[0], P0[1] + e, P0[2]], false) - field([P0[0], P0[1] - e, P0[2]], false);
+      const gz = field([P0[0], P0[1], P0[2] + e], false) - field([P0[0], P0[1], P0[2] - e], false);
+      const gl = Math.hypot(gx, gy, gz) || 1; P0[0] -= d * gx / gl; P0[1] -= d * gy / gl; P0[2] -= d * gz / gl;
+      if (it === 1) { nrm[v * 3] = gx / gl; nrm[v * 3 + 1] = gy / gl; nrm[v * 3 + 2] = gz / gl; }
+    }
+    pos[v * 3] = P0[0]; pos[v * 3 + 1] = P0[1]; pos[v * 3 + 2] = P0[2];
+    field(P0, true);
+    let best = 0; for (let i = 1; i < PR.length; i++) if (dists[i] < dists[best]) best = i;
+    const bone = PR[best][0]; let lab = PR[best][1];
+    // weights: primary bone plus its neighbours, softened by distance
+    const acc = {}; const allowed = NB[bone];
+    for (let i = 0; i < PR.length; i++) { const b = PR[i][0]; if (!allowed.has(b)) continue; const w = Math.exp(-(dists[i] - dists[best]) / 0.018); acc[b] = Math.max(acc[b] || 0, w); }
+    const top = Object.entries(acc).sort((a, b) => b[1] - a[1]).slice(0, 4); const sum = top.reduce((s, t) => s + t[1], 0);
+    top.forEach(([b, w], t) => { skinI[v * 4 + t] = boneIx[b]; skinW[v * 4 + t] = w / sum; });
+    // regions on the head
+    const [x, y, z] = P0;
+    if (bone === "head" && lab === 2) {
+      const y = HC[1] + (P0[1] - HC[1]) / HS, z = HC[2] + (P0[2] - HC[2]) / HS, ax = Math.abs(x) / HS;
+      if (y < 1.622 && z > -0.005 && !(y > 1.592 && y < 1.606 && ax < 0.022 && z > 0.09)) lab = 6;
+      else if (y < 1.655 && ax > 0.058 && z > -0.012 && z < 0.06) lab = 6;
+      else if (y > 1.674 && y < 1.686 && ax > 0.016 && ax < 0.056 && z > 0.07) lab = 7;
+      else if (z < -0.03 && y > 1.6) lab = 7;
+      else if (y > 1.705) lab = 7;
+    }
+    if (bone.startsWith("sh") && (lab === 1 || lab === 2)) { const s0 = BONES[bone], e0 = BONES["el" + bone.slice(2)]; const dx = e0[1] - s0[1], dy = e0[2] - s0[2], dz = e0[3] - s0[3]; const tt = ((x - s0[1]) * dx + (y - s0[2]) * dy + (z - s0[3]) * dz) / (dx * dx + dy * dy + dz * dz); lab = tt < 0.5 ? 1 : 2; }
+    if (lab === 5 && y < 0.018) lab = 8;
+    if (bone.startsWith("wr") && lab === 2) lab = 3;
+    region[v] = lab;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setIndex(ind);
+  // colour per region, softened one ring so hems and cuffs read as clean edges
+  const col = new Float32Array(nv * 3), c = new THREE.Color();
+  for (let v = 0; v < nv; v++) { c.set(PAL[region[v]]); col[v * 3] = c.r; col[v * 3 + 1] = c.g; col[v * 3 + 2] = c.b; }
+  const acc = new Float32Array(nv * 3), cnt = new Float32Array(nv);
+  for (let pass = 0; pass < 2; pass++) {
+    acc.fill(0); cnt.fill(0);
+    for (let t = 0; t < ind.length; t += 3) for (let a = 0; a < 3; a++) { const v = ind[t + a]; for (let b = 0; b < 3; b++) { const u = ind[t + b]; acc[v * 3] += col[u * 3]; acc[v * 3 + 1] += col[u * 3 + 1]; acc[v * 3 + 2] += col[u * 3 + 2]; cnt[v]++; } }
+    for (let v = 0; v < nv; v++) for (let k = 0; k < 3; k++) col[v * 3 + k] = col[v * 3 + k] * 0.4 + 0.6 * acc[v * 3 + k] / cnt[v];
+  }
+  g.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("normal", new THREE.BufferAttribute(nrm, 3));
+  g.setAttribute("skinIndex", new THREE.Uint16BufferAttribute(skinI, 4));
+  g.setAttribute("skinWeight", new THREE.BufferAttribute(skinW, 4));
+  // planar uv so the fabric bump has something to follow
+  const uv = new Float32Array(nv * 2); for (let v = 0; v < nv; v++) { uv[v * 2] = (pos[v * 3] + pos[v * 3 + 2]) * 3; uv[v * 2 + 1] = pos[v * 3 + 1] * 3; }
+  g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  return { g, boneNames };
+}
+
+const man = new THREE.Group(); scene.add(man);
+const J = {};
+const { g: bodyGeo, boneNames } = buildBody();
+const boneList = boneNames.map((n) => { const b = new THREE.Bone(); b.name = n; J[n] = b; return b; });
+for (const [n, [p, x, y, z]] of Object.entries(BONES)) { if (p) { const pp = BONES[p]; J[n].position.set(x - pp[1], y - pp[2], z - pp[3]); J[p].add(J[n]); } else J[n].position.set(x, y, z); }
+const body = new THREE.SkinnedMesh(bodyGeo, bodyMat); body.castShadow = true; body.receiveShadow = true; body.frustumCulled = false;
+body.add(J.hips); body.bind(new THREE.Skeleton(boneList)); man.add(body);
+function part(mesh, parent, x = 0, y = 0, z = 0) { mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; parent.add(mesh); return mesh; }
+function joint(name, parent, x, y, z) { const g = new THREE.Group(); g.position.set(x, y, z); parent.add(g); J[name] = g; return g; }
+// belt, buckle, pouches, tape measure (rigid, ride on the hips)
+const belt = part(new THREE.Mesh(new THREE.TorusGeometry(0.163, 0.02, 10, 48), leather), J.hips, 0, 0.04, 0.002); belt.rotation.x = Math.PI / 2; belt.scale.set(1.06, 0.7, 1);
+part(new THREE.Mesh(new RoundedBoxGeometry(0.05, 0.036, 0.014, 2, 0.004), M.brass), J.hips, 0, 0.04, 0.116);
+part(new THREE.Mesh(new RoundedBoxGeometry(0.075, 0.13, 0.08, 3, 0.016), leather), J.hips, 0.175, -0.035, 0.01).rotation.z = 0.08;
+part(new THREE.Mesh(new RoundedBoxGeometry(0.07, 0.11, 0.07, 3, 0.016), leather), J.hips, -0.172, -0.03, 0.02).rotation.z = -0.08;
+part(new THREE.Mesh(new RoundedBoxGeometry(0.06, 0.06, 0.035, 2, 0.012), new THREE.MeshStandardMaterial({ color: 0xe0b020, roughness: 0.45 })), J.hips, -0.17, 0.035, 0.07);
+part(new THREE.Mesh(new RoundedBoxGeometry(0.012, 0.11, 0.02, 2, 0.005), M.chrome), J.hips, 0.19, 0.04, 0.03);
+// shirt logo patch + back print
+const patch = new THREE.Mesh(new THREE.PlaneGeometry(0.075, 0.038), new THREE.MeshStandardMaterial({ map: patchTex, roughness: 0.8 })); patch.position.set(0.085, 0.085, 0.112); patch.rotation.set(-0.1, 0.42, 0); J.chest.add(patch);
+const backPatch = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.05), new THREE.MeshStandardMaterial({ map: backTex, roughness: 0.8 })); backPatch.position.set(0, 0.11, -0.122); backPatch.rotation.set(0.12, Math.PI, 0); J.chest.add(backPatch);
+const HA = new THREE.Group(); HA.scale.setScalar(HS); J.head.add(HA);
+// eyes
+for (const s of [1, -1]) {
+  const e = part(new THREE.Mesh(new THREE.SphereGeometry(0.0105, 20, 14), new THREE.MeshPhysicalMaterial({ color: 0xe9e3dc, roughness: 0.15, clearcoat: 1 })), HA, 0.033 * s, 0.09, 0.0835);
+  const iris = part(new THREE.Mesh(new THREE.SphereGeometry(0.0074, 14, 10), new THREE.MeshPhysicalMaterial({ color: 0x2a1609, roughness: 0.1, clearcoat: 1 })), HA, 0.033 * s, 0.09, 0.0925);
+  iris.scale.z = 0.5;
+  const lidM = new THREE.MeshStandardMaterial({ color: 0x8a573a, roughness: 0.7 });
+  const lid = part(new THREE.Mesh(new THREE.SphereGeometry(0.0118, 20, 10, 0, Math.PI * 2, 0, Math.PI * 0.42), lidM), HA, 0.033 * s, 0.09, 0.0835); lid.rotation.x = 0.35;
+  const lowLid = part(new THREE.Mesh(new THREE.SphereGeometry(0.0113, 20, 8, 0, Math.PI * 2, Math.PI * 0.78, Math.PI * 0.22), lidM), HA, 0.033 * s, 0.09, 0.0835);
+}
+// cap: crown, brim, button, logo
+const cap = part(new THREE.Mesh(new THREE.SphereGeometry(0.1, 48, 20, 0, Math.PI * 2, 0, Math.PI * 0.52), capMat), HA, 0, 0.128, -0.008); cap.scale.set(0.93, 0.78, 1.06);
+const brimShape = new THREE.Shape(); brimShape.absarc(0, 0, 0.088, Math.PI, 0, true); brimShape.quadraticCurveTo(0.06, 0.085, 0, 0.09); brimShape.quadraticCurveTo(-0.06, 0.085, -0.088, 0);
+const brim = part(new THREE.Mesh(new THREE.ExtrudeGeometry(brimShape, { depth: 0.006, bevelEnabled: true, bevelSize: 0.003, bevelThickness: 0.002, bevelSegments: 2, curveSegments: 24 }), capMat), HA, 0, 0.135, 0.03);
+brim.rotation.x = Math.PI / 2 - 0.12; brim.position.set(0, 0.137, 0.035);
+part(new THREE.Mesh(new THREE.SphereGeometry(0.008, 10, 8), capMat), HA, 0, 0.205, -0.008);
+const capLogo = new THREE.Mesh(new THREE.PlaneGeometry(0.048, 0.024), new THREE.MeshStandardMaterial({ map: patchTex, roughness: 0.8 })); capLogo.position.set(0, 0.168, 0.087); capLogo.rotation.x = -0.42; HA.add(capLogo);
+// grip points
+J.gripL = joint("gripL", J.wrL, 0.006, -0.085, 0.03); J.gripR = joint("gripR", J.wrR, -0.006, -0.085, 0.03);
+// tools
+const TOOLS = {};
+TOOLS.wrench = new THREE.Group(); J.gripR.add(TOOLS.wrench);
+box(0.022, 0.27, 0.012, M.chrome, 0, 0.02, 0, TOOLS.wrench, 0.005);
+box(0.06, 0.045, 0.014, M.chrome, 0, 0.165, 0, TOOLS.wrench, 0.006);
+TOOLS.plunger = new THREE.Group(); J.gripR.add(TOOLS.plunger);
+cyl(0.013, 0.013, 0.78, M.walnut, 0, -0.27, 0, TOOLS.plunger, 12);
+const cup = lathe([[0, 0.09], [0.04, 0.09], [0.09, 0.03], [0.095, 0], [0.088, 0], [0, 0.07]], new THREE.MeshStandardMaterial({ color: 0x8e1d17, roughness: 0.45 }), 32); cup.position.y = -0.73; add(cup, TOOLS.plunger);
+TOOLS.drill = new THREE.Group(); J.gripR.add(TOOLS.drill);
+box(0.045, 0.12, 0.05, M.matteBlack, 0, 0.0, 0.0, TOOLS.drill, 0.015);
+box(0.062, 0.075, 0.2, new THREE.MeshStandardMaterial({ color: 0xd9732f, roughness: 0.45 }), 0, 0.085, 0.05, TOOLS.drill, 0.022);
+box(0.072, 0.05, 0.1, M.matteBlack, 0, -0.085, 0.015, TOOLS.drill, 0.012);
+cyl(0.02, 0.016, 0.05, M.matteBlack, 0, 0.085, 0.17, TOOLS.drill, 16).rotation.x = Math.PI / 2;
+const bit = cyl(0.004, 0.004, 0.11, M.chrome, 0, 0.085, 0.245, TOOLS.drill, 8); bit.rotation.x = Math.PI / 2;
+TOOLS.tablet = new THREE.Group(); J.gripL.add(TOOLS.tablet);
+box(0.2, 0.012, 0.15, M.matteBlack, 0, 0, 0.05, TOOLS.tablet, 0.006);
+const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.13), new THREE.MeshBasicMaterial({ map: tabTex })); scr.rotation.x = -Math.PI / 2; scr.position.set(0, 0.0065, 0.05); TOOLS.tablet.add(scr);
+TOOLS.box = new THREE.Group(); J.gripL.add(TOOLS.box);
+box(0.42, 0.2, 0.2, new THREE.MeshStandardMaterial({ color: 0x9c2f22, roughness: 0.4, metalness: 0.2 }), 0, -0.13, 0, TOOLS.box, 0.02);
+box(0.425, 0.02, 0.205, M.matteBlack, 0, -0.05, 0, TOOLS.box, 0.006);
+tube([[-0.1, -0.03, 0], [-0.08, 0.015, 0], [0.08, 0.015, 0], [0.1, -0.03, 0]], 0.008, M.matteBlack, TOOLS.box);
+const floorBox = TOOLS.box.clone(); scene.add(floorBox); floorBox.visible = false;
+
+
+/* ---------- state driven by the scroll timeline ---------- */
+const P = {
+  // camera position + look target
+  cx: 2.0, cy: 1.45, cz: 5.6, tx: 2.1, ty: 1.05, tz: 0.2, fov: 30,
+  // man
+  x: 3.3, z: 0.6, rot: -0.3, walk: 0, step: 0,
+  hipY: 0, lean: 0, twist: 0, headY: 0, headX: 0,
+  hipL: 0, kneeL: 0, hipR: 0, kneeR: 0, ankleL: 0, ankleR: 0,
+  shLx: 0, shLz: -0.04, elL: -0.12, shRx: 0, shRz: 0.04, elR: -0.12, wrR: 0, wrL: 0,
+  work: 0, // oscillation used by the job animations
+  carry: 1, wrench: 0, plunger: 0, drill: 0, tablet: 0, wave: 0,
+  // set dressing
+  doors: 0, leak: 1, bowl: 1, gauge: 0, flame: 0, shelf: 0, dust: 0, mark: 1, flow: [0, 0, 0, 0], flowAll: 0, floorBox: 0, fbx: 0, fbz: 0,
+  scan: 0,
+};
+
+function applyPose(time) {
+  const ph = P.step * Math.PI * 2; // step = distance walked / stride
+  const w = P.walk;
+  const sw = Math.sin(ph), cw = Math.cos(ph);
+  man.position.set(P.x, Math.abs(Math.sin(ph)) * 0.025 * w - 0.012 * w, P.z);
+  man.rotation.y = P.rot;
+  J.hips.position.y = 0.98 + P.hipY;
+  J.hips.rotation.y = sw * 0.08 * w + P.twist * 0.4;
+  J.spine.rotation.x = P.lean * 0.45 + 0.04 * w;
+  J.chest.rotation.x = P.lean * 0.55;
+  J.chest.rotation.y = -sw * 0.12 * w + P.twist * 0.6;
+  // legs (rotation.x negative = swing forward)
+  const legW = (s) => ({ hip: -Math.sin(ph + s) * 0.42 * w, knee: Math.max(0, Math.sin(ph + s + 1.3)) * 0.75 * w + 0.05 * w });
+  const lw = legW(0), rw = legW(Math.PI);
+  J.hipL.rotation.x = lw.hip - P.hipL; J.kneeL.rotation.x = lw.knee + P.kneeL; J.ankleL.rotation.x = -lw.hip * 0.3 + P.ankleL;
+  J.hipR.rotation.x = rw.hip - P.hipR; J.kneeR.rotation.x = rw.knee + P.kneeR; J.ankleR.rotation.x = -rw.hip * 0.3 + P.ankleR;
+  // arms
+  const breath = Math.sin(time * 1.6) * 0.012;
+  J.shL.rotation.x = Math.sin(ph) * 0.38 * w * (1 - P.carry * 0.85) - P.shLx; J.shL.rotation.z = P.shLz + breath;
+  J.shR.rotation.x = -Math.sin(ph) * 0.38 * w - P.shRx; J.shR.rotation.z = P.shRz - breath;
+  J.elL.rotation.x = -(0.2 * w) + P.elL; J.elR.rotation.x = -(0.25 * w) + P.elR - Math.max(0, Math.sin(ph)) * 0.2 * w;
+  J.wrR.rotation.x = P.wrR; J.wrL.rotation.x = P.wrL;
+  J.head.rotation.y = P.headY; J.head.rotation.x = P.headX + Math.sin(time * 0.7) * 0.015;
+  J.neck.rotation.x = -P.lean * 0.4;
+  // job motions on top of the pose
+  const k = P.work;
+  if (P.wrench > 0.5) { J.elR.rotation.x -= k * 0.35; J.shR.rotation.z += k * 0.12; }
+  if (P.plunger > 0.5) { J.hips.position.y -= k * 0.05; J.spine.rotation.x += k * 0.1; J.chest.rotation.x += k * 0.08; J.elR.rotation.x += k * 0.35; J.elL.rotation.x += k * 0.35; }
+  if (P.tablet > 0.5) { J.elR.rotation.x -= k * 0.2; J.wrR.rotation.x -= k * 0.3; }
+  if (P.drill > 0.5) { J.chest.position.z = Math.sin(time * 70) * 0.002 * k; }
+  J.elR.rotation.z = P.wave * (-1.45 + (k - 0.5) * 0.6);
+  // tools: held in the hand, but oriented in the world so they read clearly
+  TOOLS.wrench.visible = P.wrench > 0.5; TOOLS.plunger.visible = P.plunger > 0.5; TOOLS.drill.visible = P.drill > 0.5; TOOLS.tablet.visible = P.tablet > 0.5; TOOLS.box.visible = P.carry > 0.5;
+  man.updateMatrixWorld(true);
+  const orient = (tool, grip, q) => { grip.getWorldQuaternion(_q); tool.quaternion.copy(_q.invert().multiply(q)); };
+  if (TOOLS.plunger.visible) orient(TOOLS.plunger, J.gripR, _q2.setFromAxisAngle(_ax.set(1, 0, 0), 0.08 + k * 0.05));
+  if (TOOLS.drill.visible) { orient(TOOLS.drill, J.gripR, _q2.setFromAxisAngle(_ax.set(0, 1, 0), Math.PI)); bit.rotation.y = time * 60; }
+  if (TOOLS.wrench.visible) { J.gripR.getWorldPosition(_v); _d.copy(nutWorld).sub(_v).normalize(); orient(TOOLS.wrench, J.gripR, _q2.setFromUnitVectors(_ax.set(0, 1, 0), _d)); }
+  if (TOOLS.tablet.visible) { J.gripL.getWorldPosition(_v); J.head.getWorldPosition(_d); _d.sub(_v).normalize(); orient(TOOLS.tablet, J.gripL, _q2.setFromUnitVectors(_ax.set(0, 1, 0), _d)); }
+  if (TOOLS.box.visible) orient(TOOLS.box, J.gripL, _q2.setFromAxisAngle(_ax.set(0, 1, 0), P.rot + Math.PI / 2));
+  floorBox.visible = P.floorBox > 0.5; floorBox.position.set(P.fbx, 0.25, P.fbz); floorBox.rotation.y = 0.4;
+}
+const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _ax = new THREE.Vector3(), _v = new THREE.Vector3(), _d = new THREE.Vector3();
+const nutWorld = new THREE.Vector3(2.9, 0.5, -1.67);
+
+function applyWorld(time, dt) {
+  // sink doors
+  sinkDoorL.rotation.y = -P.doors * 1.75; sinkDoorR.rotation.y = P.doors * 1.75;
+  // drips
+  drops.forEach((d, i) => { const k = ((time * 1.2 + i / 3) % 1); d.position.y = 0.33 - k * 0.2; d.visible = P.leak > 0.05; d.material.opacity = P.leak; });
+  puddle.scale.set(P.leak, 0.7 * P.leak + 0.0001, 1); puddle.visible = P.leak > 0.02;
+  bowlWater.position.y = 0.3 + 0.07 * P.bowl;
+  drawGauge(Math.round(92 + P.gauge * 48));
+  M.flame.opacity = P.flame * (0.75 + Math.sin(time * 30) * 0.15); flameLight.intensity = P.flame * 1.4;
+  SHELF.visible = P.shelf > 0.01; SHELF.position.y = TARGET.y - 0.02 + (1 - P.shelf) * 0.25; SHELF.scale.setScalar(0.9 + P.shelf * 0.1);
+  marks.visible = P.mark > 0.5;
+  // dust from the drill bit
+  dust.material.opacity = P.dust * 0.9;
+  if (P.dust > 0.01) {
+    const a = dust.geometry.attributes.position;
+    for (let i = 0; i < a.count; i++) { const k = ((time * 0.8 + i * 0.137) % 1); const r = rng(i + 1); const rr = [r(), r(), r()]; a.setXYZ(i, TARGET.x - 0.4 + (rr[0] - 0.5) * 0.3 * k, TARGET.y - k * 0.8 * rr[1], ZB + 0.03 + rr[2] * 0.3 * k); }
+    a.needsUpdate = true;
+  }
+  // flowing lines
+  FLOW.forEach(({ glow, room }) => {
+    const o = room < 0 ? Math.max(P.flowAll, ...P.flow) : Math.max(P.flowAll, P.flow[room] || 0);
+    glow.material.opacity = o * 0.9; glow.visible = o > 0.01;
+    glow.material.alphaMap.offset.x = -time * 0.8;
+  });
+}
+
+/* ---------- lock boxes: project fixture bounds to the screen ---------- */
+const LOCK_OBJ = { 1: TRAP, 2: TOI, 3: HEATER, 4: null };
+const v3 = new THREE.Vector3(), bb = new THREE.Box3();
+function rectOf(obj) {
+  if (obj) bb.setFromObject(obj); else bb.set(new THREE.Vector3(TARGET.x - 0.6, TARGET.y - 0.2, ZB), new THREE.Vector3(TARGET.x + 0.6, TARGET.y + 0.25, ZB + 0.3));
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (let i = 0; i < 8; i++) {
+    v3.set(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).project(camera);
+    const sx = (v3.x * 0.5 + 0.5) * size.w, sy = (-v3.y * 0.5 + 0.5) * size.h;
+    x0 = Math.min(x0, sx); x1 = Math.max(x1, sx); y0 = Math.min(y0, sy); y1 = Math.max(y1, sy);
+  }
+  return [x0, y0, x1, y1];
+}
+
+/* ---------- render ---------- */
+const size = { w: 1, h: 1 };
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: lowPower ? 2 : 4 }));
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.22, 0.5, 0.92);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+function setSize(w, h) {
+  size.w = w; size.h = h; renderer.setSize(w, h, false); composer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+const look = new THREE.Vector3();
+let lastT = 0; const lastPos = [3.3, 0.6];
+function render(now) {
+  const time = now / 1000, dt = Math.min(0.05, time - lastT); lastT = time;
+  P.step += Math.hypot(P.x - lastPos[0], P.z - lastPos[1]) / 1.32; lastPos[0] = P.x; lastPos[1] = P.z;
+  const mob = window.PLW3D && window.PLW3D.mobile;
+  camera.position.set(P.cx, P.cy, P.cz);
+  if (mob) { // phones: centre him low in the frame, under the card
+    look.set(P.tx + (P.x - P.tx) * 0.75, P.ty + 0.55, P.tz); camera.position.x += (P.x - P.tx) * 0.75; camera.position.z += 1.2;
+  } else look.set(P.tx, P.ty, P.tz);
+  camera.lookAt(look);
+  const fov = P.fov + (mob ? 16 : 0);
+  if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
+  applyPose(time); applyWorld(time, dt);
+  composer.render();
+}
+window.PLW3D = { P, setSize, render, rectOf: (n) => rectOf(LOCK_OBJ[n]), camera, scene, J, man };
+window.dispatchEvent(new Event("plw3d-ready"));
+
 </script>
 </body>
 </html>
